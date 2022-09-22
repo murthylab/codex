@@ -5,7 +5,7 @@ profile
 *$py.class
 
 # Generated data files
-static/data/*/neuron_db.pickle.gz
+#static/data/*/neuron_data.csv.gz
 
 # Mac
 .DS_Store
