@@ -630,7 +630,7 @@ def neuron_info():
         id=root_id,
         neuron_info=combined_neuron_info,
         charts=charts,
-        load_connections=1 if connectivity else 0
+        load_connections=1 if connectivity and len(connectivity) > 1 else 0
     )
 
 
