@@ -94,7 +94,7 @@ def index(path):
             destination_url = request.url.replace(f'/{path}', f'/{destination_route}')
             log_activity(f"Destination route for {path}: {destination_route}. Redirecting to {destination_url}")
             message = f"The URL you pointed to has permanently moved to " \
-                      f"<a href=\"{destination_url}\">{destination_url}</a> </br>Please " \
+                      f"<a href=\"{destination_url}\">{destination_url.replace('http://', '')}</a> </br>Please " \
                       f"update your bookmark(s) accordingly."
             return render_error(message=message, title="Use updated URL", back_button=0)
         else:
