@@ -118,7 +118,7 @@ class Test(TestCase):
         start_time = datetime.datetime.now()
         parallel_connections = load_connection_table_for_root_ids(sample_root_ids)
         self.assertEqual(57110, len(parallel_connections))
-        self.assertLess((datetime.datetime.now() - start_time).total_seconds(), 4)
+        self.assertLess((datetime.datetime.now() - start_time).total_seconds(), 6)
 
     def test_distance_loading(self):
         sample_root_ids = [720575940637509958, 720575940631472083, 720575940635547113, 720575940640850829,
