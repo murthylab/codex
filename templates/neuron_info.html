@@ -44,6 +44,8 @@
 
 <div class="card-columns"  id="charts_container" style="padding: 5px;"></div>
 
+{% if load_connections %}
 <iframe style="width: 100%; height: 600px;" src="connections?root_ids={{id}}" title="connectivity" loading="lazy"></iframe>
+{% endif %}
 
 {% endblock %}
