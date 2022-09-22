@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Sign In
+{% endblock %}
+
+
+{% block content %}
+    <div class="jumbotron">
+      <div class="container">
+        <h1 class="display-4">CoDE</h1>
+          <br>
+          <h5>Connectome Data Explorer</h5>
+          <p>Analysis tools for the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome</p>
+          <hr class="my-4">
+            <em>Sign in to access CoDE (beta version)</em>
+            <br><br>
+            <script src="https://accounts.google.com/gsi/client" async defer></script>
+                <div id="g_id_onload"
+                     data-client_id="{{client_id}}"
+                     data-ux_mode="redirect"
+                     data-login_uri="/login?redirect_to={{redirect_to}}">
+                </div>
+            <div class="g_id_signin" data-type="standard"></div>
+            <br><br>
+            <em style="color:grey;">If you need help: {{support_email}}</em>
+          <hr class="my-4">
+      </div>
+    </div>
+
+{% endblock %}

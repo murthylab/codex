@@ -1,0 +1,1 @@
+export SKIP_NEURON_DB_LOAD=true && ./run_dev.sh

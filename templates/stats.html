@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Stats
+{% endblock %}
+
+{% block content %}
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  google.charts.load("current", {packages:["corechart"]});
+  google.charts.setOnLoadCallback(drawCharts);
+
+  function drawChart(title, json, elem) {
+    const data = google.visualization.arrayToDataTable(json);
+    const options = {
+      title: title,
+      pieHole: 0.4,
+    };
+    const chart = new google.visualization.PieChart(elem);
+    chart.draw(data, options);
+  }
+  function drawCharts() {
+    data_container = document.getElementById('data_container');
+    {% for k, v in data_charts.items() %}
+        elem = document.createElement('div');
+        elem.setAttribute("class", "card");
+        elem.setAttribute("style", "width: 100%; height: 400px;");
+        data_container.appendChild(elem);
+        drawChart("{{k}}", {{v|tojson}}, elem);
+    {% endfor %}
+  }
+</script>
+
+  <nav class="navbar navbar-light bg-light">
+    <form class="form-inline">
+
+      <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="filter_string" name="filter_string" placeholder="filter stats data" aria-label="Filter" value="{{filter_string}}">
+      <button class="btn btn btn-primary my-2 my-sm-0" type="submit">&#128269;</button>
+
+      {% if hint %}
+        <button class="btn btn-btn-link" style="color: blue;" type="button" onclick="document.getElementById('filter_string').value = '{{hint}}'; this.form.submit();">Search for '<b>{{hint}}</b>'?</button>
+      {% endif %}
+      {% if filter_string and num_items %}
+        <a class="btn btn-success" style="margin-left: 5px;" title="Show Matching Items" href="{{url_for('search', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" >&#128466;</a>
+      {% endif %}
+
+      <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Settings" data-toggle="modal" data-target="#filterModal">&#9881;</button>
+      <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" style="color:blue;" id="filterModalLabel">Settings</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                  <label style="margin: 20px;">Match</label>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="case_sensitive" name="case_sensitive" value="1" {{ 'checked' if case_sensitive==1}}>
+                    <label class="form-check-label" for="case_sensitive">Case sensitive</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="whole_word" name="whole_word" value="1" {{ 'checked' if whole_word==1}}>
+                    <label class="form-check-label" for="whole_word">Whole word</label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label style="margin: 20px;">Data version</label>
+                  <select style="margin: 20px;" class="form-select form-select-lg mb-3" aria-label="Data Version" name="data_version">
+                    {% for v in data_versions %}
+                      <option value="{{v}}" {{ 'selected' if data_version==v}}>{{v}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary">Reset</button>
+              <button type="button" class="btn btn-primary" onclick="this.form.submit()">Apply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </nav>
+
+{% if filter_string %}
+<h6 style="margin-left: 15px; margin-top: 5px; color: grey; font-size: 11px;">{{caption}} ({{"{:,}".format(num_items)}} matches)</h6>
+{% endif %}
+
+<div class="card border-primary mb-3" style="margin: 5px;">
+      <div class="body">
+          <div class="card-columns"  id="data_container" style="padding: 5px;">
+            {% for k_l2, d_l2 in data_stats.items() %}
+            <div class="card">
+                {% if k_l2 %}
+                <div class="card-header">
+                    {{k_l2}}
+                </div>
+                {% endif %}
+                <div style="overflow-x:auto;">
+                <table class="table">
+                  <tbody>
+                    {% for k_l3, v_l3 in d_l2.items() %}
+                    <tr>
+                        <td><b>{{k_l3}}</b></td>
+                        <td style="text-align: end;">{{v_l3}}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                </div>
+            </div>
+            {% endfor %}
+          </div>
+      </div>
+</div>
+{% endblock %}

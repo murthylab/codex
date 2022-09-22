@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}
+    About
+{% endblock %}
+
+{% block content %}
+    <div class="card bg-light mb-3" style="margin: 10px;">
+      <div class="card-header" style="color: purple; font-size: 18px;">
+          About
+      </div>
+      <div class="card-body">
+        <h6>Developers</h6>
+        <ul>
+            <li>Arie Matsliah (arie@princeton.edu), Research Scientist, <a href="https://murthylab.princeton.edu/" target="_blank">Murthy Lab</a> @ Princeton Neuroscience Institute
+            <li>Sven M. Dorkenwald  (svenmd@princeton.edu), Ph.D. Student, <a href="https://seunglab.org/" target="_blank">Seung Lab</a> @ Princeton Neuroscience Institute
+        </ul>
+        <h6>Links and Resources</h6>
+        <ul>
+            <li>The <a href="https://flywire.ai" target="_blank">FlyWire</a> Project: A human-AI collaboration to map the fly connectome</li>
+            <li>CoDE <a href="https://github.com/murthylab/code" target="_blank">source code</a> (type in your GitHub handle below to request access)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card bg-light mb-3" style="margin: 10px;">
+      <div class="card-header" style="color: purple; font-size: 18px;">
+          Feedback / Questions
+      </div>
+      <div class="card-body">
+          <form style="margin-top: 10px;">
+                {% if message_sent %}
+              <div class="toast-body" style="color: gray;">
+                Message sent
+              </div>
+                {% else %}
+              <textarea class="form-control" id="user_message" rows="2" minlength="5" name="user_message" placeholder="Type your message and we'll reply to '{{user_email}}'"></textarea>
+              <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">Send</button>
+                {% endif %}
+          </form>
+      </div>
+    </div>
+    <div class="card bg-light mb-3" style="margin: 10px;">
+      <div class="card-header" style="color: purple; font-size: 18px;">
+        Account
+      </div>
+      <div class="card-body">
+          <div>
+            <img src="{{user_picture|safe}}">
+            <p style="margin-left: 10px; display: inline-block; vertical-align: top;">{{user_name}}<br>{{user_email}}<br><br><a href="/app/activity_log">Activity log</a> &nbsp;&#8286;&nbsp; <a href="/logout">Sign out &#10132</a></p>
+          </div>
+      </div>
+    </div>
+    <div class="card bg-light mb-3" style="margin: 10px;">
+      <div class="card-header" style="color: purple; font-size: 18px;">
+          App Details
+      </div>
+      <div class="card-body">
+        <h6>Build</h6>
+        <ul>
+            <li>Commit <a href="https://github.com/murthylab/code/commit/{{build_git_sha}}" target="_blank">git sha</a></li>
+            <li>Built on {{build_timestamp}}</li>
+        </ul>
+        <h6>Instance</h6>
+        <ul>
+            <li>Process id {{instance_proc_id}} ({{instance_host_name}})</li>
+            <li>Uptime {{instance_uptime}} ({{instance_num_requests}} requests)</li>
+        </ul>
+      </div>
+    </div>
+
+{% endblock %}

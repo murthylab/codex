@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+    table {
+      border-collapse: collapse;
+      border-spacing: 0;
+      width: 100%;
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px;
+    }
+
+    tr:nth-child(even){background-color: #f2f2f2}
+    </style>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+    <!-- Title -->
+    <title>{% block title %}CoDE{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
+      <a id='nav_home' class="navbar-brand mb-0 h1" href="{{url_for('index')}}">CoDE</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" id="nav_search" href="{{url_for('search')}}">Search</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav_stats" href="{{url_for('stats')}}">Stats</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav_explore" href="{{url_for('explore')}}">Explore</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav_labeling_suggestions" href="{{url_for('labeling_suggestions')}}">Labeling Suggestions</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav_nblast" href="{{url_for('nblast')}}">NBLAST</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav_path_length" href="{{url_for('path_length')}}">Path Length</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav_faq" href="{{url_for('faq')}}">FAQ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav_about" href="{{url_for('about')}}">Info</a>
+          </li>
+
+          <script>
+              function nav_elem_id(cur_url) {
+                let tabs = ['search', 'stats', 'explore', 'labeling_suggestions', 'nblast', 'path_length', 'faq', 'about'];
+                for (const tab of tabs){
+                    if (cur_url.includes(tab)) {
+                      return 'nav_' + tab;
+                    }
+                }
+                return 'nav_home';
+              }
+              elem_id = nav_elem_id(window.location.href);
+              document.getElementById(elem_id).style.color = 'blue';
+          </script>
+        </ul>
+      </div>
+    </nav>
+
+    <div id="contentBody">
+    {% block content %} {% endblock %}
+    </div>
+
+    <div id="loadingSpinner" hidden="hidden">
+      <div class="d-flex justify-content-center" style="margin: 50px;">
+        <strong style="margin-right: 20px;">Loading...</strong>
+        <div class="spinner-border" role="status" aria-hidden="true" style="color: orange;"></div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+        function loading() {
+            document.getElementById("contentBody").hidden='true';
+            document.getElementById("loadingSpinner").hidden='';
+        }
+    </script>
+
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="jumbotron">
+      <div class="container">
+        <h1 class="display-4">CoDE</h1>
+          <br>
+          <h5>Connectome Data Explorer</h5>
+          <p>Analysis tools for the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome</p>
+          <hr class="my-4">
+          <p>
+                <em>Search for cells with FlyWire annotations assigned by community experts</em>
+                <br><br>
+                <a class="btn btn-primary" href="{{url_for('search')}}" role="button">Find cells by name, label, class, ... &#10132</a>
+          </p>
+          <p>
+                <em>Review and accept/reject automatically assigned labels</em>
+                <br><br>
+                <a class="btn btn-primary" href="{{url_for('labeling_suggestions')}}" role="button">Automated labeling suggestions &#10132</a>
+          </p>
+          <hr class="my-4">
+      </div>
+    </div>
+
+{% endblock %}

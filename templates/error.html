@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Error!
+{% endblock %}
+
+{% block content %}
+    <div class="card bg-light mb-3" style="margin: 10px;" id="error">
+      <div class="card-header" style="color: red; font-size: 18px;">
+          {{title|safe}}
+      </div>
+      <div class="card-body">
+          <p class="lead">{{message|safe}}</p>
+          <form>
+              <input class="btn btn-primary btn-sm" type="button" value="Back" onclick="history.back()">
+          </form>
+      </div>
+    </div>
+
+    <div class="card bg-light mb-3" style="margin: 10px;" id="other_questions">
+      <div class="card-header" style="color: green; font-size: 18px;">
+          Need help?
+      </div>
+      <div class="card-body">
+          <form style="margin-top: 10px;">
+                {% if message_sent %}
+              <div class="toast-body" style="color: gray;">
+                Message sent
+              </div>
+                {% else %}
+              <textarea class="form-control" id="user_message" rows="2" name="user_message" placeholder="Submit your question here and we'll reply to '{{user_email}}'"></textarea>
+              <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">Submit</button>
+                {% endif %}
+          </form>
+      </div>
+    </div>
+
+{% endblock %}
