@@ -102,12 +102,14 @@ def load_connection_table_for_root_id(root_id):
         except Exception as e:
             log_error(f"Exception while loading connection table for {root_id}: {e}")
 
-def load_connections_for_root_id(root_id):
+def load_connections_for_root_id(root_id, min_syn_cnt=5):
     root_id = int(root_id)
     table = load_connection_table_for_root_id(root_id)
     downstream = []
     upstream = []
     for r in table:
+        if r[3] < min_syn_cnt:
+            continue
         if r[0] == root_id:
             downstream.append(r[1])
         else:

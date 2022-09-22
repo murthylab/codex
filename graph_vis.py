@@ -40,8 +40,11 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
     cell_to_pil_counts = defaultdict(int)
     pil_to_cell_counts = defaultdict(int)
     for r in connection_table:
-        cell_to_pil_counts[(r[0], r[2])] += r[3]
-        pil_to_cell_counts[(r[2], r[1])] += r[3]
+        pil_name = r[2]
+        if not pil_name or pil_name == 'None':
+            pil_name = 'Neuropil NA'
+        cell_to_pil_counts[(r[0], pil_name)] += r[3]
+        pil_to_cell_counts[(pil_name, r[1])] += r[3]
 
     added_cell_nodes = set()
 
@@ -61,28 +64,30 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
 
     added_pil_nodes = set()
 
-    def add_pil_node(pil):
-        if pil not in added_pil_nodes:
+    def add_pil_node(pil, is_input):
+        nid = f"{pil}_{'in' if is_input else 'out'}"
+        if nid not in added_pil_nodes:
             net.add_node(
-                pil,
-                label=f"{pil}",
-                title=f"Neuropil {pil}",
+                nid,
+                label=f"{pil} ({'in' if is_input else 'out'})",
+                title=f"{'Inputs from' if is_input else 'Outputs to'} neuropil {pil}",
                 physics=node_physics,
                 shape='box',
                 size=20
             )
-            added_pil_nodes.add(pil)
+            added_pil_nodes.add(nid)
+        return nid
 
     # add the most significant connections first
-    max_nodes = 50
+    max_nodes = 30
     for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:max_nodes]:
         add_cell_node(k[0])
-        add_pil_node(k[1])
-        net.add_edge(k[0], k[1], value=v, physics=edge_physics)
+        pnid = add_pil_node(k[1], is_input=k[0] != center_id)
+        net.add_edge(k[0], pnid, value=v, physics=edge_physics)
     for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[:max_nodes]:
         add_cell_node(k[1])
-        add_pil_node(k[0])
-        net.add_edge(k[0], k[1], value=v, physics=edge_physics)
+        pnid = add_pil_node(k[0], is_input=k[1] == center_id)
+        net.add_edge(pnid, k[1], value=v, physics=edge_physics)
 
     # bundle any remaining connections (to prevent too large graphs)
     def add_super_cell_node():
@@ -114,36 +119,43 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
         return spid
 
     # also apply limit on bundled nodes/edges (scaling issues)
+    added_super_edge_pairs = set()
+
+    def add_super_edge(f, t, v):
+        if (f, t) not in added_super_edge_pairs:
+            net.add_edge(f, t, value=v, physics=edge_physics)
+            added_super_edge_pairs.add((f, t))
+
     for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[max_nodes:2*max_nodes]:
         if k[0] in added_cell_nodes:
             if k[1] in added_pil_nodes:
-                net.add_edge(k[0], k[1], value=v, physics=edge_physics)
+                add_super_edge(k[0], k[1], v)
             else:
                 sp = add_super_pil_node()
-                net.add_edge(k[0], sp, value=v, physics=edge_physics)
+                add_super_edge(k[0], sp, v)
         else:
             if k[1] in added_pil_nodes:
                 sc = add_super_cell_node()
-                net.add_edge(sc, k[1], value=v, physics=edge_physics)
+                add_super_edge(sc, k[1], v)
             else:
                 sc = add_super_cell_node()
                 sp = add_super_pil_node()
-                net.add_edge(sc, sp, value=v, physics=edge_physics)
+                add_super_edge(sc, sp, v)
 
     for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[max_nodes:2*max_nodes]:
         if k[1] in added_cell_nodes:
             if k[0] in added_pil_nodes:
-                net.add_edge(k[0], k[1], value=v, physics=edge_physics)
+                add_super_edge(k[0], k[1], v)
             else:
                 sp = add_super_pil_node()
-                net.add_edge(sp, k[1], value=v, physics=edge_physics)
+                add_super_edge(sp, k[1], v)
         else:
             if k[0] in added_pil_nodes:
                 sc = add_super_cell_node()
-                net.add_edge(k[0], sc, value=v, physics=edge_physics)
+                add_super_edge(k[0], sc, v)
             else:
                 sc = add_super_cell_node()
                 sp = add_super_pil_node()
-                net.add_edge(sp, sc, value=v, physics=edge_physics)
+                add_super_edge(sp, sc, v)
 
     return net.generate_html()
