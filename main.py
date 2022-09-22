@@ -94,9 +94,9 @@ def index(path):
             destination_url = request.url.replace(f'/{path}', f'/{destination_route}')
             log_activity(f"Destination route for {path}: {destination_route}. Redirecting to {destination_url}")
             message = f"The URL you pointed to has permanently moved to " \
-                      f"<a href=\"{destination_url}\">{destination_url}</a>. Please " \
+                      f"<a href=\"{destination_url}\">{destination_url}</a> </br>Please " \
                       f"update your bookmark(s) accordingly."
-            return render_error(message=message, title="Use updated URL")
+            return render_error(message=message, title="Use updated URL", back_button=0)
         else:
             if 'favicon.ico' != path:
                 log_error(f"No destination found for {path=}, redirecting to home page")
@@ -139,9 +139,9 @@ def logout():
     return render_auth_page()
 
 
-def render_error(message='No details available.', title='Something went wrong'):
-    log_error(f"Rendering error: {message}")
-    return redirect(f'/error?message={message}&title={title}')
+def render_error(message='No details available.', title='Something went wrong', back_button=1):
+    log_error(f"Rendering error: {message=} {title=}")
+    return redirect(f'/error?message={message}&title={title}&back_button={back_button}')
 
 
 def render_info(message='Operation complete.'):
@@ -209,12 +209,15 @@ def error():
     log_activity(f"Loading Error page")
     message = request.args.get('message', 'Unexpected error')
     title = request.args.get('title', 'Request failed')
+    back_button = request.args.get('back_button', 1, type=int)
     message_sent = False
     if request.method == 'POST':
         msg = request.form.get('user_message')
         log_user_help(f'From Error page with title {title} and message {message}: {msg}')
         message_sent = True
-    return render_template("error.html", message=message, title=title, message_sent=message_sent,
+    return render_template("error.html", message=message, title=title,
+                           back_button=back_button,
+                           message_sent=message_sent,
                            user_email=session.get('id_info', {}).get('email', 'email missing'), )
 
 
