@@ -629,7 +629,8 @@ def neuron_info():
         caption=f'Cell {root_id}',
         id=root_id,
         neuron_info=combined_neuron_info,
-        charts=charts
+        charts=charts,
+        load_connections=1 if connectivity else 0
     )
 
 
