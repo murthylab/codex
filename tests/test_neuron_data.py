@@ -125,10 +125,10 @@ class NeuronDataTest(TestCase):
 
     def test_downstream_upstream_queries(self):
         downstream = self.neuron_db.search('{downstream} 720575940629495808')
-        self.assertEqual(384, len(downstream))
+        self.assertEqual(55, len(downstream))
 
         upstream = self.neuron_db.search('{upstream} 720575940629495808')
-        self.assertEqual(244, len(upstream))
+        self.assertEqual(18, len(upstream))
 
     def test_structured_query_parsing(self):
         # free form
