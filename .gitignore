@@ -4,8 +4,8 @@ profile
 *.py[cod]
 *$py.class
 
-# Generated data files
-#static/data/*/neuron_data.csv.gz
+# Source data files
+static/data/*/neuron_data.csv.gz
 
 # Mac
 .DS_Store
