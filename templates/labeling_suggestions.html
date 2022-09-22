@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %} Labeling Suggestions {% endblock %}
+{% block content %}
+
+<p style="color: red; margin-left: 20px;">This page is not hooked up to a database yet, and accept/reject buttons have no effect at the moment. Feel free to browse and click around.</p>
+
+  <nav class="navbar navbar-light bg-light">
+    <form class="form-inline">
+
+      <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="filter_string" name="filter_string" placeholder="filter labeling suggestions" aria-label="Filter" value="{{filter_string}}">
+      <button class="btn btn btn-primary my-2 my-sm-0" type="submit">&#128269;</button>
+
+      {% if hint %}
+        <button class="btn btn-btn-link" style="color: blue;" type="button" onclick="document.getElementById('filter_string').value = '{{hint}}'; this.form.submit();">Search for '<b>{{hint}}</b>'?</button>
+      {% endif %}
+
+    </form>
+  </nav>
+
+{% if num_items or filter_string %}
+  <h6 style="margin-left: 15px; margin-top: 5px; color: grey; font-size: 11px;">{{"{:,}".format(num_items)}} matches</h6>
+{% endif %}
+
+
+{% if num_items %}
+  <div style="overflow-x:auto;">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">From Cell ID</th>
+        <th scope="col">Label(s)</th>
+        <th scope="col">Assign to Cell ID</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for neuron in display_data %}
+          <tr>
+            <td><a href="{{url_for('neuron_info', root_id=neuron.root_id)}}" target="_blank">{{neuron.inherited_tag_root_id}} &#10132</a></td>
+            <td>{{neuron.annotations}}</td>
+            <td><a href="{{url_for('neuron_info', root_id=neuron.root_id)}}" target="_blank">&#10132 {{neuron.root_id}}</a></td>
+            <td><a class="btn btn-outline-primary" href="{{url_for('flywire_url', root_id=neuron.inherited_tag_root_id, extra_root_id=neuron.root_id)}}" target="_blank" role="button" title="Compare in FlyWire" >Compare &#128270;</a></td>
+            <td><a class="btn btn-outline-success" role="button" title="Accept" href="{{url_for('accept_label_suggestion', from_root_id=neuron.root_id, to_root_id=neuron.inherited_tag_root_id)}}">Accept &#10003</a></td>
+            <td><a class="btn btn-outline-danger" role="button" title="Reject" href="{{url_for('reject_label_suggestion', from_root_id=neuron.root_id, to_root_id=neuron.inherited_tag_root_id)}}">Reject &#10007</a></td>
+          </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+
+{% if num_items %}
+  <ul class="pagination my-2" style="margin-left: 10px; margin-bottom: 10px;">
+    {% for page_info in pagination_info %}
+      <li class="page-item {{page_info.status}}">
+        <a class="page-link" href="{{url_for('labeling_suggestions', page_number=page_info.number, filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" >{{page_info.label}}</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% endif %}
+{% endblock %}

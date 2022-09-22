@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Info
+{% endblock %}
+
+{% block content %}
+    <div class="jumbotron">
+      <div class="container">
+        <p class="lead">{{message|safe}}</p>
+
+        <a class="btn btn-success" style="margin-left: 15px;" href="{{url_for('index')}}" >Back to Homepage</a>
+      </div>
+
+    </div>
+{% endblock %}

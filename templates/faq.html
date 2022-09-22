@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}
+    FAQ
+{% endblock %}
+
+{% block content %}
+
+    <div id="accordion">
+      {% for id, qa in faq_dict.items() %}
+      <div class="card">
+        <div class="card-header" id="heading_{{id}}">
+          <h5 class="mb-0">
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapse_{{id}}" aria-expanded="true" aria-controls="collapse_{{id}}">
+              {{qa['q']|safe}}
+            </button>
+          </h5>
+        </div>
+        <div id="collapse_{{id}}" class="collapse show" aria-labelledby="heading_{{id}}" data-parent="#accordion">
+          <div class="card-body">
+              {{qa['a']|safe}}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+
+    <div class="card bg-light mb-3" style="margin: 10px;" id="other_questions">
+      <div class="card-header" style="color: purple; font-size: 18px;">
+          Other questions?
+      </div>
+      <div class="card-body">
+          <form style="margin-top: 10px;">
+                {% if message_sent %}
+              <div class="toast-body" style="color: gray;">
+                Message sent
+              </div>
+                {% else %}
+              <textarea class="form-control" id="user_message" rows="2" minlength="5" name="user_message" placeholder="Submit your question here and we'll reply to '{{user_email}}'"></textarea>
+              <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">Submit</button>
+                {% endif %}
+          </form>
+      </div>
+    </div>
+
+{% endblock %}
