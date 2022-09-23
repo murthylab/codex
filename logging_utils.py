@@ -75,13 +75,15 @@ def log(msg):
     print(msg)
     return msg
 
-def _post_to_slk(text, real_user_activity, hk):
-    if not hk:
-        hk = SLKHKACT if real_user_activity else SLCKHKHB # dedicated hook for test/dev/heartbit query logs
-    res = requests.post(hk,
-                        data=json.dumps({"text": text, "unfurl_links": False}),
-                        headers={'Content-Type': 'application/json'})
-    log(f"SLK post response: {res}")
+def _post_to_slk(text, real_user_activity, extra_hk):
+    hks = [SLKHKACT if real_user_activity else SLCKHKHB]  # default or hook for test/dev/heartbit query logs
+    if extra_hk:
+        hks.append(extra_hk)  # additional channels (optional)
+    res = [requests.post(hk,
+                         data=json.dumps({"text": text, "unfurl_links": False}),
+                         headers={'Content-Type': 'application/json'})
+           for hk in hks]
+    log(f"SLK post response(s): {res}")
 
 def post_to_slk(text, hk=None):
     real_user_activity = not DEV_LOGGING and not _is_smoke_test_request()
