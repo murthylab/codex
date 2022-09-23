@@ -532,37 +532,35 @@ def neuron_info():
     log_activity(f"Generating neuron info {activity_suffix(root_id, data_version)}")
     nd = neuron_db.get_neuron_data(root_id=root_id)
     combined_neuron_info = {
-        'Kind': f'{nd["kind"]} <a class="btn btn-link" href="{nglui_utils.url_for_root_ids([root_id])}"'
-                f' target="_blank">Open in FlyWire &#10132;</a>',
-        'Neurotransmitter': f"{nd['nt_type']}",
+        'Type': nd['nt_type'],
         'Classification': nd['class'],
-        'Annotations & Coordinates': '<br>'.join(nd['tag'] + nd['position']),
+        #'Labels & Coordinates': '<br>'.join(nd['tag'] + nd['position']),
+        'Labels': '<br>'.join(nd['tag']),
     }
 
     def insert_neuron_list_links(key, ids, search_endpoint=None):
         if ids:
             ids = set(ids)
-            txt = f'{len(ids)} Cell' + ('s' if len(ids) > 1 else '')
             comma_separated_root_ids = ', '.join([str(rid) for rid in ids])
             if not search_endpoint:
                 search_endpoint = f'search?filter_string=id << {comma_separated_root_ids}'
-            search_link = f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{txt} &#128269;</a>'
-            nglui_link = f'<a class="btn btn-link" href="{nglui_utils.url_for_root_ids([root_id] + list(ids))}"' \
-                         f' target="_blank">Open in FlyWire &#10132;</a>'
-            combined_neuron_info[key] = f'{search_link} | {nglui_link}'
+            search_link = f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{len(ids)} {key}</a>'
+            nglui_link = f'<a class="btn btn-info btn-sm" href="{nglui_utils.url_for_root_ids([root_id] + list(ids))}"' \
+                         f' target="_blank">FlyWire</a>'
+            combined_neuron_info[search_link] = nglui_link
 
     top_nblast_matches = [i[0] for i in (
                 gcs_data_loader.load_nblast_scores_for_root_id(root_id, sort_highest_score=True, limit=10) or []) if
                           i[1] > 0.4 and i[0] != root_id]
-    insert_neuron_list_links('NBLAST matches', top_nblast_matches)
+    insert_neuron_list_links('cells with similar morphology (NBLAST based)', top_nblast_matches)
 
     similar_root_ids = [i[0] for i in zip(nd['similar_root_ids'], nd['similar_root_id_scores']) if
                         i[1] > 12 and i[0] != root_id]
-    insert_neuron_list_links('Neuropil projection matches', similar_root_ids)
+    insert_neuron_list_links('cells with similar neuropil projection', similar_root_ids)
 
     symmetrical_root_ids = [i[0] for i in zip(nd['symmetrical_root_ids'], nd['symmetrical_root_id_scores']) if
                             i[1] > 12 and i[0] != root_id]
-    insert_neuron_list_links('Mirrored neuropil projection matches', symmetrical_root_ids)
+    insert_neuron_list_links('cells with similar neuropil projection in opposite hemisphere', symmetrical_root_ids)
 
     connectivity = gcs_data_loader.load_connection_table_for_root_id(root_id)
     if connectivity and min_syn_cnt:
@@ -583,9 +581,9 @@ def neuron_info():
                 input_neuropil_synapse_count[r[2]] += r[3]
                 input_nt_type_count[r[4].upper()] += r[3]
 
-        insert_neuron_list_links('Input cells (upstream)', upstream,
+        insert_neuron_list_links('input cells (upstream)', upstream,
                                  search_endpoint='search?filter_string={upstream}' + str(root_id))
-        insert_neuron_list_links('Output cells (downstream)', downstream,
+        insert_neuron_list_links('output cells (downstream)', downstream,
                                  search_endpoint='search?filter_string={downstream}' + str(root_id))
 
         charts = {}
@@ -629,7 +627,8 @@ def neuron_info():
     log_activity(f"Generated neuron info for {root_id} with {len(combined_neuron_info)} items")
     return render_template(
         "neuron_info.html",
-        caption=f'Cell {root_id}',
+        caption=f"{nd['kind']}",
+        subcaption=f"{root_id}",
         id=root_id,
         neuron_info=combined_neuron_info,
         charts=charts,
