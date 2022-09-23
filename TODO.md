@@ -13,7 +13,11 @@
 1. table loading - share code
 1. suggestions for class propagation
 1. account history
-1. streamline activity logs
+1. get rid of NBLAST / path tabs
+1. clickable neuropils
+1. larger graph on neuron info
+1. legend for nodes in graphs
+1. remove slackbot posts
 
 
 ## User feedback
