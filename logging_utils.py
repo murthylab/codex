@@ -17,6 +17,13 @@ host_name = socket.gethostname()
 startup_time = datetime.datetime.now()
 def uptime(millis=True):
     ut = str(datetime.datetime.now() - startup_time)
+
+    # remove leading zeroes and colons
+    for i, c in enumerate(ut):
+        if c not in [':', '0']:
+            ut = ut[i:]
+            break
+
     parts = ut.split('.')
     if millis:
         return f'{parts[0]}.{parts[1][:2]}'
@@ -91,17 +98,17 @@ def post_to_slk(text, hk=None):
 
 
 def log_activity(msg):
-    msg = log(f'ACTIVITY > {msg}')
+    msg = log(f':eyes: > {msg}')
     post_to_slk(msg)
 
 
 def log_error(msg):
-    msg = log(f'ERROR > {msg}')
+    msg = log(f':warning: > {msg}')
     post_to_slk(msg, hk=SLCKHKSOS)
 
 
 def log_user_help(msg):
-    msg = log(f'HELP > {msg}')
+    msg = log(f':sos: > {msg}')
     post_to_slk(msg, hk=SLCKHKSOS)
 
 
