@@ -549,19 +549,6 @@ def neuron_info():
                          f' target="_blank">FlyWire</a>'
             combined_neuron_info[search_link] = nglui_link
 
-    top_nblast_matches = [i[0] for i in (
-                gcs_data_loader.load_nblast_scores_for_root_id(root_id, sort_highest_score=True, limit=10) or []) if
-                          i[1] > 0.4 and i[0] != root_id]
-    insert_neuron_list_links('cells with similar morphology (NBLAST based)', top_nblast_matches)
-
-    similar_root_ids = [i[0] for i in zip(nd['similar_root_ids'], nd['similar_root_id_scores']) if
-                        i[1] > 12 and i[0] != root_id]
-    insert_neuron_list_links('cells with similar neuropil projection', similar_root_ids)
-
-    symmetrical_root_ids = [i[0] for i in zip(nd['symmetrical_root_ids'], nd['symmetrical_root_id_scores']) if
-                            i[1] > 12 and i[0] != root_id]
-    insert_neuron_list_links('cells with similar neuropil projection in opposite hemisphere', symmetrical_root_ids)
-
     connectivity = gcs_data_loader.load_connection_table_for_root_id(root_id)
     if connectivity and min_syn_cnt:
         connectivity = [r for r in connectivity if r[3] >= min_syn_cnt]
@@ -620,6 +607,19 @@ def neuron_info():
             )
     else:
         charts = {}
+
+    top_nblast_matches = [i[0] for i in (
+                gcs_data_loader.load_nblast_scores_for_root_id(root_id, sort_highest_score=True, limit=10) or []) if
+                          i[1] > 0.4 and i[0] != root_id]
+    insert_neuron_list_links('cells with similar morphology (NBLAST based)', top_nblast_matches)
+
+    similar_root_ids = [i[0] for i in zip(nd['similar_root_ids'], nd['similar_root_id_scores']) if
+                        i[1] > 12 and i[0] != root_id]
+    insert_neuron_list_links('cells with similar neuropil projection', similar_root_ids)
+
+    symmetrical_root_ids = [i[0] for i in zip(nd['symmetrical_root_ids'], nd['symmetrical_root_id_scores']) if
+                            i[1] > 12 and i[0] != root_id]
+    insert_neuron_list_links('cells with similar neuropil projection in opposite hemisphere', symmetrical_root_ids)
 
     # remove empty items
     combined_neuron_info = {k: v for k, v in combined_neuron_info.items() if v}
