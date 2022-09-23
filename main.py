@@ -148,6 +148,9 @@ def render_info(message='Operation complete.'):
     log_activity(f"Rendering info: {message}")
     return render_template("info.html", message=f'{message}')
 
+def activity_suffix(filter_string, data_version):
+    return (f"for '{filter_string}'" if filter_string else '') + \
+           (f' (v{data_version})' if data_version != neuron_data_factory.latest_data_version() else '')
 
 @app.route('/app/stats')
 @request_wrapper
@@ -157,16 +160,16 @@ def stats():
     case_sensitive = request.args.get('case_sensitive', 0, type=int)
     whole_word = request.args.get('whole_word', 0, type=int)
 
-    log_activity(f"Generating stats for '{filter_string}' (v{data_version})")
+    log_activity(f"Generating stats {activity_suffix(filter_string, data_version)}")
     num_items, hint, caption, data_stats, data_charts = _stats_cached(
         filter_string=filter_string, data_version=data_version, case_sensitive=case_sensitive, whole_word=whole_word
     )
     if num_items:
         log_activity(
-            f"Stats got {num_items} results for '{filter_string}'"
+            f"Stats got {num_items} results {activity_suffix(filter_string, data_version)}"
         )
     else:
-        log_activity(f"No stats for '{filter_string}', sending hint: {hint}")
+        log_activity(f"No stats {activity_suffix(filter_string, data_version)}, sending hint '{hint}'")
 
     return render_template(
         "stats.html",
@@ -193,7 +196,7 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
         hint = None
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
-        log_error(f"No stats results for {filter_string}. Sending hint {hint}")
+        log_error(f"No stats results for {filter_string}. Sending hint '{hint}'")
 
     data = [neuron_db.get_neuron_data(i) for i in filtered_root_id_list]
     caption, data_stats, data_charts = stats_utils.compile_data(
@@ -334,15 +337,15 @@ def search():
     neuron_db = neuron_data_factory.get(data_version)
     hint = None
 
-    log_activity(f"Searching for '{filter_string}' at page {page_number} (v{data_version})")
+    log_activity(f"Loading search page {page_number} {activity_suffix(filter_string, data_version)}")
     filtered_root_id_list = neuron_db.search(
         filter_string, case_sensitive=case_sensitive, word_match=whole_word
     )
     if filtered_root_id_list:
-        log_activity(f"Got {len(filtered_root_id_list)} results for '{filter_string}'")
+        log_activity(f"Got {len(filtered_root_id_list)} search results {activity_suffix(filter_string, data_version)}")
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
-        log_error(f"No results for '{filter_string}', sending hint: {hint}")
+        log_error(f"No results for '{filter_string}', sending hint '{hint}'")
 
     return render_neuron_list(
         data_version=data_version,
@@ -368,14 +371,14 @@ def labeling_suggestions():
 
     hint = None
 
-    log_activity(f"Loading labeling suggestions with filter '{filter_string}' and page {page_number} (v{data_version})")
+    log_activity(f"Loading labeling suggestions page {page_number} {activity_suffix(filter_string, data_version)}")
     filtered_root_id_list = neuron_db.search_in_neurons_with_inherited_labels(filter_string)
 
     if filtered_root_id_list:
-        log_activity(f"Got {len(filtered_root_id_list)} labeling suggestion results for '{filter_string}'")
+        log_activity(f"Got {len(filtered_root_id_list)} labeling suggestions {activity_suffix(filter_string, data_version)}")
     else:
         hint = neuron_db.closest_token_from_inherited_tags(filter_string, case_sensitive=case_sensitive)
-        log_activity(f"No labeling suggestion results for '{filter_string}', sending hint: {hint}")
+        log_activity(f"No labeling suggestion results {activity_suffix(filter_string, data_version)}, sending hint '{hint}'")
 
     return render_neuron_list(
         data_version=data_version,
@@ -436,12 +439,12 @@ def download_search_results():
     whole_word = request.args.get('whole_word', 0, type=int)
     neuron_db = neuron_data_factory.get(data_version)
 
-    log_activity(f"Downloading search results for '{filter_string}' (v{data_version})")
+    log_activity(f"Downloading search results {activity_suffix(filter_string, data_version)}")
     filtered_root_id_list = neuron_db.search(
         search_query=filter_string, case_sensitive=case_sensitive, word_match=whole_word
     )
     log_activity(
-        f"For download got {len(filtered_root_id_list)} results for '{filter_string}'"
+        f"For download got {len(filtered_root_id_list)} results {activity_suffix(filter_string, data_version)}"
     )
 
     cols = ['root_id', 'annotations', 'kind', 'nt_type', 'class', 'hemisphere_fingerprint']
@@ -468,12 +471,12 @@ def root_ids_from_search_results():
     whole_word = request.args.get('whole_word', 0, type=int)
     neuron_db = neuron_data_factory.get(data_version)
 
-    log_activity(f"Listing Cell IDs for '{filter_string}' (v{data_version})")
+    log_activity(f"Listing Cell IDs {activity_suffix(filter_string, data_version)}")
     filtered_root_id_list = neuron_db.search(
         search_query=filter_string, case_sensitive=case_sensitive, word_match=whole_word
     )
     log_activity(
-        f"For list cell ids got {len(filtered_root_id_list)} results for '{filter_string}'"
+        f"For list cell ids got {len(filtered_root_id_list)} results {activity_suffix(filter_string, data_version)}"
     )
     fname = f"root_ids_{re.sub('[^0-9a-zA-Z]+', '_', filter_string)}.txt"
     return Response(
@@ -494,16 +497,16 @@ def search_results_flywire_url():
     whole_word = request.args.get('whole_word', 0, type=int)
     neuron_db = neuron_data_factory.get(data_version)
 
-    log_activity(f"Generating URL search results for '{filter_string}' (v{data_version})")
+    log_activity(f"Generating URL search results {activity_suffix(filter_string, data_version)}")
     filtered_root_id_list = neuron_db.search(
         filter_string, case_sensitive=case_sensitive, word_match=whole_word
     )
     log_activity(
-        f"For URLs got {len(filtered_root_id_list)} results for '{filter_string}'"
+        f"For URLs got {len(filtered_root_id_list)} results {activity_suffix(filter_string, data_version)}"
     )
 
     url = nglui_utils.url_for_random_sample(filtered_root_id_list, MAX_NEURONS_FOR_DOWNLOAD)
-    log_activity(f"Redirecting results for {filter_string} to {format_link(url)}")
+    log_activity(f"Redirecting results {activity_suffix(filter_string, data_version)} to FlyWire {format_link(url)}")
     return redirect(url, code=302)
 
 
@@ -515,7 +518,7 @@ def flywire_url():
     if extra_root_id:
         root_ids.append(int(extra_root_id))
     url = nglui_utils.url_for_root_ids(root_ids)
-    log_activity(f"Redirecting for {root_ids} to {format_link(url)}")
+    log_activity(f"Redirecting for {root_ids} to FlyWire {format_link(url)}")
     return redirect(url, code=302)
 
 
@@ -526,7 +529,7 @@ def neuron_info():
     min_syn_cnt = request.args.get('min_syn_cnt', 5, type=int)
     data_version = request.args.get('data_version', neuron_data_factory.latest_data_version())
     neuron_db = neuron_data_factory.get(data_version)
-    log_activity(f"Generating neuron info for {root_id} (v{data_version})")
+    log_activity(f"Generating neuron info {activity_suffix(root_id, data_version)}")
     nd = neuron_db.get_neuron_data(root_id=root_id)
     combined_neuron_info = {
         'Kind': f'{nd["kind"]} <a class="btn btn-link" href="{nglui_utils.url_for_root_ids([root_id])}"'
