@@ -83,6 +83,10 @@ def log(msg):
     return msg
 
 def _post_to_slk(text, real_user_activity, extra_hk):
+    if 'Slackbot-LinkExpanding' in text:
+        log(f"Skipping SLK post from bots: {text}")
+        return
+
     hks = [SLKHKACT if real_user_activity else SLCKHKHB]  # default or hook for test/dev/heartbit query logs
     if extra_hk:
         hks.append(extra_hk)  # additional channels (optional)
