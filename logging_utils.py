@@ -7,6 +7,7 @@ from multiprocessing import Process
 import os
 import socket
 from flask import session, request
+from user_agents import parse as parse_ua
 
 DEV_LOGGING = str(os.environ.get('PROD_MODE')) != '1'
 
@@ -15,9 +16,12 @@ host_name = socket.gethostname()
 
 startup_time = datetime.datetime.now()
 def uptime(millis=True):
-    ut = datetime.datetime.now() - startup_time
-    return ut if millis else str(ut).split('.')[0]
-
+    ut = str(datetime.datetime.now() - startup_time)
+    parts = ut.split('.')
+    if millis:
+        return f'{parts[0]}.{parts[1][:2]}'
+    else:
+        return parts[0]
 
 def b64e(s):
     return base64.b64encode(s.encode()).decode()
@@ -50,8 +54,8 @@ def _fetch_user_info():
 def _fetch_client_info():
     try:
         ip_addr = request.headers.get('X-Forwarded-For', request.remote_addr)
-        user_agent = request.user_agent
-        return f'{ip_addr} {user_agent}'
+        user_agent = str(parse_ua(str(request.user_agent)))
+        return f'<https://ipinfo.io/{ip_addr}|{user_agent}'
     except:
         return None
 
@@ -74,7 +78,9 @@ def log(msg):
 def _post_to_slk(text, real_user_activity, hk):
     if not hk:
         hk = SLKHKACT if real_user_activity else SLCKHKHB # dedicated hook for test/dev/heartbit query logs
-    res = requests.post(hk, data=json.dumps({"text": text}), headers={'Content-Type': 'application/json'})
+    res = requests.post(hk,
+                        data=json.dumps({"text": text, "unfurl_links": False}),
+                        headers={'Content-Type': 'application/json'})
     log(f"SLK post response: {res}")
 
 def post_to_slk(text, hk=None):
