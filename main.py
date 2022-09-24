@@ -50,8 +50,8 @@ def request_wrapper(func):
             f' || >>> Form:\n{request.form}'
             f' || <<<<<<< {signature}\n')
 
-        if request.url.startswith("http://flywireindex."):
-            new_url = request.url.replace("http://flywireindex.", "http://code.")
+        if 'flywireindex.pniapps.org' in request.url:
+            new_url = request.url.replace('flywireindex.pniapps.org', 'code.pniapps.org')
             log_activity(f"Redirecting base URL from  {request.url}: {new_url}")
             return redirect(new_url)
         if 'id_info' not in session and not _is_smoke_test_request():

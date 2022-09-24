@@ -38,5 +38,5 @@ Then:
 ./deploy.sh
 ```
 
-## Cloud Run Endpoint
-[flywire-index-yjsmm7mp3q-ue.a.run.app](https://flywire-index-yjsmm7mp3q-ue.a.run.app)
+## Internal endpoints
+1. [Cloud Run](https://code-yjsmm7mp3q-ue.a.run.app)
