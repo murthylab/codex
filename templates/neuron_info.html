@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %} Neuron Info {% endblock %}
+{% block title %} Cell Info {% endblock %}
 {% block content %}
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -28,14 +28,49 @@
   }
 </script>
 
-<h5 style="margin: 14px; color: purple;">{{caption|safe}}</h5>
-<h8 style="margin: 14px; ">{{subcaption|safe}}</h8>
-
 <div class="card-columns"  id="main_panels_container" style="padding: 5px;">
     <div class="card" style="width: 100%;">
+        <div class="card-header" style="color: purple;">
+          Cell Info
+        </div>
+        <div class="body">
+            <table class="table">
+              <tbody>
+                {% for k, v in cell_attributes.items() %}
+                    <tr>
+                      <td>{{k|safe}}</td>
+                      <td>{{v|safe}}</td>
+                    </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+        </div>
+    </div>
+    {% if load_connections %}
+    <div class="card" style="width: 100%; height: 450px;">
+        <div class="card-header" style="color: purple;">
+            Connected Cells
+        </div>
+        <iframe style="width: 100%; height: 100%;" src="connections?root_ids={{cell_id}}" title="connectivity" loading="lazy"></iframe>
+    </div>
+    {% endif %}
+
+    <div class="card" style="width: 100%; height: 450px;">
+        <div class="card-header" style="color: purple;">
+            Skeleton
+        </div>
+        <iframe style="width: 100%; height: 100%;" src="{{url_for('flywire_url', root_id=cell_id)}}" title="neuroglancer" loading="lazy"></iframe>
+    </div>
+</div>
+
+<div class="card" style="width: 100%;">
+    <div class="card-header" style="color: purple;">
+      Related Cells
+    </div>
+    <div class="body">
         <table class="table">
           <tbody>
-            {% for k, v in neuron_info.items() %}
+            {% for k, v in related_cells.items() %}
                 <tr>
                   <td>{{k|safe}}</td>
                   <td>{{v|safe}}</td>
@@ -43,16 +78,6 @@
             {% endfor %}
           </tbody>
         </table>
-    </div>
-
-    {% if load_connections %}
-    <div class="card" style="width: 100%; height: 450px;">
-        <iframe style="width: 100%; height: 100%;" src="connections?root_ids={{id}}" title="connectivity" loading="lazy"></iframe>
-    </div>
-    {% endif %}
-
-    <div class="card" style="width: 100%; height: 450px;">
-        <iframe style="width: 100%; height: 100%;" src="{{url_for('flywire_url', root_id=id)}}" title="neuroglancer" loading="lazy"></iframe>
     </div>
 </div>
 
