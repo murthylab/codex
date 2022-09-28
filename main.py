@@ -77,7 +77,8 @@ OBSOLETE_ROUTE_DESTINATIONS = {
     'download_search_results': 'app/download_search_results',
     'search_results_flywire_url': 'app/search_results_flywire_url',
     'flywire_url': 'app/flywire_url',
-    'neuron_info': 'app/neuron_info'
+    'neuron_info': 'app/cell_details',
+    'app/neuron_info': 'app/cell_details'
 }
 
 log("App initialization complete.")
@@ -522,9 +523,9 @@ def flywire_url():
     return redirect(url, code=302)
 
 
-@app.route('/app/neuron_info')
+@app.route('/app/cell_details')
 @request_wrapper
-def neuron_info():
+def cell_details():
     root_id = int(request.args.get('root_id'))
     min_syn_cnt = request.args.get('min_syn_cnt', 5, type=int)
     data_version = request.args.get('data_version', neuron_data_factory.latest_data_version())
@@ -631,7 +632,7 @@ def neuron_info():
 
     log_activity(f"Generated neuron info for {root_id} with {len(cell_attributes) + len(related_cells)} items")
     return render_template(
-        "neuron_info.html",
+        "cell_details.html",
         cell_id=root_id,
         cell_attributes=cell_attributes,
         related_cells=related_cells,
