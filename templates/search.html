@@ -129,13 +129,13 @@
     <tbody>
       {% for neuron in display_data %}
           <tr>
-            <td><a href="{{url_for('neuron_info', root_id=neuron.root_id)}}" target="_blank">{{neuron.root_id}}</a></td>
+            <td><a href="{{url_for('cell_details', root_id=neuron.root_id)}}" target="_blank">{{neuron.root_id}}</a></td>
             <td>{{neuron.annotations|safe}}</td>
             <td style="color:#4444FF;">{{neuron.kind}}</td>
             <td style="color:#FF4444;">{{neuron.nt_type}}</td>
             <td style="color:#AAAAAA;">{{neuron.class}}</td>
             <td style="color:#4444FF;">{{neuron.hemisphere_fingerprint}}</td>
-            <td><a class="btn btn-outline-success" href="{{url_for('neuron_info', root_id=neuron.root_id)}}" target="_blank" role="button" title="Show Info" >Info</a></td>
+            <td><a class="btn btn-outline-success" href="{{url_for('cell_details', root_id=neuron.root_id)}}" target="_blank" role="button" title="Show Info" >Info</a></td>
             <td><a class="btn btn-outline-primary" href="{{url_for('flywire_url', root_id=neuron.root_id)}}" target="_blank" role="button" title="Open in FlyWire" >FlyWire</a></td>
           </tr>
       {% endfor %}

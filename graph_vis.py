@@ -26,7 +26,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
 
     def node_title(nd):
         rid = nd['root_id']
-        return f"<a href=\"neuron_info?root_id={rid}\" target=\"_blank\">{rid}</a>"
+        return f"<a href=\"cell_details?root_id={rid}\" target=\"_blank\">{rid}</a>"
 
     def edge_title(row):
         return f'{row[2]}'
