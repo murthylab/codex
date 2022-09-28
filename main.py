@@ -531,12 +531,16 @@ def neuron_info():
     neuron_db = neuron_data_factory.get(data_version)
     log_activity(f"Generating neuron info {activity_suffix(root_id, data_version)}")
     nd = neuron_db.get_neuron_data(root_id=root_id)
-    combined_neuron_info = {
+    cell_attributes = {
+        'Name': nd['kind'],
+        'Id': root_id,
+        'Labels': '&nbsp; <b>&#x2022;</b> &nbsp;'.join(nd['tag']),
         'Type': nd['nt_type'],
         'Classification': nd['class'],
-        #'Labels & Coordinates': '<br>'.join(nd['tag'] + nd['position']),
-        'Labels': '<br>'.join(nd['tag']),
+        'Coordinates': '<br>'.join(nd['position']),
     }
+
+    related_cells = {}
 
     def insert_neuron_list_links(key, ids, search_endpoint=None):
         if ids:
@@ -547,7 +551,7 @@ def neuron_info():
             search_link = f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{len(ids)} {key}</a>'
             nglui_link = f'<a class="btn btn-info btn-sm" href="{nglui_utils.url_for_root_ids([root_id] + list(ids))}"' \
                          f' target="_blank">FlyWire</a>'
-            combined_neuron_info[search_link] = nglui_link
+            related_cells[search_link] = nglui_link
 
     connectivity = gcs_data_loader.load_connection_table_for_root_id(root_id)
     if connectivity and min_syn_cnt:
@@ -622,15 +626,15 @@ def neuron_info():
     insert_neuron_list_links('cells with similar neuropil projection in opposite hemisphere', symmetrical_root_ids)
 
     # remove empty items
-    combined_neuron_info = {k: v for k, v in combined_neuron_info.items() if v}
+    cell_attributes = {k: v for k, v in cell_attributes.items() if v}
+    related_cells = {k: v for k, v in related_cells.items() if v}
 
-    log_activity(f"Generated neuron info for {root_id} with {len(combined_neuron_info)} items")
+    log_activity(f"Generated neuron info for {root_id} with {len(cell_attributes) + len(related_cells)} items")
     return render_template(
         "neuron_info.html",
-        caption=f"{nd['kind']}",
-        subcaption=f"{root_id}",
-        id=root_id,
-        neuron_info=combined_neuron_info,
+        cell_id=root_id,
+        cell_attributes=cell_attributes,
+        related_cells=related_cells,
         charts=charts,
         load_connections=1 if connectivity and len(connectivity) > 1 else 0
     )
