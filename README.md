@@ -12,9 +12,15 @@ pip install -r requirements.txt
 ```
 Navigate to [localhost:5000](http://localhost:5000)
 
-## Create pickled DB files for new data snapshot/version
+
+## Downloading and packaging static data
+### Compile raw data from cloud (set version and access tokens within)
 ```
-python3 -m create_data_files
+python3 -m etl_compile_data
+```
+### Pickle downloaded data
+```
+python3 -m etl_pickle_data
 ```
 
 ## Test
