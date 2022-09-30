@@ -92,5 +92,5 @@ def load_annotations():
 
 
 if __name__ == "__main__":
-    #load_feather_files()
-    load_annotations()
+    syn_table_rows, nt_types_rows = load_feather_files()
+    neuron_info_lists = load_annotations()
