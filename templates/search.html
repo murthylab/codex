@@ -116,9 +116,8 @@
   <table class="table">
     <thead>
       <tr>
-        <th scope="col">Cell ID</th>
+        <th scope="col">Name</th>
         <th scope="col">Label(s)</th>
-        <th scope="col">Kind</th>
         <th scope="col">NT</th>
         <th scope="col">Class</th>
         <th scope="col">IO</th>
@@ -129,9 +128,8 @@
     <tbody>
       {% for neuron in display_data %}
           <tr>
-            <td><a href="{{url_for('cell_details', root_id=neuron.root_id)}}" target="_blank">{{neuron.root_id}}</a></td>
+            <td><a href="{{url_for('cell_details', root_id=neuron.root_id)}}" target="_blank">{{neuron.name}}</a></td>
             <td>{{neuron.annotations|safe}}</td>
-            <td style="color:#4444FF;">{{neuron.kind}}</td>
             <td style="color:#FF4444;">{{neuron.nt_type}}</td>
             <td style="color:#AAAAAA;">{{neuron.class}}</td>
             <td style="color:#4444FF;">{{neuron.hemisphere_fingerprint}}</td>
