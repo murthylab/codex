@@ -1,8 +1,6 @@
 ## General TODO:
 1. use synapse position partition into smaller cubes (instead neuropils) for similarity metric
 1. inspect diff from best match to 2nd best match to identify quality
-1. assign 'kinds' based on similarity clusters instead most prominent input/output neuropil
-   1. kinds -> unique names
 1. integrate conviz
 1. downstream / upstream connectivity
 1. instead of rocket, do dropdown quick menu that expands if there's space

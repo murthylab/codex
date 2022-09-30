@@ -53,7 +53,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
             nd = neuron_data_fetcher(nid)
             net.add_node(
                 nd['root_id'],
-                label=f"{nd['kind']}",
+                label=f"{nd['name']}",
                 title=node_title(nd),
                 physics=node_physics,
                 color=node_color(nd),

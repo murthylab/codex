@@ -448,7 +448,7 @@ def download_search_results():
         f"For download got {len(filtered_root_id_list)} results {activity_suffix(filter_string, data_version)}"
     )
 
-    cols = ['root_id', 'annotations', 'kind', 'nt_type', 'class', 'hemisphere_fingerprint']
+    cols = ['root_id', 'annotations', 'name', 'nt_type', 'class', 'hemisphere_fingerprint']
     data = [cols]
     for i in filtered_root_id_list:
         data.append([str(neuron_db.get_neuron_data(i)[c]).replace(',', ';') for c in cols])
@@ -533,12 +533,12 @@ def cell_details():
     log_activity(f"Generating neuron info {activity_suffix(root_id, data_version)}")
     nd = neuron_db.get_neuron_data(root_id=root_id)
     cell_attributes = {
-        'Name': nd['kind'],
-        'Id': root_id,
+        'Name': nd['name'],
+        'ID': root_id,
         'Labels': '&nbsp; <b>&#x2022;</b> &nbsp;'.join(nd['tag']),
         'Type': nd['nt_type'],
         'Classification': nd['class'],
-        'Coordinates': '<br>'.join(nd['position']),
+        'Position': '<br>'.join(nd['position']),
     }
 
     related_cells = {}
