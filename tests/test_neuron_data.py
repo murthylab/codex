@@ -31,7 +31,7 @@ class NeuronDataTest(TestCase):
             num_present = len([1 for nd in self.neuron_db.neuron_data.values() if nd[attrib]])
             self.assertGreaterEqual(num_present, lower_bound)
 
-        check_min_values_present('kind', 66812)
+        check_min_values_present('name', 66812)
         check_min_values_present('nt_type', 68121)
         check_min_values_present('hemisphere_fingerprint', 66633)
         check_min_values_present('classes', 10782)
@@ -41,21 +41,21 @@ class NeuronDataTest(TestCase):
         check_min_values_present('symmetrical_root_id_scores', 66633)
         check_min_values_present('input_neuropils', 63308)
         check_min_values_present('output_neuropils', 64302)
-        check_min_values_present('supervoxel_id', 34155)
-        check_min_values_present('tag', 37026)
+        check_min_values_present('supervoxel_id', 22155)
+        check_min_values_present('tag', 35026)
         check_min_values_present('inherited_tag_root_id', 2871)
         check_min_values_present('inherited_tag_score', 2871)
-        check_min_values_present('user_id', 34155)
-        check_min_values_present('position', 34155)
+        check_min_values_present('user_id', 23155)
+        check_min_values_present('position', 23155)
 
     def test_annotations(self):
         neurons_with_tags = [n for n in self.neuron_db.neuron_data.values() if n['tag']]
-        self.assertGreater(len(neurons_with_tags), 35000)
+        self.assertGreater(len(neurons_with_tags), 25000)
 
         neurons_with_annotations = [n for n in self.neuron_db.neuron_data.values() if n['annotations']]
         self.assertEqual(len(neurons_with_tags), len(neurons_with_annotations))
 
-        neurons_with_inherited_labels = [n for n in neurons_with_annotations if "inferred" in n['annotations']]
+        neurons_with_inherited_labels = [n for n in neurons_with_annotations if "*" in n['annotations']]
         self.assertGreater(len(neurons_with_inherited_labels), 2800)
 
         for n in self.neuron_db.neuron_data.values():
@@ -96,10 +96,10 @@ class NeuronDataTest(TestCase):
         gaba_or_ach_rids = self.neuron_db.search('nt == ACH || nt == gaba')
         self.assertEqual(len(ach_rids) + len(gaba_rids), len(gaba_or_ach_rids))
 
-        ids_with_kind = self.neuron_db.search('{has} name')
-        ids_without_kind = self.neuron_db.search('{not} name')
-        self.assertEqual(len(self.neuron_db.neuron_data), len(ids_with_kind) + len(ids_without_kind))
-        self.assertEqual(set(ids_with_kind), set([nd['root_id'] for nd in self.neuron_db.neuron_data.values() if nd['kind']]))
+        ids_with_name = self.neuron_db.search('{has} name')
+        ids_without_name = self.neuron_db.search('{not} name')
+        self.assertEqual(len(self.neuron_db.neuron_data), len(ids_with_name))
+        self.assertEqual(0, len(ids_without_name))
 
         ids_with_class = self.neuron_db.search('$$ class')
         ids_without_class = self.neuron_db.search('!$ class')
@@ -117,7 +117,7 @@ class NeuronDataTest(TestCase):
         self.assertEqual(len(self.neuron_db.neuron_data), len(hundred_root_ids) + len(
             self.neuron_db.search(f"id !< {','.join([str(rid) for rid in hundred_root_ids])}")))
 
-        self.assertLess(len(self.neuron_db.search('gaba && nt != gaba')), 500)
+        self.assertLess(len(self.neuron_db.search('gaba && nt != gaba')), 700)
 
         self.assertEqual(2, len(self.neuron_db.search('720575940624284903 720575940625504714')))
         self.assertEqual(2, len(self.neuron_db.search('720575940624284903,720575940625504714')))
