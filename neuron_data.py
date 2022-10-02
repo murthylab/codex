@@ -7,7 +7,8 @@ from gcs_data_loader import load_connections_for_root_id
 # Expected column in static FlyWire data CSV file
 DATA_FILE_COLUMNS = [
     'root_id',
-    'kind',
+    'name',
+    'group',
     'nt_type',
     'classes',
     'similar_root_ids',
@@ -30,7 +31,8 @@ DATA_FILE_COLUMNS = [
 # Keywords will be matched against these attributes
 NEURON_SEARCH_LABEL_ATTRIBUTES = [
     'root_id',
-    'kind',
+    'name',
+    'group',
     'nt_type',
     'classes',
     'hemisphere_fingerprint'
@@ -84,8 +86,9 @@ STRUCTURED_SEARCH_ATTRIBUTES = {
     # user facing attr: (internal attr, conversion - optional, description)
     'id': ('root_id', lambda x: int(x), 'ID of the cell. Unique across data versions, '
                                         'but might get replaced if affected by proofreading.'),
-    'name': ('kind', None, 'Automatically assigned name (based on properties of the cell). Unique across data '
+    'name': ('name', None, 'Automatically assigned name (based on properties of the cell). Unique across data '
                            'versions, but might get replaced if affected by proofreading.'),
+    'group': ('group', None, 'Automatically assigned group name (based on properties of the cell).'),
     'class': ('classes', None, 'Cell typing attribute. Indicates function or other property of the cell. Each cell can '
                                'belong to zero or more classes.'),
     'label': ('tag', None, 'Human readable label assigned during cell identification process. Each cell can have zero '
@@ -107,7 +110,8 @@ class NeuronDB(object):
             root_id = self._get_value(r, 'root_id', to_type=int)
             self.neuron_data[root_id] = {
                 'root_id': root_id,
-                'kind': self._get_value(r, 'kind'),
+                'name': self._get_value(r, 'name'),
+                'group': self._get_value(r, 'group'),
                 'nt_type': self._get_value(r, 'nt_type').upper(),
                 'classes': self._get_value(r, 'classes', split=True),
                 'similar_root_ids': self._get_value(r, 'similar_root_ids', split=True, to_type=int),
@@ -129,21 +133,14 @@ class NeuronDB(object):
         # augment
         for nd in self.neuron_data.values():
             if nd['inherited_tag_root_id']:
-                assert not nd['tag']
-                inherited_tags = self.neuron_data[nd['inherited_tag_root_id']]['tag']
-                assert inherited_tags
+                assert nd['tag'] or nd['classes']
                 self.rids_of_neurons_with_inherited_tags.append(nd['root_id'])
-                nd['tag'] = inherited_tags + ['inferred mirrored' if nd['inherited_tag_mirrored'] else 'inferred']
             nd['annotations'] = ' | '.join([self._trim_long_tokens(t) for t in nd['tag']])
             nd['hemisphere_fingerprint'] = NeuronDB.hemisphere_fingerprint(nd['input_neuropils'],
                                                                            nd['output_neuropils'])
             nd['class'] = ', '.join([c for c in nd['classes']])
 
         log(f"App initialization sorting..")
-
-        # sort neuron root ids with inherited tags by score
-        self.rids_of_neurons_with_inherited_tags = sorted(
-            self.rids_of_neurons_with_inherited_tags, key=lambda x: self.neuron_data[x]['inherited_tag_score'])
 
         # init search index
         def searchable_labels(ndata):
@@ -181,15 +178,15 @@ class NeuronDB(object):
     def categories(self):
         classes = {}
         labels = {}
-        kinds = {}
+        groups = {}
         for nd in self.neuron_data.values():
             for c in nd.get('classes', []):
                 classes[c] = classes.get(c, 0) + 1
             for c in nd.get('tag', []):
                 labels[c] = labels.get(c, 0) + 1
-            kind = nd.get('kind')
-            if kind:
-                kinds[kind] = kinds.get(kind, 0) + 1
+            group = nd.get('group')
+            if group:
+                groups[group] = groups.get(group, 0) + 1
 
         # For now limit to most common categories.
         # TODO: find a better way to resolve page loading slowness for huge lists
@@ -203,7 +200,7 @@ class NeuronDB(object):
 
         def _sorted_counts(d):
             lst_all = sorted([(k, v) for k, v in d.items()], key=lambda p: -p[1])
-            return sorted(lst_all[:CATEGORY_LIMIT], key=lambda p: p[0].lower())
+            return lst_all[:CATEGORY_LIMIT]
 
         return [
             {
@@ -217,9 +214,9 @@ class NeuronDB(object):
                 'counts': _sorted_counts(labels)
             },
             {
-                'caption': _caption('Kinds', len(kinds)),
-                'key': 'kind',
-                'counts': _sorted_counts(kinds)
+                'caption': _caption('Groups', len(groups)),
+                'key': 'group',
+                'counts': _sorted_counts(groups)
             }
         ]
 

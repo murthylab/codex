@@ -181,4 +181,4 @@ class Test(TestCase):
         self.assertEqual(len(sample_root_ids) + 1, len(distances))
         for row in distances:
             self.assertEqual(len(sample_root_ids) + 1, len(row))
-        self.assertLess((datetime.datetime.now() - start_time).total_seconds(), 4)
+        self.assertLess((datetime.datetime.now() - start_time).total_seconds(), 5)
