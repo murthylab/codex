@@ -42,7 +42,7 @@ class NeuronDataTest(TestCase):
         check_min_values_present('input_neuropils', 63308)
         check_min_values_present('output_neuropils', 64302)
         check_min_values_present('supervoxel_id', 22155)
-        check_min_values_present('tag', 35026)
+        check_min_values_present('tag', 30026)
         check_min_values_present('inherited_tag_root_id', 2871)
         check_min_values_present('inherited_tag_score', 2871)
         check_min_values_present('user_id', 23155)
