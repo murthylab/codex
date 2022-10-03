@@ -288,9 +288,11 @@ class NeuronDataTest(TestCase):
         self.assertEqual(expected_list, self.neuron_db.classes())
 
     def test_hemisphere_fingerprint(self):
-        self.assertEqual('LCR/CR', NeuronDB.hemisphere_fingerprint(
+        self.assertEqual('Left/Right', NeuronDB.hemisphere_fingerprint(
+            ['AMMC_L', 'IPS_L'], ['IPS_R']))
+        self.assertEqual('Mix/Mix', NeuronDB.hemisphere_fingerprint(
             ['AMMC_L', 'GNG', 'IPS_L', 'IPS_R', 'SAD'], ['GNG', 'IPS_R', 'SAD']))
-        self.assertEqual('0/CR', NeuronDB.hemisphere_fingerprint(
+        self.assertEqual('None/Mix', NeuronDB.hemisphere_fingerprint(
             [], ['GNG', 'IPS_R', 'SAD']))
         self.assertEqual('', NeuronDB.hemisphere_fingerprint(
             [], []))
