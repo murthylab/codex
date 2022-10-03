@@ -235,9 +235,16 @@ class NeuronDB(object):
                 left = any([p.endswith('_L') for p in pils])
                 center = any([not (p.endswith('_L') or p.endswith('_R')) for p in pils])
                 right = any([p.endswith('_R') for p in pils])
-                return ('L' if left else '') + ('C' if center else '') + ('R' if right else '')
-            else:
-                return '0'
+                if len([v for v in [left, center, right] if v]) > 1:
+                    return "Mix"
+                elif left:
+                    return "Left"
+                elif center:
+                    return "Mid"
+                elif right:
+                    return "Right"
+                else:
+                    return '?'
 
         if input_pils or output_pils:
             return f'{fp(input_pils)}/{fp(output_pils)}'
