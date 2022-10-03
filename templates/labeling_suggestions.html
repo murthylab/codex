@@ -40,8 +40,8 @@
       {% for neuron in display_data %}
           <tr>
             <td><a href="{{url_for('cell_details', root_id=neuron.root_id)}}" target="_blank">{{neuron.inherited_tag_root_id}} &#10132</a></td>
-            <td>{{neuron.annotations}}</td>
-            <td>{{' | '.join(neuron.classes)}}</td>
+            <td>{{neuron.annotations|safe}}</td>
+            <td>{{'&nbsp; <b>&#x2022;</b> &nbsp;'.join(neuron.classes)|safe}}</td>
             <td><a href="{{url_for('cell_details', root_id=neuron.root_id)}}" target="_blank">&#10132 {{neuron.root_id}}</a></td>
             <td><a class="btn btn-outline-primary" href="{{url_for('flywire_url', root_id=neuron.inherited_tag_root_id, extra_root_id=neuron.root_id)}}" target="_blank" role="button" title="Compare in FlyWire" >Compare &#128270;</a></td>
             <td><a class="btn btn-outline-success" role="button" title="Accept" href="{{url_for('accept_label_suggestion', from_root_id=neuron.root_id, to_root_id=neuron.inherited_tag_root_id)}}">Accept &#10003</a></td>
