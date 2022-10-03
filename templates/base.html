@@ -51,10 +51,10 @@
             <a class="nav-link" id="nav_labeling_suggestions" href="{{url_for('labeling_suggestions')}}">Labeling Suggestions</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" id="nav_nblast" href="{{url_for('nblast')}}">NBLAST</a>
+            <a class="nav-link" id="nav_nblast" href="{{url_for('nblast', with_sample_ids=1)}}">NBLAST</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" id="nav_path_length" href="{{url_for('path_length')}}">Path Length</a>
+            <a class="nav-link" id="nav_path_length" href="{{url_for('path_length', with_sample_ids=1)}}">Path Length</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" id="nav_faq" href="{{url_for('faq')}}">FAQ</a>
