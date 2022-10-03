@@ -16,6 +16,9 @@
 1. larger graph on neuron info
 1. legend for nodes in graphs
 1. remove slackbot posts
+1. make caching work in remote data loader with multiprocessing
+1. input/output combined piechart in cell details page
+1. firestore DB for storing labels and user info
 
 
 ## User feedback

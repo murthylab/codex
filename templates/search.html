@@ -120,7 +120,7 @@
         <th scope="col">Label(s)</th>
         <th scope="col">NT</th>
         <th scope="col">Class</th>
-        <th scope="col">IO</th>
+        <th scope="col">I/O Side</th>
         <th scope="col"></th>
         <th scope="col"></th>
       </tr>
@@ -132,7 +132,7 @@
             <td>{{neuron.annotations|safe}}</td>
             <td style="color:#FF4444;">{{neuron.nt_type}}</td>
             <td style="color:#AAAAAA;">{{neuron.class}}</td>
-            <td style="color:#4444FF;">{{neuron.hemisphere_fingerprint}}</td>
+            <td style="color:#4444FF;">{{neuron.hemisphere_fingerprint|safe}}</td>
             <td><a class="btn btn-outline-success" href="{{url_for('cell_details', root_id=neuron.root_id)}}" target="_blank" role="button" title="Show Info" >Info</a></td>
             <td><a class="btn btn-outline-primary" href="{{url_for('flywire_url', root_id=neuron.root_id)}}" target="_blank" role="button" title="Open in FlyWire" >FlyWire</a></td>
           </tr>

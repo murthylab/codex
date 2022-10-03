@@ -11,26 +11,21 @@ def make_donut_chart_from_list(key_title, val_title, item_list):
 
 def _make_data_charts(data_list):
     nt_types = []
-    input_regions = []
-    output_regions = []
+    input_output_regions = []
     classes = []
     unknown_key = "Unknown"
     for d in data_list:
         nt_types.append(d['nt_type'] or unknown_key)
-        input_regions.append(d['hemisphere_fingerprint'].split('/')[0] if d['hemisphere_fingerprint'] else unknown_key)
-        output_regions.append(d['hemisphere_fingerprint'].split('/')[1] if d['hemisphere_fingerprint'] else unknown_key)
+        input_output_regions.append(d['hemisphere_fingerprint'] or unknown_key)
         classes.append(str(len(d['classes']) if d['classes'] else 0))
 
     result = {}
     if nt_types:
         result['Neurotransmitter Types'] = make_donut_chart_from_list(
             key_title="Type", val_title="Count", item_list=nt_types)
-    if input_regions:
-        result['In regions (L-eft, C-enter, R-ight, 0-none)'] = make_donut_chart_from_list(
-            key_title="Input regions", val_title="Count", item_list=input_regions)
-    if output_regions:
-        result['Out regions (L-eft, C-enter, R-ight, 0-none)'] = make_donut_chart_from_list(
-            key_title="Output regions", val_title="Count", item_list=output_regions)
+    if input_output_regions:
+        result['Input/Output hemispheres'] = make_donut_chart_from_list(
+            key_title="Output regions", val_title="Count", item_list=input_output_regions)
     if classes:
         result['Num. Assigned Neuron Classes'] = make_donut_chart_from_list(
             key_title="Num Classes", val_title="Count", item_list=classes)
