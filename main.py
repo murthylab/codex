@@ -644,7 +644,10 @@ def cell_details():
 @app.route('/app/nblast')
 @request_wrapper
 def nblast():
+    sample_ids = "720575940628063479,720575940645542276,720575940626822533,720575940609037432,720575940628445399"
     root_ids = request.args.get('root_ids', '')
+    if request.args.get('with_sample_ids') and not root_ids:
+        root_ids = sample_ids
     download = request.args.get('download', 0, type=int)
     log_activity(f"Generating NBLAST table for '{root_ids}' {download=}")
     try:
@@ -720,14 +723,17 @@ def nblast():
             download_url=url_for('nblast', download=1, root_ids=','.join([str(r) for r in root_ids])),
             info_title=nblast_doc['q'],
             info_text=nblast_doc['a'],
-            sample_root_ids="720575940628063479,720575940645542276,720575940626822533,720575940609037432,720575940628445399"
+            sample_ids=sample_ids,
         )
 
 
 @app.route('/app/path_length')
 @request_wrapper
 def path_length():
+    sample_ids = "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
     root_ids = request.args.get('root_ids', '')
+    if request.args.get('with_sample_ids') and not root_ids:
+        root_ids = sample_ids
     nt_type = request.args.get('nt_type', 'all')
     min_syn_cnt = request.args.get('min_syn_cnt', 5, type=int)
     download = request.args.get('download', 0, type=int)
@@ -773,7 +779,7 @@ def path_length():
                                  nt_type=nt_type, min_syn_cnt=min_syn_cnt),
             info_title=paths_doc['q'],
             info_text=paths_doc['a'],
-            sample_root_ids="720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
+            sample_ids=sample_ids
         )
 
 
