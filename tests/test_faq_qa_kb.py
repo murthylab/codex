@@ -1,5 +1,5 @@
 from unittest import TestCase
-from src.faq_qa_kb import FAQ_QA_KB
+from src.data.faq_qa_kb import FAQ_QA_KB
 
 class FaqQaKbTest(TestCase):
 

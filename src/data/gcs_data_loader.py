@@ -1,4 +1,4 @@
-from src.logging_utils import log_error, log
+from src.utils.logging import log_error, log
 
 import csv
 import gzip

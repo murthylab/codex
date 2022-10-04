@@ -1,6 +1,6 @@
-from src.search_index import SearchIndex
-from src.logging_utils import log
-from src.gcs_data_loader import load_connections_for_root_id
+from src.data.search_index import SearchIndex
+from src.utils.logging import log
+from src.data.gcs_data_loader import load_connections_for_root_id
 
 from functools import lru_cache
 

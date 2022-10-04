@@ -1,4 +1,4 @@
-from src.local_data_loader import available_data_versions, latest_data_version, unpickle_neuron_db, DATA_ROOT_PATH
+from src.data.local_data_loader import available_data_versions, latest_data_version, unpickle_neuron_db, DATA_ROOT_PATH
 
 class NeuronDataFactory(object):
     def __init__(self, data_root_path=DATA_ROOT_PATH, preload_latest=True):

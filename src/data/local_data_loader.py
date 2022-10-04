@@ -1,5 +1,5 @@
-from src.logging_utils import log, log_error
-from src.neuron_data import NeuronDB
+from src.utils.logging import log, log_error
+from src.data.neuron_data import NeuronDB
 
 import csv
 import os
