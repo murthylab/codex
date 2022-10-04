@@ -1,9 +1,9 @@
 import os
 
-import stats_utils
+from src import stats_utils
 from unittest import TestCase
 
-from local_data_loader import unpickle_neuron_db, DATA_ROOT_PATH
+from src.local_data_loader import unpickle_neuron_db, DATA_ROOT_PATH
 
 # for IDE test
 TEST_DATA_ROOT_PATH = os.getcwd().replace('tests', DATA_ROOT_PATH)

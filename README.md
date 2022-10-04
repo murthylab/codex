@@ -16,11 +16,11 @@ Navigate to [localhost:5000](http://localhost:5000)
 ## Downloading and packaging static data
 ### Compile raw data from cloud (set version and access tokens within)
 ```
-python3 -m etl_compile_data
+python3 -m src.etl_compile_data
 ```
 ### Pickle downloaded data
 ```
-python3 -m etl_pickle_data
+python3 -m src.etl_pickle_data
 ```
 
 ## Test

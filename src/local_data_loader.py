@@ -1,9 +1,11 @@
+from src.logging_utils import log, log_error
+from src.neuron_data import NeuronDB
+
 import csv
 import os
 import pickle
 import gzip
-from logging_utils import log, log_error
-from neuron_data import NeuronDB
+
 
 DATA_ROOT_PATH = 'static/data'
 NEURON_DATA_FILE_NAME = 'neuron_data.csv.gz'
