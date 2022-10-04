@@ -1,4 +1,4 @@
-from logging_utils import log
+from src.logging_utils import log
 
 DELIMS = ['=', '-', '. ', ',', '?', '!', ';', ':' '//', '/', '(', ')', '"', '&']
 

@@ -1,5 +1,4 @@
 from collections import defaultdict
-
 from pyvis.network import Network
 
 def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):

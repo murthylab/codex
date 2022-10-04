@@ -1,8 +1,9 @@
+from src.search_index import SearchIndex
+from src.logging_utils import log
+from src.gcs_data_loader import load_connections_for_root_id
+
 from functools import lru_cache
 
-from search_index import SearchIndex
-from logging_utils import log
-from gcs_data_loader import load_connections_for_root_id
 
 # Expected column in static FlyWire data CSV file
 DATA_FILE_COLUMNS = [
