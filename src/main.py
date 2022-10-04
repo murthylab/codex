@@ -1,18 +1,18 @@
-from collections import defaultdict
+from src import stats_utils
+from src.graph_vis import make_graph_html
+from src.neuron_data_factory import NeuronDataFactory
+from src import nglui_utils
+from src import gcs_data_loader
+from src.logging_utils import log, log_activity, log_error, log_user_help, format_link, _is_smoke_test_request,\
+    uptime, host_name, proc_id
+from src.faq_qa_kb import FAQ_QA_KB
+from src.search_index import tokenize
 
-import stats_utils
-from graph_vis import make_graph_html
-from neuron_data_factory import NeuronDataFactory
-import nglui_utils
-import gcs_data_loader
-from logging_utils import log, log_activity, log_error, log_user_help, format_link, _is_smoke_test_request, uptime, \
-    host_name, proc_id
-from faq_qa_kb import FAQ_QA_KB
-from search_index import tokenize
 import math
 import re
 import os
 import traceback
+from collections import defaultdict
 from functools import wraps, lru_cache
 from flask import Flask, render_template, request, redirect, Response, session, url_for
 from google.oauth2 import id_token
@@ -614,7 +614,7 @@ def cell_details():
         charts = {}
 
     top_nblast_matches = [i[0] for i in (
-                gcs_data_loader.load_nblast_scores_for_root_id(root_id, sort_highest_score=True, limit=10) or []) if
+            gcs_data_loader.load_nblast_scores_for_root_id(root_id, sort_highest_score=True, limit=10) or []) if
                           i[1] > 0.4 and i[0] != root_id]
     insert_neuron_list_links('cells with similar morphology (NBLAST based)', top_nblast_matches)
 
