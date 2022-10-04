@@ -154,7 +154,7 @@ class SearchIndex(object):
 
     def closest_token(self, term, case_sensitive, limited_ids_set=None):
         term = term.strip()
-        if not term:
+        if not term or term.isnumeric():  # do not suggest number/id close matches
             return None
         if case_sensitive:
             indx = self.CS_token_to_row_id
