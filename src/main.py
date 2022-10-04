@@ -1,6 +1,6 @@
 from src.utils.graph_vis import make_graph_html
 from src.data.neuron_data_factory import NeuronDataFactory
-from src.utils import nglui, stats
+from src.utils import nglui, stats as stats_utils
 from src.data import gcs_data_loader
 from src.utils.logging import log, log_activity, log_error, log_user_help, format_link, _is_smoke_test_request,\
     uptime, host_name, proc_id
@@ -199,7 +199,7 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
         log_error(f"No stats results for {filter_string}. Sending hint '{hint}'")
 
     data = [neuron_db.get_neuron_data(i) for i in filtered_root_id_list]
-    caption, data_stats, data_charts = stats.compile_data(
+    caption, data_stats, data_charts = stats_utils.compile_data(
         data, search_query=filter_string, case_sensitive=case_sensitive, match_words=whole_word,
         data_version=data_version
     )
@@ -585,28 +585,28 @@ def cell_details():
                 res['Left' if k.upper().endswith('_L') else ('Right' if k.upper().endswith('_R') else 'Center')] += v
             return res
 
-        charts['Inputs / Outputs'] = stats.make_donut_chart_from_counts(
+        charts['Inputs / Outputs'] = stats_utils.make_donut_chart_from_counts(
             key_title='Cell', val_title='Count', counts_dict={'Inputs': len(upstream), 'Outputs': len(downstream)}
         )
 
         if input_neuropil_synapse_count:
-            charts['Input Synapse Neuropils'] = stats.make_donut_chart_from_counts(
+            charts['Input Synapse Neuropils'] = stats_utils.make_donut_chart_from_counts(
                 key_title='Neuropil', val_title='Synapse count', counts_dict=input_neuropil_synapse_count
             )
-            charts['Input Synapse Hemisphere'] = stats.make_donut_chart_from_counts(
+            charts['Input Synapse Hemisphere'] = stats_utils.make_donut_chart_from_counts(
                 key_title='Hemisphere', val_title='Synapse count', counts_dict=hemisphere_counts(input_neuropil_synapse_count)
             )
 
         if input_nt_type_count:
-            charts['Input Synapse Neurotransmitters'] = stats.make_donut_chart_from_counts(
+            charts['Input Synapse Neurotransmitters'] = stats_utils.make_donut_chart_from_counts(
                 key_title='Neurotransmitter Type', val_title='Synapse count', counts_dict=input_nt_type_count
             )
 
         if output_neuropil_synapse_count:
-            charts['Output Synapse Neuropils'] = stats.make_donut_chart_from_counts(
+            charts['Output Synapse Neuropils'] = stats_utils.make_donut_chart_from_counts(
                 key_title='Neuropil', val_title='Synapse count', counts_dict=output_neuropil_synapse_count
             )
-            charts['Output Synapse Hemisphere'] = stats.make_donut_chart_from_counts(
+            charts['Output Synapse Hemisphere'] = stats_utils.make_donut_chart_from_counts(
                 key_title='Hemisphere', val_title='Synapse count', counts_dict=hemisphere_counts(output_neuropil_synapse_count)
             )
     else:
