@@ -13,6 +13,7 @@ import os
 import traceback
 from collections import defaultdict
 from functools import wraps, lru_cache
+from random import randint
 from flask import Flask, render_template, request, redirect, Response, session, url_for, send_from_directory
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -831,6 +832,12 @@ def connections():
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, '../static'), 'favicon.ico')
+
+
+@app.route('/background_image')
+def background_image():
+    fname = f'bgd{randint(1, 6)}.png'
+    return send_from_directory(os.path.join(app.root_path, '../static/assets'), fname)
 
 
 @app.route('/app/activity_log')
