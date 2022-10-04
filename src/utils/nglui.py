@@ -6,10 +6,10 @@ _PREFIX = '{"dimensions":{"x":[1.6e-8,"m"],"y":[1.6e-8,"m"],"z":[4e-8,"m"]},"pro
           '"layers":[{"source":"precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf",' \
           '"type":"segmentation","selectedAlpha":0,"saturation":0,"objectAlpha":0.1,"segmentColors":{"1":"#b5b5b5"},' \
           '"segments":["1"],"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":"tissue"},' \
-          '{"type":"segmentation","source":"precomputed://gs://flywire_v141_m477"' \
+          '{"type":"segmentation","source":"precomputed://gs://flywire_v141_m447"' \
           ',"tab":"source","segments":['
-_SUFFIX = '],"name":"flywire_v141_m477"}],"showSlices":false,"perspectiveViewBackgroundColor":"#ffffff",' \
-          '"showDefaultAnnotations":false, "selectedLayer":{"visible":false,"layer":"flywire_v141_m477"},' \
+_SUFFIX = '],"name":"flywire_v141_m447"}],"showSlices":false,"perspectiveViewBackgroundColor":"#ffffff",' \
+          '"showDefaultAnnotations":false, "selectedLayer":{"visible":false,"layer":"flywire_v141_m447"},' \
           '"layout":"3d"}'
 
 PROOFREADFW = "https://neuromancer-seung-import.appspot.com/#!%7B%22layers%22:%5B%7B%22tab%22:%22" \
