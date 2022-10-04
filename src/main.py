@@ -83,11 +83,6 @@ OBSOLETE_ROUTE_DESTINATIONS = {
 log("App initialization complete.")
 
 
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
-
-
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 @request_wrapper
@@ -103,7 +98,7 @@ def index(path):
                       f"update your bookmark(s) accordingly."
             return render_error(message=message, title="Use updated URL", back_button=0)
         else:
-            if 'favicon.ico' not in path:
+            if 'favicon' not in path:
                 log_error(f"No destination found for {path=}, redirecting to home page")
             return redirect('/')
     else:
@@ -831,6 +826,11 @@ def connections():
         return make_graph_html(connection_table=matrix[1:],
                                neuron_data_fetcher=lambda nid: neuron_db.get_neuron_data(nid),
                                center_id=root_ids[0] if len(root_ids) == 1 else None)
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, '../static'), 'favicon.ico')
 
 
 @app.route('/app/activity_log')
