@@ -68,7 +68,7 @@ class NeuronDataTest(TestCase):
         # closest term search
         self.assertEqual(self.neuron_db.closest_token('blobe', case_sensitive=False), 'lobe')
         self.assertEqual(self.neuron_db.closest_token('blobe', case_sensitive=True), 'lobe')
-        self.assertEqual(self.neuron_db.closest_token('BLOBE', case_sensitive=True), 'LIKE')
+        self.assertEqual(self.neuron_db.closest_token('BLOBE', case_sensitive=True), 'LB3')
 
         self.assertEqual(self.neuron_db.closest_token_from_inherited_tags('blobe', case_sensitive=False), 'lobe')
 

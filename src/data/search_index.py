@@ -1,3 +1,4 @@
+from src.data.vocabulary import STOP_WORDS
 from src.utils.logging import log
 
 DELIMS = ['=', '-', '. ', ',', '?', '!', ';', ':' '//', '/', '(', ')', '"', '&']
@@ -160,8 +161,19 @@ class SearchIndex(object):
         else:
             indx = self.ci_token_to_row_id
             term = term.lower()
-        key_set = indx.keys() if not limited_ids_set else \
-            set([k for k, i in indx.items() if not i.isdisjoint(limited_ids_set)])
+        key_set = set(
+            indx.keys() if not limited_ids_set else [k for k, i in indx.items() if not i.isdisjoint(limited_ids_set)]
+        )
+
+        # exclude_stopwords
+        if case_sensitive:
+            key_set = set([k for k in key_set if k.lower() not in STOP_WORDS])
+        else:
+            key_set -= STOP_WORDS
+
+        # make deterministic (if few minimums)
+        key_set = sorted(key_set)
+
         return min(key_set, key=lambda x: self.edit_distance(x, term))
 
     def all_doc_ids(self):
