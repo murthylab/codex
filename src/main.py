@@ -1,12 +1,11 @@
-from src import stats_utils
-from src.graph_vis import make_graph_html
-from src.neuron_data_factory import NeuronDataFactory
-from src import nglui_utils
-from src import gcs_data_loader
-from src.logging_utils import log, log_activity, log_error, log_user_help, format_link, _is_smoke_test_request,\
+from src.utils.graph_vis import make_graph_html
+from src.data.neuron_data_factory import NeuronDataFactory
+from src.utils import nglui, stats
+from src.data import gcs_data_loader
+from src.utils.logging import log, log_activity, log_error, log_user_help, format_link, _is_smoke_test_request,\
     uptime, host_name, proc_id
-from src.faq_qa_kb import FAQ_QA_KB
-from src.search_index import tokenize
+from src.data.faq_qa_kb import FAQ_QA_KB
+from src.data.search_index import tokenize
 
 import math
 import re
@@ -14,7 +13,7 @@ import os
 import traceback
 from collections import defaultdict
 from functools import wraps, lru_cache
-from flask import Flask, render_template, request, redirect, Response, session, url_for
+from flask import Flask, render_template, request, redirect, Response, session, url_for, send_from_directory
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -84,6 +83,11 @@ OBSOLETE_ROUTE_DESTINATIONS = {
 log("App initialization complete.")
 
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 @request_wrapper
@@ -99,7 +103,7 @@ def index(path):
                       f"update your bookmark(s) accordingly."
             return render_error(message=message, title="Use updated URL", back_button=0)
         else:
-            if 'favicon.ico' != path:
+            if 'favicon.ico' not in path:
                 log_error(f"No destination found for {path=}, redirecting to home page")
             return redirect('/')
     else:
@@ -200,7 +204,7 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
         log_error(f"No stats results for {filter_string}. Sending hint '{hint}'")
 
     data = [neuron_db.get_neuron_data(i) for i in filtered_root_id_list]
-    caption, data_stats, data_charts = stats_utils.compile_data(
+    caption, data_stats, data_charts = stats.compile_data(
         data, search_query=filter_string, case_sensitive=case_sensitive, match_words=whole_word,
         data_version=data_version
     )
@@ -506,7 +510,7 @@ def search_results_flywire_url():
         f"For URLs got {len(filtered_root_id_list)} results {activity_suffix(filter_string, data_version)}"
     )
 
-    url = nglui_utils.url_for_random_sample(filtered_root_id_list, MAX_NEURONS_FOR_DOWNLOAD)
+    url = nglui.url_for_random_sample(filtered_root_id_list, MAX_NEURONS_FOR_DOWNLOAD)
     log_activity(f"Redirecting results {activity_suffix(filter_string, data_version)} to FlyWire {format_link(url)}")
     return redirect(url, code=302)
 
@@ -518,7 +522,7 @@ def flywire_url():
     extra_root_id = request.args.get('extra_root_id')
     if extra_root_id:
         root_ids.append(int(extra_root_id))
-    url = nglui_utils.url_for_root_ids(root_ids)
+    url = nglui.url_for_root_ids(root_ids)
     log_activity(f"Redirecting for {root_ids} to FlyWire {format_link(url)}")
     return redirect(url, code=302)
 
@@ -550,7 +554,7 @@ def cell_details():
             if not search_endpoint:
                 search_endpoint = f'search?filter_string=id << {comma_separated_root_ids}'
             search_link = f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{len(ids)} {key}</a>'
-            nglui_link = f'<a class="btn btn-info btn-sm" href="{nglui_utils.url_for_root_ids([root_id] + list(ids))}"' \
+            nglui_link = f'<a class="btn btn-info btn-sm" href="{nglui.url_for_root_ids([root_id] + list(ids))}"' \
                          f' target="_blank">FlyWire</a>'
             related_cells[search_link] = nglui_link
 
@@ -586,28 +590,28 @@ def cell_details():
                 res['Left' if k.upper().endswith('_L') else ('Right' if k.upper().endswith('_R') else 'Center')] += v
             return res
 
-        charts['Inputs / Outputs'] = stats_utils.make_donut_chart_from_counts(
+        charts['Inputs / Outputs'] = stats.make_donut_chart_from_counts(
             key_title='Cell', val_title='Count', counts_dict={'Inputs': len(upstream), 'Outputs': len(downstream)}
         )
 
         if input_neuropil_synapse_count:
-            charts['Input Synapse Neuropils'] = stats_utils.make_donut_chart_from_counts(
+            charts['Input Synapse Neuropils'] = stats.make_donut_chart_from_counts(
                 key_title='Neuropil', val_title='Synapse count', counts_dict=input_neuropil_synapse_count
             )
-            charts['Input Synapse Hemisphere'] = stats_utils.make_donut_chart_from_counts(
+            charts['Input Synapse Hemisphere'] = stats.make_donut_chart_from_counts(
                 key_title='Hemisphere', val_title='Synapse count', counts_dict=hemisphere_counts(input_neuropil_synapse_count)
             )
 
         if input_nt_type_count:
-            charts['Input Synapse Neurotransmitters'] = stats_utils.make_donut_chart_from_counts(
+            charts['Input Synapse Neurotransmitters'] = stats.make_donut_chart_from_counts(
                 key_title='Neurotransmitter Type', val_title='Synapse count', counts_dict=input_nt_type_count
             )
 
         if output_neuropil_synapse_count:
-            charts['Output Synapse Neuropils'] = stats_utils.make_donut_chart_from_counts(
+            charts['Output Synapse Neuropils'] = stats.make_donut_chart_from_counts(
                 key_title='Neuropil', val_title='Synapse count', counts_dict=output_neuropil_synapse_count
             )
-            charts['Output Synapse Hemisphere'] = stats_utils.make_donut_chart_from_counts(
+            charts['Output Synapse Hemisphere'] = stats.make_donut_chart_from_counts(
                 key_title='Hemisphere', val_title='Synapse count', counts_dict=hemisphere_counts(output_neuropil_synapse_count)
             )
     else:

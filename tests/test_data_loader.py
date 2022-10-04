@@ -1,6 +1,6 @@
 import datetime
 
-from src.gcs_data_loader import *
+from src.data.gcs_data_loader import *
 from unittest import TestCase
 
 

@@ -1,9 +1,9 @@
 import os
 
-from src import stats_utils
+from src.utils import stats
 from unittest import TestCase
 
-from src.local_data_loader import unpickle_neuron_db, DATA_ROOT_PATH
+from src.data.local_data_loader import unpickle_neuron_db, DATA_ROOT_PATH
 
 # for IDE test
 TEST_DATA_ROOT_PATH = os.getcwd().replace('tests', DATA_ROOT_PATH)
@@ -17,14 +17,14 @@ class Test(TestCase):
         self.assertEqual({
             'd1': {'a': '6,555'},
             'd2': {'b': None, 'c': 0.55}
-        }, stats_utils._format_for_display({
+        }, stats._format_for_display({
             'd1': {'a': 6555},
             'd2': {'b': None, 'c': 0.55}
         }))
 
     def test_compile_data(self):
         # empty data
-        caption, data_stats, data_charts = stats_utils.compile_data(
+        caption, data_stats, data_charts = stats.compile_data(
             data={}, search_query='test_query_1', case_sensitive=0, match_words=1, data_version='447')
         self.assertEqual("Stats for search query: 'test_query_1', match words, data version: 447", caption)
         self.assertEqual({'': {'- Classified': '0', '- Labeled': '0', 'Cells': '0'}}, data_stats)
@@ -32,7 +32,7 @@ class Test(TestCase):
 
         # actual data
         neuron_db = unpickle_neuron_db('447', data_root_path=TEST_DATA_ROOT_PATH)
-        caption, data_stats, data_charts = stats_utils.compile_data(
+        caption, data_stats, data_charts = stats.compile_data(
             data=list(neuron_db.neuron_data.values()), search_query='test_query_2', case_sensitive=1, match_words=0,
             data_version='447')
         self.assertEqual("Stats for search query: 'test_query_2', case sensitive, data version: 447", caption)

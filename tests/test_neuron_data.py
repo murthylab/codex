@@ -1,9 +1,9 @@
 from unittest import TestCase
 import os
-from src.neuron_data import *
-from src.local_data_loader import DATA_ROOT_PATH, available_data_versions, unpickle_all_neuron_db_versions, \
+from src.data.neuron_data import *
+from src.data.local_data_loader import DATA_ROOT_PATH, available_data_versions, unpickle_all_neuron_db_versions, \
     latest_data_version, load_neuron_db
-from src.neuron_data_factory import NeuronDataFactory
+from src.data.neuron_data_factory import NeuronDataFactory
 
 # for IDE test
 TEST_DATA_ROOT_PATH = os.getcwd().replace('tests', DATA_ROOT_PATH)
