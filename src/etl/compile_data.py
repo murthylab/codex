@@ -10,6 +10,10 @@ from caveclient import CAVEclient
 # Neurotransmitter types are here: https://drive.google.com/drive/folders/1B1_-yLi-ED7U8af8OJHhCHr8STq3bf1H
 #  - look for file named something like 'neuron_proof_analysis_ntavg_447.feather' (assuming version 447)
 #  - download it into RAW_DATA_ROOT_FOLDER and name it as NEURON_NT_TYPES_FILE_NAME below
+# Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
+# and store it in this file (no quotes)
+CAVE_AUTH_TOKEN_FILE_NAME = f'static/secrets/cave_auth_token.txt'
+CAVE_DATASTACK_NAME = "flywire_fafb_production"
 
 FLYWIRE_DATA_SNAPSHOT_VERSION = 447
 
@@ -24,12 +28,6 @@ SYNAPSE_TABLE_COLUMN_NAMES = ['pre_pt_root_id', 'post_pt_root_id', 'neuropil', '
 NEURON_NT_TYPES_FILE_NAME = "neuron_nt_types.feather"
 NEURON_NT_TYPES_COLUMN_NAMES = ['pre_pt_root_id', 'gaba_avg', 'ach_avg', 'glut_avg', 'oct_avg', 'ser_avg', 'da_avg']
 NT_TYPES = ['gaba', 'ach', 'glut', 'oct', 'ser', 'da']
-
-# Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
-# and store it in this file (no quotes)
-CAVE_AUTH_TOKEN_FILE_NAME = f'static/secrets/cave_auth_token.txt'
-CAVE_DATASTACK_NAME = "flywire_fafb_production"
-
 
 def load_feather_data_to_table(filename, columns=None):
     df_data = pandas.read_feather(filename)
@@ -59,24 +57,23 @@ def load_feather_files():
 
     nt_types_fname = f'{RAW_DATA_ROOT_FOLDER}/{NEURON_NT_TYPES_FILE_NAME}'
     if not os.path.isfile(nt_types_fname):
-        print(f'Error: synapse table file "{nt_types_fname}" not found')
+        print(f'Error: neurotransmitter types file "{nt_types_fname}" not found')
         exit(1)
 
-    syn_table_rows = load_feather_data_to_table(syn_table_fname, SYNAPSE_TABLE_COLUMN_NAMES)
-    nt_types_rows = load_feather_data_to_table(nt_types_fname, NEURON_NT_TYPES_COLUMN_NAMES)
+    return load_feather_data_to_table(syn_table_fname, SYNAPSE_TABLE_COLUMN_NAMES), \
+        load_feather_data_to_table(nt_types_fname, NEURON_NT_TYPES_COLUMN_NAMES)
 
-    return syn_table_rows, nt_types_rows
-
-
-def load_annotations():
+def init_cave_client():
     with open(CAVE_AUTH_TOKEN_FILE_NAME) as fn:
         auth_token = str(fn.readline()).strip()
         if not auth_token:
             print("!! Missing access token. See link in the comment for how to obtain it.")
             exit(1)
+    return CAVEclient(CAVE_DATASTACK_NAME, auth_token=auth_token)
 
-    client = CAVEclient(CAVE_DATASTACK_NAME, auth_token=auth_token)
-    print("Downloading data with CAVE client..")
+def load_neuron_info_from_cave():
+    client = init_cave_client()
+    print("Downloading 'neuron_information_v2' with CAVE client..")
     df2 = client.materialize.query_table('neuron_information_v2')
     print(f"Downloaded {len(df2)} rows")
     root_id_to_info_list = {}
@@ -90,7 +87,24 @@ def load_annotations():
         root_id_to_info_list[rid] = root_id_to_info_list.get(rid, []) + [info]
     return root_id_to_info_list
 
+def load_proofreading_info_from_cave():
+    client = init_cave_client()
+    print("Downloading 'proofreading_status_public_v1' with CAVE client..")
+    df2 = client.materialize.query_table('proofreading_status_public_v1')
+    print(f"Downloaded {len(df2)} rows")
+    root_id_to_pos = {}
+    pos_to_root_id = {}
+    for index, d in df2.iterrows():
+        rid = int(d['pt_root_id'])
+        pos = str(d['pt_position'])
+        root_id_to_pos[rid] = root_id_to_pos.get(rid, []) + [pos]
+        pos_to_root_id[pos] = root_id_to_pos.get(pos, []) + [rid]
+    print(f'{len(root_id_to_pos)=}, {len(pos_to_root_id)=}')
+    return root_id_to_pos, pos_to_root_id
+
 
 if __name__ == "__main__":
+    _, _ = load_proofreading_info_from_cave()
+    neuron_info = load_neuron_info_from_cave()
     syn_table_rows, nt_types_rows = load_feather_files()
-    neuron_info_lists = load_annotations()
+
