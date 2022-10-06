@@ -21,6 +21,11 @@
 1. firestore DB for storing labels and user info
 1. exclude stopwords from search hints
 1. page load spinner
+1. programatic access with user tokens
+1. user starred cells
+1. look up previous cell root ids by coordinates
+1. import hemibrain labels
+1. label suggestion status: pending, approved, synced to main DB
 
 ## User feedback
 1. - TODO: I’m note sure how familiar you are with seatable, but they have a feature that allows you to filter the db on
