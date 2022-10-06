@@ -83,7 +83,7 @@ def log(msg):
     return msg
 
 def _post_to_slk(text, real_user_activity, extra_hk):
-    if 'Slackbot-LinkExpanding' in text:
+    if 'Slackbot-LinkExpanding' in text or 'FullStoryBot' in text:
         log(f"Skipping SLK post from bots: {text}")
         return
 
