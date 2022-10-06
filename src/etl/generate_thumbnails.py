@@ -1,5 +1,7 @@
 import os
 from meshparty import skeleton_io, trimesh_vtk, trimesh_io
+from PIL import Image
+import numpy as np
 
 """
 Generates thumbnails for a set of .h5 skeleton files.
@@ -9,7 +11,7 @@ Instructions:
     - These are available from https://drive.google.com/drive/folders/1NA7lq5Arj5sqVnWUKAPc4KHkIjV0K8ba
 - Place the full brain mesh file in the local folder, named `brain_mesh_v141.obj` (or anything else, and update `BRAIN_MESH_PATH` accordingly).
     - This is already included
-- Make sure you have meshparty installed (`pip install meshparty` - may need a fresh Conda environment).
+- Make sure you have meshparty, Pillow, and numpy installed (`pip install meshparty` etc. - may need a fresh Conda environment).
 - Run `python generate_thumbnails.py`. For each `<root_id>.h5` skeleton file, a corresponding thumbnail in the thumbnails folder named `<root_id>.png` will be created.
 """
 
@@ -40,7 +42,17 @@ def render(filename, out_path=None):
         out_path = os.path.join("thumbnails", filename)
     skeleton = skeleton_io.read_skeleton_h5(os.path.join(MESH_PATH, filename))
     skeleton_actor = trimesh_vtk.skeleton_actor(skeleton, color=SEGMENT_COLOR, opacity=0.75)
-    trimesh_vtk.render_actors([full_brain_mesh_actor, skeleton_actor], filename=out_path.replace(".h5", ".png"), camera=cam, scale=1, do_save=True)
+    out_filename = out_path.replace(".h5", ".png")
+    trimesh_vtk.render_actors([full_brain_mesh_actor, skeleton_actor], filename=out_filename, camera=cam, scale=1, do_save=True)
+    add_transparency(out_filename)
+
+def add_transparency(path):
+    #from https://stackoverflow.com/a/54148416
+    img = Image.open(path)
+    x = np.asarray(img.convert("RGBA")).copy()
+    x[:, :, 3] = (255 * (x[:, :, :3] != 255).any(axis=2)).astype(np.uint8)
+    img2 = Image.fromarray(x)
+    img2.save(path, "PNG")
 
 def main():
     filenames = os.listdir(MESH_PATH)
