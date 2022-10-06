@@ -22,6 +22,10 @@
 1. look up previous cell root ids by coordinates
 1. import hemibrain labels
 1. label suggestion status: pending, approved, synced to main DB
+1. dedicated cell detail page (+ tab)
+1. homepage cards + stats
+1. show graph in path lengths
+1. skeleton thumbnails
 
 ## User feedback (Jie)
 1. - TODO: I’m note sure how familiar you are with seatable, but they have a feature that allows you to filter the db on
@@ -66,3 +70,8 @@ a way to then manually  group these connections could be nice (based on user kno
 1. a feature to change the type of graph could be nice as well as to download the graph (for example, if instead of a pie graph we wanted to change it to bar).
 1. similar to points above, perhaps a mechanism to then make that graph for >1 neuron, enabling an easy statistical comparison
 1. could be helpful to be able to group chosen cells together and make such graphs for them as well (for example, if there are 3 cells that I know are part of the same group, being able to pool that info would be great--- Im spending time doing such things for a plot for our paper)
+
+## User feedback (Tjalda)
+1. loved the Path length tool - asked how to see 1. what cells are in between and 2. cells in FW
+1. She said she would want to see any cells in FW but if results are too many then maybe a way to have checkboxes to choose which cells to show. I think though going through SVG would be better.
+1. FlyWire crashes frequently for most of our users and they are constantly refreshing, and when they do so it reorders their meshes and recolors them. I know this isn't related to CoDE but just wanted to relay in case the opportunity to fix it comes up. this seems to be the biggest complaint of all our users
