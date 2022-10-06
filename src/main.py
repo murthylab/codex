@@ -519,8 +519,10 @@ def flywire_url():
     extra_root_id = request.args.get('extra_root_id')
     if extra_root_id:
         root_ids.append(int(extra_root_id))
+    log_request = request.args.get('log_request', default=1, type=int)
     url = nglui.url_for_root_ids(root_ids)
-    log_activity(f"Redirecting for {root_ids} to FlyWire {format_link(url)}")
+    if log_request:
+        log_activity(f"Redirecting for {root_ids} to FlyWire {format_link(url)}")
     return redirect(url, code=302)
 
 
@@ -547,7 +549,7 @@ def cell_details():
     nd = neuron_db.get_neuron_data(root_id=root_id)
     cell_attributes = {
         'Name': nd['name'],
-        'ID': root_id,
+        'FlyWire Root ID': root_id,
         'Labels': '&nbsp; <b>&#x2022;</b> &nbsp;'.join(nd['tag']),
         'Type': nd['nt_type'],
         'Classification': nd['class'],
@@ -564,7 +566,7 @@ def cell_details():
                 search_endpoint = f'search?filter_string=id << {comma_separated_root_ids}'
             search_link = f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{len(ids)} {key}</a>'
             nglui_link = f'<a class="btn btn-info btn-sm" href="{nglui.url_for_root_ids([root_id] + list(ids))}"' \
-                         f' target="_blank">FlyWire</a>'
+                         f' target="_blank">ngl</a>'
             related_cells[search_link] = nglui_link
 
     connectivity = gcs_data_loader.load_connection_table_for_root_id(root_id)
@@ -803,8 +805,10 @@ def connections():
     nt_type = request.args.get('nt_type', 'all')
     min_syn_cnt = request.args.get('min_syn_cnt', 5, type=int)
     download = request.args.get('download', 0, type=int)
+    log_request = request.args.get('log_request', default=1, type=int)
     neuron_db = neuron_data_factory.get()
-    log_activity(f"Generating connection table for '{root_ids}' {download=} {min_syn_cnt=} {nt_type=}")
+    if log_request:
+        log_activity(f"Generating connection table for '{root_ids}' {download=} {min_syn_cnt=} {nt_type=}")
     try:
         root_ids = [int(root_id) for root_id in tokenize(root_ids)]
     except Exception as e:
@@ -823,7 +827,8 @@ def connections():
         if len(contable) <= 1:
             return render_error(f"Connections for {min_syn_cnt=}, {nt_type=} and Cell IDs {root_ids} are unavailable.")
         matrix = [['From', 'To', 'Neuropil', 'Synapses', 'Neuro Transmitter']] + contable
-        log_activity(f"Generated connections table for {root_ids} {download=} {min_syn_cnt=} {nt_type=}")
+        if log_request:
+            log_activity(f"Generated connections table for {root_ids} {download=} {min_syn_cnt=} {nt_type=}")
     else:
         matrix = []
 
