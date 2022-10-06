@@ -75,3 +75,12 @@ a way to then manually  group these connections could be nice (based on user kno
 1. loved the Path length tool - asked how to see 1. what cells are in between and 2. cells in FW
 1. She said she would want to see any cells in FW but if results are too many then maybe a way to have checkboxes to choose which cells to show. I think though going through SVG would be better.
 1. FlyWire crashes frequently for most of our users and they are constantly refreshing, and when they do so it reorders their meshes and recolors them. I know this isn't related to CoDE but just wanted to relay in case the opportunity to fix it comes up. this seems to be the biggest complaint of all our users
+
+## User feedback (Yijie:
+1. One small thing, when I hover over some connectivity info, 2 things appear and disappear together and overlap, like in the screenshot
+1. And some names have ‘*’ on them. It’s not very clear to me what they mean?
+1. I also wonder how viable it is to put a neuroglancer window in Labelling Suggestions , because it’s time consuming to compare many cells when you have to load a neuroglancer link for every pair of neruons
+1. And perhaps labelling suggestions could also allow you to put multiple pairs at the same time into a neuroglancer window quickly
+1. And after nblast, people might want to look at a subset (but more than 2 neurons) together. Perhaps a checkbox to select ids to copy would be useful?
+1. And might also be good to include some meta information of neurons in the nblast page
+1. And in path length, people might want to know e.g. if the path length is 3, which cells are in the middle, and what’s the synapse count for those connections. Might be good to make the path length numbers clickable for this info?
