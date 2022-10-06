@@ -116,25 +116,25 @@
   <table class="table">
     <thead>
       <tr>
+        <th scope="col"></th>
         <th scope="col">Name</th>
         <th scope="col">Label(s)</th>
         <th scope="col">NT</th>
         <th scope="col">Class</th>
         <th scope="col">I/O Side</th>
         <th scope="col"></th>
-        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
       {% for neuron in display_data %}
           <tr>
+            <td style="padding: 0px; margin: 0px;"><a href="{{url_for('cell_details', root_id=neuron.root_id)}}" target="_blank"><img src="{{url_for('skeleton_thumbnail_url', root_id=neuron.root_id, log_request=0)}}" width="100px" height="75px;" border="1px;"></a></td>
             <td><a href="{{url_for('cell_details', root_id=neuron.root_id)}}" target="_blank">{{neuron.name}}</a></td>
             <td>{{neuron.annotations|safe}}</td>
-            <td style="color:#FF4444;">{{neuron.nt_type}}</td>
+            <td style="color:#664444;">{{neuron.nt_type}}</td>
             <td style="color:#AAAAAA;">{{neuron.class}}</td>
-            <td style="color:#4444FF;">{{neuron.hemisphere_fingerprint|safe}}</td>
-            <td><a class="btn btn-outline-success" href="{{url_for('cell_details', root_id=neuron.root_id)}}" target="_blank" role="button" title="Show Info" >Info</a></td>
-            <td><a class="btn btn-outline-primary" href="{{url_for('flywire_url', root_id=neuron.root_id)}}" target="_blank" role="button" title="Open in FlyWire" >FlyWire</a></td>
+            <td style="color:#444466;">{{neuron.hemisphere_fingerprint|safe}}</td>
+            <td><a class="btn btn-outline-primary" href="{{url_for('flywire_url', root_id=neuron.root_id)}}" target="_blank" role="button" title="Open in FlyWire" >ngl</a></td>
           </tr>
       {% endfor %}
     </tbody>

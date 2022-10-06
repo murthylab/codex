@@ -6,6 +6,7 @@ from src.utils.logging import log, log_activity, log_error, log_user_help, forma
     uptime, host_name, proc_id
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.search_index import tokenize
+from src.utils.thumbnails import url_for_skeleton
 
 import math
 import re
@@ -520,6 +521,18 @@ def flywire_url():
         root_ids.append(int(extra_root_id))
     url = nglui.url_for_root_ids(root_ids)
     log_activity(f"Redirecting for {root_ids} to FlyWire {format_link(url)}")
+    return redirect(url, code=302)
+
+
+@app.route('/app/skeleton_thumbnail_url')
+@request_wrapper
+def skeleton_thumbnail_url():
+    root_id = int(request.args.get('root_id'))
+    log_request = request.args.get('log_request', default=1, type=int)
+    data_version = request.args.get('data_version', neuron_data_factory.latest_data_version())
+    url = url_for_skeleton(root_id=root_id, data_version=data_version)
+    if log_request:
+        log_activity(f"Fetching skeleton URL for {root_id}: {format_link(url)}")
     return redirect(url, code=302)
 
 
