@@ -10,8 +10,7 @@ Instructions:
 - Place the full brain mesh file in the local folder, named `brain_mesh_v141.obj` (or anything else, and update `BRAIN_MESH_PATH` accordingly).
     - This is already included
 - Make sure you have meshparty installed (`pip install meshparty` - may need a fresh Conda environment).
-- Run `python generate_thumbnails.py`. For each `<root_id>.h5` skeleton file, a corresponding thumbnail in the thumbnails folder named `<root_id>.h5.png` will be created.
-- If you want to rename the thumbnails to `<root_id>.png` without the `.h5`, use the rename_thumbnails() function.
+- Run `python generate_thumbnails.py`. For each `<root_id>.h5` skeleton file, a corresponding thumbnail in the thumbnails folder named `<root_id>.png` will be created.
 """
 
 MESH_PATH = os.path.join("flywire_resource_data_files", "447", "l2_skeletons")
