@@ -6,7 +6,9 @@ Generates thumbnails for a set of .h5 skeleton files.
 
 Instructions:
 - Place your skeleton files in subfolder `flywire_resource_data_files\447\l2_skeletons` (or any other subfolder and update `mesh_path` accordingly).
+    - These are available from https://drive.google.com/drive/folders/1NA7lq5Arj5sqVnWUKAPc4KHkIjV0K8ba
 - Place the full brain mesh file in the local folder, named `brain_mesh_v141.obj` (or anything else, and update `brain_mesh_path` accordingly).
+    - This is already included
 - Make sure you have meshparty installed (`pip install meshparty` - may need a fresh Conda environment).
 - Run `python generate_thumbnails.py`. For each `<root_id>.h5` skeleton file, a corresponding thumbnail in the thumbnails folder named `<root_id>.h5.png` will be created.
 - If you want to rename the thumbnails to `<root_id>.png` without the `.h5`, use the rename_thumbnails() function.
