@@ -16,11 +16,11 @@ Instructions:
 MESH_PATH = os.path.join("flywire_resource_data_files", "447", "l2_skeletons")
 BRAIN_MESH_PATH = "brain_mesh_v141.obj"
 
-segment_color = (160/255, 42/255, 250/255)
+SEGMENT_COLOR = (160/255, 42/255, 250/255)
 
 full_brain = trimesh_io.read_mesh(BRAIN_MESH_PATH)
 full_brain_mesh = trimesh_io.Mesh(full_brain[0], full_brain[1], full_brain[2])
-full_brain_mesh_actor = trimesh_vtk.mesh_actor(full_brain_mesh, color=(0,0,0), opacity=0.05)
+full_brain_mesh_actor = trimesh_vtk.mesh_actor(full_brain_mesh, color=(0,0,0), opacity=0.025)
 
 ngl_state = {
     "navigation": {
@@ -38,8 +38,8 @@ cam = trimesh_vtk.camera_from_ngl_state(ngl_state)
 def render(filename, out_path=None):
     if out_path is None:
         out_path = os.path.join("thumbnails", filename)
-    skeleton = skeleton_io.read_skeleton_h5(MESH_PATH + filename)
-    skeleton_actor = trimesh_vtk.skeleton_actor(skeleton, color=segment_color, opacity=0.75)
+    skeleton = skeleton_io.read_skeleton_h5(os.path.join(MESH_PATH, filename))
+    skeleton_actor = trimesh_vtk.skeleton_actor(skeleton, color=SEGMENT_COLOR, opacity=0.75)
     trimesh_vtk.render_actors([full_brain_mesh_actor, skeleton_actor], filename=out_path.replace(".h5", ".png"), camera=cam, scale=1, do_save=True)
 
 def main():
