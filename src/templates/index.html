@@ -19,6 +19,21 @@
           </p>
           <hr class="my-4">
       </div>
+
+      <div class="card-columns"  id="data_container" style="padding: 5px;">
+          {% for cd in card_data %}
+            <div class="card" style="width: 200px;">
+                <a href="{{url_for(cd.url)}}">
+                    <img src="{{url_for('asset', filename=cd.asset_filename)}}" width="200px;">
+                </a>
+                <div class="card-header">
+                    {{cd.header}}
+                </div>
+                <div class="card-body">
+                    {{cd.body}}
+                </div>
+            </div>
+          {% endfor %}
     </div>
 
 {% endblock %}
