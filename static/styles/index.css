@@ -32,7 +32,7 @@ h1 {
 }
 
 h2 {
-    font-size: 20px;
+    font-size: 28px;
     font-weight: 400;
     text-align: center;
 }
@@ -72,6 +72,12 @@ img {
 .cards_item {
   display: flex;
   padding: 1rem;
+  transform: scale(1);
+  transition: transform .2s;
+}
+
+.cards_item:hover {
+  transform: scale(1.05);
 }
 
 @media (min-width: 40rem) {

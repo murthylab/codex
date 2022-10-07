@@ -108,42 +108,42 @@ def index(path):
         card_data = [
             {
                 'header': 'Search',
-                'body': 'Do something',
+                'body': 'Find neurons using free-form or structured queries',
                 'asset_filename': 'card-search.jpg',
                 'url': 'search'
             }, {
                 'header': 'Stats',
-                'body': 'Do something',
+                'body': 'See statistics and charts for various attributes of all or subset of neurons in the dataset',
                 'asset_filename': 'card-stats.jpg',
                 'url': 'stats'
             }, {
                 'header': 'Explore',
-                'body': 'Do something',
+                'body': 'Browse cell types, labels, and groupings of the neurons in the dataset',
                 'asset_filename': 'card-explore.jpg',
                 'url': 'explore'
             }, {
                 'header': 'Labeling',
-                'body': 'Do something',
+                'body': 'Automatically generated labeling suggestions, based on similarity of neuron pairs',
                 'asset_filename': 'card-labelsugg.jpg',
                 'url': 'labeling_suggestions'
             }, {
                 'header': 'NBLAST',
-                'body': 'Do something',
+                'body': 'Pairwise morphological similarity scores for sets of neurons',
                 'asset_filename': 'card-nblast.jpg',
                 'url': 'nblast'
             }, {
                 'header': 'Connectivity',
-                'body': 'Do something',
+                'body': 'Visualize connectivity of neurons in various regions of the brain',
                 'asset_filename': 'card-network.jpg',
                 'url': 'connections'
             }, {
                 'header': 'Pathways',
-                'body': 'Do something',
+                'body': 'Analyse shortest-paths between pairs of neurons',
                 'asset_filename': 'card-pathlength.jpg',
                 'url': 'path_length'
             }, {
                 'header': 'API',
-                'body': 'Do something',
+                'body': 'Programmatic access to the data and analysis tools',
                 'asset_filename': 'card-api.jpg',
                 'url': 'api'
             }
