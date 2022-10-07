@@ -905,6 +905,11 @@ def asset(filename):
     return send_from_directory(os.path.join(app.root_path, '../static/assets'), filename)
 
 
+@app.route('/styles/<path:filename>')
+def styles(filename):
+    return send_from_directory(os.path.join(app.root_path, '../static/styles'), filename)
+
+
 @app.route('/app/activity_log')
 @request_wrapper
 def activity_log():

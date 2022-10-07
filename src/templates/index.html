@@ -3,37 +3,49 @@
     <div class="jumbotron" style="background-image: url(/background_image); background-size: 50%; background-position: right top; background-repeat: no-repeat;">
       <div class="container">
         <h1 class="display-4">CoDE</h1>
-          <br>
           <h5>Connectome Data Explorer</h5>
+          <br>
           <p>Analysis tools for the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome</p>
-          <hr class="my-4">
-          <p>
-                <em>Search for cells with FlyWire annotations assigned by community experts</em>
-                <br><br>
-                <a class="btn btn-primary" href="{{url_for('search')}}" role="button">Find cells by name, label, class, ... &#10132</a>
-          </p>
-          <p>
-                <em>Review and accept/reject automatically assigned labels</em>
-                <br><br>
-                <a class="btn btn-primary" href="{{url_for('labeling_suggestions')}}" role="button">Automated labeling suggestions &#10132</a>
-          </p>
-          <hr class="my-4">
-      </div>
+          <hr class="my-4" width="50%;" align="left">
 
-      <div class="card-columns"  id="data_container" style="padding: 5px;">
-          {% for cd in card_data %}
-            <div class="card" style="width: 200px;">
-                <a href="{{url_for(cd.url)}}">
-                    <img src="{{url_for('asset', filename=cd.asset_filename)}}" width="200px;">
-                </a>
-                <div class="card-header">
-                    {{cd.header}}
-                </div>
-                <div class="card-body">
-                    {{cd.body}}
-                </div>
+          <div style="width: 50%;">
+            <table cellspacing="0" cellpadding="0" style="border: none; border-collapse: collapse;">
+              <tr style="background: none; margin: 0; padding: 0;">
+                <td><b>80+ thousand</b></td>
+                <td><b>75+ million</b></td>
+                <td><b>3+ thousand</b></td>
+              </tr>
+              <tr style="background: none; margin: 0px; padding: 0;">
+                <td>neurons</td>
+                <td>synapses</td>
+                <td>contributors</td>
+              </tr>
+            </table>
+          </div>
+          <hr class="my-4" width="50%;" align="left">
+      </div>
+      <br><br>
+
+
+    <link rel="stylesheet" href="{{ url_for('styles', filename='index.css') }}">
+    <div class="main">
+      <h2>Connectome Analysis Tools</h2>
+      <ul class="cards">
+        {% for cd in card_data %}
+          <li class="cards_item">
+            <div class="card">
+              <div class="card_image"><img src="{{url_for('asset', filename=cd.asset_filename)}}"></div>
+              <div class="card_content">
+                <h2 class="card_title">{{cd.header}}</h2>
+                <p class="card_text">{{cd.body}}</p>
+                <a href="{{url_for(cd.url)}}" class="btn card_btn">Launch</a>
+              </div>
             </div>
-          {% endfor %}
+          </li>
+        {% endfor %}
+      </ul>
     </div>
+
+    <h3 class="made_by">One &#129712; was harmed in the making of this data</h3>
 
 {% endblock %}
