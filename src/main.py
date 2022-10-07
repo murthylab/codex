@@ -105,7 +105,50 @@ def index(path):
             return redirect('/')
     else:
         log_activity(f"Loading home page")
-        return render_template("index.html")
+        card_data = [
+            {
+                'header': 'Search',
+                'body': 'Do something',
+                'asset_filename': 'card-search.jpg',
+                'url': 'search'
+            }, {
+                'header': 'Stats',
+                'body': 'Do something',
+                'asset_filename': 'card-stats.jpg',
+                'url': 'stats'
+            }, {
+                'header': 'Explore',
+                'body': 'Do something',
+                'asset_filename': 'card-explore.jpg',
+                'url': 'explore'
+            }, {
+                'header': 'Labeling',
+                'body': 'Do something',
+                'asset_filename': 'card-labelsugg.jpg',
+                'url': 'labeling_suggestions'
+            }, {
+                'header': 'NBLAST',
+                'body': 'Do something',
+                'asset_filename': 'card-nblast.jpg',
+                'url': 'nblast'
+            }, {
+                'header': 'Connectivity',
+                'body': 'Do something',
+                'asset_filename': 'card-network.jpg',
+                'url': 'connections'
+            }, {
+                'header': 'Pathways',
+                'body': 'Do something',
+                'asset_filename': 'card-pathlength.jpg',
+                'url': 'path_length'
+            }, {
+                'header': 'API',
+                'body': 'Do something',
+                'asset_filename': 'card-api.jpg',
+                'url': 'api'
+            }
+        ]
+        return render_template("index.html", card_data=card_data)
 
 
 def render_auth_page(redirect_to='/'):
@@ -854,8 +897,12 @@ def favicon():
 
 @app.route('/background_image')
 def background_image():
-    fname = f'bgd{randint(1, 6)}.png'
-    return send_from_directory(os.path.join(app.root_path, '../static/assets'), fname)
+    return asset(filename=f'bgd{randint(1, 6)}.png')
+
+
+@app.route('/asset/<path:filename>')
+def asset(filename):
+    return send_from_directory(os.path.join(app.root_path, '../static/assets'), filename)
 
 
 @app.route('/app/activity_log')
@@ -865,6 +912,14 @@ def activity_log():
     return render_error(
         message=f'Activity log feature coming soon. It will list a history of recent searches / queries with '
                 f'links to results.', title="Coming soon")
+
+
+@app.route('/api')
+@request_wrapper
+def api():
+    log_activity(f"Rendering API")
+    return render_error(
+        message=f'Programmatic access coming soon.', title="Coming soon")
 
 
 if __name__ == "__main__":
