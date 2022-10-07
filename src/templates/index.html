@@ -29,16 +29,16 @@
 
     <link rel="stylesheet" href="{{ url_for('styles', filename='index.css') }}">
     <div class="main">
-      <h2>Connectome Analysis Tools</h2>
+      <h2>Features</h2>
+      <br>
       <ul class="cards">
         {% for cd in card_data %}
-          <li class="cards_item">
-            <div class="card">
-              <div class="card_image"><img src="{{url_for('asset', filename=cd.asset_filename)}}"></div>
-              <div class="card_content">
+          <li class="cards_item" onclick="location.href='{{url_for(cd.url)}}'">
+            <div class="card" style="max-width: 300px;">
+              <div class="card_image" style="height: 200px;"><img src="{{url_for('asset', filename=cd.asset_filename)}}" style="align: center; object-fit: cover; min-width: 100%; width: auto; height: auto;"></div>
+              <div class="card_content" style="height: 120px;">
                 <h2 class="card_title">{{cd.header}}</h2>
-                <p class="card_text">{{cd.body}}</p>
-                <a href="{{url_for(cd.url)}}" class="btn card_btn">Launch</a>
+                <p class="card_text">{{cd.body}}<br></p>
               </div>
             </div>
           </li>
