@@ -56,7 +56,7 @@ class Test(TestCase):
 
         # time parallel loading
         start_time = datetime.datetime.now()
-        pscores = load_nblast_scores_for_root_ids(sample_root_ids)
+        pscores = load_nblast_scores_for_root_ids(sample_root_ids, pool_size=8)
         self.assertEqual(len(sample_root_ids), len(pscores))
         for scores in pscores.values():
             self.assertEqual(49231, len(scores))
@@ -116,7 +116,7 @@ class Test(TestCase):
 
         # time parallel loading
         start_time = datetime.datetime.now()
-        parallel_connections = load_connection_table_for_root_ids(sample_root_ids)
+        parallel_connections = load_connection_table_for_root_ids(sample_root_ids, pool_size=8)
         self.assertEqual(57110, len(parallel_connections))
         self.assertLess((datetime.datetime.now() - start_time).total_seconds(), 6)
 
@@ -177,7 +177,7 @@ class Test(TestCase):
         # time parallel loading
         start_time = datetime.datetime.now()
         distances = load_precomputed_distances_for_root_ids(
-            sample_root_ids, nt_type='all', min_syn_cnt=5, whole_rows=False)
+            sample_root_ids, nt_type='all', min_syn_cnt=5, whole_rows=False, pool_size=8)
         self.assertEqual(len(sample_root_ids) + 1, len(distances))
         for row in distances:
             self.assertEqual(len(sample_root_ids) + 1, len(row))
