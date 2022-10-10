@@ -608,8 +608,8 @@ def cell_details():
             if not search_endpoint:
                 search_endpoint = f'search?filter_string=id << {comma_separated_root_ids}'
             search_link = f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{len(ids)} {key}</a>'
-            nglui_link = f'<a class="btn btn-info btn-sm" href="{nglui.url_for_root_ids([root_id] + list(ids))}"' \
-                         f' target="_blank">ngl</a>'
+            nglui_link = f'<a class="btn btn-primary btn-sm" href="{nglui.url_for_root_ids([root_id] + list(ids))}"' \
+                         f' target="_blank">3D</a>'
             related_cells[search_link] = nglui_link
 
     connectivity = gcs_data_loader.load_connection_table_for_root_id(root_id)
@@ -753,7 +753,7 @@ def nblast():
                         bgd = "green"
                     style = f'style="color:{bgd};"' if bgd else empty
                     return f'<a target="_blank" {style} href="search?filter_string=id << {rid},{root_ids[idx]}">{score}</a> ' \
-                           f'<a target="_blank" href="search_results_flywire_url?filter_string=id << {rid},{root_ids[idx]}">&#10132;</a>'
+                           f'<a target="_blank" href="search_results_flywire_url?filter_string=id << {rid},{root_ids[idx]}">3D</a>'
 
                 scores_row = [score_with_link(i, c) for i, c in enumerate(columns)] if scores else [empty] * len(
                     columns)

@@ -134,7 +134,7 @@
             <td style="color:#664444;">{{neuron.nt_type}}</td>
             <td style="color:#AAAAAA;">{{neuron.class}}</td>
             <td style="color:#444466;">{{neuron.hemisphere_fingerprint|safe}}</td>
-            <td><a class="btn btn-outline-primary" href="{{url_for('flywire_url', root_id=neuron.root_id)}}" target="_blank" role="button" title="Open in FlyWire" >ngl</a></td>
+            <td><a class="btn btn-primary" href="{{url_for('flywire_url', root_id=neuron.root_id)}}" target="_blank" role="button" title="Open in FlyWire" >3D</a></td>
           </tr>
       {% endfor %}
     </tbody>
