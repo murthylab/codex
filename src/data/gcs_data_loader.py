@@ -12,7 +12,7 @@ GCS_BASE_URL = 'https://storage.googleapis.com'
 FLYWIRE_DATA_BUCKET = 'flywire-data'
 FILE_EXTENSION = 'csv.gz'
 
-DEFAULT_POOL_SIZE = cpu_count()
+DEFAULT_POOL_SIZE = 1  # TODO: this should be set to 'cpu_count()' once caching works for multiprocess execution
 
 
 def load_csv_content_from_compressed_object_on_gcs(gcs_blob, gcs_bucket=FLYWIRE_DATA_BUCKET):
@@ -76,10 +76,15 @@ def load_nblast_scores_for_root_ids(root_ids, pool_size=DEFAULT_POOL_SIZE):
     root_ids = list(set(root_ids))
 
     log(f"Loading nblast scores for {root_ids} with {pool_size} workers")
-    pool = Pool(pool_size)
-    results = pool.map(load_nblast_scores_for_root_id, root_ids)
-    pool.close()
-    pool.join()
+
+    if pool_size > 1:
+        pool = Pool(pool_size)
+        results = pool.map(load_nblast_scores_for_root_id, root_ids)
+        pool.close()
+        pool.join()
+    else:
+        results = [load_nblast_scores_for_root_id(rid) for rid in root_ids]
+
     log(f"Loaded {len(results)} nblast scores for {root_ids} with {pool_size} workers. "
         f"Unsuccessful: {len([r for r in results if not r])}")
 
@@ -123,10 +128,15 @@ def load_connection_table_for_root_ids(root_ids, pool_size=DEFAULT_POOL_SIZE):
     root_ids = list(set(root_ids))
 
     log(f"Loading connection tables for {root_ids} with {pool_size} workers")
-    pool = Pool(pool_size)
-    tables = pool.map(load_connection_table_for_root_id, root_ids)
-    pool.close()
-    pool.join()
+
+    if pool_size > 1:
+        pool = Pool(pool_size)
+        tables = pool.map(load_connection_table_for_root_id, root_ids)
+        pool.close()
+        pool.join()
+    else:
+        tables = [load_connection_table_for_root_id(rid) for rid in root_ids]
+
     log(f"Loaded {len(tables)} connection tables for {root_ids} with {pool_size} workers. "
         f"Unsuccessful: {len([r for r in tables if not r])}")
 
@@ -186,11 +196,16 @@ def load_precomputed_distances_for_root_ids(root_ids, nt_type, min_syn_cnt, whol
     column_idx = {t: i for i, t in enumerate(targets)}
 
     log(f"Loading precomputed distances for {root_ids} with {pool_size} workers")
-    pool = Pool(pool_size)
+
     download_func = partial(load_precomputed_distances_for_root_id, nt_type=nt_type, min_syn_cnt=min_syn_cnt)
-    results = pool.map(download_func, root_ids)
-    pool.close()
-    pool.join()
+    if pool_size > 1:
+        pool = Pool(pool_size)
+        results = pool.map(download_func, root_ids)
+        pool.close()
+        pool.join()
+    else:
+        results = [download_func(rid) for rid in root_ids]
+
     log(f"Loaded {len(results)} precomputed distances for {root_ids} with {pool_size} workers. "
         f"Unsuccessful: {len([r for r in results if not r])}")
 
