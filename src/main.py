@@ -923,11 +923,19 @@ def styles(filename):
 @app.route('/app/activity_log')
 @request_wrapper
 def activity_log():
-    log_activity(f"Rendering Activity Log ")
+    log_activity(f"Rendering Activity Log")
     return render_error(
         message=f'Activity log feature coming soon. It will list a history of recent searches / queries with '
                 f'links to results.', title="Coming soon")
 
+
+@app.route('/wip')
+@request_wrapper
+def wip():
+    log_activity(f"Rendering WIP notice")
+    return render_error(
+        message=f'Both the data and the app are a work in progress. Estimated completion time is by end of 2022.',
+        title="CoDE - current status")
 
 @app.route('/api')
 @request_wrapper
