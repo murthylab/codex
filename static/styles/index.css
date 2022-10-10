@@ -1,25 +1,4 @@
-/* Font */
-@import url('https://fonts.googleapis.com/css?family=Quicksand:400,700');
-
 /* Design */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  background-color: #ecf9ff;
-}
-
-body {
-  color: #272727;
-  font-family: 'Quicksand', serif;
-  font-style: normal;
-  font-weight: 400;
-  letter-spacing: 0;
-  padding: 1rem;
-}
 
 .main{
   max-width: 1200px;
@@ -32,15 +11,15 @@ h1 {
 }
 
 h2 {
-    font-size: 28px;
+    font-size: 20px;
     font-weight: 400;
-    text-align: center;
 }
 
 img {
   height: auto;
   max-width: 100%;
   vertical-align: middle;
+  horizontal-align: middle;
 }
 
 .btn {
@@ -94,7 +73,7 @@ img {
 
 .card {
   background-color: white;
-  border-radius: 0.25rem;
+  border-radius: 0.5rem;
   box-shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;

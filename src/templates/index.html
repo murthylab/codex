@@ -1,51 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="jumbotron" style="background-image: url(/background_image); background-size: 50%; background-position: right top; background-repeat: no-repeat;">
-      <div class="container">
-        <h1 class="display-4">CoDE</h1>
-          <h5>Connectome Data Explorer</h5>
-          <br>
-          <p>Analysis tools for the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome</p>
-          <hr class="my-4" width="50%;" align="left">
+  <link rel="stylesheet" href="{{ url_for('styles', filename='index.css') }}">
+  <div class="jumbotron" style="background-image: url(/background_image); background-size: 50%; background-position: right top; background-repeat: no-repeat;">
+    <div class="container">
+      <h1 class="display-4">CoDE</h1>
+        <h5>Connectome Data Explorer</h5>
+        <br>
+        <p>Analysis tools for the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome</p>
+        <hr class="my-4" width="50%;" align="left">
 
-          <div style="width: 50%;">
-            <table cellspacing="0" cellpadding="0" style="border: none; border-collapse: collapse;">
-              <tr style="background: none; margin: 0; padding: 0;">
-                <td><b>80+ thousand</b></td>
-                <td><b>75+ million</b></td>
-                <td><b>3+ thousand</b></td>
-              </tr>
-              <tr style="background: none; margin: 0px; padding: 0;">
-                <td>neurons</td>
-                <td>synapses</td>
-                <td>contributors</td>
-              </tr>
-            </table>
-          </div>
-          <hr class="my-4" width="50%;" align="left">
-      </div>
-      <br><br>
-
-
-    <link rel="stylesheet" href="{{ url_for('styles', filename='index.css') }}">
-    <div class="main">
-      <h2>Features</h2>
-      <br>
-      <ul class="cards">
-        {% for cd in card_data %}
-          <li class="cards_item" onclick="location.href='{{url_for(cd.url)}}'">
-            <div class="card" style="max-width: 300px;">
-              <div class="card_image" style="height: 200px;"><img src="{{url_for('asset', filename=cd.asset_filename)}}" style="align: center; object-fit: cover; min-width: 100%; width: auto; height: auto;"></div>
-              <div class="card_content" style="height: 120px;">
-                <h2 class="card_title">{{cd.header}}</h2>
-                <p class="card_text">{{cd.body}}<br></p>
-              </div>
-            </div>
-          </li>
-        {% endfor %}
-      </ul>
+        <div style="width: 50%;">
+          <table cellspacing="0" cellpadding="0" style="border: none; border-collapse: collapse;">
+            <tr style="background: none; margin: 0; padding: 0;">
+              <td><b>80+ thousand</b></td>
+              <td><b>75+ million</b></td>
+              <td><b>3+ thousand</b></td>
+            </tr>
+            <tr style="background: none; margin: 0px; padding: 0;">
+              <td>neurons</td>
+              <td>synapses</td>
+              <td>contributors</td>
+            </tr>
+          </table>
+        </div>
+        <hr class="my-4" width="50%;" align="left">
     </div>
+    <br><br>
 
-    <h3 class="made_by">One &#129712; was harmed in the making of this data</h3>
+  <div class="main">
+    <br>
+    <ul class="cards">
+      {% for cd in card_data %}
+        <li class="cards_item" onclick="location.href='{{url_for(cd.url)}}'">
+          <div class="card" style="max-width: 300px;">
+            <div class="card_image" style="height: 200px;"><img src="{{url_for('asset', filename=cd.asset_filename)}}" style="align: center; object-fit: cover; min-width: 100%; width: auto; height: auto;"></div>
+            <div class="card_content" style="height: 120px;">
+              <h2 class="card_title">{{cd.header}}</h2>
+              <p class="card_text">{{cd.body}}<br></p>
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <h3 class="made_by">One &#129712; was harmed in the making of this data</h3>
 
 {% endblock %}
