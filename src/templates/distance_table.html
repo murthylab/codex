@@ -4,7 +4,7 @@
 
   <nav class="navbar navbar-light bg-light">
     <form class="form-inline">
-      <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="root_ids" name="root_ids" placeholder="enter 2 or more Cell IDs" aria-label="Cell IDs" value="{{root_ids}}">
+      <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="cell_names_or_ids" name="cell_names_or_ids" placeholder="enter 2 or more Cell names or IDs" aria-label="Cell IDs" value="{{cell_names_or_ids}}">
       <button class="btn btn btn-primary my-2 my-sm-0" type="submit">&#128269;</button>
       <button type="button" class="btn btn-info" style="margin-left: 5px;" title="Info" data-toggle="modal" data-target="#infoModal">&#10068;</button>
       <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
@@ -53,7 +53,7 @@
 {% else %}
 
 <div style="margin: 15px;">
-  For example, try these <button class="btn btn-btn-link" style="color: blue;" type="button" onclick="document.getElementById('root_ids').value = '{{sample_ids}}'; document.getElementById('root_ids').form.submit();">{{sample_ids}}</button>
+  For example, try these <button class="btn btn-btn-link" style="color: blue;" type="button" onclick="document.getElementById('cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('cell_names_or_ids').form.submit();">{{sample_input}}</button>
 </div>
 
 {% endif %}

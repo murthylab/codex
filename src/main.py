@@ -702,40 +702,44 @@ def cell_details():
 @app.route('/app/nblast')
 @request_wrapper
 def nblast():
-    sample_ids = "720575940628063479,720575940645542276,720575940626822533,720575940609037432,720575940628445399"
-    root_ids = request.args.get('root_ids', '')
-    if request.args.get('with_sample_ids') and not root_ids:
-        root_ids = sample_ids
+    sample_input = "720575940628063479, 720575940645542276, 720575940626822533, 720575940609037432, 720575940628445399"
+    cell_names_or_ids = request.args.get('cell_names_or_ids', '')
+    if request.args.get('with_sample_input', type=int, default=0) and not cell_names_or_ids:
+        cell_names_or_ids = sample_input
     download = request.args.get('download', 0, type=int)
-    log_activity(f"Generating NBLAST table for '{root_ids}' {download=}")
-    try:
-        root_ids = [int(root_id) for root_id in tokenize(root_ids)]
-    except Exception as e:
-        return render_error(f"Could not extract valid Cell IDs from {root_ids}: {e}")
+    log_activity(f"Generating NBLAST table for '{cell_names_or_ids}' {download=}")
 
-    if len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
-        return render_error(f"NBLAST scores can be fetched for up to {MAX_NEURONS_FOR_DOWNLOAD} cells at a time.")
-    elif len(root_ids) == 1:
-        return render_error(message=f"Please provide at least 2 Cell IDs.", title="List is too short")
+    if cell_names_or_ids:
+        neuron_db = neuron_data_factory.get()
+        root_ids = neuron_db.search(search_query=cell_names_or_ids)
+        if not root_ids:
+            return render_error(title="No matching cells found",
+                                message=f"Could not find any cells matching '{cell_names_or_ids}'")
+        elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
+            return render_error(title="Too many cells match",
+                                message=f"{len(root_ids)} cells match '{cell_names_or_ids}'. "
+                                f"NBLAST scores can be fetched for up to {MAX_NEURONS_FOR_DOWNLOAD} cells at a time.")
+        elif len(cell_names_or_ids) == 1:
+            return render_error(
+                message=f"Only one cell matches the input. Need 2 or more cells for pairwise NBLAST score(s).",
+                title="Cell list is too short")
 
-    empty = ''
-
-    if root_ids:
+        data = [neuron_db.get_neuron_data(i) for i in root_ids]
+        empty = ''
+        cell_names_and_ids = [f"{n['name']} {n['root_id']}" for n in data]
         if download:
-            nblast_scores = [['from \ to'] + root_ids]
+            nblast_scores = [["from \\ to"] + cell_names_and_ids]
         else:
-            nblast_scores = [['from \ to'] + [f'({i + 1})' for i, rid in enumerate(root_ids)]]
+            nblast_scores = [["from \\ to"] + [f'({i + 1})' for i, rid in enumerate(cell_names_and_ids)]]
         column_index = {r: i for i, r in enumerate(gcs_data_loader.load_nblast_scores_header())}
         columns = [column_index.get(rid, -1) for rid in root_ids]
         all_scores = gcs_data_loader.load_nblast_scores_for_root_ids(root_ids)
         for i, rid in enumerate(root_ids):
             scores = all_scores.get(rid)
-
             if download:
                 nblast_scores.append(
-                    [rid] + ([(scores[c][1] if j != i else empty) for j, c in enumerate(columns)] if scores else [
-                                                                                                                     empty] * len(
-                        columns)))
+                    [cell_names_and_ids[i]] + ([(scores[c][1] if j != i else empty)
+                                                for j, c in enumerate(columns)] if scores else [empty] * len(columns)))
             else:
                 def score_with_link(idx, col):
                     if col < 0 or i == idx:
@@ -753,14 +757,15 @@ def nblast():
 
                 scores_row = [score_with_link(i, c) for i, c in enumerate(columns)] if scores else [empty] * len(
                     columns)
-                nblast_scores.append([f'<b>({i + 1})</b> {rid}'] + scores_row)
+                nblast_scores.append([f"<b>({i + 1})</b><br>{data[i]['name']}<br><small>{rid}</small>"] + scores_row)
 
         if all([all([v == empty for v in row[1:]]) for row in nblast_scores[1:]]):
-            return render_error(f"NBLAST scores for Cell IDs {root_ids} are not available. Currently NBLAST scores "
+            return render_error(f"NBLAST scores for Cells IDs {root_ids} are not available. Currently NBLAST scores "
                                 f"are available for the central brain cells only (which is around 60% of the dataset).")
 
         log_activity(f"Generated NBLAST table for {root_ids} {download=}")
     else:
+        root_ids = []
         nblast_scores = []
 
     if download:
@@ -776,37 +781,42 @@ def nblast():
         nblast_doc = FAQ_QA_KB['nblast']
         return render_template(
             "distance_table.html",
-            root_ids=', '.join([str(r) for r in root_ids]),
+            cell_names_or_ids=cell_names_or_ids,
             distance_table=nblast_scores,
-            download_url=url_for('nblast', download=1, root_ids=','.join([str(r) for r in root_ids])),
+            download_url=url_for('nblast', download=1, cell_names_or_ids=cell_names_or_ids),
             info_title=nblast_doc['q'],
             info_text=nblast_doc['a'],
-            sample_ids=sample_ids,
+            sample_input=sample_input,
         )
 
 
 @app.route('/app/path_length')
 @request_wrapper
 def path_length():
-    sample_ids = "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
-    root_ids = request.args.get('root_ids', '')
-    if request.args.get('with_sample_ids') and not root_ids:
-        root_ids = sample_ids
+    sample_input = "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
     nt_type = request.args.get('nt_type', 'all')
     min_syn_cnt = request.args.get('min_syn_cnt', 5, type=int)
+    cell_names_or_ids = request.args.get('cell_names_or_ids', '')
+    if request.args.get('with_sample_input', type=int, default=0) and not cell_names_or_ids:
+        cell_names_or_ids = sample_input
     download = request.args.get('download', 0, type=int)
-    log_activity(f"Generating Path Length table for '{root_ids}' {download=} {min_syn_cnt=} {nt_type=}")
-    try:
-        root_ids = [int(root_id) for root_id in tokenize(root_ids)]
-    except Exception as e:
-        return render_error(f"Could not extract valid Cell IDs from {root_ids}: {e}")
+    log_activity(f"Generating path lengths table for '{cell_names_or_ids}' {download=}")
 
-    if len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
-        return render_error(f"Path lengths can be fetched for up to {MAX_NEURONS_FOR_DOWNLOAD} cells at a time.")
-    elif len(root_ids) == 1:
-        return render_error(f"Please provide at least 2 Cell IDs.", title="List is too short")
+    if cell_names_or_ids:
+        neuron_db = neuron_data_factory.get()
+        root_ids = neuron_db.search(search_query=cell_names_or_ids)
+        if not root_ids:
+            return render_error(title="No matching cells found",
+                                message=f"Could not find any cells matching '{cell_names_or_ids}'")
+        elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
+            return render_error(title="Too many cells match",
+                                message=f"{len(root_ids)} cells match '{cell_names_or_ids}'. "
+                                f"Path lengths can be fetched for up to {MAX_NEURONS_FOR_DOWNLOAD} cells at a time.")
+        elif len(cell_names_or_ids) == 1:
+            return render_error(
+                message=f"Only one cell matches the input. Need 2 or more cells for pairwise path length(s).",
+                title="Cell list is too short")
 
-    if root_ids:
         distance_matrix = gcs_data_loader.load_precomputed_distances_for_root_ids(root_ids, nt_type=nt_type,
                                                                                   min_syn_cnt=min_syn_cnt,
                                                                                   whole_rows=False)
@@ -829,15 +839,15 @@ def path_length():
         paths_doc = FAQ_QA_KB['paths']
         return render_template(
             "distance_table.html",
-            root_ids=', '.join([str(r) for r in root_ids]),
+            cell_names_or_ids=cell_names_or_ids,
             min_syn_cnt=min_syn_cnt,
             nt_type=nt_type,
             distance_table=distance_matrix,
-            download_url=url_for('path_length', download=1, root_ids=','.join([str(r) for r in root_ids]),
+            download_url=url_for('path_length', download=1, cell_names_or_ids=cell_names_or_ids,
                                  nt_type=nt_type, min_syn_cnt=min_syn_cnt),
             info_title=paths_doc['q'],
             info_text=paths_doc['a'],
-            sample_ids=sample_ids
+            sample_input=sample_input
         )
 
 
