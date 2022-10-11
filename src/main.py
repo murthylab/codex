@@ -103,6 +103,9 @@ def index(path):
             if 'favicon' not in path:
                 log_error(f"No destination found for {path=}, redirecting to home page")
             return redirect('/')
+    elif request.args.get('filter_string'):
+        log_activity(f"Searching from home page")
+        return search()
     else:
         log_activity(f"Loading home page")
         card_data = [
@@ -148,7 +151,14 @@ def index(path):
                 'url': 'api'
             }
         ]
-        return render_template("index.html", card_data=card_data)
+        neuron_db = neuron_data_factory.get()
+        return render_template(
+            "index.html",
+            card_data=card_data,
+            num_cells="{:,}".format(neuron_db.num_cells()),
+            num_synapses="{:,}".format(neuron_db.num_synapses()),
+            num_annotations="{:,}".format(neuron_db.num_annotations())
+        )
 
 
 def render_auth_page(redirect_to='/'):

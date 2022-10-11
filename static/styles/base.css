@@ -20,7 +20,7 @@ tr:nth-child(even){background-color: #fafafa}
 
 #snackbar {
   position: fixed;
-  background-color: #ffffff55;
+  background-color: #ffffff77;
   text-align: center;
   border-radius: 2px;
   z-index: 1;

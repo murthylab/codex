@@ -167,6 +167,18 @@ class NeuronDB(object):
                 res.add(p)
         return sorted(list([p for p in res if p]))
 
+    def num_cells(self):
+        return len(self.neuron_data)
+
+    @lru_cache
+    def num_synapses(self):
+        # TODO: implement this once synapse data is loaded
+        return 19351447
+
+    @lru_cache
+    def num_annotations(self):
+        return sum([len(nd['tag']) + len(nd['classes']) for nd in self.neuron_data.values()])
+
     @lru_cache
     def classes(self):
         res = set()

@@ -16,7 +16,6 @@
 1. make caching work in remote data loader with multiprocessing
 1. input/output combined piechart in cell details page
 1. firestore DB for storing labels and user info
-1. page load spinner
 1. programatic access with user tokens
 1. user starred cells
 1. look up previous cell root ids by coordinates
