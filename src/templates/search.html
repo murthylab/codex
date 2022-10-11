@@ -29,14 +29,14 @@
                     <a class="btn btn-link" href="{{url_for('stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" >Show stats &#128202;</a>
                   </li>
                   <li>
-                    <a class="btn btn-link" href="{{url_for('search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" target="_blank">View results in FlyWire &#10132;</a>
+                    <a class="btn btn-link" href="{{url_for('search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" target="_blank">View matches in FlyWire &#10132;</a>
                   </li>
                   {% if root_ids_str %}
                   <li>
-                    <a class="btn btn-link" href="{{url_for('nblast', root_ids=root_ids_str)}}" target="_blank">NBLAST scores &#128208;</a>
+                    <a class="btn btn-link" onclick="loading();" href="{{url_for('nblast', cell_names_or_ids=root_ids_str)}}" >NBLAST scores &#128208;</a>
                   </li>
                   <li>
-                    <a class="btn btn-link" href="{{url_for('path_length', root_ids=root_ids_str)}}" target="_blank">Pathway lengths &#128279;</a>
+                    <a class="btn btn-link" onclick="loading();" href="{{url_for('path_length', cell_names_or_ids=root_ids_str)}}" >Pathway lengths &#128279;</a>
                   </li>
                   <li>
                     <a class="btn btn-link" onclick="copyRootIdsToClipboard();">Copy Cell IDs &#128203;</a>
@@ -51,7 +51,7 @@
                   </li>
                   {% else %}
                   <li>
-                    <a class="btn btn-link" href="{{url_for('root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" target="_blank">Download Cell IDs &#128203;</a>
+                    <a class="btn btn-link" href="{{url_for('root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download Cell IDs &#128203;</a>
                   </li>
                   {% endif %}
                   <li>

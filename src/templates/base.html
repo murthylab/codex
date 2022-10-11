@@ -111,6 +111,13 @@
         function loading() {
             document.getElementById("contentBody").hidden='true';
             document.getElementById("loadingSpinner").hidden='';
+            window.onunload = function(){
+              clear_loading();
+            };
+        }
+        function clear_loading() {
+            document.getElementById("contentBody").hidden='';
+            document.getElementById("loadingSpinner").hidden='true';
         }
     </script>
 
