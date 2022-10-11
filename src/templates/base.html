@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
     <!-- Title -->
-    <title>{% block title %}CoDE{% endblock %}</title>
+    <title>{% block title %}CoDE{% endblock title %}</title>
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="/favicon.ico">
@@ -42,7 +42,6 @@
     </script>
   </head>
   <body>
-    <h6 onclick="location.href='/wip'" style="margin: 0px; background:#fafafa; color: red; text-align: center;">&#128679; CoDE is a work in progress, ETA Dec 2022 &#128679;</h6>
     <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
       <a id='nav_home' class="navbar-brand mb-0 h1" href="{{url_for('index')}}"><img width="30.6px" height="17.7px" src="{{url_for('asset', filename='code-icon-color.png')}}">&nbsp; CoDE</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,7 +93,11 @@
     </nav>
 
     <div id="contentBody">
-    {% block content %} {% endblock %}
+    {% block content %} {% endblock content %}
+    </div>
+
+    <div id="snackbar">
+      <a class="btn btn-sm btn-link my-2 my-sm-0" style="color: white;" href="{{url_for('wip')}}">CoDE is a work in progress, ETA Dec 2022</a>
     </div>
 
     <div id="loadingSpinner" hidden="hidden">
@@ -116,4 +119,5 @@
     <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
   </body>
+
 </html>

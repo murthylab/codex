@@ -17,3 +17,16 @@ th, td {
 }
 
 tr:nth-child(even){background-color: #fafafa}
+
+#snackbar {
+  position: fixed;
+  background-color: grey;
+  color: red;
+  text-align: center;
+  border-radius: 2px;
+  padding: 0px;
+  z-index: 1;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 10px;
+}
