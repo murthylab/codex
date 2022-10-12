@@ -7,7 +7,7 @@
   <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="cell_names_or_id" name="cell_names_or_id" placeholder="enter cell name or ID" aria-label="Cell Name/ID" value="{{cell_names_or_id}}">
   <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();">&#128269;</button>
   {% if not cell_names_or_id %}
-    <button class="btn btn btn-outline-primary my-2 my-sm-0" type="button" style="margin-left: 10px;" onclick="loading(); document.getElementById('cell_names_or_id').value = '{random_cell}'; this.form.submit();">Random Cell</button>
+    <button class="btn btn btn-success my-2 my-sm-0" type="button" style="margin-left: 10px;" onclick="loading(); document.getElementById('cell_names_or_id').value = '{random_cell}'; this.form.submit();">&#127922;</button>
   {% endif %}
 </form>
 </nav>
