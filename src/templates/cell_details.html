@@ -2,41 +2,85 @@
 {% block title %} Cell Info {% endblock title %}
 {% block content %}
 
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
-  google.charts.load("current", {packages:["corechart"]});
-  google.charts.setOnLoadCallback(drawCharts);
+<nav class="navbar navbar-light bg-light">
+<form class="form-inline">
+  <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="cell_names_or_id" name="cell_names_or_id" placeholder="enter cell name or ID" aria-label="Cell Name/ID" value="{{cell_names_or_id}}">
+  <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();">&#128269;</button>
+  {% if not cell_names_or_id %}
+    <button class="btn btn btn-outline-primary my-2 my-sm-0" type="button" style="margin-left: 10px;" onclick="loading(); document.getElementById('cell_names_or_id').value = '{random_cell}'; this.form.submit();">Random Cell</button>
+  {% endif %}
+</form>
+</nav>
 
-  function drawChart(title, json, elem) {
-    const data = google.visualization.arrayToDataTable(json);
-    const options = {
-      title: title,
-      pieHole: 0.4,
-    };
-    const chart = new google.visualization.PieChart(elem);
-    chart.draw(data, options);
-  }
-  function drawCharts() {
-    charts_container = document.getElementById('charts_container');
-    {% for k, v in charts.items() %}
-        elem = document.createElement('div');
-        elem.setAttribute("class", "card");
-        elem.setAttribute("style", "width: 100%; height: 400px;");
-        charts_container.appendChild(elem);
-        drawChart("{{k}}", {{v|tojson}}, elem);
-    {% endfor %}
-  }
-</script>
+{% if cell_id %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawCharts);
 
-<div class="card-columns"  id="main_panels_container" style="padding: 5px;">
+      function drawChart(title, json, elem) {
+        const data = google.visualization.arrayToDataTable(json);
+        const options = {
+          title: title,
+          pieHole: 0.4,
+        };
+        const chart = new google.visualization.PieChart(elem);
+        chart.draw(data, options);
+      }
+      function drawCharts() {
+        charts_container = document.getElementById('charts_container');
+        {% for k, v in charts.items() %}
+            elem = document.createElement('div');
+            elem.setAttribute("class", "card");
+            elem.setAttribute("style", "width: 100%; height: 400px;");
+            charts_container.appendChild(elem);
+            drawChart("{{k}}", {{v|tojson}}, elem);
+        {% endfor %}
+      }
+    </script>
+
+    <div class="card-columns"  id="main_panels_container" style="padding: 5px;">
+        <div class="card" style="width: 100%;">
+            <div class="card-header" style="color: purple;">
+              Cell Info
+            </div>
+            <div class="body">
+                <table class="table">
+                  <tbody>
+                    {% for k, v in cell_attributes.items() %}
+                        <tr>
+                          <td>{{k|safe}}</td>
+                          <td>{{v|safe}}</td>
+                        </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+        </div>
+        {% if load_connections %}
+        <div class="card" style="width: 100%; height: 450px;">
+            <div class="card-header" style="color: purple;">
+                Connected Cells
+            </div>
+            <iframe style="width: 100%; height: 100%;" src="{{url_for('connections', root_ids=cell_id, log_request=0)}}" title="connectivity" loading="lazy"></iframe>
+        </div>
+        {% endif %}
+
+        <div class="card" style="width: 100%; height: 450px;">
+            <div class="card-header" style="color: purple;">
+                Skeleton
+            </div>
+            <iframe style="width: 100%; height: 100%;" src="{{url_for('flywire_url', root_id=cell_id, log_request=0)}}" title="neuroglancer" loading="lazy"></iframe>
+        </div>
+    </div>
     <div class="card" style="width: 100%;">
         <div class="card-header" style="color: purple;">
-          Cell Info
+          Related Cells
         </div>
         <div class="body">
             <table class="table">
               <tbody>
-                {% for k, v in cell_attributes.items() %}
+                {% for k, v in related_cells.items() %}
                     <tr>
                       <td>{{k|safe}}</td>
                       <td>{{v|safe}}</td>
@@ -46,42 +90,8 @@
             </table>
         </div>
     </div>
-    {% if load_connections %}
-    <div class="card" style="width: 100%; height: 450px;">
-        <div class="card-header" style="color: purple;">
-            Connected Cells
-        </div>
-        <iframe style="width: 100%; height: 100%;" src="{{url_for('connections', root_ids=cell_id, log_request=0)}}" title="connectivity" loading="lazy"></iframe>
+    <div class="card-columns"  id="charts_container" style="padding: 5px;">
     </div>
-    {% endif %}
-
-    <div class="card" style="width: 100%; height: 450px;">
-        <div class="card-header" style="color: purple;">
-            Skeleton
-        </div>
-        <iframe style="width: 100%; height: 100%;" src="{{url_for('flywire_url', root_id=cell_id, log_request=0)}}" title="neuroglancer" loading="lazy"></iframe>
-    </div>
-</div>
-
-<div class="card" style="width: 100%;">
-    <div class="card-header" style="color: purple;">
-      Related Cells
-    </div>
-    <div class="body">
-        <table class="table">
-          <tbody>
-            {% for k, v in related_cells.items() %}
-                <tr>
-                  <td>{{k|safe}}</td>
-                  <td>{{v|safe}}</td>
-                </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-    </div>
-</div>
-
-<div class="card-columns"  id="charts_container" style="padding: 5px;">
-</div>
+{% endif %}
 
 {% endblock content %}

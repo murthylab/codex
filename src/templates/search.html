@@ -128,8 +128,8 @@
     <tbody>
       {% for neuron in display_data %}
           <tr>
-            <td style="padding: 0px; margin: 0px;"><a href="{{url_for('cell_details', root_id=neuron.root_id)}}" target="_blank"><img src="{{url_for('skeleton_thumbnail_url', root_id=neuron.root_id, log_request=0)}}" width="100px" height="75px;" border="1px;"></a></td>
-            <td><a href="{{url_for('cell_details', root_id=neuron.root_id)}}" target="_blank">{{neuron.name}}</a></td>
+            <td style="padding: 0px; margin: 0px;"><a href="{{url_for('cell_details', root_id=neuron.root_id)}}"><img src="{{url_for('skeleton_thumbnail_url', root_id=neuron.root_id, log_request=0)}}" width="100px" height="75px;" border="1px;"></a></td>
+            <td><a href="{{url_for('cell_details', root_id=neuron.root_id)}}">{{neuron.name}}</a></td>
             <td>{{neuron.annotations|safe}}</td>
             <td style="color:#664444;">{{neuron.nt_type}}</td>
             <td style="color:#AAAAAA;">{{neuron.class}}</td>

@@ -2,6 +2,7 @@ from src.data.search_index import SearchIndex
 from src.utils.logging import log
 from src.data.gcs_data_loader import load_connections_for_root_id
 
+from random import choice
 from functools import lru_cache
 
 
@@ -166,6 +167,9 @@ class NeuronDB(object):
             for p in nd['output_neuropils']:
                 res.add(p)
         return sorted(list([p for p in res if p]))
+
+    def random_cell_id(self):
+        return choice(list(self.neuron_data.keys()))
 
     def num_cells(self):
         return len(self.neuron_data)
