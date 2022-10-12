@@ -22,7 +22,7 @@ from google.auth.transport import requests
 log("App initialization started")
 app = Flask(__name__)
 app.secret_key = os.environ['FLASK_SECRET_KEY']
-app.permanent_session_lifetime = 12 * 31 * 24 * 60 * 60  # 12 months
+app.config['PERMANENT_SESSION_LIFETIME'] = 12 * 31 * 24 * 60 * 60  # 12 months
 
 GOOGLE_CLIENT_ID = "356707763910-l9ovf7f2at2vc23f3u2j356aokr4eb99.apps.googleusercontent.com"
 SUPPORT_EMAIL = "arie@princeton.edu"
@@ -177,8 +177,8 @@ def login():
             id_info = id_token.verify_oauth2_token(request.form['credential'], requests.Request(), GOOGLE_CLIENT_ID)
             # ID token is valid. Save it to session and redirect to home page.
             log_activity(f"Logged in: {id_info}")
-            session['id_info'] = id_info
             session.permanent = True
+            session['id_info'] = id_info
             return redirect(request.args.get('redirect_to', '/'))
         except ValueError:
             log_activity(f'Invalid token provided upon login: {request.form}')
