@@ -54,6 +54,9 @@
             <a class="nav-link" id="nav_search" href="{{url_for('search')}}">Search</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link" id="nav_cell_details" href="{{url_for('cell_details')}}">Cell Info</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" id="nav_stats" href="{{url_for('stats')}}">Stats</a>
           </li>
           <li class="nav-item">
@@ -77,7 +80,7 @@
 
           <script>
               function nav_elem_id(cur_url) {
-                let tabs = ['search', 'stats', 'explore', 'labeling_suggestions', 'nblast', 'path_length', 'faq', 'about'];
+                let tabs = ['search', 'cell_details', 'stats', 'explore', 'labeling_suggestions', 'nblast', 'path_length', 'faq', 'about'];
                 for (const tab of tabs){
                     if (cur_url.includes(tab)) {
                       return 'nav_' + tab;

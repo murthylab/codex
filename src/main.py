@@ -594,7 +594,31 @@ def skeleton_thumbnail_url():
 @app.route('/app/cell_details')
 @request_wrapper
 def cell_details():
-    root_id = int(request.args.get('root_id'))
+    root_id = None
+    if 'root_id' in request.args:
+        root_id = int(request.args.get('root_id'))
+    else:
+        cell_names_or_id = request.args.get('cell_names_or_id')
+        if cell_names_or_id:
+            neuron_db = neuron_data_factory.get()
+            if cell_names_or_id == '{random_cell}':
+                log_activity(f"Generated random cell detail page")
+                root_id = neuron_db.random_cell_id()
+            else:
+                log_activity(f"Generated cell detail page from search: '{cell_names_or_id}")
+                root_ids = neuron_db.search(search_query=cell_names_or_id)
+                if root_ids:
+                    root_id = root_ids[0]
+                else:
+                    return render_error(
+                        title="Not found",
+                        message=f"No matching cells found for '{cell_names_or_id}'. Try searching something else."
+                    )
+
+    if root_id is None:
+        log_activity(f"Generated empty cell detail page")
+        return render_template("cell_details.html")
+
     min_syn_cnt = request.args.get('min_syn_cnt', 5, type=int)
     data_version = request.args.get('data_version', neuron_data_factory.latest_data_version())
     neuron_db = neuron_data_factory.get(data_version)
@@ -701,6 +725,7 @@ def cell_details():
     log_activity(f"Generated neuron info for {root_id} with {len(cell_attributes) + len(related_cells)} items")
     return render_template(
         "cell_details.html",
+        cell_names_or_id=nd['name'],
         cell_id=root_id,
         cell_attributes=cell_attributes,
         related_cells=related_cells,
