@@ -52,10 +52,12 @@ def request_wrapper(func):
             f' || >>> Form:\n{request.form}'
             f' || <<<<<<< {signature}\n')
 
-        if 'flywireindex.pniapps.org' in request.url:
-            new_url = request.url.replace('flywireindex.pniapps.org', 'code.pniapps.org')
-            log_activity(f"Redirecting base URL from  {request.url}: {new_url}")
-            return redirect(new_url)
+        for previous_subdomain in ['flywireindex', 'code']:
+            if f'{previous_subdomain}.pniapps.org' in request.url:
+                new_url = request.url.replace(f'{previous_subdomain}.pniapps.org', 'codex.pniapps.org')
+                log_activity(f"Redirecting base URL from  {request.url}: {new_url}")
+                return redirect(new_url)
+
         if 'id_info' not in session and not _is_smoke_test_request():
             if request.endpoint not in ['login', 'logout']:
                 return render_auth_page(redirect_to=request.url)
@@ -975,7 +977,7 @@ def wip():
     log_activity(f"Rendering WIP notice")
     return render_error(
         message=f'Both the data and the app are a work in progress. Estimated completion time is by end of 2022.',
-        title="CoDE - current status")
+        title="CoDEx - current status")
 
 @app.route('/api')
 @request_wrapper
