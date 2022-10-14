@@ -977,7 +977,7 @@ def wip():
     log_activity(f"Rendering WIP notice")
     return render_error(
         message=f'Both the data and the app are a work in progress. Estimated completion time is by end of 2022.',
-        title="CoDEx - current status")
+        title="Codex - current status")
 
 @app.route('/api')
 @request_wrapper

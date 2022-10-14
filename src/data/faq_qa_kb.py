@@ -19,7 +19,7 @@ def attr_list(attr_dict):
 FAQ_QA_KB = {
     'data_version': {
         'q': 'What version of FlyWire data is shown?',
-        'a': "<b>CoDEx</b> provides access to static FlyWire connectome data releases (sometimes referred to as"
+        'a': "<b>Codex</b> provides access to static FlyWire connectome data releases (sometimes referred to as"
              " 'snapshots' or 'versions'). The current most-recent snapshot release is from August 2022, and this "
              "is the one served by default. To switch from the most recent release to one of the older releases use "
              "the <b>Data Version</b> selector under the search settings menu. And for live queries against the "
