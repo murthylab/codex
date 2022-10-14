@@ -889,6 +889,11 @@ def path_length():
                                  nt_type=nt_type, min_syn_cnt=min_syn_cnt),
             info_title=paths_doc['q'],
             info_text=paths_doc['a'],
+            info_body="With this tool you can specify one "
+                      "or more source cells + one or more target cells, and get a matrix with shortest path lengths "
+                      "for all source/target pairs. Shortest path length is equivalent to the minimum number of 'hops' "
+                      "required to reach from the source cell to the target via synaptic connections "
+                      "in the connectome network.",
             sample_input=sample_input
         )
 
