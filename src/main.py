@@ -823,6 +823,9 @@ def nblast():
             download_url=url_for('nblast', download=1, cell_names_or_ids=cell_names_or_ids),
             info_title=nblast_doc['q'],
             info_text=nblast_doc['a'],
+            info_body="NBLAST is a method for comparing cell by shape / morphology. With this tool you can specify one "
+                      "or more source cells + one or more target cells, and get a matrix of NBLAST scores for all "
+                      "source/target pairs. The higher the score (max 1) the more similar the corresponding cells are.",
             sample_input=sample_input,
         )
 
