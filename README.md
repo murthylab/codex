@@ -1,4 +1,4 @@
-# CoDEx - Connectome Data Explorer for FlyWire
+# Codex - Connectome Data Explorer for FlyWire
 
 ## Description
 Flask web app for finding and analyzing neurons/cells proofread by the FlyWire community (see flywire.ai).
