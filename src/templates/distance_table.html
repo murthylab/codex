@@ -3,8 +3,9 @@
 {% block content %}
   <nav class="navbar navbar-light bg-light">
     <form class="form-inline">
-      <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="cell_names_or_ids" name="cell_names_or_ids" placeholder="enter 2 or more Cell names or IDs" aria-label="Cell IDs" value="{{cell_names_or_ids}}">
-      <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();">&#128269;</button>
+      <input class="form-control mr-sm-2" style="width: 35vw;" autocomplete="off" autofocus type="search" id="cell_names_or_ids" name="cell_names_or_ids" placeholder="Source cell(s)" aria-label="Cell Names or IDs" value="{{cell_names_or_ids}}">
+      <input class="form-control mr-sm-2" style="width: 35vw; margin-left: 5px;" autocomplete="off" autofocus type="search" id="target_cell_names_or_ids" name="target_cell_names_or_ids" placeholder="Target cell(s)" aria-label="Cell Names or IDs" value="{{target_cell_names_or_ids}}">
+      <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();">GO</button>
       <button type="button" class="btn btn-info" style="margin-left: 5px;" title="Info" data-toggle="modal" data-target="#infoModal">&#10068;</button>
       <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -51,8 +52,16 @@
 
 {% else %}
 
-<div style="margin: 15px;">
-  For example, try these <button class="btn btn-btn-link" style="color: blue;" type="button" onclick="loading(); document.getElementById('cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('cell_names_or_ids').form.submit();">{{sample_input}}</button>
+
+<div class="card" style="margin: 15px;">
+  <div class="card-header" style="color: purple;">
+    How it works
+  </div>
+  <div class="card-body">
+    {{info_body}}
+    <br><br>
+    <button class="btn btn btn-primary" type="button" onclick="loading(); document.getElementById('cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('cell_names_or_ids').form.submit();">Try with sample cells</button>
+  </div>
 </div>
 
 {% endif %}
