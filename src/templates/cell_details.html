@@ -60,25 +60,17 @@
         {% if load_connections %}
         <div class="card" style="width: 100%; height: 450px;">
             <div class="card-header" style="color: purple;">
-                <a href="{{url_for('connections', root_ids=cell_id, log_request=0)}}" target="_blank">Connected Cells</a>
+                <a href="{{url_for('connections', root_ids=cell_id, log_request=0)}}" target="_blank">Connected Cells <i style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i> </a>
             </div>
             <iframe style="width: 100%; height: 100%;" src="{{url_for('connections', root_ids=cell_id, log_request=0)}}" title="connectivity" loading="lazy"></iframe>
-            <div class="position-absolute text-light w-100" style="bottom: -38px;">
-              <a class="btn btn-light position-relative float-right" style="right: 10px;"
-                href="{{url_for('connections', root_ids=cell_id, log_request=0)}}" target="_blank" title="Open in new tab"><img src="{{url_for('asset', filename='outline_launch_black_24dp.png')}}"></a>
-            </div>
         </div>
         {% endif %}
 
         <div class="card" style="width: 100%; height: 450px;">
             <div class="card-header" style="color: purple;">
-                <a href="{{url_for('flywire_url', root_id=cell_id, log_request=0)}}" target="_blank">Skeleton</a>
+                <a href="{{url_for('flywire_url', root_id=cell_id, log_request=0)}}" target="_blank">Skeleton <i style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i></a>
             </div>
             <iframe style="width: 100%; height: 100%;" src="{{url_for('flywire_url', root_id=cell_id, log_request=0)}}" title="neuroglancer" loading="lazy"></iframe>
-            <div class="position-absolute text-light w-100" style="bottom: -38px;">
-              <a class="btn btn-light position-relative float-right" style="right: 10px;"
-                href="{{url_for('flywire_url', root_id=cell_id, log_request=0)}}" target="_blank" title="Open in new tab"><img src="{{url_for('asset', filename='outline_launch_black_24dp.png')}}"></a>
-            </div>
         </div>
     </div>
     <div class="card" style="width: 100%;">
