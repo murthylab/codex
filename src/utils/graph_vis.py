@@ -1,5 +1,5 @@
 from collections import defaultdict
-from pyvis.network import Network
+from flask import render_template
 
 def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
     edge_physics = True
@@ -33,7 +33,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
     def edge_size(row):
         return pow(row[3], 1/2)
 
-    net = Network(height='100%', width='100%', directed=True)
+    net = Network()
     #net.force_atlas_2based()
 
     cell_to_pil_counts = defaultdict(int)
@@ -158,3 +158,61 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
                 add_super_edge(sp, sc, v)
 
     return net.generate_html()
+
+class Network(object):
+    # based on https://pyvis.readthedocs.io/en/latest/_modules/pyvis/network.html
+    def __init__(self):
+        self.nodes = []
+        self.edges = []
+        self.node_ids = []
+        self.node_map = {}
+
+    def add_node(self, n_id, label=None, shape="dot", color="#97c2fc", **options):
+        #{"color": "#00aa00", "id": 720575940631855185, "label": "ME_L.ME_L.2656", "physics": true, "shape": "circle", "size": 10, "title": "\u003ca href=\"cell_details?root_id=720575940631855185\"\u003e720575940631855185\u003c/a\u003e"}
+        assert isinstance(n_id, str) or isinstance(n_id, int)
+        if label:
+            node_label = label
+        else:
+            node_label = n_id
+        if n_id not in self.node_ids:
+            if "group" in options:
+                n = Node(n_id, shape, label=node_label, **options)
+            else:
+                n = Node(n_id, shape, label=node_label, color=color, **options)
+            self.nodes.append(n.options)
+            self.node_ids.append(n_id)
+            self.node_map[n_id] = n.options
+
+    def add_edge(self, source, to, **options):
+        #{"arrows": "to", "from": 720575940631855185, "physics": true, "to": "ME_L_out", "value": 102}
+        
+        # verify nodes exist
+        assert source in self.node_ids, \
+            "non existent node '" + str(source) + "'"
+
+        assert to in self.node_ids, \
+            "non existent node '" + str(to) + "'"
+
+        e = Edge(source, to, True, **options)
+        self.edges.append(e.options)
+
+    def generate_html(self):
+        return render_template("network_graph.html", nodes=self.nodes, edges=self.edges)
+
+class Node(object):
+    def __init__(self, n_id, shape, label, font_color=False, **opts):
+        self.options = opts
+        self.options["id"] = n_id
+        self.options["label"] = label
+        self.options["shape"] = shape
+        if font_color:
+            self.options["font"] = dict(color=font_color)
+
+class Edge(object):
+    def __init__(self, source, dest, directed=False, **options):
+        self.options = options
+        self.options["from"] = source
+        self.options["to"] = dest
+        if directed:
+            if "arrows" not in self.options:
+                self.options["arrows"] = "to"
