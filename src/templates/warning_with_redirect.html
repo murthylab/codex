@@ -1,0 +1,18 @@
+{% extends "base_barebones.html" %}
+
+{% block title %}
+    Warning!
+{% endblock title %}
+
+{% block base_barebones_content %}
+
+    <div class="card bg-light mb-3" style="margin: 10px;" id="error">
+      <div class="card-header" style="color: orange; font-size: 18px;">
+          <i style="margin-right: 5px;" class="fa-sharp fa-solid fa-triangle-exclamation"></i> {{title|safe}}
+      </div>
+      <div class="card-body">
+          <p class="lead">{{message|safe}}</p>
+          <p><a class="btn btn-warning" href="{{redirect_url}}" role="button" title="Proceed" >{{redirect_button_text}}</a></p>
+      </div>
+    </div>
+{% endblock base_barebones_content %}

@@ -1,13 +1,14 @@
-{% extends "base.html" %}
+{% extends "base_barebones.html" %}
 
 {% block title %}
     Error!
 {% endblock title %}
 
-{% block content %}
+{% block base_barebones_content %}
+
     <div class="card bg-light mb-3" style="margin: 10px;" id="error">
       <div class="card-header" style="color: red; font-size: 18px;">
-          {{title|safe}}
+          <i style="margin-right: 5px;" class="fa-sharp fa-solid fa-triangle-exclamation"></i> {{title|safe}}
       </div>
       <div class="card-body">
           <p class="lead">{{message|safe}}</p>
@@ -37,4 +38,4 @@
       </div>
     </div>
 
-{% endblock content %}
+{% endblock base_barebones_content %}
