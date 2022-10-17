@@ -108,7 +108,7 @@ def index(path):
             return redirect('/')
     elif request.args.get('filter_string'):
         log_activity(f"Searching from home page")
-        return search()
+        return redirect(url_for('search', filter_string=request.args.get('filter_string')))
     else:
         log_activity(f"Loading home page")
         card_data = [

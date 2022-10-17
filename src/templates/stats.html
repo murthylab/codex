@@ -38,9 +38,6 @@
       <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="filter_string" name="filter_string" placeholder="filter stats data" aria-label="Filter" value="{{filter_string}}">
       <button class="btn btn btn-primary my-2 my-sm-0" type="submit">&#128269;</button>
 
-      {% if hint %}
-        <button class="btn btn-btn-link" style="color: blue;" type="button" onclick="document.getElementById('filter_string').value = '{{hint}}'; this.form.submit();">Search for '<b>{{hint}}</b>'?</button>
-      {% endif %}
       {% if filter_string and num_items %}
         <a class="btn btn-success" style="margin-left: 5px;" title="Show Matching Items" href="{{url_for('search', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" >&#128466;</a>
       {% endif %}
@@ -91,6 +88,9 @@
 <h6 style="margin-left: 15px; margin-top: 5px; color: grey; font-size: 11px;">{{caption}} ({{"{:,}".format(num_items)}} matches)</h6>
 {% endif %}
 
+{% if hint %}
+<button class="btn btn-btn-link" style="color: blue;" type="button" onclick="searchbox = document.getElementById('filter_string'); searchbox.value = '{{hint}}'; searchbox.form.submit();">Show results for '<b>{{hint}}</b>' instead?</button>
+{% else %}
 <div class="card border-primary mb-3" style="margin: 5px;">
       <div class="body">
           <div class="card-columns"  id="data_container" style="padding: 5px;">
@@ -118,4 +118,6 @@
           </div>
       </div>
 </div>
+{% endif %}
+
 {% endblock content %}
