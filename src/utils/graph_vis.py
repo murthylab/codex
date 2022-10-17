@@ -168,7 +168,6 @@ class Network(object):
         self.node_map = {}
 
     def add_node(self, n_id, label=None, shape="dot", color="#97c2fc", **options):
-        #{"color": "#00aa00", "id": 720575940631855185, "label": "ME_L.ME_L.2656", "physics": true, "shape": "circle", "size": 10, "title": "\u003ca href=\"cell_details?root_id=720575940631855185\"\u003e720575940631855185\u003c/a\u003e"}
         assert isinstance(n_id, str) or isinstance(n_id, int)
         if label:
             node_label = label
@@ -184,8 +183,6 @@ class Network(object):
             self.node_map[n_id] = n.options
 
     def add_edge(self, source, to, **options):
-        #{"arrows": "to", "from": 720575940631855185, "physics": true, "to": "ME_L_out", "value": 102}
-        
         # verify nodes exist
         assert source in self.node_ids, \
             "non existent node '" + str(source) + "'"
@@ -200,6 +197,7 @@ class Network(object):
         return render_template("network_graph.html", nodes=self.nodes, edges=self.edges)
 
 class Node(object):
+    # based on https://github.com/WestHealth/pyvis/blob/master/pyvis/node.py
     def __init__(self, n_id, shape, label, font_color=False, **opts):
         self.options = opts
         self.options["id"] = n_id
@@ -209,6 +207,7 @@ class Node(object):
             self.options["font"] = dict(color=font_color)
 
 class Edge(object):
+    # based on https://github.com/WestHealth/pyvis/blob/master/pyvis/edge.py
     def __init__(self, source, dest, directed=False, **options):
         self.options = options
         self.options["from"] = source
