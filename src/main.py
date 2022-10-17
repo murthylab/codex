@@ -609,15 +609,12 @@ def cell_details():
                 log_activity(f"Generated random cell detail page")
                 root_id = neuron_db.random_cell_id()
             else:
-                log_activity(f"Generated cell detail page from search: '{cell_names_or_id}")
+                log_activity(f"Generating cell detail page from search: '{cell_names_or_id}")
                 root_ids = neuron_db.search(search_query=cell_names_or_id)
-                if root_ids:
+                if len(root_ids) == 1:
                     root_id = root_ids[0]
                 else:
-                    return render_error(
-                        title="Not found",
-                        message=f"No matching cells found for '{cell_names_or_id}'. Try searching something else."
-                    )
+                    return redirect(url_for('search', filter_string=cell_names_or_id))
 
     if root_id is None:
         log_activity(f"Generated empty cell detail page")
