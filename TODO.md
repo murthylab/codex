@@ -63,3 +63,5 @@
 1. programatic access with user tokens
 1. user starred cells
 1. look up previous cell root ids by coordinates
+2. Save search when you switch tabs
+3. 
