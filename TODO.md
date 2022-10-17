@@ -29,6 +29,7 @@
 1. need definition for "I/O Side"
 1. path length: when i clicked on this, there were a handful of neuron numbers charted, not sure why that page starts with those specific neurons
 1. under stats: unsure what "top labels" means
+1. show warning for non-chrome browsers in skeletons / general
 
 ## Connectivity / network view
 1. on the connectivity maps:
