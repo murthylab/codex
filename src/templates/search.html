@@ -8,10 +8,6 @@
       <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="filter_string" name="filter_string" placeholder="search anything" aria-label="Filter" value="{{filter_string}}">
       <button class="btn btn btn-primary my-2 my-sm-0" type="submit">&#128269;</button>
 
-      {% if hint %}
-        <button class="btn btn-btn-link" style="color: blue;" type="button" onclick="document.getElementById('filter_string').value = '{{hint}}'; this.form.submit();">Search for '<b>{{hint}}</b>'?</button>
-      {% endif %}
-
       {% if num_items and filter_string %}
       <button type="button" class="btn btn-success" style="margin-left: 5px;" title="Analyze Matches" data-toggle="modal" data-target="#actionsModal" >&#128640;</button>
       <div class="modal fade" id="actionsModal" tabindex="-1" role="dialog" aria-labelledby="actionsModalLabel" aria-hidden="true">
@@ -108,6 +104,10 @@
   {% if filter_string %}
     <h6 style="margin-left: 15px; margin-top: 5px; color: grey; font-size: 11px;">{{"{:,}".format(num_items)}} matches</h6>
   {% endif %}
+  {% if hint %}
+    <button class="btn btn-btn-link" style="color: blue;" type="button" onclick="searchbox = document.getElementById('filter_string'); searchbox.value = '{{hint}}'; searchbox.form.submit();">Show results for '<b>{{hint}}</b>' instead?</button>
+  {% endif %}
+
 
 
 {% if num_items %}
