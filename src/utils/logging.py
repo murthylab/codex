@@ -45,6 +45,12 @@ SLCKHKHB = b64d('aHR0cHM6Ly9ob29rcy5zbGFjay5jb20vc2VydmljZXMvVDNHMjcwUEx'
 SLCKHKSOS = b64d('aHR0cHM6Ly9ob29rcy5zbGFjay5jb20vc2VydmljZXMvVDNHMjcwUEx'
                  'NL0IwNDFMTjlWREZBL1kzeEVXeGZSVkttejZoQVR6UHU5ajBvcg==')
 
+def user_agent():
+    try:
+        return str(parse_ua(str(request.user_agent)))
+    except:
+        return ''
+
 def _is_smoke_test_request():
     try:
         return request.args.get('smoke_test', '') == os.environ['SMOKE_TEST_KEY']
@@ -61,8 +67,7 @@ def _fetch_user_info():
 def _fetch_client_info():
     try:
         ip_addr = request.headers.get('X-Forwarded-For', request.remote_addr)
-        user_agent = str(parse_ua(str(request.user_agent)))
-        return f'<https://ipinfo.io/{ip_addr}|{user_agent}'
+        return f'<https://ipinfo.io/{ip_addr}|{user_agent()}'
     except:
         return None
 

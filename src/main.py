@@ -2,8 +2,8 @@ from src.utils.graph_vis import make_graph_html
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils import nglui, stats as stats_utils
 from src.data import gcs_data_loader
-from src.utils.logging import log, log_activity, log_error, log_user_help, format_link, _is_smoke_test_request,\
-    uptime, host_name, proc_id
+from src.utils.logging import log, log_activity, log_error, log_user_help, format_link, _is_smoke_test_request, \
+    uptime, host_name, proc_id, user_agent
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.search_index import tokenize
 from src.utils.thumbnails import url_for_skeleton
@@ -281,6 +281,15 @@ def error():
                            back_button=back_button,
                            message_sent=message_sent,
                            user_email=session.get('id_info', {}).get('email', 'email missing'), )
+
+
+def warning_with_redirect(title, message, redirect_url, redirect_button_text):
+    log_error(f"Loading warning with redirect page with '{message}' to {format_link(redirect_url)}")
+    return render_template("warning_with_redirect.html",
+                           title=title,
+                           message=message,
+                           redirect_url=redirect_url,
+                           redirect_button_text=redirect_button_text)
 
 
 @app.route('/about', methods=['GET', 'POST'])
@@ -580,7 +589,17 @@ def flywire_url():
     url = nglui.url_for_root_ids(root_ids)
     if log_request:
         log_activity(f"Redirecting for {root_ids} to FlyWire {format_link(url)}")
-    return redirect(url, code=302)
+
+    ua = (user_agent() or '').lower()
+    if 'chrome' in ua or 'firefox' in ua:
+        return redirect(url, code=302)
+    else:
+        return warning_with_redirect(
+            title="Browser not supported",
+            message=f"Neuroglancer (3D neuron rendering) is not supported on your browser. Use Chrome or Firefox.",
+            redirect_url=url,
+            redirect_button_text="Proceed anyway"
+        )
 
 
 @app.route('/app/skeleton_thumbnail_url')

@@ -1,10 +1,11 @@
-{% extends "base.html" %}
+{% extends "base_barebones.html" %}
 
 {% block title %}
     Info
 {% endblock title %}
 
-{% block content %}
+{% block base_barebones_content %}
+
     <div class="jumbotron">
       <div class="container">
         <p class="lead">{{message|safe}}</p>
@@ -13,4 +14,4 @@
       </div>
 
     </div>
-{% endblock content %}
+{% endblock base_barebones_content %}
