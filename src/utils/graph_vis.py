@@ -2,6 +2,11 @@ from collections import defaultdict
 from pyvis.network import Network
 
 def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
+    '''
+        connection_table has 4 columns: pre root id, post root id, neuropil, syn count
+        neuron_data_fetcher is a lambda that returns neuron metadata given it's id
+        center_id is the id of the neuron that is being inspected
+    '''
     edge_physics = True
     node_physics = True
 
