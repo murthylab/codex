@@ -575,29 +575,29 @@ def search_results_flywire_url():
 
     url = nglui.url_for_random_sample(filtered_root_id_list, MAX_NEURONS_FOR_DOWNLOAD)
     log_activity(f"Redirecting results {activity_suffix(filter_string, data_version)} to FlyWire {format_link(url)}")
-    return redirect(url, code=302)
+    return ngl_redirect_with_browser_check(ngl_url=url)
 
 
 @app.route('/app/flywire_url')
 @request_wrapper
 def flywire_url():
-    root_ids = [int(request.args.get('root_id'))]
-    extra_root_id = request.args.get('extra_root_id')
-    if extra_root_id:
-        root_ids.append(int(extra_root_id))
+    root_ids = [int(rid) for rid in request.args.getlist('root_ids')]
     log_request = request.args.get('log_request', default=1, type=int)
     url = nglui.url_for_root_ids(root_ids)
     if log_request:
         log_activity(f"Redirecting for {root_ids} to FlyWire {format_link(url)}")
+    return ngl_redirect_with_browser_check(ngl_url=url)
 
+
+def ngl_redirect_with_browser_check(ngl_url):
     ua = (user_agent() or '').lower()
     if 'chrome' in ua or 'firefox' in ua:
-        return redirect(url, code=302)
+        return redirect(ngl_url, code=302)
     else:
         return warning_with_redirect(
             title="Browser not supported",
             message=f"Neuroglancer (3D neuron rendering) is not supported on your browser. Use Chrome or Firefox.",
-            redirect_url=url,
+            redirect_url=ngl_url,
             redirect_button_text="Proceed anyway"
         )
 
@@ -662,7 +662,8 @@ def cell_details():
             if not search_endpoint:
                 search_endpoint = f'search?filter_string=id << {comma_separated_root_ids}'
             search_link = f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{len(ids)} {key}</a>'
-            nglui_link = f'<a class="btn btn-primary btn-sm" href="{nglui.url_for_root_ids([root_id] + list(ids))}"' \
+            ngl_url = url_for('flywire_url', root_ids=[root_id] + list(ids))
+            nglui_link = f'<a class="btn btn-primary btn-sm" href="{ngl_url}"' \
                          f' target="_blank">3D</a>'
             related_cells[search_link] = nglui_link
 
