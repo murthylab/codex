@@ -61,8 +61,9 @@
 1. make caching work in remote data loader with multiprocessing
 1. input/output combined piechart in cell details page
 1. firestore DB for storing labels and user info
-1. programatic access with user tokens
+1. programmatic access with user tokens
 1. user starred cells
 1. look up previous cell root ids by coordinates
-2. Save search when you switch tabs
-3. 
+1. Save search when you switch tabs
+1. rename repo and service names to codex
+ 
