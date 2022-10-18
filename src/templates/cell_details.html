@@ -68,9 +68,9 @@
 
         <div class="card" style="width: 100%; height: 450px;">
             <div class="card-header" style="color: purple;">
-                <a href="{{url_for('flywire_url', root_id=cell_id, log_request=0)}}" target="_blank">Skeleton <i style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i></a>
+                <a href="{{url_for('flywire_url', root_ids=[cell_id], log_request=0)}}" target="_blank">Skeleton <i style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i></a>
             </div>
-            <iframe style="width: 100%; height: 100%;" src="{{url_for('flywire_url', root_id=cell_id, log_request=0)}}" title="neuroglancer" loading="lazy"></iframe>
+            <iframe style="width: 100%; height: 100%;" src="{{url_for('flywire_url', root_ids=[cell_id], log_request=0)}}" title="neuroglancer" loading="lazy"></iframe>
         </div>
     </div>
     <div class="card" style="width: 100%;">
