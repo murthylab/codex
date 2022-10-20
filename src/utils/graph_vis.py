@@ -203,7 +203,7 @@ class Network(object):
         else:
             node_label = n_id
         step = len(self.legend)
-        n = Node(n_id, shape, label=node_label, fixed=True, physics=False, step=step, color=color, **options)
+        n = Node(n_id, shape, label=node_label, fixed=True, physics=True, step=step, color=color, **options)
         self.legend.append(n.options)
 
     def generate_html(self):
