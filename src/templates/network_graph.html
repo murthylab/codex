@@ -63,8 +63,24 @@
         var container = document.getElementById('mynetwork');
 
         // parsing and collecting nodes and edges from the python
-        nodes = new vis.DataSet({{nodes|tojson}});
-        edges = new vis.DataSet({{edges|tojson}});
+        nodeslist = {{nodes|tojson}};
+        edgeslist = {{edges|tojson}};
+
+        var mynetwork = document.getElementById("mynetwork");
+        var x = -mynetwork.clientWidth / 2 + 50;
+        var y = -mynetwork.clientHeight / 2 + 50;
+        var step = 70;
+        var legendIds = [];
+        {% for legendNode in legend %}
+            var ln = {{legendNode|tojson}};
+            ln.x = x;
+            ln.y = y + ln.step * step;
+            nodeslist.push(ln);
+            legendIds.push(ln.id);
+        {% endfor %}
+        
+        nodes = new vis.DataSet(nodeslist);
+        edges = new vis.DataSet(edgeslist);
 
         // adding nodes and edges to the graph
         data = {nodes: nodes, edges: edges};
@@ -103,16 +119,16 @@
 
         // make a custom popup
         var popup = document.createElement("div");
-        popup.className = 'popup';
+        popup.className = "popup";
         popupTimeout = null;
-        popup.addEventListener('mouseover', function () {
+        popup.addEventListener("mouseover", function () {
             console.log(popup)
             if (popupTimeout !== null) {
                 clearTimeout(popupTimeout);
                 popupTimeout = null;
             }
         });
-        popup.addEventListener('mouseout', function () {
+        popup.addEventListener("mouseout", function () {
             if (popupTimeout === null) {
                 hidePopup();
             }
@@ -131,7 +147,7 @@
 
         // hiding the popup through css
         function hidePopup() {
-            popupTimeout = setTimeout(function () { popup.style.display = 'none'; }, 500);
+            popupTimeout = setTimeout(function () { popup.style.display = "none"; }, 500);
         }
 
         // showing the popup
@@ -156,6 +172,7 @@
                 popup.innerHTML = nodeData.title;
                 // get the bounding box of the node
                 var boundingBox = network.getBoundingBox(nodeId);
+                console.log(boundingBox);
                 posCanvas.x = posCanvas.x + 0.5 * (boundingBox.right - boundingBox.left);
                 posCanvas.y = posCanvas.y + 0.5 * (boundingBox.top - boundingBox.bottom);
             };
@@ -168,10 +185,32 @@
             posDOM.y -= 20;
 
             // show and place the tooltip.
-            popup.style.display = 'block';
-            popup.style.top = posDOM.y + 'px';
-            popup.style.left = posDOM.x + 'px';
+            popup.style.display = "block";
+            popup.style.top = posDOM.y + "px";
+            popup.style.left = posDOM.x + "px";
         }
+
+        //legend background
+        network.on("beforeDrawing", function (ctx) {
+            var nodePositions = network.getPositions(legendIds);
+
+            ctx.fillStyle = "#000000";
+            ctx.font = "24px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("Legend", nodePositions[legendIds[0]].x, nodePositions[legendIds[0]].y - 60);
+
+            ctx.strokeStyle = "#000000";
+            ctx.fillStyle = "#eeeeee";
+            ctx.beginPath();
+            var spacing = 40;
+            var x = nodePositions[legendIds[0]].x - spacing;
+            var y = nodePositions[legendIds[0]].y - spacing;
+            ctx.rect(x, y, 2 * spacing, step * (legendIds.length - 1) + 2 * spacing);
+            ctx.closePath();
+
+            ctx.fill();
+            ctx.stroke();
+        });
 
         return network;
     }
