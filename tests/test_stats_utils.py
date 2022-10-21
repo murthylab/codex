@@ -36,17 +36,17 @@ class Test(TestCase):
             data=list(neuron_db.neuron_data.values()), search_query='test_query_2', case_sensitive=1, match_words=0,
             data_version='447')
         self.assertEqual("Stats for search query: 'test_query_2', case sensitive, data version: 447", caption)
-        self.assertEqual({'': {'- Classified': '16,078', '- Labeled': '30,057', 'Cells': '68,375'},
+        self.assertEqual({'': {'- Classified': '16,078', '- Labeled': '33,009', 'Cells': '68,375'},
                           'Top Classes': {'ALRN': '1,916',
                                           'LN': '1,381',
                                           'descending': '3,236',
                                           'optic_lobe_input': '4,690',
                                           'output': '963'},
-                          'Top Labels': {'Kenyon_Cell_L': '1,785',
+                          'Top Labels': {'Kenyon_Cell_L': '2,586',
                                          'Kenyon_Cell_L*': '1,242',
-                                         'Putative AN; Part of comprehensive neck connective tracing; contact Connectomics Group Cambridge for more detailed information on descending/ascending neurons': '2,130',
-                                         'antennal lobe olfactory and thermo/hygrosensory receptor neuron (ALRN)': '1,599',
-                                         'putative fru': '992'}}, data_stats)
+                                         'Putative AN; Part of comprehensive neck connective tracing; contact Connectomics Group Cambridge for more detailed information on descending/ascending neurons': '2,227',
+                                         'antennal lobe olfactory and thermo/hygrosensory receptor neuron (ALRN)': '1,916',
+                                         'putative fru': '1,130'}}, data_stats)
         self.assertEqual({'Input/Output hemispheres': [['Output regions', 'Count'],
                                                        ['Left/Left', 24163],
                                                        ['Left/Mid', 30],
