@@ -52,9 +52,9 @@ def request_wrapper(func):
             f' || >>> Form:\n{request.form}'
             f' || <<<<<<< {signature}\n')
 
-        for previous_subdomain in ['flywireindex', 'code']:
-            if f'{previous_subdomain}.pniapps.org' in request.url:
-                new_url = request.url.replace(f'{previous_subdomain}.pniapps.org', 'codex.pniapps.org')
+        for previous_domains in ['flywireindex.pniapps.org', 'code.pniapps.org', 'codex.pniapps.org']:
+            if previous_domains in request.url:
+                new_url = request.url.replace(previous_domains, 'codex.flywire.ai')
                 log_activity(f"Redirecting base URL from  {request.url}: {new_url}")
                 return redirect(new_url)
 
