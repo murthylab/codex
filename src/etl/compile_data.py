@@ -1,3 +1,5 @@
+from collections import defaultdict
+from random import sample
 import pandas
 import os.path
 from caveclient import CAVEclient
@@ -16,6 +18,7 @@ CAVE_AUTH_TOKEN_FILE_NAME = f'static/secrets/cave_auth_token.txt'
 CAVE_DATASTACK_NAME = "flywire_fafb_production"
 
 FLYWIRE_DATA_SNAPSHOT_VERSION = 447
+MIN_SYN_COUNT = 5
 
 COMPILED_DATA_ROOT_FOLDER = f'static/data/{FLYWIRE_DATA_SNAPSHOT_VERSION}'
 COMPILED_RAW_DATA_FILE_NAME = "flywire_data.csv.gz"
@@ -29,17 +32,24 @@ NEURON_NT_TYPES_FILE_NAME = "neuron_nt_types.feather"
 NEURON_NT_TYPES_COLUMN_NAMES = ['pre_pt_root_id', 'gaba_avg', 'ach_avg', 'glut_avg', 'oct_avg', 'ser_avg', 'da_avg']
 NT_TYPES = ['gaba', 'ach', 'glut', 'oct', 'ser', 'da']
 
-def load_feather_data_to_table(filename, columns=None):
+NEURON_INFO_FILE_NAME = "neuron_info.feather"
+NEURON_INFO_COLUMN_NAMES = ['id', 'valid', 'pt_supervoxel_id', 'pt_root_id', 'tag', 'user_id', 'pt_position']
+
+
+def load_feather_data_to_table(filename, columns_to_read):
     df_data = pandas.read_feather(filename)
     print(f"Loaded {len(df_data)} rows")
 
-    df_columns = df_data.columns.to_list()
-    if columns is None:
-        columns = df_columns
-    df_column_indices = [df_columns.index(c) + 1 for c in columns]
+    columns = df_data.columns.to_list()
+    if columns_to_read:
+        if not all([c in columns for c in columns_to_read]):
+            print(f"Missing columns in file {filename}. Expected {columns_to_read}, found {columns}.")
+            exit(1)
+        columns = columns_to_read
+    df_column_indices = [columns.index(c) + 1 for c in columns]
     print(f"Reading columns {columns}")
 
-    rows = []
+    rows = [columns]
     rows_scanned = 0
     for row in df_data.itertuples():
         rows_scanned += 1
@@ -49,19 +59,13 @@ def load_feather_data_to_table(filename, columns=None):
     print(f"Rows scanned: {rows_scanned}")
     return rows
 
-def load_feather_files():
-    syn_table_fname = f'{RAW_DATA_ROOT_FOLDER}/{SYNAPSE_TABLE_FILE_NAME}'
-    if not os.path.isfile(syn_table_fname):
-        print(f'Error: synapse table file "{syn_table_fname}" not found')
+def load_feather_file(filename, columns_to_read=None):
+    full_path = f'{RAW_DATA_ROOT_FOLDER}/{filename}'
+    if not os.path.isfile(full_path):
+        print(f'Error: file "{full_path}" not found')
         exit(1)
 
-    nt_types_fname = f'{RAW_DATA_ROOT_FOLDER}/{NEURON_NT_TYPES_FILE_NAME}'
-    if not os.path.isfile(nt_types_fname):
-        print(f'Error: neurotransmitter types file "{nt_types_fname}" not found')
-        exit(1)
-
-    return load_feather_data_to_table(syn_table_fname, SYNAPSE_TABLE_COLUMN_NAMES), \
-        load_feather_data_to_table(nt_types_fname, NEURON_NT_TYPES_COLUMN_NAMES)
+    return load_feather_data_to_table(full_path, columns_to_read=columns_to_read)
 
 def init_cave_client():
     with open(CAVE_AUTH_TOKEN_FILE_NAME) as fn:
@@ -71,40 +75,99 @@ def init_cave_client():
             exit(1)
     return CAVEclient(CAVE_DATASTACK_NAME, auth_token=auth_token)
 
-def load_neuron_info_from_cave():
-    client = init_cave_client()
+def load_neuron_info_from_cave(client):
     print("Downloading 'neuron_information_v2' with CAVE client..")
-    df2 = client.materialize.query_table('neuron_information_v2')
-    print(f"Downloaded {len(df2)} rows")
-    root_id_to_info_list = {}
-    for index, d in df2.iterrows():
-        rid = int(d['pt_root_id'])
-        info = {
-            'tag': str(d['tag']),
-            'user_id': str(d['user_id']),
-            'coordinates': str(d['pt_position'])
-        }
-        root_id_to_info_list[rid] = root_id_to_info_list.get(rid, []) + [info]
-    return root_id_to_info_list
+    df = client.materialize.query_table('neuron_information_v2', materialization_version=FLYWIRE_DATA_SNAPSHOT_VERSION)
+    print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
+    neuron_info_table = [['root_id', 'tag', 'user_id', 'position', 'supervoxel_id']]
+    for index, d in df.iterrows():
+        neuron_info_table.append([
+            int(d['pt_root_id']),
+            str(d['tag']),
+            str(d['user_id']),
+            str(d['pt_position']),
+            int(d['pt_supervoxel_id'])
+        ])
+    return neuron_info_table
 
-def load_proofreading_info_from_cave():
-    client = init_cave_client()
+def load_proofreading_info_from_cave(client):
     print("Downloading 'proofreading_status_public_v1' with CAVE client..")
-    df2 = client.materialize.query_table('proofreading_status_public_v1')
-    print(f"Downloaded {len(df2)} rows")
-    root_id_to_pos = {}
-    pos_to_root_id = {}
-    for index, d in df2.iterrows():
-        rid = int(d['pt_root_id'])
-        pos = str(d['pt_position'])
-        root_id_to_pos[rid] = root_id_to_pos.get(rid, []) + [pos]
-        pos_to_root_id[pos] = root_id_to_pos.get(pos, []) + [rid]
-    print(f'{len(root_id_to_pos)=}, {len(pos_to_root_id)=}')
-    return root_id_to_pos, pos_to_root_id
+    df = client.materialize.query_table('proofreading_status_public_v1', materialization_version=FLYWIRE_DATA_SNAPSHOT_VERSION)
+    print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
+    pr_info_table = [['root_id', 'position', 'supervoxel_id']]
+    for index, d in df.iterrows():
+        pr_info_table.append([int(d['pt_root_id']), str(d['pt_position']), int(d['pt_supervoxel_id'])])
+    return pr_info_table
+
+def compile_data():
+    client = init_cave_client()
+    mat_timestamp = client.materialize.get_version_metadata(FLYWIRE_DATA_SNAPSHOT_VERSION)["time_stamp"]
+    print(f'Materialization timestamp: {mat_timestamp}\n\n')
+
+    pr_info_db = load_proofreading_info_from_cave(client)
+    print(f'{pr_info_db[:2]=}\n\n')
+
+    neuron_info_db = load_neuron_info_from_cave(client)
+    print(f'{neuron_info_db[:2]=}\n\n')
+
+    neuron_info_feather = load_feather_file(filename=NEURON_INFO_FILE_NAME, columns_to_read=NEURON_INFO_COLUMN_NAMES)
+    print(f'{neuron_info_feather[:2]=}\n\n')
+
+    nt_types_feather = load_feather_file(filename=NEURON_NT_TYPES_FILE_NAME, columns_to_read=NEURON_NT_TYPES_COLUMN_NAMES)
+    print(f'{nt_types_feather[:2]=}\n\n')
+
+    syn_table_feather = load_feather_file(filename=SYNAPSE_TABLE_FILE_NAME, columns_to_read=SYNAPSE_TABLE_COLUMN_NAMES)
+    # remove weak connections
+    syn_table_feather = [syn_table_feather[0]] + [r for r in syn_table_feather[1:] if r[3] >= MIN_SYN_COUNT]
+    print(f'{syn_table_feather[:2]=}\n\n')
+
+    rids_from_neuron_info_feather = set([r[3] for r in neuron_info_feather[1:]])
+    rids_from_syn_feather = set([r[0] for r in syn_table_feather[1:]]).union(set([r[1] for r in syn_table_feather[1:]]))
+    rids_from_nt_feather = set([r[0] for r in nt_types_feather[1:]])
+    rids_from_pr_db = set([r[0] for r in pr_info_db[1:]])
+    rids_from_neuron_info_db = set([r[0] for r in neuron_info_db[1:]])
+
+    rid_sets = [
+        rids_from_neuron_info_feather, rids_from_syn_feather, rids_from_nt_feather, rids_from_pr_db, rids_from_neuron_info_db
+    ]
+    rid_set_names = [
+        'neuron_info_feather', 'syn_feather', 'nt_feather', 'pr_db', 'neuron_info_db'
+    ]
+    for i, s1 in enumerate(rid_sets):
+        for j in range(i + 1, len(rid_sets)):
+            s2 = rid_sets[j]
+            print(f'{rid_set_names[i]} vs {rid_set_names[j]}')
+            print(f'{len(s1)=} {len(s2)=} {len(s1.intersection(s2))=} {len(s1 - s2)=} {len(s2 - s1)=}\n\n')
+
+
+
+    # map all missing root ids to the specified data snapshot
+
+    super_voxel_ids_of_missing_root_ids_ninfo = list(set([r[4] for r in neuron_info_table[1:] if r[0] not in rids_from_syn_table]))
+    print(f'{len(super_voxel_ids_of_missing_root_ids_ninfo)=}')
+    mapped_root_ids_ninfo = client.chunkedgraph.get_roots(super_voxel_ids_of_missing_root_ids_ninfo, timestamp=mat_timestamp).tolist()
+    print(sample(list(zip(super_voxel_ids_of_missing_root_ids_ninfo, mapped_root_ids_ninfo)), 10))
+    print(f'{len(mapped_root_ids_ninfo)=} {len(rids_from_syn_table.intersection(set(mapped_root_ids_ninfo)))=}')
+    super_voxel_id_to_root_id_ninfo = {i: j for (i, j) in zip(super_voxel_ids_of_missing_root_ids_ninfo, mapped_root_ids_ninfo)}
+    print(f'Unresolved tags count: {len([r for r in neuron_info_table[1:] if r[0] not in rids_from_syn_table and super_voxel_id_to_root_id_ninfo[r[4]] not in rids_from_syn_table])}')
+
+    super_voxel_ids_of_missing_root_ids_pr = list(set([r[2] for r in pr_info_table[1:] if r[0] not in rids_from_syn_table]))
+    print(f'{len(super_voxel_ids_of_missing_root_ids_pr)=}')
+    mapped_root_ids_pr = client.chunkedgraph.get_roots(super_voxel_ids_of_missing_root_ids_pr, timestamp=mat_timestamp).tolist()
+    print(sample(list(zip(super_voxel_ids_of_missing_root_ids_pr, mapped_root_ids_pr)), 10))
+    print(f'{len(mapped_root_ids_pr)=} {len(rids_from_syn_table.intersection(set(mapped_root_ids_pr)))=}')
+    super_voxel_id_to_root_id_pr = {i: j for (i, j) in zip(super_voxel_ids_of_missing_root_ids_pr, mapped_root_ids_pr)}
+    print(f'Unresolved tags count: {len([r for r in pr_info_table[1:] if r[0] not in rids_from_syn_table and super_voxel_id_to_root_id_pr[r[2]] not in rids_from_syn_table])}')
+
+    # sanity check
+    rids_syn_table_list = list(rids_from_syn_table)
+    mapped_root_ids_syn_table = client.chunkedgraph.get_roots(rids_syn_table_list, timestamp=mat_timestamp).tolist()
+    print(f'{len(set(mapped_root_ids_syn_table).intersection(rids_from_syn_table))}')
 
 
 if __name__ == "__main__":
-    _, _ = load_proofreading_info_from_cave()
-    neuron_info = load_neuron_info_from_cave()
-    syn_table_rows, nt_types_rows = load_feather_files()
+    compile_data()
+
+
+
 
