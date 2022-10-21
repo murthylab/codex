@@ -14,6 +14,8 @@ from caveclient import CAVEclient
 #  - download it into RAW_DATA_ROOT_FOLDER and name it as NEURON_NT_TYPES_FILE_NAME below
 # Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
 # and store it in this file (no quotes)
+from src.data.local_data_loader import read_csv, write_csv
+
 CAVE_AUTH_TOKEN_FILE_NAME = f'static/secrets/cave_auth_token.txt'
 CAVE_DATASTACK_NAME = "flywire_fafb_production"
 
@@ -165,8 +167,61 @@ def compile_data():
     print(f'{len(set(mapped_root_ids_syn_table).intersection(rids_from_syn_table))}')
 
 
+def augment_existing_data():
+    fname = f'static/data/{FLYWIRE_DATA_SNAPSHOT_VERSION}/neuron_data.csv.gz'
+    content = read_csv(fname)
+    print('\n'.join([f'{r[0]} | {r[12]} | {r[17]}' for r in content[:20]]))
+    content_pos_dict = defaultdict(set)
+    content_tag_dict = defaultdict(set)
+    for r in content[1:]:
+        if r[12]:
+            for v in r[12].split(','):
+                if v:
+                    content_tag_dict[int(r[0])].add(v)
+        if r[17]:
+            for v in r[17].split(','):
+                if v:
+                    content_pos_dict[int(r[0])].add(v)
+    print(f'{len(content_tag_dict)=} {len(content_pos_dict)=}\n\n')
+
+    client = init_cave_client()
+    mat_timestamp = client.materialize.get_version_metadata(FLYWIRE_DATA_SNAPSHOT_VERSION)["time_stamp"]
+    print(f'Materialization timestamp: {mat_timestamp}\n\n')
+
+    pr_info_db = load_proofreading_info_from_cave(client)
+    print('\n'.join([f'{r[0]} | {r[1]}' for r in pr_info_db[:20]]))
+    pr_pos_dict = defaultdict(set)
+    for r in pr_info_db[1:]:
+        if r[1]:
+            pr_pos_dict[int(r[0])].add(r[1])
+    print(f'{len(pr_pos_dict)=}\n\n')
+
+    neuron_info_db = load_neuron_info_from_cave(client)
+    print('\n'.join([f'{r[0]} | {r[1]} | {r[3]}' for r in neuron_info_db[:20]]))
+    ni_pos_dict = defaultdict(set)
+    ni_tag_dict = defaultdict(set)
+    for r in neuron_info_db[1:]:
+        if r[1]:
+            ni_tag_dict[int(r[0])].add(r[1].replace(',', ';'))
+        if r[3]:
+            ni_pos_dict[int(r[0])].add(r[3])
+    print(f'{len(ni_tag_dict)=} {len(ni_pos_dict)=}\n\n')
+
+    # update
+    for r in content[1:]:
+        rid = int(r[0])
+        r[12] = ','.join(list(ni_tag_dict[rid].union(content_tag_dict[rid])))
+        r[17] = ','.join(list(ni_pos_dict[rid].union(content_pos_dict[rid])))
+
+    write_csv(filename=fname, rows=content, compress=True)
+
+
+
+
 if __name__ == "__main__":
-    compile_data()
+    #compile_data()
+    augment_existing_data()
+
 
 
 
