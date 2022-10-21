@@ -88,3 +88,14 @@ def read_csv(filename, num_rows=None, column_idx=None):
         with open(filename) as fp:
             reader = csv.reader(fp, delimiter=",", quotechar='"')
             return read_from(reader)
+
+
+def write_csv(filename, rows, compress=False):
+    if compress:
+        if not filename.lower().endswith(".gz"):
+            filename = filename + ".gz"
+        with gzip.open(filename, "wt") as f:
+            csv.writer(f, delimiter=",").writerows(rows)
+    else:
+        with open(filename, "wt") as fp:
+            csv.writer(fp, delimiter=",").writerows(rows)
