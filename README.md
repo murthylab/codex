@@ -5,8 +5,8 @@ Flask web app for finding and analyzing neurons/cells proofread by the FlyWire c
 
 ## Run locally
 ```
-conda create -n code python=3.9
-conda activate code
+conda create -n codex python=3.9
+conda activate codex
 pip install -r requirements.txt
 ./run_dev.sh
 ```
@@ -43,6 +43,3 @@ Then:
 ```
 ./deploy.sh
 ```
-
-## Internal endpoints
-1. [Cloud Run](https://code-yjsmm7mp3q-ue.a.run.app)
