@@ -188,6 +188,27 @@ def login():
     else:
         return render_auth_page()
 
+# TODO: Get rid of this once published
+@app.route('/data_access_token', methods=['GET', 'POST'])
+@request_wrapper
+def data_access_token():
+    log_activity(f"Loading data access token form")
+    message = None
+    user_email = session.get('id_info', {}).get('email', 'email missing')
+    if request.method == 'POST':
+        access_token = request.form.get('access_token')
+        # TODO: check if token grants authorization
+        if access_token != 'allow':
+            message = "The provided token does not grant access to FlyWire data. If you have been granted access in " \
+                      "the past, make sure you obtain the token using the same account (go back and try again). To " \
+                      'request access visit <a href="https://join.flywire.ai" target="_blank">this page</a>.'
+            return render_error(message=message)
+        else:
+            log_activity("Access granted!")
+            return redirect(url_for('index'))
+    else:
+        return render_template("data_access_token.html", message=message, user_email=user_email)
+
 
 @app.route('/logout', methods=['GET', 'POST'])
 @request_wrapper
