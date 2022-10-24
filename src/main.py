@@ -18,6 +18,7 @@ from random import randint
 from flask import Flask, render_template, request, redirect, Response, session, url_for, send_from_directory
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from requests import get as get_request
 
 log("App initialization started")
 app = Flask(__name__)
@@ -63,6 +64,8 @@ def request_wrapper(func):
                 return render_auth_page(redirect_to=request.url)
         else:
             log(f"Executing authenticated request for: {session.get('id_info')}")
+
+        # if we got here, this could be authenticated or non-authenticated request
         try:
             return func(*args, **kwargs)
         except Exception as e:
@@ -70,6 +73,17 @@ def request_wrapper(func):
             log_error(f"Exception when executing {signature}: {e}")
             return render_error(f'{e}\n')
 
+    return wrap
+
+
+# TODO: get rid of this once published
+def require_data_access(func):
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        if 'data_access_token' not in session and not _is_smoke_test_request():
+            if request.endpoint not in ['login', 'logout', 'data_access_token']:
+                return redirect(url_for('data_access_token', redirect_to=request.url))
+        return func(*args, **kwargs)
     return wrap
 
 
@@ -193,21 +207,30 @@ def login():
 @request_wrapper
 def data_access_token():
     log_activity(f"Loading data access token form")
-    message = None
-    user_email = session.get('id_info', {}).get('email', 'email missing')
     if request.method == 'POST':
-        access_token = request.form.get('access_token')
-        # TODO: check if token grants authorization
-        if access_token != 'allow':
+        access_token = request.form.get('access_token', '').replace('\"', '').strip()
+        url = resp = access_payload = None
+        try:
+            url = f'https://globalv1.flywire-daf.com/auth/api/v1/user/cache?middle_auth_token={access_token}'
+            resp = get_request(url=url)
+            access_payload = resp.json()
+            log(f"Auth payload: {access_payload}")
+        except Exception as e:
+            log_error(f'Could not parse auth response: {access_token=} {url=} {resp=}')
+
+        if access_payload and 'view' in access_payload.get('permissions_v2', {}).get('fafb', {}):
+            log_activity(f"Data access granted: {access_payload}")
+            session['data_access_token'] = access_token
+            session['data_access_payload'] = access_payload
+            return redirect(request.args.get('redirect_to', '/'))
+        else:
+            log_activity(f"Data access denied: {access_payload}")
             message = "The provided token does not grant access to FlyWire data. If you have been granted access in " \
                       "the past, make sure you obtain the token using the same account (go back and try again). To " \
                       'request access visit <a href="https://join.flywire.ai" target="_blank">this page</a>.'
             return render_error(message=message)
-        else:
-            log_activity("Access granted!")
-            return redirect(url_for('index'))
     else:
-        return render_template("data_access_token.html", message=message, user_email=user_email)
+        return render_template("data_access_token.html", redirect_to=request.args.get('redirect_to', '/'))
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -216,6 +239,8 @@ def logout():
     log_activity(f"Logging out")
     if 'id_info' in session:
         del session['id_info']
+    if 'data_access_token' in session:
+        del session['data_access_token']
     return render_auth_page()
 
 
@@ -234,6 +259,7 @@ def activity_suffix(filter_string, data_version):
 
 @app.route('/app/stats')
 @request_wrapper
+@require_data_access
 def stats():
     filter_string = request.args.get('filter_string', '')
     data_version = request.args.get('data_version', neuron_data_factory.latest_data_version())
@@ -354,6 +380,7 @@ def faq():
 
 @app.route('/app/explore')
 @request_wrapper
+@require_data_access
 def explore():
     log_activity(f"Loading Explore page")
     data_version = request.args.get('data_version', neuron_data_factory.latest_data_version())
@@ -417,6 +444,7 @@ def render_neuron_list(data_version, template_name, filtered_root_id_list, filte
 
 @app.route('/app/search', methods=['GET'])
 @request_wrapper
+@require_data_access
 def search():
     filter_string = request.args.get('filter_string', '')
     page_number = int(request.args.get('page_number', 1))
@@ -450,6 +478,7 @@ def search():
 
 @app.route('/app/labeling_suggestions')
 @request_wrapper
+@require_data_access
 def labeling_suggestions():
     filter_string = request.args.get('filter_string', '')
     page_number = int(request.args.get('page_number', 1))
@@ -483,6 +512,7 @@ def labeling_suggestions():
 
 @app.route('/app/accept_label_suggestion')
 @request_wrapper
+@require_data_access
 def accept_label_suggestion():
     from_root_id = request.args.get('from_root_id')
     to_root_id = request.args.get('to_root_id')
@@ -502,6 +532,7 @@ def accept_label_suggestion():
 
 @app.route('/app/reject_label_suggestion')
 @request_wrapper
+@require_data_access
 def reject_label_suggestion():
     from_root_id = request.args.get('from_root_id')
     to_root_id = request.args.get('to_root_id')
@@ -521,6 +552,7 @@ def reject_label_suggestion():
 
 @app.route("/app/download_search_results")
 @request_wrapper
+@require_data_access
 def download_search_results():
     filter_string = request.args.get('filter_string', '')
     data_version = request.args.get('data_version', neuron_data_factory.latest_data_version())
@@ -553,6 +585,7 @@ def download_search_results():
 
 @app.route("/app/root_ids_from_search_results")
 @request_wrapper
+@require_data_access
 def root_ids_from_search_results():
     filter_string = request.args.get('filter_string', '')
     data_version = request.args.get('data_version', neuron_data_factory.latest_data_version())
@@ -579,6 +612,7 @@ def root_ids_from_search_results():
 
 @app.route('/app/search_results_flywire_url')
 @request_wrapper
+@require_data_access
 def search_results_flywire_url():
     filter_string = request.args.get('filter_string', '')
     data_version = request.args.get('data_version', neuron_data_factory.latest_data_version())
@@ -637,6 +671,7 @@ def skeleton_thumbnail_url():
 
 @app.route('/app/cell_details')
 @request_wrapper
+@require_data_access
 def cell_details():
     root_id = None
     if 'root_id' in request.args:
@@ -778,6 +813,7 @@ def cell_details():
 
 @app.route('/app/nblast')
 @request_wrapper
+@require_data_access
 def nblast():
     sample_input = "720575940628063479, 720575940645542276, 720575940626822533, 720575940609037432, 720575940628445399"
     cell_names_or_ids = request.args.get('cell_names_or_ids', '')
@@ -872,6 +908,7 @@ def nblast():
 
 @app.route('/app/path_length')
 @request_wrapper
+@require_data_access
 def path_length():
     sample_input = "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
     nt_type = request.args.get('nt_type', 'all')
@@ -938,6 +975,7 @@ def path_length():
 
 @app.route('/app/connections')
 @request_wrapper
+@require_data_access
 def connections():
     root_ids = request.args.get('root_ids', '')
     nt_type = request.args.get('nt_type', 'all')
@@ -1024,6 +1062,7 @@ def wip():
 
 @app.route('/api')
 @request_wrapper
+@require_data_access
 def api():
     log_activity(f"Rendering API")
     return render_error(
