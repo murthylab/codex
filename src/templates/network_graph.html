@@ -32,6 +32,7 @@
         border-radius: 3px;
         border: 1px solid #808074;
         box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+        padding: 5px;
     }
 
     /* hide the original tooltip */
@@ -139,7 +140,6 @@
         popup.className = "popup";
         popupTimeout = null;
         popup.addEventListener("mouseover", function () {
-            console.log(popup)
             if (popupTimeout !== null) {
                 clearTimeout(popupTimeout);
                 popupTimeout = null;
