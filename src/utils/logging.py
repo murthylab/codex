@@ -87,7 +87,7 @@ def _post_to_slk(text, real_user_activity, extra_hk):
     res = [requests.post(hk,
                          data=json.dumps({"text": text, "unfurl_links": False}),
                          headers={'Content-Type': 'application/json'})
-           for hk in hks]
+           for hk in hks if hk]
     log(f"SLK post response(s): {res}")
 
 def post_to_slk(text, hk=None):
