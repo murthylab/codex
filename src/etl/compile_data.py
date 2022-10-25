@@ -14,18 +14,18 @@ from caveclient import CAVEclient
 #  - download it into RAW_DATA_ROOT_FOLDER and name it as NEURON_NT_TYPES_FILE_NAME below
 # Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
 # and store it in this file (no quotes)
+from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.data.local_data_loader import read_csv, write_csv
 
 CAVE_AUTH_TOKEN_FILE_NAME = f'static/secrets/cave_auth_token.txt'
 CAVE_DATASTACK_NAME = "flywire_fafb_production"
 
-FLYWIRE_DATA_SNAPSHOT_VERSION = 447
 MIN_SYN_COUNT = 5
 
-COMPILED_DATA_ROOT_FOLDER = f'static/data/{FLYWIRE_DATA_SNAPSHOT_VERSION}'
+COMPILED_DATA_ROOT_FOLDER = f'static/data/{LATEST_DATA_SNAPSHOT_VERSION}'
 COMPILED_RAW_DATA_FILE_NAME = "flywire_data.csv.gz"
 
-RAW_DATA_ROOT_FOLDER = f'static/raw_data/{FLYWIRE_DATA_SNAPSHOT_VERSION}'
+RAW_DATA_ROOT_FOLDER = f'static/raw_data/{LATEST_DATA_SNAPSHOT_VERSION}'
 
 SYNAPSE_TABLE_FILE_NAME = "synapse_table.feather"
 SYNAPSE_TABLE_COLUMN_NAMES = ['pre_pt_root_id', 'post_pt_root_id', 'neuropil', 'syn_count']
@@ -79,7 +79,7 @@ def init_cave_client():
 
 def load_neuron_info_from_cave(client):
     print("Downloading 'neuron_information_v2' with CAVE client..")
-    df = client.materialize.query_table('neuron_information_v2', materialization_version=FLYWIRE_DATA_SNAPSHOT_VERSION)
+    df = client.materialize.query_table('neuron_information_v2', materialization_version=LATEST_DATA_SNAPSHOT_VERSION)
     print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
     neuron_info_table = [['root_id', 'tag', 'user_id', 'position', 'supervoxel_id']]
     for index, d in df.iterrows():
@@ -94,7 +94,7 @@ def load_neuron_info_from_cave(client):
 
 def load_proofreading_info_from_cave(client):
     print("Downloading 'proofreading_status_public_v1' with CAVE client..")
-    df = client.materialize.query_table('proofreading_status_public_v1', materialization_version=FLYWIRE_DATA_SNAPSHOT_VERSION)
+    df = client.materialize.query_table('proofreading_status_public_v1', materialization_version=LATEST_DATA_SNAPSHOT_VERSION)
     print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
     pr_info_table = [['root_id', 'position', 'supervoxel_id']]
     for index, d in df.iterrows():
@@ -103,7 +103,7 @@ def load_proofreading_info_from_cave(client):
 
 def compile_data():
     client = init_cave_client()
-    mat_timestamp = client.materialize.get_version_metadata(FLYWIRE_DATA_SNAPSHOT_VERSION)["time_stamp"]
+    mat_timestamp = client.materialize.get_version_metadata(LATEST_DATA_SNAPSHOT_VERSION)["time_stamp"]
     print(f'Materialization timestamp: {mat_timestamp}\n\n')
 
     pr_info_db = load_proofreading_info_from_cave(client)
@@ -168,7 +168,7 @@ def compile_data():
 
 
 def augment_existing_data():
-    fname = f'static/data/{FLYWIRE_DATA_SNAPSHOT_VERSION}/neuron_data.csv.gz'
+    fname = f'static/data/{LATEST_DATA_SNAPSHOT_VERSION}/neuron_data.csv.gz'
     content = read_csv(fname)
     print('\n'.join([f'{r[0]} | {r[12]} | {r[17]}' for r in content[:20]]))
     content_pos_dict = defaultdict(set)
@@ -214,8 +214,6 @@ def augment_existing_data():
         r[17] = ','.join(list(ni_pos_dict[rid].union(content_pos_dict[rid])))
 
     write_csv(filename=fname, rows=content, compress=True)
-
-
 
 
 if __name__ == "__main__":

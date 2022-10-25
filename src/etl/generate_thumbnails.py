@@ -3,6 +3,8 @@ from meshparty import skeleton_io, trimesh_vtk, trimesh_io
 from PIL import Image
 import numpy as np
 
+from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
+
 """
 Generates thumbnails for a set of .h5 skeleton files.
 
@@ -15,8 +17,7 @@ Instructions:
 - Run `python generate_thumbnails.py`. For each `<root_id>.h5` skeleton file, a corresponding thumbnail in the thumbnails folder named `<root_id>.png` will be created.
 """
 
-DATA_VERSION = "447"
-DATA_PATH = os.path.join("flywire_resource_data_files", DATA_VERSION, "l2_skeletons")
+DATA_PATH = os.path.join("flywire_resource_data_files", LATEST_DATA_SNAPSHOT_VERSION, "l2_skeletons")
 BRAIN_MESH_PATH = "brain_mesh_v141.obj"
 
 SEGMENT_COLOR = (160/255, 42/255, 250/255)
@@ -62,7 +63,7 @@ def generate_thumbnails():
         render(filename)
         print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Rendered {filename}")
     # Next step: upload thumbnails to GCS bucket:
-    # flywire-data/{DATA_VERSION}/skeleton_thumbnails/{root_id}.png
+    # flywire-data/{LATEST_DATA_SNAPSHOT_VERSION}/skeleton_thumbnails/{root_id}.png
 
 
 if __name__ == "__main__":

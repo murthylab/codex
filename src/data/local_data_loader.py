@@ -1,3 +1,4 @@
+from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS
 from src.utils.logging import log, log_error
 from src.data.neuron_data import NeuronDB
 
@@ -12,18 +13,12 @@ NEURON_DATA_FILE_NAME = 'neuron_data.csv.gz'
 NEURON_DB_PICKLE_FILE_NAME = 'neuron_db.pickle.gz'
 
 
-def available_data_versions(data_root_path=DATA_ROOT_PATH):
-    return os.listdir(data_root_path)
-
-def latest_data_version(data_root_path=DATA_ROOT_PATH):
-    return sorted(available_data_versions(data_root_path=data_root_path))[-1]
-
 def data_file_path_for_version(version, data_root_path=DATA_ROOT_PATH):
     return f'{data_root_path}/{version}'
 
 def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     if version is None:
-        version = latest_data_version(data_root_path=data_root_path)
+        version = LATEST_DATA_SNAPSHOT_VERSION
     data_file_path = data_file_path_for_version(version=version, data_root_path=data_root_path)
     log(f"App initialization loading data from {data_file_path}...")
     rows = read_csv(f'{data_file_path}/{NEURON_DATA_FILE_NAME}')
@@ -46,10 +41,10 @@ def unpickle_neuron_db(version, data_root_path=DATA_ROOT_PATH):
 
 def unpickle_all_neuron_db_versions(data_root_path=DATA_ROOT_PATH):
     return {v: unpickle_neuron_db(version=v, data_root_path=data_root_path)
-            for v in available_data_versions(data_root_path=data_root_path)}
+            for v in DATA_SNAPSHOT_VERSIONS}
 
 def load_and_pickle_all_neuron_db_versions(data_root_path=DATA_ROOT_PATH):
-    for v in available_data_versions(data_root_path=data_root_path):
+    for v in DATA_SNAPSHOT_VERSIONS:
         try:
             db = load_neuron_db(version=v, data_root_path=data_root_path)
             pf = f'{data_file_path_for_version(version=v, data_root_path=data_root_path)}/{NEURON_DB_PICKLE_FILE_NAME}'
