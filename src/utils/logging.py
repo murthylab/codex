@@ -1,7 +1,6 @@
 import requests
 import datetime
 import uuid
-import base64
 import json
 import os
 import socket
@@ -30,20 +29,10 @@ def uptime(millis=True):
     else:
         return parts[0]
 
-def b64e(s):
-    return base64.b64encode(s.encode()).decode()
 
-
-def b64d(s):
-    return base64.b64decode(s).decode()
-
-
-SLKHKACT = b64d('aHR0cHM6Ly9ob29rcy5zbGFjay5jb20vc2VydmljZXMvVDNHMjcwUEx'
-                'NL0IwM005RDVBVkUyL0VEM1R5YU9tbm9xbDQxV3NFVHlkazlkdg==')
-SLCKHKHB = b64d('aHR0cHM6Ly9ob29rcy5zbGFjay5jb20vc2VydmljZXMvVDNHMjcwUEx'
-                'NL0IwM1M3Rk02MVFYLzJwMDhRYUFNUjFlWDI0cjZ6UnZkNkpGNw==')
-SLCKHKSOS = b64d('aHR0cHM6Ly9ob29rcy5zbGFjay5jb20vc2VydmljZXMvVDNHMjcwUEx'
-                 'NL0IwNDFMTjlWREZBL1kzeEVXeGZSVkttejZoQVR6UHU5ajBvcg==')
+SLKHKACT = os.environ.get('HK_ACTIVITY')
+SLCKHKHB = os.environ.get('HK_DEV')
+SLCKHKSOS = os.environ.get('HK_HELP')
 
 def user_agent():
     try:
