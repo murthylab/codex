@@ -59,6 +59,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
                 size=node_size(nd)
             )
             added_cell_nodes.add(k[0])
+            net.add_legend(nd["nt_type"].upper(), color=node_color(nd))
 
     added_pil_nodes = set()
 
@@ -74,6 +75,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
                 size=20
             )
             added_pil_nodes.add(nid)
+            net.add_legend("Neuropil")
         return nid
 
     # add the most significant connections first
@@ -156,9 +158,6 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
                 sp = add_super_pil_node()
                 add_super_edge(sp, sc, v)
 
-    net.add_legend(1000, label = "Cell", shape = "circle", color = "#00aa00", size = 10)
-    net.add_legend(1001, label = "Neuropil", shape = "box", color = "#97c2fc", size = 20)
-
     return net.generate_html()
 
 class Network(object):
@@ -168,7 +167,7 @@ class Network(object):
         self.edges = []
         self.node_ids = []
         self.node_map = {}
-        self.legend = []
+        self.legend = {}
 
     def add_node(self, n_id, label=None, shape="dot", color="#97c2fc", **options):
         assert isinstance(n_id, str) or isinstance(n_id, int)
@@ -196,15 +195,8 @@ class Network(object):
         e = Edge(source, to, True, **options)
         self.edges.append(e.options)
     
-    def add_legend(self, n_id, label=None, shape="dot", color="#97c2fc", **options):
-        assert isinstance(n_id, str) or isinstance(n_id, int)
-        if label:
-            node_label = label
-        else:
-            node_label = n_id
-        step = len(self.legend)
-        n = Node(n_id, shape, label=node_label, fixed=True, physics=True, step=step, color=color, **options)
-        self.legend.append(n.options)
+    def add_legend(self, label, color="#97c2fc"):
+        self.legend[label] = color
 
     def generate_html(self):
         return render_template("network_graph.html", nodes=self.nodes, edges=self.edges, legend=self.legend)

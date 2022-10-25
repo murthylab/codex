@@ -41,12 +41,42 @@
     .vis-tooltip {
         display: none;
     }
+
+    #legend {
+        position: absolute;
+        left: 20px;
+        top: 20px;
+        pointer-events: none;
+        display: grid;
+        grid-template-columns: auto auto;
+        background-color: #ffffff88;
+    }
+    .legend-circle {
+        height: 15px;
+        width: 15px;
+        border-radius: 50%;
+        margin-left: 7px;
+        margin-top: 3px;
+    }
+    .legend-label {
+        font-family: sans-serif;
+        padding-left: 7px;
+        padding-right: 7px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
 </style>
 
 </head>
 
 <body>
-<div id = "mynetwork"></div>
+<div id="mynetwork"></div>
+<div id="legend">
+    {% for k, v in legend.items() %}
+    <div class="legend-circle" style="background-color: {{v}};"></div>
+    <div class="legend-label">{{k}}</div>
+    {% endfor %}
+</div>
 
 <script type="text/javascript">
 
@@ -60,25 +90,12 @@
     
     // This method is responsible for drawing the graph, returns the drawn network
     function drawGraph() {
-        var container = document.getElementById('mynetwork');
+        var container = document.getElementById("mynetwork");
 
         // parsing and collecting nodes and edges from the python
         nodeslist = {{nodes|tojson}};
         edgeslist = {{edges|tojson}};
 
-        var mynetwork = document.getElementById("mynetwork");
-        var x = -mynetwork.clientWidth / 2 + 50;
-        var y = -mynetwork.clientHeight / 2 + 100;
-        var step = 70;
-        var legendIds = [];
-        {% for legendNode in legend %}
-            var ln = {{legendNode|tojson}};
-            ln.x = x;
-            ln.y = y + ln.step * step;
-            nodeslist.push(ln);
-            legendIds.push(ln.id);
-        {% endfor %}
-        
         nodes = new vis.DataSet(nodeslist);
         edges = new vis.DataSet(edgeslist);
 
@@ -189,28 +206,6 @@
             popup.style.top = posDOM.y + "px";
             popup.style.left = posDOM.x + "px";
         }
-
-        //legend background
-        network.on("beforeDrawing", function (ctx) {
-            var nodePositions = network.getPositions(legendIds);
-
-            ctx.fillStyle = "#000000";
-            ctx.font = "24px sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText("Legend", nodePositions[legendIds[0]].x, nodePositions[legendIds[0]].y - 60);
-
-            ctx.strokeStyle = "#000000";
-            ctx.fillStyle = "#eeeeee";
-            ctx.beginPath();
-            var spacing = 40;
-            var x = nodePositions[legendIds[0]].x - spacing;
-            var y = nodePositions[legendIds[0]].y - spacing;
-            ctx.rect(x, y, 2 * spacing, step * (legendIds.length - 1) + 2 * spacing);
-            ctx.closePath();
-
-            ctx.fill();
-            ctx.stroke();
-        });
 
         return network;
     }
