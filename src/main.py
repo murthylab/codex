@@ -1,3 +1,4 @@
+from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils.graph_vis import make_graph_html
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils import nglui, stats as stats_utils
@@ -255,14 +256,14 @@ def render_info(message='Operation complete.'):
 
 def activity_suffix(filter_string, data_version):
     return (f"for '{filter_string}'" if filter_string else '') + \
-           (f' (v{data_version})' if data_version != neuron_data_factory.latest_available_data_version() else '')
+           (f' (v{data_version})' if data_version != LATEST_DATA_SNAPSHOT_VERSION else '')
 
 @app.route('/app/stats')
 @request_wrapper
 @require_data_access
 def stats():
     filter_string = request.args.get('filter_string', '')
-    data_version = request.args.get('data_version', neuron_data_factory.latest_available_data_version())
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get('case_sensitive', 0, type=int)
     whole_word = request.args.get('whole_word', 0, type=int)
 
@@ -383,7 +384,7 @@ def faq():
 @require_data_access
 def explore():
     log_activity(f"Loading Explore page")
-    data_version = request.args.get('data_version', neuron_data_factory.latest_available_data_version())
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
     return render_template(
         "categories.html",
         data_versions=neuron_data_factory.available_versions(),
@@ -448,7 +449,7 @@ def render_neuron_list(data_version, template_name, filtered_root_id_list, filte
 def search():
     filter_string = request.args.get('filter_string', '')
     page_number = int(request.args.get('page_number', 1))
-    data_version = request.args.get('data_version', neuron_data_factory.latest_available_data_version())
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get('case_sensitive', 0, type=int)
     whole_word = request.args.get('whole_word', 0, type=int)
     neuron_db = neuron_data_factory.get(data_version)
@@ -482,7 +483,7 @@ def search():
 def labeling_suggestions():
     filter_string = request.args.get('filter_string', '')
     page_number = int(request.args.get('page_number', 1))
-    data_version = request.args.get('data_version', neuron_data_factory.latest_available_data_version())
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get('case_sensitive', 0, type=int)
     whole_word = request.args.get('whole_word', 0, type=int)
     neuron_db = neuron_data_factory.get(data_version)
@@ -516,7 +517,7 @@ def labeling_suggestions():
 def accept_label_suggestion():
     from_root_id = request.args.get('from_root_id')
     to_root_id = request.args.get('to_root_id')
-    data_version = request.args.get('data_version', neuron_data_factory.latest_available_data_version())
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
     neuron_db = neuron_data_factory.get(data_version)
 
     from_neuron = neuron_db.get_neuron_data(from_root_id)
@@ -536,7 +537,7 @@ def accept_label_suggestion():
 def reject_label_suggestion():
     from_root_id = request.args.get('from_root_id')
     to_root_id = request.args.get('to_root_id')
-    data_version = request.args.get('data_version', neuron_data_factory.latest_available_data_version())
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
     neuron_db = neuron_data_factory.get(data_version)
 
     from_neuron = neuron_db.get_neuron_data(from_root_id)
@@ -555,7 +556,7 @@ def reject_label_suggestion():
 @require_data_access
 def download_search_results():
     filter_string = request.args.get('filter_string', '')
-    data_version = request.args.get('data_version', neuron_data_factory.latest_available_data_version())
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get('case_sensitive', 0, type=int)
     whole_word = request.args.get('whole_word', 0, type=int)
     neuron_db = neuron_data_factory.get(data_version)
@@ -588,7 +589,7 @@ def download_search_results():
 @require_data_access
 def root_ids_from_search_results():
     filter_string = request.args.get('filter_string', '')
-    data_version = request.args.get('data_version', neuron_data_factory.latest_available_data_version())
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get('case_sensitive', 0, type=int)
     whole_word = request.args.get('whole_word', 0, type=int)
     neuron_db = neuron_data_factory.get(data_version)
@@ -615,7 +616,7 @@ def root_ids_from_search_results():
 @require_data_access
 def search_results_flywire_url():
     filter_string = request.args.get('filter_string', '')
-    data_version = request.args.get('data_version', neuron_data_factory.latest_available_data_version())
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get('case_sensitive', 0, type=int)
     whole_word = request.args.get('whole_word', 0, type=int)
     neuron_db = neuron_data_factory.get(data_version)
@@ -662,7 +663,7 @@ def ngl_redirect_with_browser_check(ngl_url):
 def skeleton_thumbnail_url():
     root_id = int(request.args.get('root_id'))
     log_request = request.args.get('log_request', default=1, type=int)
-    data_version = request.args.get('data_version', neuron_data_factory.latest_available_data_version())
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
     url = url_for_skeleton(root_id=root_id, data_version=data_version)
     if log_request:
         log_activity(f"Fetching skeleton URL for {root_id}: {format_link(url)}")
@@ -696,7 +697,7 @@ def cell_details():
         return render_template("cell_details.html")
 
     min_syn_cnt = request.args.get('min_syn_cnt', 5, type=int)
-    data_version = request.args.get('data_version', neuron_data_factory.latest_available_data_version())
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
     neuron_db = neuron_data_factory.get(data_version)
     log_activity(f"Generating neuron info {activity_suffix(root_id, data_version)}")
     nd = neuron_db.get_neuron_data(root_id=root_id)
