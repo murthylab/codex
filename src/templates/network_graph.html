@@ -1,0 +1,217 @@
+<!-- Based on https://github.com/WestHealth/pyvis/blob/master/pyvis/templates/template.html -->
+<html>
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-network@latest/styles/vis-network.css" type="text/css" />
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vis-network@latest/dist/vis-network.min.js"> </script>
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+
+<style type="text/css">
+    #mynetwork {
+        width: 100%;
+        height: 100%;
+        background-color: #ffffff;
+        border: 1px solid lightgray;
+        position: relative;
+        float: left;
+    }
+
+    /* position absolute is important and the container has to be relative or absolute as well. */
+    div.popup {
+        position:absolute;
+        top:0px;
+        left:0px;
+        display:none;
+        background-color:#f5f4ed;
+        -moz-border-radius: 3px;
+        -webkit-border-radius: 3px;
+        border-radius: 3px;
+        border: 1px solid #808074;
+        box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* hide the original tooltip */
+    .vis-network-tooltip {
+        display: none;
+    }
+    .vis-tooltip {
+        display: none;
+    }
+
+    #legend {
+        position: absolute;
+        left: 20px;
+        top: 20px;
+        pointer-events: none;
+        display: grid;
+        grid-template-columns: auto auto;
+        background-color: #ffffff88;
+    }
+    .legend-circle {
+        height: 15px;
+        width: 15px;
+        border-radius: 50%;
+        margin-left: 7px;
+        margin-top: 3px;
+    }
+    .legend-label {
+        font-family: sans-serif;
+        padding-left: 7px;
+        padding-right: 7px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+</style>
+
+</head>
+
+<body>
+<div id="mynetwork"></div>
+<div id="legend">
+    {% for entry in legend %}
+    <div class="legend-circle" style="background-color: {{entry['color']}};"></div>
+    <div class="legend-label">{{entry['label']}}</div>
+    {% endfor %}
+</div>
+
+<script type="text/javascript">
+
+    // initialize global variables.
+    var edges;
+    var nodes;
+    var network; 
+    var container;
+    var options, data;
+
+    
+    // This method is responsible for drawing the graph, returns the drawn network
+    function drawGraph() {
+        var container = document.getElementById("mynetwork");
+
+        // parsing and collecting nodes and edges from the python
+        nodeslist = {{nodes|tojson}};
+        edgeslist = {{edges|tojson}};
+
+        nodes = new vis.DataSet(nodeslist);
+        edges = new vis.DataSet(edgeslist);
+
+        // adding nodes and edges to the graph
+        data = {nodes: nodes, edges: edges};
+
+        var options = {
+            "configure": {
+                "enabled": false
+            },
+            "edges": {
+                "color": {
+                    "inherit": true
+                },
+                "smooth": {
+                    "enabled": true,
+                    "type": "dynamic"
+                }
+            },
+            "interaction": {
+                "dragNodes": true,
+                "hideEdgesOnDrag": false,
+                "hideNodesOnDrag": false
+            },
+            "physics": {
+                "enabled": true,
+                "stabilization": {
+                    "enabled": true,
+                    "fit": true,
+                    "iterations": 1000,
+                    "onlyDynamicEdges": false,
+                    "updateInterval": 50
+                }
+            }
+        };
+
+        network = new vis.Network(container, data, options);
+
+        // make a custom popup
+        var popup = document.createElement("div");
+        popup.className = "popup";
+        popupTimeout = null;
+        popup.addEventListener("mouseover", function () {
+            console.log(popup)
+            if (popupTimeout !== null) {
+                clearTimeout(popupTimeout);
+                popupTimeout = null;
+            }
+        });
+        popup.addEventListener("mouseout", function () {
+            if (popupTimeout === null) {
+                hidePopup();
+            }
+        });
+        container.appendChild(popup);
+
+        // use the popup event to show
+        network.on("showPopup", function (params) {
+            showPopup(params);
+        });
+
+        // use the hide event to hide it
+        network.on("hidePopup", function (params) {
+            hidePopup();
+        });
+
+        // hiding the popup through css
+        function hidePopup() {
+            popupTimeout = setTimeout(function () { popup.style.display = "none"; }, 500);
+        }
+
+        // showing the popup
+        function showPopup(nodeId) {
+
+            // get the data from the vis.DataSet
+            var nodeData = nodes.get(nodeId);
+            // get the position of the node
+            var posCanvas = network.getPositions([nodeId])[nodeId];
+
+            if (!nodeData) {
+                var edgeData = edges.get(nodeId);
+                var poses = network.getPositions([edgeData.from, edgeData.to]);
+                var middle_x = (poses[edgeData.to].x - poses[edgeData.from].x) * 0.5;
+                var middle_y = (poses[edgeData.to].y - poses[edgeData.from].y) * 0.5;
+                posCanvas = poses[edgeData.from];
+                posCanvas.x = posCanvas.x + middle_x;
+                posCanvas.y = posCanvas.y + middle_y;
+
+                popup.innerHTML = edgeData.title;
+            } else {
+                popup.innerHTML = nodeData.title;
+                // get the bounding box of the node
+                var boundingBox = network.getBoundingBox(nodeId);
+                console.log(boundingBox);
+                posCanvas.x = posCanvas.x + 0.5 * (boundingBox.right - boundingBox.left);
+                posCanvas.y = posCanvas.y + 0.5 * (boundingBox.top - boundingBox.bottom);
+            };
+
+            // convert coordinates to the DOM space
+            var posDOM = network.canvasToDOM(posCanvas);
+
+            // Give it an offset
+            posDOM.x += 10;
+            posDOM.y -= 20;
+
+            // show and place the tooltip.
+            popup.style.display = "block";
+            popup.style.top = posDOM.y + "px";
+            popup.style.left = posDOM.x + "px";
+        }
+
+        return network;
+    }
+
+    drawGraph();
+
+</script>
+</body>
+</html>

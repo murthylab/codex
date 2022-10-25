@@ -1,5 +1,5 @@
 from collections import defaultdict
-from pyvis.network import Network
+from flask import render_template
 
 def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
     '''
@@ -38,8 +38,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
     def edge_size(row):
         return pow(row[3], 1/2)
 
-    net = Network(height='100%', width='100%', directed=True)
-    #net.force_atlas_2based()
+    net = Network()
 
     cell_to_pil_counts = defaultdict(int)
     pil_to_cell_counts = defaultdict(int)
@@ -65,6 +64,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
                 size=node_size(nd)
             )
             added_cell_nodes.add(k[0])
+            net.add_legend(nd["nt_type"].upper(), color=node_color(nd))
 
     added_pil_nodes = set()
 
@@ -82,6 +82,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
             added_pil_nodes.add(nid)
         return nid
 
+    net.add_legend("Neuropil")
     # add the most significant connections first
     max_nodes = 30
     for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:max_nodes]:
@@ -163,3 +164,66 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
                 add_super_edge(sp, sc, v)
 
     return net.generate_html()
+
+class Network(object):
+    # based on https://pyvis.readthedocs.io/en/latest/_modules/pyvis/network.html
+    def __init__(self):
+        self.nodes = []
+        self.edges = []
+        self.node_ids = []
+        self.node_map = {}
+        self.legend = []
+
+    def add_node(self, n_id, label=None, shape="dot", color="#97c2fc", **options):
+        assert isinstance(n_id, str) or isinstance(n_id, int)
+        if label:
+            node_label = label
+        else:
+            node_label = n_id
+        if n_id not in self.node_ids:
+            if "group" in options:
+                n = Node(n_id, shape, label=node_label, **options)
+            else:
+                n = Node(n_id, shape, label=node_label, color=color, **options)
+            self.nodes.append(n.options)
+            self.node_ids.append(n_id)
+            self.node_map[n_id] = n.options
+
+    def add_edge(self, source, to, **options):
+        # verify nodes exist
+        assert source in self.node_ids, \
+            "non existent node '" + str(source) + "'"
+
+        assert to in self.node_ids, \
+            "non existent node '" + str(to) + "'"
+
+        e = Edge(source, to, True, **options)
+        self.edges.append(e.options)
+    
+    def add_legend(self, label, color="#97c2fc"):
+        legend_entry = {"label": label, "color": color}
+        if legend_entry not in self.legend:
+            self.legend.append(legend_entry)
+
+    def generate_html(self):
+        return render_template("network_graph.html", nodes=self.nodes, edges=self.edges, legend=self.legend)
+
+class Node(object):
+    # based on https://github.com/WestHealth/pyvis/blob/master/pyvis/node.py
+    def __init__(self, n_id, shape, label, font_color=False, **opts):
+        self.options = opts
+        self.options["id"] = n_id
+        self.options["label"] = label
+        self.options["shape"] = shape
+        if font_color:
+            self.options["font"] = dict(color=font_color)
+
+class Edge(object):
+    # based on https://github.com/WestHealth/pyvis/blob/master/pyvis/edge.py
+    def __init__(self, source, dest, directed=False, **options):
+        self.options = options
+        self.options["from"] = source
+        self.options["to"] = dest
+        if directed:
+            if "arrows" not in self.options:
+                self.options["arrows"] = "to"
