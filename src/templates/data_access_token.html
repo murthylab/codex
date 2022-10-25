@@ -15,17 +15,15 @@
           early access.
               <ul>
                 <li>If you've been granted access to FlyWire, copy your token from
-                  <a href="https://global.daf-apis.com/auth/api/v1/user/token" target="_blank">here</a> and paste
-                    it in the box below. (If you're not signed in to FlyWire in this browser, you may need
+                  <a href="https://global.daf-apis.com/auth/api/v1/user/token" target="_blank">here</a>, then navigate
+                    back and paste it in the box below (here's a <a target="_blank" href="{{url_for('asset', filename='token_screenshot.png')}}">sample screenshot</a>
+                    for what to copy). If you're not signed in to FlyWire in this browser, you may need
                     to sign in with Google again - make sure to use the account that's registered with FlyWire.
-                    Here's a <a target="_blank" href="{{url_for('asset', filename='token_screenshot.png')}}">sample screenshot</a>
-                    for what to copy. )
                     <br>
                     <form style="margin-top: 10px;">
                         <textarea class="form-control" id="access_token" minlength="6" rows="1" name="access_token" placeholder="enter your access token"></textarea>
-                        <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">Verify Access Token</button>
+                        <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">Verify Token</button>
                     </form>
-                    <br>
                     <br>
                 </li>
                 <li>If you have not been granted access to FlyWire data yet, join the early data access community
