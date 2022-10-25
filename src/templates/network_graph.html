@@ -72,9 +72,9 @@
 <body>
 <div id="mynetwork"></div>
 <div id="legend">
-    {% for k, v in legend.items() %}
-    <div class="legend-circle" style="background-color: {{v}};"></div>
-    <div class="legend-label">{{k}}</div>
+    {% for entry in legend %}
+    <div class="legend-circle" style="background-color: {{entry['color']}};"></div>
+    <div class="legend-label">{{entry['label']}}</div>
     {% endfor %}
 </div>
 

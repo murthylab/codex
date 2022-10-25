@@ -75,9 +75,9 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
                 size=20
             )
             added_pil_nodes.add(nid)
-            net.add_legend("Neuropil")
         return nid
 
+    net.add_legend("Neuropil")
     # add the most significant connections first
     max_nodes = 30
     for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:max_nodes]:
@@ -167,7 +167,7 @@ class Network(object):
         self.edges = []
         self.node_ids = []
         self.node_map = {}
-        self.legend = {}
+        self.legend = []
 
     def add_node(self, n_id, label=None, shape="dot", color="#97c2fc", **options):
         assert isinstance(n_id, str) or isinstance(n_id, int)
@@ -196,7 +196,9 @@ class Network(object):
         self.edges.append(e.options)
     
     def add_legend(self, label, color="#97c2fc"):
-        self.legend[label] = color
+        legend_entry = {"label": label, "color": color}
+        if legend_entry not in self.legend:
+            self.legend.append(legend_entry)
 
     def generate_html(self):
         return render_template("network_graph.html", nodes=self.nodes, edges=self.edges, legend=self.legend)
