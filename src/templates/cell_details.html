@@ -60,7 +60,7 @@
         {% if load_connections %}
         <div class="card" style="width: 100%; height: 450px;">
             <div class="card-header" style="color: purple;">
-                <a href="{{url_for('connections', root_ids=cell_id, log_request=0)}}" target="_blank">Connected Cells <i style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i> </a>
+                <a href="{{url_for('connections', root_ids=cell_id, log_request=0)}}" target="_blank">Connectivity (5+ synapses) <i style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i> </a>
             </div>
             <iframe style="width: 100%; height: 100%;" src="{{url_for('connections', root_ids=cell_id, log_request=0)}}" title="connectivity" loading="lazy"></iframe>
         </div>
