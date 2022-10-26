@@ -44,7 +44,7 @@ class Test(TestCase):
                                           'Visual Projection': '7,456'},
                           'Top Annotations': {'Kenyon_Cell_L': '2,586',
                                               'Kenyon_Cell_L*': '1,242',
-                                              'Putative AN; Part of comprehensive neck connective tracing; contact Connectomics Group Cambridge for more detailed information on descending/ascending neurons': '2,227',
+                                              'Putative AN': '2,227',
                                               'antennal lobe olfactory and thermo/hygrosensory receptor neuron (ALRN)': '1,916',
                                               'putative fru': '1,130'}}, data_stats)
         self.assertEqual({'Input/Output hemispheres': [['Output regions', 'Count'],
