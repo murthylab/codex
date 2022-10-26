@@ -50,12 +50,12 @@ def _make_data_stats(data_list):
     result = {
         '': {
             'Cells': len(data_list),
-            '- Labeled': annotated_neurons,
+            '- Annotated': annotated_neurons,
             '- Classified': classified_neurons
         }
     }
     if anno_counts:
-        result['Top Labels'] = {
+        result['Top Annotations'] = {
             k: anno_counts[k] for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:5]
         }
 

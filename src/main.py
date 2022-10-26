@@ -705,7 +705,7 @@ def cell_details():
     cell_attributes = {
         'Name': nd['name'],
         'FlyWire Root ID': root_id,
-        'Labels': '&nbsp; <b>&#x2022;</b> &nbsp;'.join(nd['tag']),
+        'Annotations': '&nbsp; <b>&#x2022;</b> &nbsp;'.join(nd['tag']),
         'Type': nd['nt_type'],
         'Classification': nd['class'],
         'Position': '<br>'.join(nd['position']),
