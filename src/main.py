@@ -744,9 +744,9 @@ def cell_details():
                 input_neuropil_synapse_count[r[2]] += r[3]
                 input_nt_type_count[r[4].upper()] += r[3]
 
-        insert_neuron_list_links('input cells (upstream)', upstream,
+        insert_neuron_list_links('input cells (upstream) with 5+ synapses', upstream,
                                  search_endpoint='search?filter_string={upstream}' + str(root_id))
-        insert_neuron_list_links('output cells (downstream)', downstream,
+        insert_neuron_list_links('output cells (downstream) with 5+ synapses', downstream,
                                  search_endpoint='search?filter_string={downstream}' + str(root_id))
 
         charts = {}
