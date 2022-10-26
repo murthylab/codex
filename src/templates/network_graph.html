@@ -32,6 +32,7 @@
         border-radius: 3px;
         border: 1px solid #808074;
         box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+        padding: 5px;
     }
 
     /* hide the original tooltip */
@@ -86,20 +87,18 @@
     var network; 
     var container;
     var options, data;
+    var mousePos;
 
-    
     // This method is responsible for drawing the graph, returns the drawn network
     function drawGraph() {
         var container = document.getElementById("mynetwork");
 
-        // parsing and collecting nodes and edges from the python
         nodeslist = {{nodes|tojson}};
         edgeslist = {{edges|tojson}};
 
         nodes = new vis.DataSet(nodeslist);
         edges = new vis.DataSet(edgeslist);
 
-        // adding nodes and edges to the graph
         data = {nodes: nodes, edges: edges};
 
         var options = {
@@ -134,12 +133,10 @@
 
         network = new vis.Network(container, data, options);
 
-        // make a custom popup
         var popup = document.createElement("div");
         popup.className = "popup";
         popupTimeout = null;
         popup.addEventListener("mouseover", function () {
-            console.log(popup)
             if (popupTimeout !== null) {
                 clearTimeout(popupTimeout);
                 popupTimeout = null;
@@ -152,51 +149,29 @@
         });
         container.appendChild(popup);
 
-        // use the popup event to show
         network.on("showPopup", function (params) {
             showPopup(params);
         });
 
-        // use the hide event to hide it
         network.on("hidePopup", function (params) {
             hidePopup();
         });
 
-        // hiding the popup through css
         function hidePopup() {
             popupTimeout = setTimeout(function () { popup.style.display = "none"; }, 500);
         }
 
-        // showing the popup
         function showPopup(nodeId) {
-
-            // get the data from the vis.DataSet
             var nodeData = nodes.get(nodeId);
-            // get the position of the node
-            var posCanvas = network.getPositions([nodeId])[nodeId];
-
-            if (!nodeData) {
-                var edgeData = edges.get(nodeId);
-                var poses = network.getPositions([edgeData.from, edgeData.to]);
-                var middle_x = (poses[edgeData.to].x - poses[edgeData.from].x) * 0.5;
-                var middle_y = (poses[edgeData.to].y - poses[edgeData.from].y) * 0.5;
-                posCanvas = poses[edgeData.from];
-                posCanvas.x = posCanvas.x + middle_x;
-                posCanvas.y = posCanvas.y + middle_y;
-
-                popup.innerHTML = edgeData.title;
-            } else {
+            if (nodeData) {
                 popup.innerHTML = nodeData.title;
-                // get the bounding box of the node
-                var boundingBox = network.getBoundingBox(nodeId);
-                console.log(boundingBox);
-                posCanvas.x = posCanvas.x + 0.5 * (boundingBox.right - boundingBox.left);
-                posCanvas.y = posCanvas.y + 0.5 * (boundingBox.top - boundingBox.bottom);
-            };
+            }
+            else {
+                var edgeData = edges.get(nodeId);
+                popup.innerHTML = edgeData.title;
+            }
 
-            // convert coordinates to the DOM space
-            var posDOM = network.canvasToDOM(posCanvas);
-
+            var posDOM = mousePos;
             // Give it an offset
             posDOM.x += 10;
             posDOM.y -= 20;
@@ -211,6 +186,19 @@
     }
 
     drawGraph();
+
+    function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+        };
+    }
+  
+    var canvas = document.querySelector("canvas");
+    canvas.addEventListener("mousemove", function(evt) {
+        mousePos = getMousePos(canvas, evt);
+    }, false);
 
 </script>
 </body>
