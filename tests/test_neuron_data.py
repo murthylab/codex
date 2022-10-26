@@ -106,7 +106,8 @@ class NeuronDataTest(TestCase):
         ids_with_class = self.neuron_db.search('$$ class')
         ids_without_class = self.neuron_db.search('!$ class')
         self.assertEqual(len(self.neuron_db.neuron_data), len(ids_with_class) + len(ids_without_class))
-        self.assertEqual(set(ids_with_class), set([nd['root_id'] for nd in self.neuron_db.neuron_data.values() if nd['classes']]))
+        self.assertEqual(set(ids_with_class),
+                         set([nd['root_id'] for nd in self.neuron_db.neuron_data.values() if nd['classes']]))
 
         hundred_root_ids = list(self.neuron_db.neuron_data.keys())[:100]
         root_id_search_explicit = self.neuron_db.search(' || '.join([f'id == {rid}' for rid in hundred_root_ids]))
@@ -216,77 +217,12 @@ class NeuronDataTest(TestCase):
         self.assertEqual(expected_list, self.neuron_db.neuropils())
 
     def test_classes(self):
-        expected_list = ['ALRN',
-                         'ALRN*',
-                         'AN',
-                         'AN*',
-                         'AN_ascending',
-                         'AN_ascending*',
-                         'JO',
-                         'JO*',
-                         'JON',
-                         'JON*',
-                         'LN',
-                         'LN*',
-                         'LN_desc',
-                         'ON',
-                         'PN_group1',
-                         'PN_group1*',
-                         'PN_group2',
-                         'PN_group2*',
-                         'aPN_group1',
-                         'aPN_group1*',
-                         'aPN_group2',
-                         'aPN_group2*',
-                         'auditory',
-                         'auditory*',
-                         'auditory_2nd',
-                         'auditory_2nd*',
-                         'auditory_christa',
-                         'auditory_christa*',
-                         'bristle',
-                         'bristle*',
-                         'cold_cell_projection',
-                         'cold_cell_projection*',
-                         'descending',
-                         'descending*',
-                         'dry_air',
-                         'dry_air*',
-                         'dry_air_projection',
-                         'dry_air_projection*',
-                         'dsx',
-                         'dsx*',
-                         'fru',
-                         'fru*',
-                         'gfn',
-                         'gravity_wind',
-                         'gravity_wind*',
-                         'gustatory',
-                         'gustatory*',
-                         'hot_cell_projection',
-                         'hot_cell_projection*',
-                         'humid_air',
-                         'humid_air*',
-                         'humid_air_projection',
-                         'humid_air_projection*',
-                         'motor',
-                         'motor*',
-                         'olfactory',
-                         'olfactory*',
-                         'olfactory_2nd',
-                         'olfactory_2nd*',
-                         'optic_lobe_input',
-                         'optic_lobe_input*',
-                         'output',
-                         'output*',
-                         'thermosensory_cold',
-                         'thermosensory_cold*',
-                         'thermosensory_combined',
-                         'thermosensory_combined*',
-                         'thermosensory_hot',
-                         'thermosensory_hot*',
-                         'visual',
-                         'visual*']
+        expected_list = ['Ascending',
+                         'Central Brain',
+                         'Descending',
+                         'Optic Lobe',
+                         'Sensory',
+                         'Visual Projection']
         self.assertEqual(expected_list, self.neuron_db.classes())
 
     def test_hemisphere_fingerprint(self):

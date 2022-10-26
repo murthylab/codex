@@ -36,12 +36,12 @@ class Test(TestCase):
             data=list(neuron_db.neuron_data.values()), search_query='test_query_2', case_sensitive=1, match_words=0,
             data_version='447')
         self.assertEqual("Stats for search query: 'test_query_2', case sensitive, data version: 447", caption)
-        self.assertEqual({'': {'- Classified': '16,078', '- Labeled': '33,009', 'Cells': '68,375'},
-                          'Top Classes': {'ALRN': '1,916',
-                                          'LN': '1,381',
-                                          'descending': '3,236',
-                                          'optic_lobe_input': '4,690',
-                                          'output': '963'},
+        self.assertEqual({'': {'- Classified': '68,375', '- Labeled': '33,009', 'Cells': '68,375'},
+                          'Top Classes': {'Ascending': '2,224',
+                                          'Central Brain': '32,797',
+                                          'Optic Lobe': '19,815',
+                                          'Sensory': '4,752',
+                                          'Visual Projection': '7,456'},
                           'Top Labels': {'Kenyon_Cell_L': '2,586',
                                          'Kenyon_Cell_L*': '1,242',
                                          'Putative AN; Part of comprehensive neck connective tracing; contact Connectomics Group Cambridge for more detailed information on descending/ascending neurons': '2,227',
@@ -81,10 +81,4 @@ class Test(TestCase):
                                                      ['OCT', 121],
                                                      ['SER', 1415],
                                                      ['Unknown', 254]],
-                          'Num. Assigned Neuron Classes': [['Num Classes', 'Count'],
-                                                           ['0', 52297],
-                                                           ['1', 12936],
-                                                           ['2', 2750],
-                                                           ['3', 368],
-                                                           ['4', 22],
-                                                           ['5', 2]]}, data_charts)
+                          'Num. Assigned Neuron Classes': [['Num Classes', 'Count'], ['1', 68375]]}, data_charts)
