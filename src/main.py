@@ -1,4 +1,4 @@
-from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
+from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS, DATA_SNAPSHOT_VERSION_DESCRIPTIONS
 from src.utils.graph_vis import make_graph_html
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils import nglui, stats as stats_utils
@@ -173,6 +173,7 @@ def index(path):
         return render_template(
             "index.html",
             card_data=card_data,
+            data_version_infos=sorted(DATA_SNAPSHOT_VERSION_DESCRIPTIONS.values(), reverse=True),
             num_cells="{:,}".format(neuron_db.num_cells()),
             num_synapses="{:,}".format(neuron_db.num_synapses()),
             num_annotations="{:,}".format(neuron_db.num_annotations())

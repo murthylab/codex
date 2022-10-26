@@ -6,13 +6,36 @@
       <h1 class="display-4">Codex</h1>
       <p><i>Connectome Data Explorer</i></p>
 
+        <!-- Data Snapshot Versions Modal -->
+        <div class="modal fade" id="dataVersionsModal" tabindex="-1" role="dialog" aria-labelledby="dataVersionsModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="dataVersionsModalLabel">Available FlyWire Data Snapshots</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <ul>
+                  {% for di in data_version_infos %}
+                    <li>{{di}}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div style="min-width: 300px; width: 50%;">
           <hr class="my-4" align="left">
 
           <h2 style="color: purple;">FlyWire Dataset Info</h2>
-          <p>Codex provides access to static snapshots of the
-            <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome. See more
-          details on the <a href="/faq">FAQs</a> page.</p>
+          <p>Codex provides access to <a href="details" type="button" data-toggle="modal" data-target="#dataVersionsModal">
+            static snapshots
+          </a>
+          of the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome.
+            See more details on the <a href="/faq">FAQs</a> page.</p>
 
           <table cellspacing="0" cellpadding="0" style="border: none; border-collapse: collapse;">
             <tr style="background: none; margin: 0; padding: 0;">
