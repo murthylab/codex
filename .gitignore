@@ -5,8 +5,7 @@ profile
 *$py.class
 
 # Source data files
-static/data/*/neuron_data.csv.gz
-static/data/*/neuron_data_orig.csv.gz
+static/data/*/neuron_data*.csv.gz
 static/raw_data/
 static/secrets/
 
