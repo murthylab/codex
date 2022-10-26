@@ -226,12 +226,12 @@ class NeuronDB(object):
                 'counts': _sorted_counts(classes)
             },
             {
-                'caption': _caption('Labels', len(labels)),
+                'caption': _caption('Annotations', len(labels)),
                 'key': 'label',
                 'counts': _sorted_counts(labels)
             },
             {
-                'caption': _caption('Groups', len(groups)),
+                'caption': _caption('Max In/Out Neuropil Groups', len(groups)),
                 'key': 'group',
                 'counts': _sorted_counts(groups)
             }

@@ -28,7 +28,6 @@
 1. info on neurotransmitter thresholds-- and what exactly does % input synapse neurotransmitters mean? what confidence thresholds were used? specifically, i am unsure if these percentages mean "out of 100 synapses, 34 were cholinergic and 66 were glut" or whether it means "for 100 synapses, on average, each synapse was 34% likely to be cholinergic and  66% likely to be glut"
 1. need definition for "I/O Side"
 1. path length: when i clicked on this, there were a handful of neuron numbers charted, not sure why that page starts with those specific neurons
-1. under stats: unsure what "top labels" means
 1. show warning for non-chrome browsers in skeletons / general
 
 ## Connectivity / network view
