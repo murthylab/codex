@@ -110,6 +110,14 @@ class NeuronDB(object):
                 assert r == DATA_FILE_COLUMNS
                 continue
             root_id = self._get_value(r, 'root_id', to_type=int)
+
+            def _compact_tag(anno_tag):
+                # TODO: get rid of this
+                return anno_tag.replace(
+                    '; Part of comprehensive neck connective tracing; contact Connectomics Group Cambridge '
+                    'for more detailed information on descending/ascending neurons', ''
+                    )
+
             self.neuron_data[root_id] = {
                 'root_id': root_id,
                 'name': self._get_value(r, 'name'),
@@ -123,7 +131,7 @@ class NeuronDB(object):
                 'input_neuropils': self._get_value(r, 'input_neuropils', split=True),
                 'output_neuropils': self._get_value(r, 'output_neuropils', split=True),
                 'supervoxel_id': self._get_value(r, 'supervoxel_id', split=True, to_type=int),
-                'tag': self._get_value(r, 'tag', split=True),
+                'tag': [_compact_tag(t) for t in self._get_value(r, 'tag', split=True)],
                 'inherited_tag_root_id': self._get_value(r, 'inherited_tag_root_id', to_type=int),
                 'inherited_tag_score': self._get_value(r, 'inherited_tag_score', to_type=float),
                 'inherited_tag_mirrored': self._get_value(r, 'inherited_tag_mirrored', to_type=int),
