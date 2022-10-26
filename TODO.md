@@ -1,9 +1,11 @@
 ## Search / cell lists
 1. filters / sorting options for search page
 1. expandable "actions" buttons instead of menu behind rocket
-1. could be nice to be able to select with checkboxes what is shown in 3d interactive image, so that its easy to compare morphologies by eye
-1. could be helpful to be able to group chosen cells together and make such graphs for them as well (for example, if there are 3 cells that I know are
+1. select with checkboxes what is shown in 3d interactive image, so that its easy to compare morphologies by eye
+1. group chosen cells together and make such graphs for them as well (for example, if there are 3 cells that I know are
    part of the same group, being able to pool that info would be great--- Im spending time doing such things for a plot for our paper)
+1. show primary input/output neuropil in Stats 
+1. show synapse summary in Stats 
 
 ## Labels / data quality
 1. label lineage with history/credits
