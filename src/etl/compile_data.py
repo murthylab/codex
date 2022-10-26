@@ -216,9 +216,25 @@ def augment_existing_data():
     write_csv(filename=fname, rows=content, compress=True)
 
 
+def replace_classes_in_existing_data():
+    fname = f'static/data/{LATEST_DATA_SNAPSHOT_VERSION}/neuron_data.csv.gz'
+    content = read_csv(fname)
+
+    coarse_labels = load_feather_file(f'coarse_cell_classes.feather')
+    coarse_labels = {r[0]: r[1] for r in coarse_labels[1:]}
+
+    for r in content[1:]:
+        cl = coarse_labels.get(int(r[0]))
+        r[4] = cl
+
+    write_csv(filename=f'{fname}_new', rows=content, compress=True)
+
+
 if __name__ == "__main__":
-    #compile_data()
-    augment_existing_data()
+    # compile_data()
+    # augment_existing_data()
+    replace_classes_in_existing_data()
+
 
 
 
