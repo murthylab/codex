@@ -30,7 +30,8 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
 
     def node_title(nd):
         rid = nd['root_id']
-        return f"<a href=\"cell_details?root_id={rid}\">{rid}</a>"
+        name = nd['name']
+        return f"<a href='cell_details?root_id={rid}' target='_parent'>{name}</a>"
 
     def edge_title(row):
         return f'{row[2]}'
@@ -176,6 +177,7 @@ class Network(object):
 
     def add_node(self, n_id, label=None, shape="dot", color="#97c2fc", **options):
         assert isinstance(n_id, str) or isinstance(n_id, int)
+        n_id = str(n_id)
         if label:
             node_label = label
         else:
@@ -190,6 +192,8 @@ class Network(object):
             self.node_map[n_id] = n.options
 
     def add_edge(self, source, to, **options):
+        source = str(source)
+        to = str(to)
         # verify nodes exist
         assert source in self.node_ids, \
             "non existent node '" + str(source) + "'"
