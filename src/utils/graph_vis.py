@@ -89,11 +89,11 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
     for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:max_nodes]:
         add_cell_node(k[0])
         pnid = add_pil_node(k[1], is_input=k[0] != center_id)
-        net.add_edge(k[0], pnid, value=v, physics=edge_physics)
+        net.add_edge(k[0], pnid, value=v, physics=edge_physics, label=str(v))
     for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[:max_nodes]:
         add_cell_node(k[1])
         pnid = add_pil_node(k[0], is_input=k[1] == center_id)
-        net.add_edge(pnid, k[1], value=v, physics=edge_physics)
+        net.add_edge(pnid, k[1], value=v, physics=edge_physics, label=str(v))
 
     # bundle any remaining connections (to prevent too large graphs)
     def add_super_cell_node():
@@ -129,7 +129,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
 
     def add_super_edge(f, t, v):
         if (f, t) not in added_super_edge_pairs:
-            net.add_edge(f, t, value=v, physics=edge_physics)
+            net.add_edge(f, t, value=v, physics=edge_physics, label=str(v))
             added_super_edge_pairs.add((f, t))
 
     for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[max_nodes:2*max_nodes]:
