@@ -156,7 +156,7 @@ def index(path):
                 'header': 'Connectivity',
                 'body': 'Visualize connectivity of neurons in various regions of the brain',
                 'asset_filename': 'card-network.jpg',
-                'url': 'connections'
+                'url': 'cell_details'
             }, {
                 'header': 'Pathways',
                 'body': 'Analyse shortest-paths between pairs of neurons',
