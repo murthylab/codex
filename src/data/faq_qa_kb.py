@@ -50,14 +50,15 @@ FAQ_QA_KB = {
         'q': "What is NBLAST?",
         'a': "<a href=\"https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4961245/\">NBLAST</a> is a method "
              "for assigning similarity scores to pairs of neurons. NBLAST scores are not "
-             "necessarily symmetric, and they range from 1 (morphologically similar) to -1 (not similar). "
+             "necessarily symmetric, and they range from 1 (morphologically similar) to -1 (not similar).<br>"
              "The NBLAST scores shown here were contributed by "
              "<a href=\"https://www.zoo.cam.ac.uk/directory/dr-philip-schlegel\">Dr. Philipp Schlegel</a> "
              "and they cover the central brain cells (which is around 50k of the neurons in the dataset). "
     }, 'paths': {
         'q': "What is a path length?",
-        'a': "Path length from neuron A to neuron B is the minimum number of steps / hops needed to reach "
-             "neuron B from A via intermediate neurons. NOTE: Only connections with 5+ synnapses are "
+        'a': "Shortest path length is equivalent to the minimum number of 'hops' "
+             "required to reach from the source cell to the target via synaptic connections "
+             "in the connectome network.<br><b>NOTE</b> Only connections with 5+ synapses are "
              "taken into account."
     }
 }

@@ -6,9 +6,6 @@
 <form class="form-inline">
   <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="cell_names_or_id" name="cell_names_or_id" placeholder="enter cell name or ID" aria-label="Cell Name/ID" value="{{cell_names_or_id}}">
   <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();">&#128269;</button>
-  {% if not cell_names_or_id %}
-    <button class="btn btn btn-success my-2 my-sm-0" type="button" style="margin-left: 10px;" onclick="loading(); document.getElementById('cell_names_or_id').value = '{random_cell}'; this.form.submit();">&#127922;</button>
-  {% endif %}
 </form>
 </nav>
 
@@ -60,7 +57,7 @@
         {% if load_connections %}
         <div class="card" style="width: 100%; height: 450px;">
             <div class="card-header" style="color: purple;">
-                <a href="{{url_for('connections', root_ids=cell_id, log_request=0)}}" target="_blank">Connectivity (5+ synapses) <i style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i> </a>
+                <a href="{{url_for('connections', root_ids=cell_id, log_request=0)}}" target="_blank">Connections with 5+ synapses<i style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i> </a>
             </div>
             <iframe style="width: 100%; height: 100%;" src="{{url_for('connections', root_ids=cell_id, log_request=0)}}" title="connectivity" loading="lazy"></iframe>
         </div>
@@ -92,6 +89,18 @@
     </div>
     <div class="card-columns"  id="charts_container" style="padding: 5px;">
     </div>
+{% else %}
+<div class="card" style="margin: 15px;">
+  <div class="card-header" style="color: purple;">
+    What is this?
+  </div>
+  <div class="card-body">
+    Look up a cell by name or ID to see its detailed information, including connectivity with upstream / downstream cells, 3D skeleton, annotations and a list of morphologically similar as well as other related cells.
+    <br><br>
+    <button class="btn btn btn-success my-2 my-sm-0" type="button" onclick="loading(); sb_elem = document.getElementById('cell_names_or_id'); sb_elem.value = '{random_cell}'; sb_elem.form.submit();">Try a random cell &#127922;</button>
+  </div>
+</div>
+
 {% endif %}
 
 {% endblock content %}

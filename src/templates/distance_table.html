@@ -5,24 +5,7 @@
     <form class="form-inline">
       <input class="form-control mr-sm-2" style="width: 35vw;" autocomplete="off" autofocus type="search" id="cell_names_or_ids" name="cell_names_or_ids" placeholder="Source cell(s)" aria-label="Cell Names or IDs" value="{{cell_names_or_ids}}">
       <input class="form-control mr-sm-2" style="width: 35vw; margin-left: 5px;" autocomplete="off" autofocus type="search" id="target_cell_names_or_ids" name="target_cell_names_or_ids" placeholder="Target cell(s)" aria-label="Cell Names or IDs" value="{{target_cell_names_or_ids}}">
-      <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();">GO</button>
-      <button type="button" class="btn btn-info" style="margin-left: 5px;" title="Info" data-toggle="modal" data-target="#infoModal">&#10068;</button>
-      <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" style="color:blue;">{{info_title}}</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              {{info_text|safe}}
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();"><i class="fa-solid fa-arrow-down-short-wide"></i></button>
     </form>
   </nav>
 
@@ -58,9 +41,9 @@
     How it works
   </div>
   <div class="card-body">
-    {{info_body}}
+    {{info_text|safe}}
     <br><br>
-    <button class="btn btn btn-primary" type="button" onclick="loading(); document.getElementById('cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('cell_names_or_ids').form.submit();">Try with sample cells</button>
+    <button class="btn btn btn-success" type="button" onclick="loading(); document.getElementById('cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('cell_names_or_ids').form.submit();">Try with sample cells</button>
   </div>
 </div>
 

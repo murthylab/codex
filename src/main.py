@@ -899,11 +899,10 @@ def nblast():
             cell_names_or_ids=cell_names_or_ids,
             distance_table=nblast_scores,
             download_url=url_for('nblast', download=1, cell_names_or_ids=cell_names_or_ids),
-            info_title=nblast_doc['q'],
-            info_text=nblast_doc['a'],
-            info_body="NBLAST is a method for comparing cell by shape / morphology. With this tool you can specify one "
+            info_text="With this tool you can specify one "
                       "or more source cells + one or more target cells, and get a matrix of NBLAST scores for all "
-                      "source/target pairs. The higher the score (max 1) the more similar the corresponding cells are.",
+                      "source/target pairs.<br>"
+                      f"{nblast_doc['a']}",
             sample_input=sample_input,
         )
 
@@ -964,13 +963,10 @@ def path_length():
             distance_table=distance_matrix,
             download_url=url_for('path_length', download=1, cell_names_or_ids=cell_names_or_ids,
                                  nt_type=nt_type, min_syn_cnt=min_syn_cnt),
-            info_title=paths_doc['q'],
-            info_text=paths_doc['a'],
-            info_body="With this tool you can specify one "
+            info_text="With this tool you can specify one "
                       "or more source cells + one or more target cells, and get a matrix with shortest path lengths "
-                      "for all source/target pairs. Shortest path length is equivalent to the minimum number of 'hops' "
-                      "required to reach from the source cell to the target via synaptic connections "
-                      "in the connectome network.",
+                      "for all source/target pairs.<br>"
+                      f"{paths_doc['a']}",
             sample_input=sample_input
         )
 
