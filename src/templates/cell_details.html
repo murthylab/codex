@@ -5,7 +5,7 @@
 <nav class="navbar navbar-light bg-light">
 <form class="form-inline">
   <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="cell_names_or_id" name="cell_names_or_id" placeholder="enter cell name or ID" aria-label="Cell Name/ID" value="{{cell_names_or_id}}">
-  <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();">&#128269;</button>
+  <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();"><i class="fa-solid fa-magnifying-glass"></i></button>
 </form>
 </nav>
 
@@ -97,7 +97,7 @@
   <div class="card-body">
     Look up a cell by name or ID to see its detailed information, including connectivity with upstream / downstream cells, 3D skeleton, annotations and a list of morphologically similar as well as other related cells.
     <br><br>
-    <button class="btn btn btn-success my-2 my-sm-0" type="button" onclick="loading(); sb_elem = document.getElementById('cell_names_or_id'); sb_elem.value = '{random_cell}'; sb_elem.form.submit();">Try a random cell &#127922;</button>
+    <button class="btn btn btn-success my-2 my-sm-0" type="button" onclick="loading(); sb_elem = document.getElementById('cell_names_or_id'); sb_elem.value = '{random_cell}'; sb_elem.form.submit();">Try Random Cell</button>
   </div>
 </div>
 

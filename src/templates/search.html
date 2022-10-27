@@ -6,10 +6,10 @@
     <form class="form-inline">
 
       <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="filter_string" name="filter_string" placeholder="search anything" aria-label="Filter" value="{{filter_string}}">
-      <button class="btn btn btn-primary my-2 my-sm-0" type="submit">&#128269;</button>
+      <button class="btn btn btn-primary my-2 my-sm-0" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
 
       {% if num_items and filter_string %}
-      <button type="button" class="btn btn-success" style="margin-left: 5px;" title="Analyze Matches" data-toggle="modal" data-target="#actionsModal" >&#128640;</button>
+      <button type="button" class="btn btn-success" style="margin-left: 5px;" title="Analyze Matches" data-toggle="modal" data-target="#actionsModal" ><i class="fa-solid fa-ellipsis"></i></button>
       <div class="modal fade" id="actionsModal" tabindex="-1" role="dialog" aria-labelledby="actionsModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -60,7 +60,7 @@
       </div>
       {% endif %}
 
-      <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Settings" data-toggle="modal" data-target="#filterModal" >&#9881;</button>
+      <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Settings" data-toggle="modal" data-target="#filterModal" ><i class="fa-solid fa-sliders"></i></button>
       <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -134,7 +134,7 @@
             <td style="color:#664444;">{{neuron.nt_type}}</td>
             <td style="color:#AAAAAA;">{{neuron.class}}</td>
             <td style="color:#444466;">{{neuron.hemisphere_fingerprint|safe}}</td>
-            <td><a class="btn btn-primary" href="{{url_for('flywire_url', root_ids=[neuron.root_id])}}" target="_blank" role="button" title="Open in FlyWire" >3D</a></td>
+            <td><a class="btn btn-outline-primary" href="{{url_for('flywire_url', root_ids=[neuron.root_id])}}" target="_blank" role="button" title="Open in FlyWire" ><i class="fa-solid fa-cube"></i></a></td>
           </tr>
       {% endfor %}
     </tbody>
