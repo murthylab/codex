@@ -8,7 +8,7 @@
     <form class="form-inline">
 
       <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="filter_string" name="filter_string" placeholder="filter labeling suggestions" aria-label="Filter" value="{{filter_string}}">
-      <button class="btn btn btn-primary my-2 my-sm-0" type="submit">&#128269;</button>
+      <button class="btn btn btn-primary my-2 my-sm-0" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
     </form>
   </nav>
 
@@ -42,7 +42,7 @@
             <td>{{neuron.annotations|safe}}</td>
             <td>{{'&nbsp; <b>&#x2022;</b> &nbsp;'.join(neuron.classes)|safe}}</td>
             <td><a href="{{url_for('cell_details', root_id=neuron.root_id)}}"><img src="{{url_for('skeleton_thumbnail_url', root_id=neuron.root_id, log_request=0)}}" width="100px" height="75px;" border="1px;"></a></td>
-            <td><a class="btn btn-outline-primary" href="{{url_for('flywire_url', root_ids=[neuron.inherited_tag_root_id, neuron.root_id])}}" target="_blank" role="button" title="Compare in FlyWire" >Compare &#128270;</a></td>
+            <td><a class="btn btn-outline-primary" href="{{url_for('flywire_url', root_ids=[neuron.inherited_tag_root_id, neuron.root_id])}}" target="_blank" role="button" title="Compare in FlyWire" >Compare <i class="fa-solid fa-cube"></i></a></td>
             <td><a class="btn btn-outline-success" role="button" title="Accept" href="{{url_for('accept_label_suggestion', from_root_id=neuron.root_id, to_root_id=neuron.inherited_tag_root_id)}}">Accept &#10003</a></td>
             <td><a class="btn btn-outline-danger" role="button" title="Reject" href="{{url_for('reject_label_suggestion', from_root_id=neuron.root_id, to_root_id=neuron.inherited_tag_root_id)}}">Reject &#10007</a></td>
           </tr>
