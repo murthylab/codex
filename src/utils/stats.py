@@ -54,14 +54,13 @@ def _make_data_stats(data_list):
             '- Classified': classified_neurons
         }
     }
-    if anno_counts:
-        result['Top Annotations'] = {
-            k: anno_counts[k] for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:5]
-        }
-
     if class_counts:
         result['Top Classes'] = {
             k: class_counts[k] for k in sorted(class_counts, key=class_counts.get, reverse=True)[:5]
+        }
+    if anno_counts:
+        result['Top Annotations'] = {
+            k: anno_counts[k] for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:5]
         }
 
     return result

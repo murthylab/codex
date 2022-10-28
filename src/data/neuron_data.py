@@ -221,8 +221,10 @@ class NeuronDB(object):
         def _caption(name, length):
             if length > CATEGORY_LIMIT:
                 return f'{name} (showing top {CATEGORY_LIMIT} out of {length})'
-            else:
+            elif length > 10:
                 return f'{name} ({length})'
+            else:
+                return name
 
         def _sorted_counts(d):
             lst_all = sorted([(k, v) for k, v in d.items()], key=lambda p: -p[1])
@@ -235,6 +237,12 @@ class NeuronDB(object):
                 'counts': _sorted_counts(classes)
             },
             {
+                # curated neuron lists (not a neuron attribute)
+                'caption': 'Collections',
+                'key': 'collection',
+                'counts': [(k, len(v)) for k, v in NEURON_COLLECTIONS.items()]
+            },
+            {
                 'caption': _caption('Annotations', len(labels)),
                 'key': 'label',
                 'counts': _sorted_counts(labels)
@@ -244,12 +252,6 @@ class NeuronDB(object):
                 'key': 'group',
                 'counts': _sorted_counts(groups)
             },
-            {
-                # curated neuron lists (not a neuron attribute)
-                'caption': 'Collections',
-                'key': 'collection',
-                'counts': [(k, len(v)) for k, v in NEURON_COLLECTIONS.items()]
-            }
         ]
 
     def get_neuron_data(self, root_id):
