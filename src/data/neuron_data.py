@@ -286,10 +286,12 @@ class NeuronDB(object):
     @lru_cache
     def search(self, search_query, case_sensitive=False, word_match=False):
         # TODO: Find a more elegant solution for curated collections
+        def _intersect(rid_list):
+            return [rid for rid in rid_list if rid in self.neuron_data]
         if search_query.startswith('collection == '):
-            return NEURON_COLLECTIONS[search_query.replace('collection == ', '')]
+            return _intersect(NEURON_COLLECTIONS[search_query.replace('collection == ', '')])
         if not search_query:
-            res = NEURON_COLLECTIONS['Minimal Hitting Set']
+            res = _intersect(NEURON_COLLECTIONS['Minimal Hitting Set'])
             res += list(set(self.neuron_data.keys()) - set(res))
             assert set(res) == set(self.neuron_data.keys())
             return res
