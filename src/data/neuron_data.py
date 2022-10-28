@@ -1,3 +1,4 @@
+from src.data.neuron_collections import NEURON_COLLECTIONS
 from src.data.search_index import SearchIndex
 from src.utils.logging import log
 from src.data.gcs_data_loader import load_connections_for_root_id
@@ -242,6 +243,12 @@ class NeuronDB(object):
                 'caption': _caption('Max In/Out Neuropil Groups', len(groups)),
                 'key': 'group',
                 'counts': _sorted_counts(groups)
+            },
+            {
+                # curated neuron lists (not a neuron attribute)
+                'caption': 'Collections',
+                'key': 'collection',
+                'counts': [(k, len(v)) for k, v in NEURON_COLLECTIONS.items()]
             }
         ]
 
@@ -278,6 +285,10 @@ class NeuronDB(object):
 
     @lru_cache
     def search(self, search_query, case_sensitive=False, word_match=False):
+        # TODO: Find a more elegant solution for curated collections
+        if search_query.startswith('collection == '):
+            return NEURON_COLLECTIONS[search_query.replace('collection == ', '')]
+
         # The basic search query term can be either "free form" or "structured".
         # - Free form is when user types in a keyword, or a sentence, and the goal is to find all items that match
         #   (w.r.t any of their searchable attributes).
