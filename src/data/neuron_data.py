@@ -293,7 +293,7 @@ class NeuronDB(object):
         if search_query.startswith('collection == '):
             return _intersect(NEURON_COLLECTIONS[search_query.replace('collection == ', '')])
         if not search_query:
-            res = _intersect(NEURON_COLLECTIONS['Minimal Hitting Set'])
+            res = _intersect(NEURON_COLLECTIONS['Dominating Set'])
             res += list(set(self.neuron_data.keys()) - set(res))
             assert set(res) == set(self.neuron_data.keys())
             return res
