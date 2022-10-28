@@ -676,6 +676,7 @@ def skeleton_thumbnail_url():
 @require_data_access
 def cell_details():
     root_id = None
+    cell_names_or_id = None
     if 'root_id' in request.args:
         root_id = int(request.args.get('root_id'))
     else:
@@ -804,7 +805,7 @@ def cell_details():
     log_activity(f"Generated neuron info for {root_id} with {len(cell_attributes) + len(related_cells)} items")
     return render_template(
         "cell_details.html",
-        cell_names_or_id=nd['name'],
+        cell_names_or_id=cell_names_or_id or nd['name'],
         cell_id=root_id,
         cell_attributes=cell_attributes,
         related_cells=related_cells,
