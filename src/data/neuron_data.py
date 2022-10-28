@@ -288,6 +288,11 @@ class NeuronDB(object):
         # TODO: Find a more elegant solution for curated collections
         if search_query.startswith('collection == '):
             return NEURON_COLLECTIONS[search_query.replace('collection == ', '')]
+        if not search_query:
+            res = NEURON_COLLECTIONS['Minimal Hitting Set']
+            res += list(set(self.neuron_data.keys()) - set(res))
+            assert set(res) == set(self.neuron_data.keys())
+            return res
 
         # The basic search query term can be either "free form" or "structured".
         # - Free form is when user types in a keyword, or a sentence, and the goal is to find all items that match
