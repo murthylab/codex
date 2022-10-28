@@ -6,6 +6,7 @@
    part of the same group, being able to pool that info would be great--- Im spending time doing such things for a plot for our paper)
 1. show primary input/output neuropil in Stats 
 1. show synapse summary in Stats 
+1. Stats: click on a certain neurotransmitter type in the graph that would then show you only neurons of this group with a certain NT
 
 ## Labels / data quality
 1. label lineage with history/credits
