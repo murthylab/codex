@@ -77,7 +77,7 @@ def log(msg):
     return msg
 
 def _post_to_slk(text, real_user_activity, extra_hk):
-    if any([bot in text for bot in ['Slackbot-LinkExpanding', 'FullStoryBot', 'Googlebot', 'AhrefsBot']]):
+    if any([bot in text for bot in ['Slackbot-LinkExpanding', 'Spider', 'FullStoryBot', 'Googlebot', 'AhrefsBot']]):
         log(f"Skipping SLK post from bots: {text}")
         return
 
