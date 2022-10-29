@@ -38,7 +38,7 @@ def _make_data_charts(data_list):
             key_title="Input neuropils", val_title="Count", item_list=input_neuropils)
     if output_neuropils:
         result['Output neuropils'] = make_donut_chart_from_list(
-            key_title="Input neuropils", val_title="Count", item_list=output_neuropils)
+            key_title="Output neuropils", val_title="Count", item_list=output_neuropils)
 
     return result
 
