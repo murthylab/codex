@@ -69,7 +69,7 @@ def request_wrapper(func):
     return wrap
 
 
-# TODO: get rid of this once published
+# TODO: get rid of this once data is published
 def require_data_access(func):
     @wraps(func)
     def wrap(*args, **kwargs):
