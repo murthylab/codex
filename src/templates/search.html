@@ -22,17 +22,17 @@
             <div class="modal-body">
                 <ul>
                   <li>
-                    <a class="btn btn-link" href="{{url_for('stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" >Show stats &#128202;</a>
+                    <a class="btn btn-link" href="{{url_for('app.stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" >Show stats &#128202;</a>
                   </li>
                   <li>
-                    <a class="btn btn-link" href="{{url_for('search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" target="_blank">View matches in FlyWire &#10132;</a>
+                    <a class="btn btn-link" href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" target="_blank">View matches in FlyWire &#10132;</a>
                   </li>
                   {% if root_ids_str %}
                   <li>
-                    <a class="btn btn-link" onclick="loading();" href="{{url_for('nblast', cell_names_or_ids=root_ids_str)}}" >NBLAST scores &#128208;</a>
+                    <a class="btn btn-link" onclick="loading();" href="{{url_for('app.nblast', cell_names_or_ids=root_ids_str)}}" >NBLAST scores &#128208;</a>
                   </li>
                   <li>
-                    <a class="btn btn-link" onclick="loading();" href="{{url_for('path_length', cell_names_or_ids=root_ids_str)}}" >Pathway lengths &#128279;</a>
+                    <a class="btn btn-link" onclick="loading();" href="{{url_for('app.path_length', cell_names_or_ids=root_ids_str)}}" >Pathway lengths &#128279;</a>
                   </li>
                   <li>
                     <a class="btn btn-link" onclick="copyRootIdsToClipboard();">Copy Cell IDs &#128203;</a>
@@ -43,15 +43,15 @@
                     </script>
                   </li>
                   <li>
-                    <a class="btn btn-link" href="{{url_for('connections', download=1, root_ids=root_ids_str)}}" target="_blank">Download connections table &#8681;</a>
+                    <a class="btn btn-link" href="{{url_for('app.connections', download=1, root_ids=root_ids_str)}}" target="_blank">Download connections table &#8681;</a>
                   </li>
                   {% else %}
                   <li>
-                    <a class="btn btn-link" href="{{url_for('root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download Cell IDs &#128203;</a>
+                    <a class="btn btn-link" href="{{url_for('app.root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download Cell IDs &#128203;</a>
                   </li>
                   {% endif %}
                   <li>
-                    <a class="btn btn-link" href="{{url_for('download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download results as CSV &#8681;</a>
+                    <a class="btn btn-link" href="{{url_for('app.download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download results as CSV &#8681;</a>
                   </li>
                 </ul>
             </div>
@@ -128,13 +128,13 @@
     <tbody>
       {% for neuron in display_data %}
           <tr>
-            <td style="padding: 0px; margin: 0px;"><a href="{{url_for('cell_details', root_id=neuron.root_id)}}"><img src="{{url_for('skeleton_thumbnail_url', root_id=neuron.root_id, log_request=0)}}" width="100px" height="75px;" border="1px;"></a></td>
-            <td><a href="{{url_for('cell_details', root_id=neuron.root_id)}}">{{neuron.name}}</a><br><small>{{neuron.root_id}}</small></td>
+            <td style="padding: 0px; margin: 0px;"><a href="{{url_for('app.cell_details', root_id=neuron.root_id)}}"><img src="{{url_for('base.skeleton_thumbnail_url', root_id=neuron.root_id, log_request=0)}}" width="100px" height="75px;" border="1px;"></a></td>
+            <td><a href="{{url_for('app.cell_details', root_id=neuron.root_id)}}">{{neuron.name}}</a><br><small>{{neuron.root_id}}</small></td>
             <td style="color:#3A3AAA;">{{neuron.class}}</td>
             <td style="color:#3A3A3A;">{{neuron.annotations|safe}}</td>
             <td style="color:#3A3AAA;">{{neuron.nt_type}}</td>
             <td style="color:#3A3AAA;">{{neuron.hemisphere_fingerprint|safe}}</td>
-            <td><a class="btn btn-outline-primary" href="{{url_for('flywire_url', root_ids=[neuron.root_id])}}" target="_blank" role="button" title="Open in FlyWire" ><i class="fa-solid fa-cube"></i></a></td>
+            <td><a class="btn btn-outline-primary" href="{{url_for('app.flywire_url', root_ids=[neuron.root_id])}}" target="_blank" role="button" title="Open in FlyWire" ><i class="fa-solid fa-cube"></i></a></td>
           </tr>
       {% endfor %}
     </tbody>
@@ -144,7 +144,7 @@
 <ul class="pagination my-2" style="margin-left: 10px; margin-bottom: 10px;" >
   {% for page_info in pagination_info %}
     <li class="page-item {{page_info.status}}">
-      <a class="page-link" href="{{url_for('search', page_number=page_info.number, filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" >{{page_info.label}}</a>
+      <a class="page-link" href="{{url_for('app.search', page_number=page_info.number, filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" >{{page_info.label}}</a>
     </li>
   {% endfor %}
 </ul>
