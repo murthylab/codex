@@ -119,10 +119,12 @@ def render_neuron_list(data_version, template_name, filtered_root_id_list, filte
         display_data_ids = filtered_root_id_list
 
     display_data = [neuron_db.get_neuron_data(i) for i in display_data_ids]
-    skeleton_thumbnail_urls = {nd['root_id']: url_for_skeleton(nd['root_id'], data_version=data_version) for nd in display_data}
+    skeleton_thumbnail_urls = {nd['root_id']: url_for_skeleton(nd['root_id'], data_version=data_version) for nd in
+                               display_data}
     for nd in display_data:
         if nd['inherited_tag_root_id']:
-            skeleton_thumbnail_urls[nd['inherited_tag_root_id']] = url_for_skeleton(nd['inherited_tag_root_id'], data_version=data_version)
+            skeleton_thumbnail_urls[nd['inherited_tag_root_id']] = url_for_skeleton(nd['inherited_tag_root_id'],
+                                                                                    data_version=data_version)
 
     return render_template(
         template_name_or_list=template_name,
