@@ -21,7 +21,7 @@ Instructions:
 DATA_PATH = os.path.join("flywire_resource_data_files", LATEST_DATA_SNAPSHOT_VERSION, "l2_skeletons")
 BRAIN_MESH_PATH = "brain_mesh_v141.obj"
 
-SEGMENT_COLOR = (160/255, 42/255, 250/255)
+SEGMENT_COLOR = (160 / 255, 42 / 255, 250 / 255)
 
 full_brain = trimesh_io.read_mesh(BRAIN_MESH_PATH)
 full_brain_mesh = trimesh_io.Mesh(full_brain[0], full_brain[1], full_brain[2])
@@ -40,14 +40,17 @@ ngl_state = {
 }
 cam = trimesh_vtk.camera_from_ngl_state(ngl_state)
 
+
 def render(filename, out_path=None):
     if out_path is None:
         out_path = os.path.join("thumbnails", filename)
     skeleton = skeleton_io.read_skeleton_h5(os.path.join(DATA_PATH, filename))
     skeleton_actor = trimesh_vtk.skeleton_actor(skeleton, color=SEGMENT_COLOR, opacity=0.75)
     out_filename = out_path.replace(".h5", ".png")
-    trimesh_vtk.render_actors([full_brain_mesh_actor, skeleton_actor], filename=out_filename, camera=cam, scale=1, do_save=True)
+    trimesh_vtk.render_actors([full_brain_mesh_actor, skeleton_actor], filename=out_filename, camera=cam, scale=1,
+                              do_save=True)
     add_transparency(out_filename)
+
 
 def add_transparency(path):
     # from https://stackoverflow.com/a/54148416
@@ -56,6 +59,7 @@ def add_transparency(path):
     x[:, :, 3] = (255 * (x[:, :, :3] != 255).any(axis=2)).astype(np.uint8)
     img2 = Image.fromarray(x)
     img2.save(path, "PNG")
+
 
 def generate_thumbnails():
     filenames = os.listdir(DATA_PATH)

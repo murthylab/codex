@@ -1,17 +1,17 @@
 {% extends "base_barebones.html" %}
 
 {% block title %}
-    Info
+Info
 {% endblock title %}
 
 {% block base_barebones_content %}
 
-    <div class="jumbotron">
-      <div class="container">
+<div class="jumbotron">
+    <div class="container">
         <p class="lead">{{message|safe}}</p>
 
-        <a class="btn btn-success" style="margin-left: 15px;" href="{{url_for('base.index')}}" >Back to Homepage</a>
-      </div>
-
+        <a class="btn btn-success" style="margin-left: 15px;" href="{{url_for('base.index')}}">Back to Homepage</a>
     </div>
+
+</div>
 {% endblock base_barebones_content %}

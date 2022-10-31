@@ -62,6 +62,7 @@ def load_feather_data_to_table(filename, columns_to_read):
     print(f"Rows scanned: {rows_scanned}")
     return rows
 
+
 def load_feather_file(filename, columns_to_read=None):
     full_path = f'{RAW_DATA_ROOT_FOLDER}/{filename}'
     if not os.path.isfile(full_path):
@@ -70,6 +71,7 @@ def load_feather_file(filename, columns_to_read=None):
 
     return load_feather_data_to_table(full_path, columns_to_read=columns_to_read)
 
+
 def init_cave_client():
     with open(CAVE_AUTH_TOKEN_FILE_NAME) as fn:
         auth_token = str(fn.readline()).strip()
@@ -77,6 +79,7 @@ def init_cave_client():
             print("!! Missing access token. See link in the comment for how to obtain it.")
             exit(1)
     return CAVEclient(CAVE_DATASTACK_NAME, auth_token=auth_token)
+
 
 def load_neuron_info_from_cave(client):
     print("Downloading 'neuron_information_v2' with CAVE client..")
@@ -93,14 +96,17 @@ def load_neuron_info_from_cave(client):
         ])
     return neuron_info_table
 
+
 def load_proofreading_info_from_cave(client):
     print("Downloading 'proofreading_status_public_v1' with CAVE client..")
-    df = client.materialize.query_table('proofreading_status_public_v1', materialization_version=LATEST_DATA_SNAPSHOT_VERSION)
+    df = client.materialize.query_table('proofreading_status_public_v1',
+                                        materialization_version=LATEST_DATA_SNAPSHOT_VERSION)
     print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
     pr_info_table = [['root_id', 'position', 'supervoxel_id']]
     for index, d in df.iterrows():
         pr_info_table.append([int(d['pt_root_id']), str(d['pt_position']), int(d['pt_supervoxel_id'])])
     return pr_info_table
+
 
 def compile_data():
     client = init_cave_client()
@@ -116,7 +122,8 @@ def compile_data():
     neuron_info_feather = load_feather_file(filename=NEURON_INFO_FILE_NAME, columns_to_read=NEURON_INFO_COLUMN_NAMES)
     print(f'{neuron_info_feather[:2]=}\n\n')
 
-    nt_types_feather = load_feather_file(filename=NEURON_NT_TYPES_FILE_NAME, columns_to_read=NEURON_NT_TYPES_COLUMN_NAMES)
+    nt_types_feather = load_feather_file(filename=NEURON_NT_TYPES_FILE_NAME,
+                                         columns_to_read=NEURON_NT_TYPES_COLUMN_NAMES)
     print(f'{nt_types_feather[:2]=}\n\n')
 
     syn_table_feather = load_feather_file(filename=SYNAPSE_TABLE_FILE_NAME, columns_to_read=SYNAPSE_TABLE_COLUMN_NAMES)
@@ -131,7 +138,8 @@ def compile_data():
     rids_from_neuron_info_db = set([r[0] for r in neuron_info_db[1:]])
 
     rid_sets = [
-        rids_from_neuron_info_feather, rids_from_syn_feather, rids_from_nt_feather, rids_from_pr_db, rids_from_neuron_info_db
+        rids_from_neuron_info_feather, rids_from_syn_feather, rids_from_nt_feather, rids_from_pr_db,
+        rids_from_neuron_info_db
     ]
     rid_set_names = [
         'neuron_info_feather', 'syn_feather', 'nt_feather', 'pr_db', 'neuron_info_db'
@@ -142,25 +150,30 @@ def compile_data():
             print(f'{rid_set_names[i]} vs {rid_set_names[j]}')
             print(f'{len(s1)=} {len(s2)=} {len(s1.intersection(s2))=} {len(s1 - s2)=} {len(s2 - s1)=}\n\n')
 
-
-
     # map all missing root ids to the specified data snapshot
 
-    super_voxel_ids_of_missing_root_ids_ninfo = list(set([r[4] for r in neuron_info_table[1:] if r[0] not in rids_from_syn_table]))
+    super_voxel_ids_of_missing_root_ids_ninfo = list(
+        set([r[4] for r in neuron_info_table[1:] if r[0] not in rids_from_syn_table]))
     print(f'{len(super_voxel_ids_of_missing_root_ids_ninfo)=}')
-    mapped_root_ids_ninfo = client.chunkedgraph.get_roots(super_voxel_ids_of_missing_root_ids_ninfo, timestamp=mat_timestamp).tolist()
+    mapped_root_ids_ninfo = client.chunkedgraph.get_roots(super_voxel_ids_of_missing_root_ids_ninfo,
+                                                          timestamp=mat_timestamp).tolist()
     print(sample(list(zip(super_voxel_ids_of_missing_root_ids_ninfo, mapped_root_ids_ninfo)), 10))
     print(f'{len(mapped_root_ids_ninfo)=} {len(rids_from_syn_table.intersection(set(mapped_root_ids_ninfo)))=}')
-    super_voxel_id_to_root_id_ninfo = {i: j for (i, j) in zip(super_voxel_ids_of_missing_root_ids_ninfo, mapped_root_ids_ninfo)}
-    print(f'Unresolved tags count: {len([r for r in neuron_info_table[1:] if r[0] not in rids_from_syn_table and super_voxel_id_to_root_id_ninfo[r[4]] not in rids_from_syn_table])}')
+    super_voxel_id_to_root_id_ninfo = {i: j for (i, j) in
+                                       zip(super_voxel_ids_of_missing_root_ids_ninfo, mapped_root_ids_ninfo)}
+    print(
+        f'Unresolved tags count: {len([r for r in neuron_info_table[1:] if r[0] not in rids_from_syn_table and super_voxel_id_to_root_id_ninfo[r[4]] not in rids_from_syn_table])}')
 
-    super_voxel_ids_of_missing_root_ids_pr = list(set([r[2] for r in pr_info_table[1:] if r[0] not in rids_from_syn_table]))
+    super_voxel_ids_of_missing_root_ids_pr = list(
+        set([r[2] for r in pr_info_table[1:] if r[0] not in rids_from_syn_table]))
     print(f'{len(super_voxel_ids_of_missing_root_ids_pr)=}')
-    mapped_root_ids_pr = client.chunkedgraph.get_roots(super_voxel_ids_of_missing_root_ids_pr, timestamp=mat_timestamp).tolist()
+    mapped_root_ids_pr = client.chunkedgraph.get_roots(super_voxel_ids_of_missing_root_ids_pr,
+                                                       timestamp=mat_timestamp).tolist()
     print(sample(list(zip(super_voxel_ids_of_missing_root_ids_pr, mapped_root_ids_pr)), 10))
     print(f'{len(mapped_root_ids_pr)=} {len(rids_from_syn_table.intersection(set(mapped_root_ids_pr)))=}')
     super_voxel_id_to_root_id_pr = {i: j for (i, j) in zip(super_voxel_ids_of_missing_root_ids_pr, mapped_root_ids_pr)}
-    print(f'Unresolved tags count: {len([r for r in pr_info_table[1:] if r[0] not in rids_from_syn_table and super_voxel_id_to_root_id_pr[r[2]] not in rids_from_syn_table])}')
+    print(
+        f'Unresolved tags count: {len([r for r in pr_info_table[1:] if r[0] not in rids_from_syn_table and super_voxel_id_to_root_id_pr[r[2]] not in rids_from_syn_table])}')
 
     # sanity check
     rids_syn_table_list = list(rids_from_syn_table)
@@ -236,9 +249,3 @@ if __name__ == "__main__":
     # compile_data()
     # augment_existing_data()
     replace_classes_in_existing_data()
-
-
-
-
-
-

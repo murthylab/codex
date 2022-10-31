@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
 {% block title %}
-    About
+About
 {% endblock title %}
 
 {% block content %}
-    <div class="card bg-light mb-3" style="margin: 10px;">
-      <div class="card-header" style="color: purple; font-size: 18px;">
-          About Codex
-      </div>
-      <div class="card-body">
+<div class="card bg-light mb-3" style="margin: 10px;">
+    <div class="card-header" style="color: purple; font-size: 18px;">
+        About Codex
+    </div>
+    <div class="card-body">
         <h6>Status</h6>
         <ul>
             <li>Codex is under active development - functionality and quality of the data are improving daily</li>
@@ -18,43 +18,58 @@
         </ul>
         <h6>Credits, Terms and Privacy notice</h6>
         <ul>
-            <li>To publish FlyWire data, please follow the instructions <a href="https://docs.google.com/document/d/1bUkOB-5JnT3u__JDvAoVDHJ3zr5NXQtV_63yx2w6Tcc/">in this doc</a></li>
+            <li>To publish FlyWire data, please follow the instructions <a
+                    href="https://docs.google.com/document/d/1bUkOB-5JnT3u__JDvAoVDHJ3zr5NXQtV_63yx2w6Tcc/">in this
+                doc</a></li>
             <li>FlyWire & Codex <a href="https://flywire.ai/tos.html">Terms of Service and Privacy</a> notice</li>
             <li>Supported by BRAIN Initiative grant MH117815 to Murthy and Seung</li>
         </ul>
         <h6>Creators</h6>
         <ul>
-            <li>Arie Matsliah (arie@princeton.edu), Research Scientist and FlyWire Data Evangelist, <a href="https://murthylab.princeton.edu/" target="_blank">Murthy Lab</a> @ Princeton Neuroscience Institute
-            <li>Sven M. Dorkenwald (svenmd@princeton.edu), Ph.D. Student, <a href="https://seunglab.org/" target="_blank">Seung Lab</a> @ Princeton Neuroscience Institute
-            <li>Amy Sterling (amysterling@princeton.edu), Crowdsourcing and Outreach Manager, <a href="https://seunglab.org/" target="_blank">Seung Lab</a> @ Princeton Neuroscience Institute
-            <li>Kai Kuehner (kkuehner@princeton.edu), Developer, <a href="https://seunglab.org/" target="_blank">Seung Lab</a> @ Princeton Neuroscience Institute
+            <li>Arie Matsliah (arie@princeton.edu), Research Scientist and FlyWire Data Evangelist, <a
+                    href="https://murthylab.princeton.edu/" target="_blank">Murthy Lab</a> @ Princeton Neuroscience
+                Institute
+            <li>Sven M. Dorkenwald (svenmd@princeton.edu), Ph.D. Student, <a href="https://seunglab.org/"
+                                                                             target="_blank">Seung Lab</a> @ Princeton
+                Neuroscience Institute
+            <li>Amy Sterling (amysterling@princeton.edu), Crowdsourcing and Outreach Manager, <a
+                    href="https://seunglab.org/" target="_blank">Seung Lab</a> @ Princeton Neuroscience Institute
+            <li>Kai Kuehner (kkuehner@princeton.edu), Developer, <a href="https://seunglab.org/" target="_blank">Seung
+                Lab</a> @ Princeton Neuroscience Institute
         </ul>
         <h6>Links and Resources</h6>
         <ul>
-            <li>The <a href="https://flywire.ai" target="_blank">FlyWire</a> Project: A human-AI collaboration to map the fly connectome</li>
-            <li>Codex <a href="https://github.com/murthylab/codex" target="_blank">source code</a> (type in your GitHub handle below to request access)</li>
+            <li>The <a href="https://flywire.ai" target="_blank">FlyWire</a> Project: A human-AI collaboration to map
+                the fly connectome
+            </li>
+            <li>Codex <a href="https://github.com/murthylab/codex" target="_blank">source code</a> (type in your GitHub
+                handle below to request access)
+            </li>
         </ul>
-      </div>
     </div>
-    <div class="card bg-light mb-3" style="margin: 10px;">
-      <div class="card-header" style="color: purple; font-size: 18px;">
+</div>
+<div class="card bg-light mb-3" style="margin: 10px;">
+    <div class="card-header" style="color: purple; font-size: 18px;">
         Account
-      </div>
-      <div class="card-body">
-          <div>
-            <img src="{{user_picture|safe}}">
-            <p style="margin-left: 10px; display: inline-block; vertical-align: top;">{{user_name}}<br>{{user_email}}<br><br><a href="/app/activity_log">Activity log</a> &nbsp;&#8286;&nbsp; <a href="/logout">Sign out &#10132</a></p>
-          </div>
-      </div>
     </div>
-    <div class="card bg-light mb-3" style="margin: 10px;">
-      <div class="card-header" style="color: purple; font-size: 18px;">
-          App Details
-      </div>
-      <div class="card-body">
+    <div class="card-body">
+        <div>
+            <img src="{{user_picture|safe}}">
+            <p style="margin-left: 10px; display: inline-block; vertical-align: top;">
+                {{user_name}}<br>{{user_email}}<br><br><a href="/app/activity_log">Activity log</a> &nbsp;&#8286;&nbsp;
+                <a href="/logout">Sign out &#10132</a></p>
+        </div>
+    </div>
+</div>
+<div class="card bg-light mb-3" style="margin: 10px;">
+    <div class="card-header" style="color: purple; font-size: 18px;">
+        App Details
+    </div>
+    <div class="card-body">
         <h6>Build</h6>
         <ul>
-            <li>Commit <a href="https://github.com/murthylab/codex/commit/{{build_git_sha}}" target="_blank">git sha</a></li>
+            <li>Commit <a href="https://github.com/murthylab/codex/commit/{{build_git_sha}}" target="_blank">git sha</a>
+            </li>
             <li>Built on {{build_timestamp}}</li>
         </ul>
         <h6>Instance</h6>
@@ -62,24 +77,26 @@
             <li>Process id {{instance_proc_id}} ({{instance_host_name}})</li>
             <li>Uptime {{instance_uptime}} ({{instance_num_requests}} requests)</li>
         </ul>
-      </div>
     </div>
-    <div class="card bg-light mb-3" style="margin: 10px;">
-      <div class="card-header" style="color: purple; font-size: 18px;">
-          Feedback / Questions
-      </div>
-      <div class="card-body">
-          <form style="margin-top: 10px;">
-                {% if message_sent %}
-              <div class="toast-body" style="color: gray;">
+</div>
+<div class="card bg-light mb-3" style="margin: 10px;">
+    <div class="card-header" style="color: purple; font-size: 18px;">
+        Feedback / Questions
+    </div>
+    <div class="card-body">
+        <form style="margin-top: 10px;">
+            {% if message_sent %}
+            <div class="toast-body" style="color: gray;">
                 Message sent
-              </div>
-                {% else %}
-              <textarea class="form-control" id="user_message" rows="2" minlength="5" name="user_message" placeholder="Submit your message and we'll reply to '{{user_email}}'"></textarea>
-              <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">Send</button>
-                {% endif %}
-          </form>
-      </div>
+            </div>
+            {% else %}
+            <textarea class="form-control" id="user_message" rows="2" minlength="5" name="user_message"
+                      placeholder="Submit your message and we'll reply to '{{user_email}}'"></textarea>
+            <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">Send
+            </button>
+            {% endif %}
+        </form>
     </div>
+</div>
 
 {% endblock content %}

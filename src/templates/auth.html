@@ -1,26 +1,29 @@
 {% extends "base_barebones.html" %}
 
 {% block base_barebones_content %}
-  <div class="jumbotron" style="background-image: url(/background_image); background-size: 50%; background-position: right top; background-repeat: no-repeat;">
-      <div class="container">
+<div class="jumbotron"
+     style="background-image: url(/background_image); background-size: 50%; background-position: right top; background-repeat: no-repeat;">
+    <div class="container">
         <h1 class="display-4">Codex</h1>
         <p><i>Connectome Data Explorer</i></p>
-          <p>Data analysis tools for the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome</p>
-          <hr class="my-4">
-            <em>By signing in you agree to <a href="https://flywire.ai/tos.html">FlyWire Terms of Service & Privacy Notice</a></em>
-            <br><br>
-            <div>
-                <script src="https://accounts.google.com/gsi/client" async defer></script>
-                    <div id="g_id_onload"
-                         data-client_id="{{client_id}}"
-                         data-ux_mode="redirect"
-                         data-login_uri="/login?redirect_to={{redirect_to}}">
-                    </div>
-                <div class="g_id_signin" data-type="standard"></div>
-                <br>
-                <em style="color:grey;">Need help? {{support_email}}</em>
+        <p>Data analysis tools for the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome
+        </p>
+        <hr class="my-4">
+        <em>By signing in you agree to <a href="https://flywire.ai/tos.html">FlyWire Terms of Service & Privacy
+            Notice</a></em>
+        <br><br>
+        <div>
+            <script src="https://accounts.google.com/gsi/client" async defer></script>
+            <div id="g_id_onload"
+                 data-client_id="{{client_id}}"
+                 data-ux_mode="redirect"
+                 data-login_uri="/login?redirect_to={{redirect_to}}">
             </div>
-          <hr class="my-4">
-      </div>
+            <div class="g_id_signin" data-type="standard"></div>
+            <br>
+            <em style="color:grey;">Need help? {{support_email}}</em>
+        </div>
+        <hr class="my-4">
     </div>
+</div>
 {% endblock base_barebones_content %}

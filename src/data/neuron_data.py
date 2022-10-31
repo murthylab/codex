@@ -116,7 +116,7 @@ class NeuronDB(object):
                 return anno_tag.replace(
                     '; Part of comprehensive neck connective tracing; contact Connectomics Group Cambridge '
                     'for more detailed information on descending/ascending neurons', ''
-                    )
+                )
 
             self.neuron_data[root_id] = {
                 'root_id': root_id,
@@ -127,7 +127,8 @@ class NeuronDB(object):
                 'similar_root_ids': self._get_value(r, 'similar_root_ids', split=True, to_type=int),
                 'similar_root_id_scores': self._get_value(r, 'similar_root_id_scores', split=True, to_type=float),
                 'symmetrical_root_ids': self._get_value(r, 'symmetrical_root_ids', split=True, to_type=int),
-                'symmetrical_root_id_scores': self._get_value(r, 'symmetrical_root_id_scores', split=True, to_type=float),
+                'symmetrical_root_id_scores': self._get_value(r, 'symmetrical_root_id_scores', split=True,
+                                                              to_type=float),
                 'input_neuropils': self._get_value(r, 'input_neuropils', split=True),
                 'output_neuropils': self._get_value(r, 'output_neuropils', split=True),
                 'supervoxel_id': self._get_value(r, 'supervoxel_id', split=True, to_type=int),
@@ -289,6 +290,7 @@ class NeuronDB(object):
         # TODO: Find a more elegant solution for curated collections
         def _intersect(rid_list):
             return [rid for rid in rid_list if rid in self.neuron_data]
+
         if search_query.startswith('collection == '):
             return _intersect(NEURON_COLLECTIONS[search_query.replace('collection == ', '')])
         if not search_query:
@@ -408,7 +410,8 @@ class NeuronDB(object):
                 return lambda x: not any([p(x) for p in predicates])
         elif structured_term['op'] in [OP_DOWNSTREAM, OP_UPSTREAM]:
             downstream, upstream = load_connections_for_root_id(structured_term['rhs'])
-            return lambda x: x['root_id'] in (set(downstream) if structured_term['op'] == OP_DOWNSTREAM else set(upstream))
+            return lambda x: x['root_id'] in (
+                set(downstream) if structured_term['op'] == OP_DOWNSTREAM else set(upstream))
         else:
             raise ValueError(f"Unsupported query operator {structured_term['op']}")
 
@@ -514,7 +517,7 @@ class NeuronDB(object):
             if len(token) > limit:
                 token = token[:limit - 5] + '...'
             return token
+
         if text and len(text) > limit:
             return ' '.join([trim(t) for t in text.split()])
         return text
-

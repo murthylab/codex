@@ -108,6 +108,7 @@ def load_connection_table_for_root_id(root_id):
         except Exception as e:
             log_error(f"Exception while loading connection table for {root_id}: {e}")
 
+
 def load_connections_for_root_id(root_id, min_syn_cnt=5):
     root_id = int(root_id)
     table = load_connection_table_for_root_id(root_id)
@@ -122,6 +123,7 @@ def load_connections_for_root_id(root_id, min_syn_cnt=5):
             assert r[1] == root_id
             upstream.append(r[0])
     return downstream, upstream
+
 
 def load_connection_table_for_root_ids(root_ids, pool_size=DEFAULT_POOL_SIZE):
     # dedupe input

@@ -1,43 +1,47 @@
 {% extends "base_barebones.html" %}
 
 {% block base_barebones_content %}
-    <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
-      <a id='nav_home' class="navbar-brand mb-0 h1" href="{{url_for('base.index')}}"><img width="30.6px" height="17.7px" src="{{url_for('base.asset', filename='codex-icon-color.png')}}">&nbsp; Codex</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+<nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
+    <a id='nav_home' class="navbar-brand mb-0 h1" href="{{url_for('base.index')}}"><img width="30.6px" height="17.7px"
+                                                                                        src="{{url_for('base.asset', filename='codex-icon-color.png')}}">&nbsp;
+        Codex</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
-      </button>
+    </button>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <a class="nav-link" id="nav_search" href="{{url_for('app.search')}}">Search</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="nav_cell_details" href="{{url_for('app.cell_details')}}">Cell Info</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="nav_stats" href="{{url_for('app.stats')}}">Stats</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="nav_explore" href="{{url_for('app.explore')}}">Explore</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="nav_labeling_suggestions" href="{{url_for('app.labeling_suggestions')}}">Labeling Suggestions</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="nav_nblast" href="{{url_for('app.nblast')}}">NBLAST</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="nav_path_length" href="{{url_for('app.path_length')}}">Path Length</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="nav_faq" href="{{url_for('base.faq')}}">FAQ</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="nav_about" href="{{url_for('base.about')}}">About</a>
-          </li>
+            <li class="nav-item">
+                <a class="nav-link" id="nav_search" href="{{url_for('app.search')}}">Search</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="nav_cell_details" href="{{url_for('app.cell_details')}}">Cell Info</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="nav_stats" href="{{url_for('app.stats')}}">Stats</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="nav_explore" href="{{url_for('app.explore')}}">Explore</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="nav_labeling_suggestions" href="{{url_for('app.labeling_suggestions')}}">Labeling
+                    Suggestions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="nav_nblast" href="{{url_for('app.nblast')}}">NBLAST</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="nav_path_length" href="{{url_for('app.path_length')}}">Path Length</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="nav_faq" href="{{url_for('base.faq')}}">FAQ</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="nav_about" href="{{url_for('base.about')}}">About</a>
+            </li>
 
-          <script>
+            <script>
               function nav_elem_id(cur_url) {
                 let tabs = ['search', 'cell_details', 'stats', 'explore', 'labeling_suggestions', 'nblast', 'path_length', 'faq', 'about'];
                 for (const tab of tabs){
@@ -49,16 +53,18 @@
               }
               elem_id = nav_elem_id(window.location.href);
               document.getElementById(elem_id).style.color = 'blue';
-          </script>
+
+            </script>
         </ul>
-      </div>
-    </nav>
+    </div>
+</nav>
 
-    <div id="contentBody">
+<div id="contentBody">
     {% block content %} {% endblock content %}
-    </div>
+</div>
 
-    <div id="snackbar">
-      <a class="btn btn-sm btn-link my-2 my-sm-0" style="color: red;" href="{{url_for('base.wip')}}">!! This is a Work in Progress !!</a>
-    </div>
+<div id="snackbar">
+    <a class="btn btn-sm btn-link my-2 my-sm-0" style="color: red;" href="{{url_for('base.wip')}}">!! This is a Work in
+        Progress !!</a>
+</div>
 {% endblock base_barebones_content %}

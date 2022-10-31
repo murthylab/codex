@@ -15,6 +15,8 @@ proc_id = str(uuid.uuid4())[-4:] + ('-D' if DEV_LOGGING else '-P')
 host_name = socket.gethostname()
 
 startup_time = datetime.datetime.now()
+
+
 def uptime(millis=True):
     ut = str(datetime.datetime.now() - startup_time)
 
@@ -35,11 +37,13 @@ SLKHKACT = os.environ.get('HK_ACTIVITY')
 SLCKHKHB = os.environ.get('HK_DEV')
 SLCKHKSOS = os.environ.get('HK_HELP')
 
+
 def user_agent():
     try:
         return str(parse_ua(str(request.user_agent)))
     except:
         return ''
+
 
 def _is_smoke_test_request():
     try:
@@ -53,6 +57,7 @@ def _fetch_user_info():
         return session['id_info']['email']
     except:
         return None
+
 
 def _fetch_client_info():
     try:
@@ -77,6 +82,7 @@ def log(msg):
     print(msg)
     return msg
 
+
 def _post_to_slk(text, real_user_activity, extra_hk):
     if any([bot in text for bot in ['Slackbot-LinkExpanding', 'Spider', 'FullStoryBot', 'Googlebot', 'AhrefsBot']]):
         log(f"Skipping SLK post from bots: {text}")
@@ -90,6 +96,7 @@ def _post_to_slk(text, real_user_activity, extra_hk):
                          headers={'Content-Type': 'application/json'})
            for hk in hks if hk]
     log(f"SLK post response(s): {res}")
+
 
 def post_to_slk(text, hk=None):
     real_user_activity = not DEV_LOGGING and not _is_smoke_test_request()

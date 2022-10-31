@@ -46,6 +46,7 @@ def url_for_root_ids(root_ids, point_to_proofreading_flywire=False):
         payload = urllib.parse.quote(f'{_PREFIX}{seg_ids}{_SUFFIX}')
         return f'{_BASE_URL}/#!{payload}'
 
+
 def url_for_random_sample(root_ids, sample_size=50):
     if len(root_ids) > sample_size:
         root_ids = random.sample(root_ids, sample_size)

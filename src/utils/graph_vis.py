@@ -39,7 +39,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
         return f'{row[2]}'
 
     def edge_size(row):
-        return pow(row[3], 1/2)
+        return pow(row[3], 1 / 2)
 
     net = Network()
 
@@ -134,7 +134,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
             net.add_edge(f, t, value=v, physics=edge_physics, label=str(v))
             added_super_edge_pairs.add((f, t))
 
-    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[max_nodes:2*max_nodes]:
+    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[max_nodes:2 * max_nodes]:
         if k[0] in added_cell_nodes:
             if k[1] in added_pil_nodes:
                 add_super_edge(k[0], k[1], v)
@@ -150,7 +150,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
                 sp = add_super_pil_node()
                 add_super_edge(sc, sp, v)
 
-    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[max_nodes:2*max_nodes]:
+    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[max_nodes:2 * max_nodes]:
         if k[1] in added_cell_nodes:
             if k[0] in added_pil_nodes:
                 add_super_edge(k[0], k[1], v)
@@ -167,6 +167,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
                 add_super_edge(sp, sc, v)
 
     return net.generate_html()
+
 
 class Network(object):
     # based on https://pyvis.readthedocs.io/en/latest/_modules/pyvis/network.html
@@ -205,7 +206,7 @@ class Network(object):
 
         e = Edge(source, to, True, **options)
         self.edges.append(e.options)
-    
+
     def add_legend(self, label, color="#97c2fc"):
         legend_entry = {"label": label, "color": color}
         if legend_entry not in self.legend:
@@ -213,6 +214,7 @@ class Network(object):
 
     def generate_html(self):
         return render_template("network_graph.html", nodes=self.nodes, edges=self.edges, legend=self.legend)
+
 
 class Node(object):
     # based on https://github.com/WestHealth/pyvis/blob/master/pyvis/node.py
@@ -223,6 +225,7 @@ class Node(object):
         self.options["shape"] = shape
         if font_color:
             self.options["font"] = dict(color=font_color)
+
 
 class Edge(object):
     # based on https://github.com/WestHealth/pyvis/blob/master/pyvis/edge.py

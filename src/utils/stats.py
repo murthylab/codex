@@ -1,13 +1,16 @@
 from collections import defaultdict
 
+
 def make_donut_chart_from_counts(key_title, val_title, counts_dict):
     return [[key_title, val_title]] + [[t, c] for t, c in sorted(counts_dict.items(), key=lambda p: p[0])]
+
 
 def make_donut_chart_from_list(key_title, val_title, item_list):
     counts = defaultdict(int)
     for i in item_list:
         counts[i] += 1
     return make_donut_chart_from_counts(key_title=key_title, val_title=val_title, counts_dict=counts)
+
 
 def _make_data_charts(data_list):
     nt_types = []
@@ -42,6 +45,7 @@ def _make_data_charts(data_list):
 
     return result
 
+
 def _make_data_stats(data_list):
     annotated_neurons = 0
     classified_neurons = 0
@@ -75,13 +79,17 @@ def _make_data_stats(data_list):
 
     return result
 
+
 def _format_val(val):
     return "{:,}".format(val) if isinstance(val, int) else val
+
 
 def _format_for_display(dict_of_dicts):
     def _format_dict(dct):
         return {k: _format_val(v) for k, v in dct.items()}
+
     return {k: _format_dict(d) for k, d in dict_of_dicts.items()}
+
 
 def compile_data(data, search_query, case_sensitive, match_words, data_version):
     stats_caption = []

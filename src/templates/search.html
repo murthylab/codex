@@ -2,151 +2,186 @@
 {% block title %} Search {% endblock title %}
 {% block content %}
 
-  <nav class="navbar navbar-light bg-light">
+<nav class="navbar navbar-light bg-light">
     <form class="form-inline">
 
-      <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="filter_string" name="filter_string" placeholder="search anything" aria-label="Filter" value="{{filter_string}}">
-      <button class="btn btn btn-primary my-2 my-sm-0" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search"
+               id="filter_string" name="filter_string" placeholder="search anything" aria-label="Filter"
+               value="{{filter_string}}">
+        <button class="btn btn btn-primary my-2 my-sm-0" type="submit"><i class="fa-solid fa-magnifying-glass"></i>
+        </button>
 
-      {% if num_items and filter_string %}
-      <button type="button" class="btn btn-success" style="margin-left: 5px;" title="Analyze Matches" data-toggle="modal" data-target="#actionsModal" ><i class="fa-solid fa-ellipsis"></i></button>
-      <div class="modal fade" id="actionsModal" tabindex="-1" role="dialog" aria-labelledby="actionsModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" style="color:blue;" id="actionsModalLabel">{{ "{:,}".format(num_items) }} matches</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-                <ul>
-                  <li>
-                    <a class="btn btn-link" href="{{url_for('app.stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" >Show stats &#128202;</a>
-                  </li>
-                  <li>
-                    <a class="btn btn-link" href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" target="_blank">View matches in FlyWire &#10132;</a>
-                  </li>
-                  {% if root_ids_str %}
-                  <li>
-                    <a class="btn btn-link" onclick="loading();" href="{{url_for('app.nblast', cell_names_or_ids=root_ids_str)}}" >NBLAST scores &#128208;</a>
-                  </li>
-                  <li>
-                    <a class="btn btn-link" onclick="loading();" href="{{url_for('app.path_length', cell_names_or_ids=root_ids_str)}}" >Pathway lengths &#128279;</a>
-                  </li>
-                  <li>
-                    <a class="btn btn-link" onclick="copyRootIdsToClipboard();">Copy Cell IDs &#128203;</a>
-                    <script type="text/javascript">
+        {% if num_items and filter_string %}
+        <button type="button" class="btn btn-success" style="margin-left: 5px;" title="Analyze Matches"
+                data-toggle="modal" data-target="#actionsModal"><i class="fa-solid fa-ellipsis"></i></button>
+        <div class="modal fade" id="actionsModal" tabindex="-1" role="dialog" aria-labelledby="actionsModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" style="color:blue;" id="actionsModalLabel">{{ "{:,}".format(num_items)
+                            }} matches</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul>
+                            <li>
+                                <a class="btn btn-link"
+                                   href="{{url_for('app.stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Show
+                                    stats &#128202;</a>
+                            </li>
+                            <li>
+                                <a class="btn btn-link"
+                                   href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}"
+                                   target="_blank">View matches in FlyWire &#10132;</a>
+                            </li>
+                            {% if root_ids_str %}
+                            <li>
+                                <a class="btn btn-link" onclick="loading();"
+                                   href="{{url_for('app.nblast', cell_names_or_ids=root_ids_str)}}">NBLAST scores
+                                    &#128208;</a>
+                            </li>
+                            <li>
+                                <a class="btn btn-link" onclick="loading();"
+                                   href="{{url_for('app.path_length', cell_names_or_ids=root_ids_str)}}">Pathway lengths
+                                    &#128279;</a>
+                            </li>
+                            <li>
+                                <a class="btn btn-link" onclick="copyRootIdsToClipboard();">Copy Cell IDs &#128203;</a>
+                                <script type="text/javascript">
                       function copyRootIdsToClipboard() {
                         navigator.clipboard.writeText("{{root_ids_str}}");
                       }
-                    </script>
-                  </li>
-                  <li>
-                    <a class="btn btn-link" href="{{url_for('app.connections', download=1, root_ids=root_ids_str)}}" target="_blank">Download connections table &#8681;</a>
-                  </li>
-                  {% else %}
-                  <li>
-                    <a class="btn btn-link" href="{{url_for('app.root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download Cell IDs &#128203;</a>
-                  </li>
-                  {% endif %}
-                  <li>
-                    <a class="btn btn-link" href="{{url_for('app.download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download results as CSV &#8681;</a>
-                  </li>
-                </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endif %}
 
-      <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Settings" data-toggle="modal" data-target="#filterModal" ><i class="fa-solid fa-sliders"></i></button>
-      <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" style="color:blue;" id="filterModalLabel">Settings</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                  <label style="margin: 20px;">Match</label>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="case_sensitive" name="case_sensitive" value="1" {{ 'checked' if case_sensitive==1}}>
-                    <label class="form-check-label" for="case_sensitive">Case sensitive</label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="whole_word" name="whole_word" value="1" {{ 'checked' if whole_word==1}}>
-                    <label class="form-check-label" for="whole_word">Whole word</label>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label style="margin: 20px;">Data version</label>
-                  <select style="margin: 20px;" class="form-select form-select-lg mb-3" aria-label="Data Version" name="data_version">
-                    {% for v in data_versions %}
-                      <option value="{{v}}" {{ 'selected' if data_version==v}}>{{v}}</option>
-                    {% endfor %}
-                  </select>
+                                </script>
+                            </li>
+                            <li>
+                                <a class="btn btn-link"
+                                   href="{{url_for('app.connections', download=1, root_ids=root_ids_str)}}"
+                                   target="_blank">Download connections table &#8681;</a>
+                            </li>
+                            {% else %}
+                            <li>
+                                <a class="btn btn-link"
+                                   href="{{url_for('app.root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download
+                                    Cell IDs &#128203;</a>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <a class="btn btn-link"
+                                   href="{{url_for('app.download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download
+                                    results as CSV &#8681;</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary">Reset</button>
-              <button type="button" class="btn btn-primary" onclick="this.form.submit()">Apply</button>
-            </div>
-          </div>
         </div>
-      </div>
+        {% endif %}
+
+        <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Settings"
+                data-toggle="modal" data-target="#filterModal"><i class="fa-solid fa-sliders"></i></button>
+        <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" style="color:blue;" id="filterModalLabel">Settings</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label style="margin: 20px;">Match</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="case_sensitive"
+                                       name="case_sensitive" value="1" {{ 'checked' if case_sensitive==1}}>
+                                <label class="form-check-label" for="case_sensitive">Case sensitive</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="whole_word" name="whole_word"
+                                       value="1" {{ 'checked' if whole_word==1}}>
+                                <label class="form-check-label" for="whole_word">Whole word</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label style="margin: 20px;">Data version</label>
+                            <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                                    aria-label="Data Version" name="data_version">
+                                {% for v in data_versions %}
+                                <option value="{{v}}" {{
+                                'selected' if data_version==v}}>{{v}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary">Reset</button>
+                        <button type="button" class="btn btn-primary" onclick="this.form.submit()">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </form>
-  </nav>
-  {% if filter_string %}
-    <h6 style="margin-left: 15px; margin-top: 5px; color: grey; font-size: 11px;">{{"{:,}".format(num_items)}} matches</h6>
-  {% endif %}
-  {% if hint %}
-    <button class="btn btn-btn-link" style="color: blue;" type="button" onclick="searchbox = document.getElementById('filter_string'); searchbox.value = '{{hint}}'; searchbox.form.submit();">Show results for '<b>{{hint}}</b>' instead?</button>
-  {% endif %}
-
+</nav>
+{% if filter_string %}
+<h6 style="margin-left: 15px; margin-top: 5px; color: grey; font-size: 11px;">{{"{:,}".format(num_items)}} matches</h6>
+{% endif %}
+{% if hint %}
+<button class="btn btn-btn-link" style="color: blue;" type="button"
+        onclick="searchbox = document.getElementById('filter_string'); searchbox.value = '{{hint}}'; searchbox.form.submit();">
+    Show results for '<b>{{hint}}</b>' instead?
+</button>
+{% endif %}
 
 
 {% if num_items %}
 
 <div style="overflow-x:auto;">
-  <table class="table">
-    <thead>
-      <tr>
-        <th scope="col"></th>
-        <th scope="col">Cell Name/ID</th>
-        <th scope="col">Class</th>
-        <th scope="col">Annotations</th>
-        <th scope="col">NT</th>
-        <th scope="col">In/Out</th>
-        <th scope="col"></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for neuron in display_data %}
-          <tr>
-            <td style="padding: 0px; margin: 0px;"><a href="{{url_for('app.cell_details', root_id=neuron.root_id)}}"><img src="{{url_for('base.skeleton_thumbnail_url', root_id=neuron.root_id, log_request=0)}}" width="100px" height="75px;" border="1px;"></a></td>
-            <td><a href="{{url_for('app.cell_details', root_id=neuron.root_id)}}">{{neuron.name}}</a><br><small>{{neuron.root_id}}</small></td>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">Cell Name/ID</th>
+            <th scope="col">Class</th>
+            <th scope="col">Annotations</th>
+            <th scope="col">NT</th>
+            <th scope="col">In/Out</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for neuron in display_data %}
+        <tr>
+            <td style="padding: 0px; margin: 0px;"><a
+                    href="{{url_for('app.cell_details', root_id=neuron.root_id)}}"><img
+                    src="{{url_for('base.skeleton_thumbnail_url', root_id=neuron.root_id, log_request=0)}}"
+                    width="100px" height="75px;" border="1px;"></a></td>
+            <td><a href="{{url_for('app.cell_details', root_id=neuron.root_id)}}">{{neuron.name}}</a><br><small>{{neuron.root_id}}</small>
+            </td>
             <td style="color:#3A3AAA;">{{neuron.class}}</td>
             <td style="color:#3A3A3A;">{{neuron.annotations|safe}}</td>
             <td style="color:#3A3AAA;">{{neuron.nt_type}}</td>
             <td style="color:#3A3AAA;">{{neuron.hemisphere_fingerprint|safe}}</td>
-            <td><a class="btn btn-outline-primary" href="{{url_for('app.flywire_url', root_ids=[neuron.root_id])}}" target="_blank" role="button" title="Open in FlyWire" ><i class="fa-solid fa-cube"></i></a></td>
-          </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+            <td><a class="btn btn-outline-primary" href="{{url_for('app.flywire_url', root_ids=[neuron.root_id])}}"
+                   target="_blank" role="button" title="Open in FlyWire"><i class="fa-solid fa-cube"></i></a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 
-<ul class="pagination my-2" style="margin-left: 10px; margin-bottom: 10px;" >
-  {% for page_info in pagination_info %}
+<ul class="pagination my-2" style="margin-left: 10px; margin-bottom: 10px;">
+    {% for page_info in pagination_info %}
     <li class="page-item {{page_info.status}}">
-      <a class="page-link" href="{{url_for('app.search', page_number=page_info.number, filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" >{{page_info.label}}</a>
+        <a class="page-link"
+           href="{{url_for('app.search', page_number=page_info.number, filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">{{page_info.label}}</a>
     </li>
-  {% endfor %}
+    {% endfor %}
 </ul>
 
 {% endif %}

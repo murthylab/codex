@@ -14,6 +14,7 @@ NEURON_DB_PICKLE_FILE_NAME = 'neuron_db.pickle.gz'
 def data_file_path_for_version(version, data_root_path=DATA_ROOT_PATH):
     return f'{data_root_path}/{version}'
 
+
 def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     if version is None:
         version = LATEST_DATA_SNAPSHOT_VERSION
@@ -26,6 +27,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     del rows
     return neuron_db
 
+
 def unpickle_neuron_db(version, data_root_path=DATA_ROOT_PATH):
     try:
         pf = f'{data_file_path_for_version(version=version, data_root_path=data_root_path)}/{NEURON_DB_PICKLE_FILE_NAME}'
@@ -37,9 +39,11 @@ def unpickle_neuron_db(version, data_root_path=DATA_ROOT_PATH):
         log_error(f"Failed to load DB for data version {version}: {e}")
         return None
 
+
 def unpickle_all_neuron_db_versions(data_root_path=DATA_ROOT_PATH):
     return {v: unpickle_neuron_db(version=v, data_root_path=data_root_path)
             for v in DATA_SNAPSHOT_VERSIONS}
+
 
 def load_and_pickle_all_neuron_db_versions(data_root_path=DATA_ROOT_PATH):
     for v in DATA_SNAPSHOT_VERSIONS:
@@ -50,6 +54,7 @@ def load_and_pickle_all_neuron_db_versions(data_root_path=DATA_ROOT_PATH):
                 pickle.dump(db, handle, protocol=pickle.HIGHEST_PROTOCOL)
         except Exception as e:
             log_error(f"Failed to load and pickle DB for data version {v}: {e}")
+
 
 # generic CSV file reader with settings
 def read_csv(filename, num_rows=None, column_idx=None):
