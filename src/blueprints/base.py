@@ -12,7 +12,7 @@ from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSION_DESCRIPTIONS
 from src.utils.logging import log, log_activity, log_error, log_user_help, format_link, uptime, host_name, proc_id, \
-    _is_smoke_test_request
+    _is_smoke_test_request, APP_ENVIRONMENT
 from src.utils.thumbnails import url_for_skeleton
 
 base = Blueprint('base', __name__)
@@ -167,6 +167,7 @@ def about():
                            message_sent=message_sent,
                            build_git_sha=BUILD_GIT_SHA,
                            build_timestamp=BUILD_TIMESTAMP,
+                           instance_environment=APP_ENVIRONMENT,
                            instance_host_name=host_name,
                            instance_proc_id=proc_id,
                            instance_uptime=uptime(millis=False),
