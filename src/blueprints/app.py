@@ -179,82 +179,6 @@ def search():
     )
 
 
-@app.route('/labeling_suggestions')
-@request_wrapper
-@require_data_access
-def labeling_suggestions():
-    filter_string = request.args.get('filter_string', '')
-    page_number = int(request.args.get('page_number', 1))
-    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
-    case_sensitive = request.args.get('case_sensitive', 0, type=int)
-    whole_word = request.args.get('whole_word', 0, type=int)
-    neuron_db = neuron_data_factory.get(data_version)
-
-    hint = None
-
-    log_activity(f"Loading labeling suggestions page {page_number} {activity_suffix(filter_string, data_version)}")
-    filtered_root_id_list = neuron_db.search_in_neurons_with_inherited_labels(filter_string)
-
-    if filtered_root_id_list:
-        log_activity(
-            f"Got {len(filtered_root_id_list)} labeling suggestions {activity_suffix(filter_string, data_version)}")
-    else:
-        hint = neuron_db.closest_token_from_inherited_tags(filter_string, case_sensitive=case_sensitive)
-        log_activity(
-            f"No labeling suggestion results {activity_suffix(filter_string, data_version)}, sending hint '{hint}'")
-
-    return render_neuron_list(
-        data_version=data_version,
-        template_name='labeling_suggestions.html',
-        filtered_root_id_list=filtered_root_id_list,
-        filter_string=filter_string,
-        case_sensitive=case_sensitive,
-        whole_word=whole_word,
-        page_number=page_number,
-        hint=hint
-    )
-
-
-@app.route('/accept_label_suggestion')
-@request_wrapper
-@require_data_access
-def accept_label_suggestion():
-    from_root_id = request.args.get('from_root_id')
-    to_root_id = request.args.get('to_root_id')
-    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
-    neuron_db = neuron_data_factory.get(data_version)
-
-    from_neuron = neuron_db.get_neuron_data(from_root_id)
-    to_neuron = neuron_db.get_neuron_data(to_root_id)
-
-    log_activity(f"Accepting label suggestion from\n{from_root_id}: {from_neuron}\nto\n{to_root_id}: {to_neuron}")
-
-    if not from_neuron or not to_neuron:
-        return render_error(f"Neurons for Cell IDs {from_root_id} and/or {to_root_id} not found.")
-
-    return render_info(f"Label(s) <b> {from_neuron['annotations']} </b> assigned to Cell ID <b> {to_root_id} </b>")
-
-
-@app.route('/reject_label_suggestion')
-@request_wrapper
-@require_data_access
-def reject_label_suggestion():
-    from_root_id = request.args.get('from_root_id')
-    to_root_id = request.args.get('to_root_id')
-    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
-    neuron_db = neuron_data_factory.get(data_version)
-
-    from_neuron = neuron_db.get_neuron_data(from_root_id)
-    to_neuron = neuron_db.get_neuron_data(to_root_id)
-
-    log_activity(f"Rejecting label suggestion from\n{from_root_id}: {from_neuron}\nto\n{to_root_id}: {to_neuron}")
-
-    if not from_neuron or not to_neuron:
-        return render_error(f"Neurons for Cell IDs {from_root_id} and/or {to_root_id} not found.")
-
-    return render_info(f"Label suggestion rejected.")
-
-
 @app.route("/app/download_search_results")
 @request_wrapper
 @require_data_access
@@ -336,6 +260,82 @@ def search_results_flywire_url():
     url = nglui.url_for_random_sample(filtered_root_id_list, MAX_NEURONS_FOR_DOWNLOAD)
     log_activity(f"Redirecting results {activity_suffix(filter_string, data_version)} to FlyWire {format_link(url)}")
     return ngl_redirect_with_browser_check(ngl_url=url)
+
+
+@app.route('/labeling_suggestions')
+@request_wrapper
+@require_data_access
+def labeling_suggestions():
+    filter_string = request.args.get('filter_string', '')
+    page_number = int(request.args.get('page_number', 1))
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
+    case_sensitive = request.args.get('case_sensitive', 0, type=int)
+    whole_word = request.args.get('whole_word', 0, type=int)
+    neuron_db = neuron_data_factory.get(data_version)
+
+    hint = None
+
+    log_activity(f"Loading labeling suggestions page {page_number} {activity_suffix(filter_string, data_version)}")
+    filtered_root_id_list = neuron_db.search_in_neurons_with_inherited_labels(filter_string)
+
+    if filtered_root_id_list:
+        log_activity(
+            f"Got {len(filtered_root_id_list)} labeling suggestions {activity_suffix(filter_string, data_version)}")
+    else:
+        hint = neuron_db.closest_token_from_inherited_tags(filter_string, case_sensitive=case_sensitive)
+        log_activity(
+            f"No labeling suggestion results {activity_suffix(filter_string, data_version)}, sending hint '{hint}'")
+
+    return render_neuron_list(
+        data_version=data_version,
+        template_name='labeling_suggestions.html',
+        filtered_root_id_list=filtered_root_id_list,
+        filter_string=filter_string,
+        case_sensitive=case_sensitive,
+        whole_word=whole_word,
+        page_number=page_number,
+        hint=hint
+    )
+
+
+@app.route('/accept_label_suggestion')
+@request_wrapper
+@require_data_access
+def accept_label_suggestion():
+    from_root_id = request.args.get('from_root_id')
+    to_root_id = request.args.get('to_root_id')
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
+    neuron_db = neuron_data_factory.get(data_version)
+
+    from_neuron = neuron_db.get_neuron_data(from_root_id)
+    to_neuron = neuron_db.get_neuron_data(to_root_id)
+
+    log_activity(f"Accepting label suggestion from\n{from_root_id}: {from_neuron}\nto\n{to_root_id}: {to_neuron}")
+
+    if not from_neuron or not to_neuron:
+        return render_error(f"Neurons for Cell IDs {from_root_id} and/or {to_root_id} not found.")
+
+    return render_info(f"Label(s) <b> {from_neuron['annotations']} </b> assigned to Cell ID <b> {to_root_id} </b>")
+
+
+@app.route('/reject_label_suggestion')
+@request_wrapper
+@require_data_access
+def reject_label_suggestion():
+    from_root_id = request.args.get('from_root_id')
+    to_root_id = request.args.get('to_root_id')
+    data_version = request.args.get('data_version', LATEST_DATA_SNAPSHOT_VERSION)
+    neuron_db = neuron_data_factory.get(data_version)
+
+    from_neuron = neuron_db.get_neuron_data(from_root_id)
+    to_neuron = neuron_db.get_neuron_data(to_root_id)
+
+    log_activity(f"Rejecting label suggestion from\n{from_root_id}: {from_neuron}\nto\n{to_root_id}: {to_neuron}")
+
+    if not from_neuron or not to_neuron:
+        return render_error(f"Neurons for Cell IDs {from_root_id} and/or {to_root_id} not found.")
+
+    return render_info(f"Label suggestion rejected.")
 
 
 @app.route('/flywire_url')
