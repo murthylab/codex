@@ -9,9 +9,9 @@ import requests
 from flask import session, request
 from user_agents import parse as parse_ua
 
-DEV_LOGGING = str(os.environ.get('PROD_MODE')) != '1'
+APP_ENVIRONMENT = str(os.environ.get('APP_ENVIRONMENT', 'PROD'))
 
-proc_id = str(uuid.uuid4())[-4:] + ('-D' if DEV_LOGGING else '-P')
+proc_id = str(uuid.uuid4())[-4:] + f'-{APP_ENVIRONMENT[:1]}'
 host_name = socket.gethostname()
 
 startup_time = datetime.datetime.now()
@@ -99,7 +99,7 @@ def _post_to_slk(text, real_user_activity, extra_hk):
 
 
 def post_to_slk(text, hk=None):
-    real_user_activity = not DEV_LOGGING and not _is_smoke_test_request()
+    real_user_activity = APP_ENVIRONMENT != 'DEV' and not _is_smoke_test_request()
     Process(target=_post_to_slk, args=(text, real_user_activity, hk), daemon=True).start()
 
 

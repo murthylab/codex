@@ -13,10 +13,10 @@ COPY . ./
 # Install production dependencies.
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Set application variables
-ENV PROD_MODE 1
-ENV BUILD_GIT_SHA "placeholder_git_sha"
-ENV BUILD_TIMESTAMP "Thu Sep 15 09:13:57 EDT 2022"
+# Required application variables (should be set based on execution environment)
+ENV APP_ENVIRONMENT "?"
+ENV BUILD_GIT_SHA "?"
+ENV BUILD_TIMESTAMP "?"
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.
