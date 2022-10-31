@@ -32,13 +32,19 @@ def request_wrapper(func):
     def wrap(*args, **kwargs):
         global num_requests_processed
         num_requests_processed += 1
+        log_verbose = False
+
         signature = f'func: {func.__name__} endpoint: {request.endpoint} url: {request.url}'
-        log(f'>>>>>>> {signature}'
-            f' || >>> Args:\n{request.args}'
-            f' || >>> Headers:\n{request.headers}'
-            f' || >>> Environ:\n{request.environ}'
-            f' || >>> Form:\n{request.form}'
-            f' || <<<<<<< {signature}\n')
+        log_lines = ['\n', f'########### Processing {signature}']
+        if request.args:
+            log_lines.extend([f'### Arg {k}: {v}' for k,v in request.args.items()])
+        if request.form:
+            log_lines.extend([f'### Form {k}: {v}' for k, v in request.form.items()])
+        if log_verbose:
+            log_lines.append(f'### Headers: {request.headers}')
+            log_lines.append(f'### Environ: {request.environ}')
+        log_lines.extend([f'############# Finished {signature}', '\n'])
+        log('\n'.join(log_lines))
 
         for previous_domains in ['flywireindex.pniapps.org', 'code.pniapps.org', 'codex.pniapps.org']:
             if previous_domains in request.url:
@@ -47,9 +53,9 @@ def request_wrapper(func):
                 return redirect(new_url)
 
         if 'id_info' not in session and not _is_smoke_test_request():
-            if request.endpoint not in ['login', 'logout']:
+            if request.endpoint not in ['base.login', 'base.logout']:
                 return render_auth_page(redirect_to=request.url)
-        else:
+        elif log_verbose:
             log(f"Executing authenticated request for: {session.get('id_info')}")
 
         # if we got here, this could be authenticated or non-authenticated request
@@ -68,7 +74,7 @@ def require_data_access(func):
     @wraps(func)
     def wrap(*args, **kwargs):
         if 'data_access_token' not in session and not _is_smoke_test_request():
-            if request.endpoint not in ['login', 'logout', 'data_access_token']:
+            if request.endpoint not in ['base.login', 'base.logout', 'base.data_access_token']:
                 return redirect(url_for('base.data_access_token', redirect_to=request.url))
         return func(*args, **kwargs)
 
