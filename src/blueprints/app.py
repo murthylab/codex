@@ -14,6 +14,7 @@ from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
 from src.utils.graph_vis import make_graph_html
 from src.utils.logging import log_activity, log_error, format_link, user_agent
+from src.utils.thumbnails import url_for_skeleton
 
 app = Blueprint('app', __name__, url_prefix='/app')
 
@@ -118,10 +119,15 @@ def render_neuron_list(data_version, template_name, filtered_root_id_list, filte
         display_data_ids = filtered_root_id_list
 
     display_data = [neuron_db.get_neuron_data(i) for i in display_data_ids]
+    skeleton_thumbnail_urls = {nd['root_id']: url_for_skeleton(nd['root_id'], data_version=data_version) for nd in display_data}
+    for nd in display_data:
+        if nd['inherited_tag_root_id']:
+            skeleton_thumbnail_urls[nd['inherited_tag_root_id']] = url_for_skeleton(nd['inherited_tag_root_id'], data_version=data_version)
 
     return render_template(
         template_name_or_list=template_name,
         display_data=display_data,
+        skeleton_thumbnail_urls=skeleton_thumbnail_urls,
         # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
         # Otherwise it will be available as downloadable file.
         root_ids_str=','.join([str(ddi) for ddi in filtered_root_id_list]) if len(

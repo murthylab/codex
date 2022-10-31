@@ -159,7 +159,7 @@
         <tr>
             <td style="padding: 0px; margin: 0px;"><a
                     href="{{url_for('app.cell_details', root_id=neuron.root_id)}}"><img
-                    src="{{url_for('base.skeleton_thumbnail_url', root_id=neuron.root_id, log_request=0)}}"
+                    src="{{skeleton_thumbnail_urls.get(neuron.root_id)}}"
                     width="100px" height="75px;" border="1px;"></a></td>
             <td><a href="{{url_for('app.cell_details', root_id=neuron.root_id)}}">{{neuron.name}}</a><br><small>{{neuron.root_id}}</small>
             </td>
