@@ -18,7 +18,7 @@
       </div>
       <div class="card-body">
         {% for val, count in category_data['counts'] %}
-        <a class="btn btn btn-link my-2 my-sm-0" href="{{url_for('search', filter_string=category_data['key'] + ' == ' + val, data_version=data_version)}}">{{val}} ({{count}})</a>
+        <a class="btn btn btn-link my-2 my-sm-0" href="{{url_for('app.search', filter_string=category_data['key'] + ' == ' + val, data_version=data_version)}}">{{val}} ({{count}})</a>
         {% endfor %}
       </div>
   </div>
