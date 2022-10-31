@@ -1,35 +1,40 @@
 {% extends "base.html" %}
 {% block title %} Distance Table {% endblock title %}
 {% block content %}
-  <nav class="navbar navbar-light bg-light">
+<nav class="navbar navbar-light bg-light">
     <form class="form-inline">
-      <input class="form-control mr-sm-2" style="width: 35vw;" autocomplete="off" autofocus type="search" id="cell_names_or_ids" name="cell_names_or_ids" placeholder="Source cell(s)" aria-label="Cell Names or IDs" value="{{cell_names_or_ids}}">
-      <input class="form-control mr-sm-2" style="width: 35vw; margin-left: 5px;" autocomplete="off" autofocus type="search" id="target_cell_names_or_ids" name="target_cell_names_or_ids" placeholder="Target cell(s)" aria-label="Cell Names or IDs" value="{{target_cell_names_or_ids}}">
-      <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();"><i class="fa-solid fa-arrow-down-short-wide"></i></button>
+        <input class="form-control mr-sm-2" style="width: 35vw;" autocomplete="off" autofocus type="search"
+               id="cell_names_or_ids" name="cell_names_or_ids" placeholder="Source cell(s)"
+               aria-label="Cell Names or IDs" value="{{cell_names_or_ids}}">
+        <input class="form-control mr-sm-2" style="width: 35vw; margin-left: 5px;" autocomplete="off" autofocus
+               type="search" id="target_cell_names_or_ids" name="target_cell_names_or_ids" placeholder="Target cell(s)"
+               aria-label="Cell Names or IDs" value="{{target_cell_names_or_ids}}">
+        <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();"><i
+                class="fa-solid fa-arrow-down-short-wide"></i></button>
     </form>
-  </nav>
+</nav>
 
 {% if distance_table %}
-  <div style="overflow-x:auto;">
-  <table class="table">
-    <thead>
-      <tr>
-        {% for hv in distance_table[0] %}
-          <th scope="col">{{hv|safe}}</th>
-        {% endfor %}
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in distance_table[1:] %}
-          <tr>
-            {% for dv in row %}
-              <td>{{dv|safe}}</td>
+<div style="overflow-x:auto;">
+    <table class="table">
+        <thead>
+        <tr>
+            {% for hv in distance_table[0] %}
+            <th scope="col">{{hv|safe}}</th>
             {% endfor %}
-          </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  </div>
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in distance_table[1:] %}
+        <tr>
+            {% for dv in row %}
+            <td>{{dv|safe}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 <a class="btn btn btn-success my-2 my-sm-0" style="margin: 15px;" href="{{download_url}}">Download CSV</a>
 
@@ -37,14 +42,17 @@
 
 
 <div class="card" style="margin: 15px;">
-  <div class="card-header" style="color: purple;">
-    How it works
-  </div>
-  <div class="card-body">
-    {{info_text|safe}}
-    <br><br>
-    <button class="btn btn btn-success" type="button" onclick="loading(); document.getElementById('cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('cell_names_or_ids').form.submit();">Try with sample cells</button>
-  </div>
+    <div class="card-header" style="color: purple;">
+        How it works
+    </div>
+    <div class="card-body">
+        {{info_text|safe}}
+        <br><br>
+        <button class="btn btn btn-success" type="button"
+                onclick="loading(); document.getElementById('cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('cell_names_or_ids').form.submit();">
+            Try with sample cells
+        </button>
+    </div>
 </div>
 
 {% endif %}

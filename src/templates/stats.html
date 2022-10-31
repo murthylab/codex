@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Stats
+Stats
 {% endblock title %}
 
 {% block content %}
@@ -30,70 +30,86 @@
         drawChart("{{k}}", {{v|tojson}}, elem);
     {% endfor %}
   }
+
 </script>
 
-  <nav class="navbar navbar-light bg-light">
+<nav class="navbar navbar-light bg-light">
     <form class="form-inline">
 
-      <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search" id="filter_string" name="filter_string" placeholder="filter stats data" aria-label="Filter" value="{{filter_string}}">
-      <button class="btn btn btn-primary my-2 my-sm-0" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search"
+               id="filter_string" name="filter_string" placeholder="filter stats data" aria-label="Filter"
+               value="{{filter_string}}">
+        <button class="btn btn btn-primary my-2 my-sm-0" type="submit"><i class="fa-solid fa-magnifying-glass"></i>
+        </button>
 
-      {% if filter_string and num_items %}
-        <a class="btn btn-success" style="margin-left: 5px;" title="Show Matching Items" href="{{url_for('app.search', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}" ><i class="fa-solid fa-list"></i></a>
-      {% endif %}
+        {% if filter_string and num_items %}
+        <a class="btn btn-success" style="margin-left: 5px;" title="Show Matching Items"
+           href="{{url_for('app.search', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}"><i
+                class="fa-solid fa-list"></i></a>
+        {% endif %}
 
-      <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Settings" data-toggle="modal" data-target="#filterModal"><i class="fa-solid fa-sliders"></i></button>
-      <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" style="color:blue;" id="filterModalLabel">Settings</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                  <label style="margin: 20px;">Match</label>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="case_sensitive" name="case_sensitive" value="1" {{ 'checked' if case_sensitive==1}}>
-                    <label class="form-check-label" for="case_sensitive">Case sensitive</label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="whole_word" name="whole_word" value="1" {{ 'checked' if whole_word==1}}>
-                    <label class="form-check-label" for="whole_word">Whole word</label>
-                  </div>
+        <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Settings"
+                data-toggle="modal" data-target="#filterModal"><i class="fa-solid fa-sliders"></i></button>
+        <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" style="color:blue;" id="filterModalLabel">Settings</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label style="margin: 20px;">Match</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="case_sensitive"
+                                       name="case_sensitive" value="1" {{ 'checked' if case_sensitive==1}}>
+                                <label class="form-check-label" for="case_sensitive">Case sensitive</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="whole_word" name="whole_word"
+                                       value="1" {{ 'checked' if whole_word==1}}>
+                                <label class="form-check-label" for="whole_word">Whole word</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label style="margin: 20px;">Data version</label>
+                            <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                                    aria-label="Data Version" name="data_version">
+                                {% for v in data_versions %}
+                                <option value="{{v}}" {{
+                                'selected' if data_version==v}}>{{v}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary">Reset</button>
+                        <button type="button" class="btn btn-primary" onclick="this.form.submit()">Apply</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                  <label style="margin: 20px;">Data version</label>
-                  <select style="margin: 20px;" class="form-select form-select-lg mb-3" aria-label="Data Version" name="data_version">
-                    {% for v in data_versions %}
-                      <option value="{{v}}" {{ 'selected' if data_version==v}}>{{v}}</option>
-                    {% endfor %}
-                  </select>
-                </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary">Reset</button>
-              <button type="button" class="btn btn-primary" onclick="this.form.submit()">Apply</button>
-            </div>
-          </div>
         </div>
-      </div>
 
     </form>
-  </nav>
+</nav>
 
 {% if filter_string %}
-<h6 style="margin-left: 15px; margin-top: 5px; color: grey; font-size: 11px;">{{caption}} ({{"{:,}".format(num_items)}} matches)</h6>
+<h6 style="margin-left: 15px; margin-top: 5px; color: grey; font-size: 11px;">{{caption}} ({{"{:,}".format(num_items)}}
+    matches)</h6>
 {% endif %}
 
 {% if hint %}
-<button class="btn btn-btn-link" style="color: blue;" type="button" onclick="searchbox = document.getElementById('filter_string'); searchbox.value = '{{hint}}'; searchbox.form.submit();">Show results for '<b>{{hint}}</b>' instead?</button>
+<button class="btn btn-btn-link" style="color: blue;" type="button"
+        onclick="searchbox = document.getElementById('filter_string'); searchbox.value = '{{hint}}'; searchbox.form.submit();">
+    Show results for '<b>{{hint}}</b>' instead?
+</button>
 {% else %}
 <div class="card border-primary mb-3" style="margin: 5px;">
-      <div class="body">
-          <div class="card-columns"  id="data_container" style="padding: 5px;">
+    <div class="body">
+        <div class="card-columns" id="data_container" style="padding: 5px;">
             {% for k_l2, d_l2 in data_stats.items() %}
             <div class="card">
                 {% if k_l2 %}
@@ -102,21 +118,21 @@
                 </div>
                 {% endif %}
                 <div style="overflow-x:auto;">
-                <table class="table">
-                  <tbody>
-                    {% for k_l3, v_l3 in d_l2.items() %}
-                    <tr>
-                        <td><b>{{k_l3}}</b></td>
-                        <td style="text-align: end;">{{v_l3}}</td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+                    <table class="table">
+                        <tbody>
+                        {% for k_l3, v_l3 in d_l2.items() %}
+                        <tr>
+                            <td><b>{{k_l3}}</b></td>
+                            <td style="text-align: end;">{{v_l3}}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
             {% endfor %}
-          </div>
-      </div>
+        </div>
+    </div>
 </div>
 {% endif %}
 

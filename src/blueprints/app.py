@@ -17,6 +17,7 @@ from src.utils.logging import log_activity, log_error, format_link, user_agent
 
 app = Blueprint('app', __name__, url_prefix='/app')
 
+
 @app.route('/stats')
 @request_wrapper
 @require_data_access
@@ -187,10 +188,12 @@ def labeling_suggestions():
     filtered_root_id_list = neuron_db.search_in_neurons_with_inherited_labels(filter_string)
 
     if filtered_root_id_list:
-        log_activity(f"Got {len(filtered_root_id_list)} labeling suggestions {activity_suffix(filter_string, data_version)}")
+        log_activity(
+            f"Got {len(filtered_root_id_list)} labeling suggestions {activity_suffix(filter_string, data_version)}")
     else:
         hint = neuron_db.closest_token_from_inherited_tags(filter_string, case_sensitive=case_sensitive)
-        log_activity(f"No labeling suggestion results {activity_suffix(filter_string, data_version)}, sending hint '{hint}'")
+        log_activity(
+            f"No labeling suggestion results {activity_suffix(filter_string, data_version)}, sending hint '{hint}'")
 
     return render_neuron_list(
         data_version=data_version,
@@ -447,7 +450,8 @@ def cell_details():
                 key_title='Neuropil', val_title='Synapse count', counts_dict=input_neuropil_synapse_count
             )
             charts['Input Synapse Hemisphere'] = stats_utils.make_donut_chart_from_counts(
-                key_title='Hemisphere', val_title='Synapse count', counts_dict=hemisphere_counts(input_neuropil_synapse_count)
+                key_title='Hemisphere', val_title='Synapse count',
+                counts_dict=hemisphere_counts(input_neuropil_synapse_count)
             )
 
         if input_nt_type_count:
@@ -460,7 +464,8 @@ def cell_details():
                 key_title='Neuropil', val_title='Synapse count', counts_dict=output_neuropil_synapse_count
             )
             charts['Output Synapse Hemisphere'] = stats_utils.make_donut_chart_from_counts(
-                key_title='Hemisphere', val_title='Synapse count', counts_dict=hemisphere_counts(output_neuropil_synapse_count)
+                key_title='Hemisphere', val_title='Synapse count',
+                counts_dict=hemisphere_counts(output_neuropil_synapse_count)
             )
     else:
         charts = {}
@@ -514,7 +519,7 @@ def nblast():
         elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
             return render_error(title="Too many cells match",
                                 message=f"{len(root_ids)} cells match '{cell_names_or_ids}'. "
-                                f"NBLAST scores can be fetched for up to {MAX_NEURONS_FOR_DOWNLOAD} cells at a time.")
+                                        f"NBLAST scores can be fetched for up to {MAX_NEURONS_FOR_DOWNLOAD} cells at a time.")
         elif len(cell_names_or_ids) == 1:
             return render_error(
                 message=f"Only one cell matches the input. Need 2 or more cells for pairwise NBLAST score(s).",
@@ -610,7 +615,7 @@ def path_length():
         elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
             return render_error(title="Too many cells match",
                                 message=f"{len(root_ids)} cells match '{cell_names_or_ids}'. "
-                                f"Path lengths can be fetched for up to {MAX_NEURONS_FOR_DOWNLOAD} cells at a time.")
+                                        f"Path lengths can be fetched for up to {MAX_NEURONS_FOR_DOWNLOAD} cells at a time.")
         elif len(cell_names_or_ids) == 1:
             return render_error(
                 message=f"Only one cell matches the input. Need 2 or more cells for pairwise path length(s).",

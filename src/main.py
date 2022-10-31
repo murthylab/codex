@@ -16,6 +16,5 @@ codex.register_blueprint(api)
 codex.register_blueprint(app)
 log(f"App initialization complete. Loaded data versions {neuron_data_factory.loaded_versions()}")
 
-
 if __name__ == "__main__":
     codex.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

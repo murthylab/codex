@@ -26,6 +26,7 @@ MAX_NEURONS_FOR_DOWNLOAD = 50
 num_requests_processed = 0
 neuron_data_factory = NeuronDataFactory(preload_latest=os.environ.get('SKIP_NEURON_DB_LOAD') != 'true')
 
+
 def request_wrapper(func):
     @wraps(func)
     def wrap(*args, **kwargs):
@@ -70,6 +71,7 @@ def require_data_access(func):
             if request.endpoint not in ['login', 'logout', 'data_access_token']:
                 return redirect(url_for('base.data_access_token', redirect_to=request.url))
         return func(*args, **kwargs)
+
     return wrap
 
 
@@ -281,6 +283,7 @@ def login():
             return render_error(f'Login failed.')
     else:
         return render_auth_page()
+
 
 # TODO: Get rid of this once published
 @base.route('/data_access_token', methods=['GET', 'POST'])

@@ -6,12 +6,15 @@ def operators_list(ops):
     def _make_list_item(op):
         op_short_and_desc = OPERATOR_METADATA[op]
         return f"<b>{op}</b> (short alternative <b>{op_short_and_desc[0]}</b>) {op_short_and_desc[1]}"
+
     li = [_make_list_item(op) for op in ops]
     return ''.join([f"<li>{i}</li>" for i in li])
+
 
 def attr_list(attr_dict):
     def _make_list_item(attr_key, attr_meta):
         return f"<b>{attr_key}</b> {attr_meta[2]}"
+
     li = [_make_list_item(k, v) for k, v in attr_dict.items()]
     return ''.join([f"<li>{i}</li>" for i in li])
 
