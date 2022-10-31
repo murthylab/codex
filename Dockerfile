@@ -23,4 +23,4 @@ ENV BUILD_TIMESTAMP "Thu Sep 15 09:13:57 EDT 2022"
 # For environments with multiple CPU cores, increase the number of workers
 # to be equal to the cores available.
 # Timeout is set to 0 to disable the timeouts of the workers to allow Cloud Run to handle instance scaling.
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 src.main:app
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 src.main:codex
