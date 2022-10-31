@@ -1,12 +1,12 @@
-from src.utils.logging import log_error, log
-
 import csv
 import gzip
 import io
-import requests
 from functools import lru_cache, partial
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool
 
+import requests
+
+from src.utils.logging import log_error, log
 
 GCS_BASE_URL = 'https://storage.googleapis.com'
 FLYWIRE_DATA_BUCKET = 'flywire-data'

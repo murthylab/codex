@@ -1,19 +1,19 @@
-from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
-from src.utils.graph_vis import make_graph_html
-from src.utils import nglui, stats as stats_utils
-from src.data import gcs_data_loader
-from src.utils.logging import log, log_activity, log_error, log_user_help, format_link, uptime, host_name, proc_id, user_agent
-from src.data.faq_qa_kb import FAQ_QA_KB
-from src.data.search_index import tokenize
-from src.blueprints.base import request_wrapper, require_data_access, neuron_data_factory, activity_suffix, \
-    MAX_NEURONS_FOR_DOWNLOAD, render_error, render_info, warning_with_redirect
-from src.utils.thumbnails import url_for_skeleton
-
 import math
 import re
 from collections import defaultdict
 from functools import lru_cache
-from flask import Flask, render_template, request, redirect, Response, session, url_for, send_from_directory, Blueprint
+
+from flask import render_template, request, redirect, Response, url_for, Blueprint
+
+from src.blueprints.base import request_wrapper, require_data_access, neuron_data_factory, activity_suffix, \
+    MAX_NEURONS_FOR_DOWNLOAD, render_error, render_info, warning_with_redirect
+from src.data import gcs_data_loader
+from src.data.faq_qa_kb import FAQ_QA_KB
+from src.data.search_index import tokenize
+from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
+from src.utils import nglui, stats as stats_utils
+from src.utils.graph_vis import make_graph_html
+from src.utils.logging import log_activity, log_error, format_link, user_agent
 
 app = Blueprint('app', __name__, url_prefix='/app')
 

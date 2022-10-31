@@ -1,7 +1,8 @@
 import os
-from meshparty import skeleton_io, trimesh_vtk, trimesh_io
-from PIL import Image
+
 import numpy as np
+from PIL import Image
+from meshparty import skeleton_io, trimesh_vtk, trimesh_io
 
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 

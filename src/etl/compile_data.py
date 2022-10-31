@@ -1,9 +1,11 @@
+import os.path
 from collections import defaultdict
 from random import sample
+
 import pandas
-import os.path
 from caveclient import CAVEclient
 
+from src.data.local_data_loader import read_csv, write_csv
 # FlyWire data snapshots are exported periodically in 2 Google Drive folders (within them snapshot sub-folders are
 # named by internal version, e.g. 447.):
 # Raw synapse table is here: https://drive.google.com/drive/folders/1g7i3LMmDFcZXDXzevy3eUSrmcMJl2B6a/
@@ -15,7 +17,6 @@ from caveclient import CAVEclient
 # Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
 # and store it in this file (no quotes)
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
-from src.data.local_data_loader import read_csv, write_csv
 
 CAVE_AUTH_TOKEN_FILE_NAME = f'static/secrets/cave_auth_token.txt'
 CAVE_DATASTACK_NAME = "flywire_fafb_production"

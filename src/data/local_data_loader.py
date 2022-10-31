@@ -1,12 +1,10 @@
+import csv
+import gzip
+import pickle
+
+from src.data.neuron_data import NeuronDB
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS
 from src.utils.logging import log, log_error
-from src.data.neuron_data import NeuronDB
-
-import csv
-import os
-import pickle
-import gzip
-
 
 DATA_ROOT_PATH = 'static/data'
 NEURON_DATA_FILE_NAME = 'neuron_data.csv.gz'
