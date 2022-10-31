@@ -1,5 +1,7 @@
 from collections import defaultdict
+
 from flask import render_template
+
 
 def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
     '''

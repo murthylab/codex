@@ -1,11 +1,10 @@
+from functools import lru_cache
+from random import choice
+
+from src.data.gcs_data_loader import load_connections_for_root_id
 from src.data.neuron_collections import NEURON_COLLECTIONS
 from src.data.search_index import SearchIndex
 from src.utils.logging import log
-from src.data.gcs_data_loader import load_connections_for_root_id
-
-from random import choice
-from functools import lru_cache
-
 
 # Expected column in static FlyWire data CSV file
 DATA_FILE_COLUMNS = [

@@ -2,10 +2,9 @@ import os
 
 from flask import Flask
 
-from src.blueprints.base import neuron_data_factory, base
 from src.blueprints.api import api
 from src.blueprints.app import app
-
+from src.blueprints.base import neuron_data_factory, base
 from src.utils.logging import log
 
 log("App initialization started")

@@ -1,17 +1,18 @@
+import os
 import traceback
 from functools import wraps
-
-from src.data.neuron_data_factory import NeuronDataFactory
-from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSION_DESCRIPTIONS
-from src.utils.logging import log, log_activity, log_error, log_user_help, format_link, uptime, host_name, proc_id, _is_smoke_test_request
-from src.data.faq_qa_kb import FAQ_QA_KB
-import os
 from random import randint
+
 from flask import render_template, request, redirect, session, url_for, send_from_directory, Blueprint
-from google.oauth2 import id_token
 from google.auth.transport import requests
+from google.oauth2 import id_token
 from requests import get as get_request
 
+from src.data.faq_qa_kb import FAQ_QA_KB
+from src.data.neuron_data_factory import NeuronDataFactory
+from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSION_DESCRIPTIONS
+from src.utils.logging import log, log_activity, log_error, log_user_help, format_link, uptime, host_name, proc_id, \
+    _is_smoke_test_request
 from src.utils.thumbnails import url_for_skeleton
 
 base = Blueprint('base', __name__)
