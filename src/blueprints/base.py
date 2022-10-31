@@ -292,13 +292,24 @@ def login():
         return render_auth_page()
 
 
-# TODO: Get rid of this once published
+# TODO: Get rid of these once data is published
+def _extract_access_token(raw_text):
+    try:
+        raw_text = raw_text.replace('\'', '\"')
+        parts = raw_text.split('\"')
+        longest_part = sorted(parts, key=lambda p: -len(p))[0]
+        return longest_part.strip()
+    except Exception as e:
+        log_error(f'Could not extract access token from {raw_text}: {e}')
+        return raw_text.replace('\"', '').strip()
+
+
 @base.route('/data_access_token', methods=['GET', 'POST'])
 @request_wrapper
 def data_access_token():
     log_activity(f"Loading data access token form")
     if request.method == 'POST':
-        access_token = request.form.get('access_token', '').replace('\"', '').strip()
+        access_token = _extract_access_token(request.form.get('access_token', ''))
         url = resp = access_payload = None
         try:
             url = f'https://globalv1.flywire-daf.com/auth/api/v1/user/cache?middle_auth_token={access_token}'
