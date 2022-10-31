@@ -414,7 +414,7 @@ def cell_details():
             search_link = f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{len(ids)} {key}</a>'
             ngl_url = url_for('app.flywire_url', root_ids=[root_id] + list(ids))
             nglui_link = f'<a class="btn btn-outline-primary btn-sm" href="{ngl_url}"' \
-                         f' target="_blank"><i class="fa-regular fa-cube"></i></a>'
+                         f' target="_blank"><i class="fa-solid fa-cube"></i></a>'
             related_cells[search_link] = nglui_link
 
     connectivity = gcs_data_loader.load_connection_table_for_root_id(root_id)
@@ -562,7 +562,7 @@ def nblast():
                         bgd = "green"
                     style = f'style="color:{bgd};"' if bgd else empty
                     return f'<a target="_blank" {style} href="search?filter_string=id << {rid},{root_ids[idx]}">{score}</a> ' \
-                           f'<a target="_blank" href="search_results_flywire_url?filter_string=id << {rid},{root_ids[idx]}"><i class="fa-regular fa-cube"></i></a>'
+                           f'<a target="_blank" href="search_results_flywire_url?filter_string=id << {rid},{root_ids[idx]}"><i class="fa-solid fa-cube"></i></a>'
 
                 scores_row = [score_with_link(i, c) for i, c in enumerate(columns)] if scores else [empty] * len(
                     columns)
