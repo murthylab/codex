@@ -1,6 +1,7 @@
 from functools import lru_cache
 from random import choice
 
+from src.data.brain_regions import lookup_neuropil
 from src.data.gcs_data_loader import load_connections_for_root_id
 from src.data.neuron_collections import NEURON_COLLECTIONS
 from src.data.search_index import SearchIndex
@@ -95,7 +96,9 @@ STRUCTURED_SEARCH_ATTRIBUTES = {
                                'belong to zero or more classes.'),
     'label': ('tag', None, 'Human readable label assigned during cell identification process. Each cell can have zero '
                            'or more labels.'),
-    'nt': ('nt_type', lambda x: x.upper(), 'Neuro-transmitter type. One of ACH, GABA, GLUT, SER, OCT, DA.')
+    'nt': ('nt_type', lambda x: x.upper(), 'Neuro-transmitter type. One of ACH, GABA, GLUT, SER, OCT, DA.'),
+    'input_neuropil': ('input_neuropils', lambda x: lookup_neuropil(x), 'Brain region / neuropil with upstream synaptic connections.'),
+    'output_neuropil': ('output_neuropils', lambda x: lookup_neuropil(x), 'Brain region / neuropil with downstream synaptic connections.'),
 }
 
 
@@ -205,6 +208,8 @@ class NeuronDB(object):
         classes = {}
         labels = {}
         groups = {}
+        input_neuropils = {}
+        output_neuropils = {}
         for nd in self.neuron_data.values():
             for c in nd.get('classes', []):
                 classes[c] = classes.get(c, 0) + 1
@@ -213,6 +218,10 @@ class NeuronDB(object):
             group = nd.get('group')
             if group:
                 groups[group] = groups.get(group, 0) + 1
+            for c in nd.get('input_neuropils', []):
+                input_neuropils[c] = input_neuropils.get(c, 0) + 1
+            for c in nd.get('output_neuropils', []):
+                output_neuropils[c] = output_neuropils.get(c, 0) + 1
 
         # For now limit to most common categories.
         # TODO: find a better way to resolve page loading slowness for huge lists
@@ -246,6 +255,16 @@ class NeuronDB(object):
                 'caption': _caption('Annotations', len(labels)),
                 'key': 'label',
                 'counts': _sorted_counts(labels)
+            },
+            {
+                'caption': _caption('Input Neuropils', len(input_neuropils)),
+                'key': 'input_neuropil',
+                'counts': _sorted_counts(input_neuropils)
+            },
+            {
+                'caption': _caption('Output Neuropils', len(output_neuropils)),
+                'key': 'output_neuropil',
+                'counts': _sorted_counts(output_neuropils)
             },
             {
                 'caption': _caption('Max In/Out Neuropil Groups', len(groups)),
