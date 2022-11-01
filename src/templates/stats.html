@@ -36,7 +36,7 @@ Stats
                 if ({{filter_string|tojson}}) {
                     url += "+%26%26+";
                 }
-                url += value; //TODO seems to not fully work
+                url += json["search_filter"] + "+%3D%3D+" + value;
                 }
                 window.location = url;
             }
