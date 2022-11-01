@@ -30,26 +30,26 @@
                             <li>
                                 <a class="btn btn-link"
                                    href="{{url_for('app.stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Show
-                                    stats &#128202;</a>
+                                    stats <i class="fa-solid fa-chart-pie"></i></a>
                             </li>
                             <li>
                                 <a class="btn btn-link"
                                    href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}"
-                                   target="_blank">View matches in FlyWire &#10132;</a>
+                                   target="_blank">View matches in FlyWire <i class="fa-solid fa-cube"></i></a>
                             </li>
                             {% if root_ids_str %}
                             <li>
                                 <a class="btn btn-link" onclick="loading();"
                                    href="{{url_for('app.nblast', cell_names_or_ids=root_ids_str)}}">NBLAST scores
-                                    &#128208;</a>
+                                    <i class="fa-solid fa-table-cells"></i></a>
                             </li>
                             <li>
                                 <a class="btn btn-link" onclick="loading();"
                                    href="{{url_for('app.path_length', cell_names_or_ids=root_ids_str)}}">Pathway lengths
-                                    &#128279;</a>
+                                    <i class="fa-solid fa-route"></i></a>
                             </li>
                             <li>
-                                <a class="btn btn-link" onclick="copyRootIdsToClipboard();">Copy Cell IDs &#128203;</a>
+                                <a class="btn btn-link" onclick="copyRootIdsToClipboard();">Copy Cell IDs <i class="fa-regular fa-clipboard"></i></a>
                                 <script type="text/javascript">
                       function copyRootIdsToClipboard() {
                         navigator.clipboard.writeText("{{root_ids_str}}");
@@ -60,19 +60,19 @@
                             <li>
                                 <a class="btn btn-link"
                                    href="{{url_for('app.connections', download=1, root_ids=root_ids_str)}}"
-                                   target="_blank">Download connections table &#8681;</a>
+                                   target="_blank">Download connections table <i class="fa-solid fa-download"></i></a>
                             </li>
                             {% else %}
                             <li>
                                 <a class="btn btn-link"
                                    href="{{url_for('app.root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download
-                                    Cell IDs &#128203;</a>
+                                    Cell IDs <i class="fa-solid fa-download"></i></a>
                             </li>
                             {% endif %}
                             <li>
                                 <a class="btn btn-link"
                                    href="{{url_for('app.download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download
-                                    results as CSV &#8681;</a>
+                                    results as CSV <i class="fa-solid fa-download"></i></a>
                             </li>
                         </ul>
                     </div>
