@@ -1,45 +1,31 @@
 ## Search / cell lists
 1. filters / sorting options for search page
-1. expandable "actions" buttons instead of menu behind rocket
+1. expandable "actions" buttons instead of ... menu
 1. select with checkboxes what is shown in 3d interactive image, so that its easy to compare morphologies by eye
-1. group chosen cells together and make such graphs for them as well (for example, if there are 3 cells that I know are
-   part of the same group, being able to pool that info would be great--- Im spending time doing such things for a plot for our paper)
 1. show synapse summary in Stats 
-1. Stats: click on a certain neurotransmitter type in the graph that would then show you only neurons of this group with a certain NT
+1. make charts clickable
 
 ## Labels / data quality
-1. label lineage with history/credits
-1. And some names have ‘*’ on them. It’s not very clear to me what they mean?
-1. Import hemibrain labels, and others from seatable
-1. label suggestion status: pending, approved, synced to main DB
-
-## Labeling / annotations
-1. labeling a set of cells at once
-1. modify label before assigning
-1. for the "labeling suggestions" part -- my guess is that these are neurons that have been tentatively identified but need confirmation? if this is the case 
-   id suggest 1) adding some instructions, 2) before allowing a user to accept/reject things, to validate somehow that they are a user that can do so 
-   (the way we had the flywire training before being allowed to actually make changes in the dataset)-- i was tempted to click around and click 
-   "accept" to see what happens, but didnt because i wasnt sure if this would change something in the dataset or what it was doing
-1. I also wonder how viable it is to put a neuroglancer window in Labelling Suggestions , because it’s time consuming to
-   compare many cells when you have to load a neuroglancer link for every pair of neruons
-1. And perhaps labelling suggestions could also allow you to put multiple pairs at the same time into a neuroglancer window quickly
+1. labels lineage with history/credits
+1. some names have ‘*’ on them, clarify what they mean
+1. import Hemibrain and other labels/annotations
+1. show label status: pending, reviewed, synced to main DB
 
 ## Explanations / definitions / tooltips
 1. info on how cells are named could be helpful
-1. info on neurotransmitter thresholds-- and what exactly does % input synapse neurotransmitters mean? what confidence thresholds were used? specifically, i am unsure if these percentages mean "out of 100 synapses, 34 were cholinergic and 66 were glut" or whether it means "for 100 synapses, on average, each synapse was 34% likely to be cholinergic and  66% likely to be glut"
-1. need definition for "I/O Side"
-1. path length: when i clicked on this, there were a handful of neuron numbers charted, not sure why that page starts with those specific neurons
+1. info on neurotransmitter thresholds -- and what exactly does % input synapse neurotransmitters mean? what 
+   confidence thresholds were used?
+1. add definition for "I/O Side"
 
 ## Connectivity / network view
-1. on the connectivity maps:
-   1. it could be helpful to have the option to decide how many connections will be shown, including "all" inputs or outputs. currently one cell that 
-      i searched shows the top 2 connected cells (and their inputs) and the top 1 output, but if i wanted to see the top 5/10/all, would be helpful to have this feature 
-      a way to then manually  group these connections could be nice (based on user knowledge)
+1. it could be helpful to have the option to decide how many connections will be shown, including "all" inputs or outputs
 1. clickable neuropils
 
 ## Pathways / NBLAST tables
-1. loved the Path length tool - asked how to see 1. what cells are in between and 2. cells in FW
-1. And after nblast, people might want to look at a subset (but more than 2 neurons) together. Perhaps a checkbox to select ids to copy would be useful?
+1. in the Path length tool show
+   1. what cells are in between 
+   1. view those cells in FW
+1. after nblast, people might want to look at a subset (but more than 2 neurons) together. Perhaps a checkbox to select ids to copy would be useful?
 1. origin / target textboxes instead of just one with set of cells
 1. And in path length, people might want to know e.g. if the path length is 3, which cells are in the middle, and what’s 
    the synapse count for those connections. Might be good to make the path length numbers clickable for this info?
@@ -48,15 +34,14 @@
 ## General TODO:
 1. use synapse position partition into smaller cubes (instead neuropils) for similarity metric
 1. inspect diff from best match to 2nd best match to identify quality
-1. forward / symmetric nblast scores
+1. provide forward vs symmetric nblast scores
 1. internal/external version mapping
-1. table loading - share code
+1. multi-threaded table loading
 1. account history
 1. make caching work in remote data loader with multiprocessing
 1. input/output combined piechart in cell details page
-1. firestore DB for storing labels and user info
 1. programmatic access with user tokens
 1. user starred cells
 1. look up previous cell root ids by coordinates
-1. Save search when you switch tabs
+1. save search when you switch tabs
  
