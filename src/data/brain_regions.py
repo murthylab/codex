@@ -85,3 +85,15 @@ def neuropil_description(pil):
         return pil
     else:
         return f'{val[2]}' + (f' / {val[1]}' if val[1] else '')
+
+# find a neuropil from free-form text
+def lookup_neuropil(txt):
+    if txt:
+        pil = txt.upper()
+        if pil in REGIONS:
+            return pil
+        for k, v in REGIONS.items():
+            if pil == v[2].upper():
+                return k
+    # no matches
+    return txt
