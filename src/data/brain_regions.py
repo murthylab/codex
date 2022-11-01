@@ -84,4 +84,4 @@ def neuropil_description(pil):
     if not val:
         return pil
     else:
-        return f'{pil} - {val[2]}' + (f' / {val[1]}' if val[1] else '')
+        return f'{val[2]}' + (f' / {val[1]}' if val[1] else '')

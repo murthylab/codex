@@ -2,6 +2,8 @@ from collections import defaultdict
 
 from flask import render_template
 
+from src.data.brain_regions import neuropil_description
+
 
 def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
     '''
@@ -74,10 +76,11 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
     def add_pil_node(pil, is_input):
         nid = f"{pil}_{'in' if is_input else 'out'}"
         if nid not in added_pil_nodes:
+            pil_desc = neuropil_description(pil)
             net.add_node(
                 nid,
                 label=f"{pil} ({'in' if is_input else 'out'})",
-                title=f"{'Inputs from' if is_input else 'Outputs to'} neuropil {pil}",
+                title=pil_desc,
                 physics=node_physics,
                 shape='box',
                 size=20
