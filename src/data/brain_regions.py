@@ -3,15 +3,15 @@ REGIONS = {
     'AME_L': [42, 'left', 'accessory medulla'],
     'LO_R': [2, 'right', 'lobula'],
     'LO_L': [43, 'left', 'lobula'],
-    'NO': [3, 'center', 'noduli'],
+    'NO': [3, '', 'noduli'],
     'BU_R': [4, 'right', 'bulb (in lateral complex)'],
     'BU_L': [44, 'left', 'bulb (in lateral complex)'],
-    'PB': [5, 'center', 'protocerebral bridge'],
+    'PB': [5, '', 'protocerebral bridge'],
     'LH_R': [6, 'right', 'lateral horn'],
     'LH_L': [45, 'left', 'lateral horn'],
     'LAL_R': [7, 'right', 'lateral accessory lobe'],
     'LAL_L': [46, 'left', 'lateral accessory lobe'],
-    'SAD': [8, 'center', 'saddle'],
+    'SAD': [8, '', 'saddle'],
     'CAN_R': [9, 'right', 'cantle'],
     'CAN_L': [47, 'left', 'cantle'],
     'AMMC_R': [10, 'right', 'antennal mechanosensory and motor center'],
@@ -36,12 +36,12 @@ REGIONS = {
     'FLA_L': [57, 'left', 'flange'],
     'LOP_R': [20, 'right', 'lobula plate'],
     'LOP_L': [58, 'left', 'lobula plate'],
-    'EB': [21, 'center', 'ellipsoid body'],
+    'EB': [21, '', 'ellipsoid body'],
     'AL_R': [22, 'right', 'antennal lobe'],
     'AL_L': [59, 'left', 'antennal lobe'],
     'ME_R': [23, 'right', 'medulla'],
     'ME_L': [60, 'left', 'medulla'],
-    'FB': [24, 'center', 'fanshaped body'],
+    'FB': [24, '', 'fanshaped body'],
     'SLP_R': [25, 'right', 'superior lateral protocerebrum'],
     'SLP_L': [61, 'left', 'superior lateral protocerebrum'],
     'SIP_R': [26, 'right', 'superior intermediate protocerebrum'],
@@ -70,8 +70,18 @@ REGIONS = {
     'SCL_L': [73, 'left', 'superior clamp'],
     'EPA_R': [38, 'right', 'epaulette'],
     'EPA_L': [74, 'left', 'epaulette'],
-    'GNG': [39, 'center', 'gnathal ganglia'],
-    'PRW': [40, 'center', 'prow'],
+    'GNG': [39, '', 'gnathal ganglia'],
+    'PRW': [40, '', 'prow'],
     'GA_R': [41, 'right', 'gall'],
     'GA_L': [75, 'left', 'gall']
 }
+
+def neuropil_description(pil):
+    if not pil:
+        return 'Unspecified Region'
+    pil = pil.upper()
+    val = REGIONS.get(pil)
+    if not val:
+        return pil
+    else:
+        return f'{pil} - {val[2]}' + (f' / {val[1]}' if val[1] else '')

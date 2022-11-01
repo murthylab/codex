@@ -1,5 +1,7 @@
 from unittest import TestCase
 import os
+
+from src.data.brain_regions import REGIONS
 from src.data.neuron_data import *
 from src.data.local_data_loader import DATA_ROOT_PATH, unpickle_all_neuron_db_versions, \
     load_neuron_db
@@ -214,6 +216,7 @@ class NeuronDataTest(TestCase):
             'MB_ML_R', 'MB_PED_L', 'MB_PED_R', 'MB_VL_L', 'MB_VL_R', 'ME_L', 'ME_R', 'NO', 'PB', 'PLP_L', 'PLP_R',
             'PRW', 'PVLP_L', 'PVLP_R', 'SAD', 'SCL_L', 'SCL_R', 'SIP_L', 'SIP_R', 'SLP_L', 'SLP_R', 'SMP_L', 'SMP_R',
             'SPS_L', 'SPS_R', 'VES_L', 'VES_R', 'WED_L', 'WED_R']
+        self.assertEqual(set(expected_list), set(REGIONS.keys()))
         self.assertEqual(expected_list, self.neuron_db.neuropils())
 
     def test_classes(self):
