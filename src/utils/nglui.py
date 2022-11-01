@@ -48,6 +48,8 @@ def url_for_root_ids(root_ids, point_to_proofreading_flywire=False):
 
 
 def url_for_random_sample(root_ids, sample_size=50):
+    # make the random subset selections deterministic across executions
+    random.seed(420)
     if len(root_ids) > sample_size:
         root_ids = random.sample(root_ids, sample_size)
     return url_for_root_ids(root_ids)
