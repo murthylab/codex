@@ -37,7 +37,7 @@ def request_wrapper(func):
         signature = f'func: {func.__name__} endpoint: {request.endpoint} url: {request.url}'
         log_lines = ['\n', f'########### Processing {signature}']
         if request.args:
-            log_lines.extend([f'### Arg {k}: {v}' for k,v in request.args.items()])
+            log_lines.extend([f'### Arg {k}: {v}' for k, v in request.args.items()])
         if request.form:
             log_lines.extend([f'### Form {k}: {v}' for k, v in request.form.items()])
         if log_verbose:
@@ -229,11 +229,12 @@ def index(path):
                 'body': 'Browse cell types, labels, and groupings of the neurons in the dataset',
                 'asset_filename': 'card-explore.jpg',
                 'url': 'app.explore'
-            }, {
-                'header': 'Labeling',
-                'body': 'Automatically generated labeling suggestions, based on similarity of neuron pairs',
-                'asset_filename': 'card-labelsugg.jpg',
-                'url': 'app.labeling_suggestions'
+                # TODO: Refactor this into separate app (CODA)
+                #    }, {
+                #        'header': 'Labeling',
+                #        'body': 'Automatically generated labeling suggestions, based on similarity of neuron pairs',
+                #        'asset_filename': 'card-labelsugg.jpg',
+                #        'url': 'app.labeling_suggestions'
             }, {
                 'header': 'NBLAST',
                 'body': 'Pairwise morphological similarity scores for sets of neurons',
