@@ -3,7 +3,6 @@
 1. expandable "actions" buttons instead of ... menu
 1. select with checkboxes what is shown in 3d interactive image, so that its easy to compare morphologies by eye
 1. show synapse summary in Stats 
-1. make charts clickable
 
 ## Labels / data quality
 1. labels lineage with history/credits
