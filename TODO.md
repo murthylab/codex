@@ -1,3 +1,5 @@
+# Keep in sync with [public doc](codex.flywire.ai/todo_list)
+
 ## Search / cell lists
 1. filters / sorting options for search page
 1. expandable "actions" buttons instead of ... menu

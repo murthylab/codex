@@ -1,9 +1,13 @@
 # Codex - Connectome Data Explorer for FlyWire
 
 ## Description
-Flask web app for finding and analyzing neurons/cells proofread by the FlyWire community (see flywire.ai).
+Flask web app for finding and analyzing neurons/cells proofread by the
+FlyWire community (see flywire.ai). See [demo clip](codex.flywire.ai/demo_clip).
 
-## Run locally
+## Service URLs
+[prod](codex.flywire.ai) / [staging](codex-staging.flywire.ai)
+
+## Run service locally
 ```
 conda create -n codex python=3.9
 conda activate codex
