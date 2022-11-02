@@ -26,53 +26,58 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <ul>
-                            <li>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
                                 <a class="btn btn-link"
-                                   href="{{url_for('app.stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Show
-                                    stats <i class="fa-solid fa-chart-pie"></i></a>
+                                   href="{{url_for('app.stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
+                                    <i class="fa-solid fa-chart-pie"></i> &nbsp; Show stats
+                                </a>
                             </li>
-                            <li>
+                            <li class="list-group-item">
                                 <a class="btn btn-link"
                                    href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}"
-                                   target="_blank">View matches in FlyWire <i class="fa-solid fa-cube"></i></a>
+                                   target="_blank"><i class="fa-solid fa-cube"></i> &nbsp; View matches in FlyWire </a>
                             </li>
                             {% if root_ids_str %}
-                            <li>
+                            <li class="list-group-item">
                                 <a class="btn btn-link" onclick="loading();"
-                                   href="{{url_for('app.nblast', cell_names_or_ids=root_ids_str)}}">NBLAST scores
-                                    <i class="fa-solid fa-table-cells"></i></a>
+                                   href="{{url_for('app.nblast', cell_names_or_ids=root_ids_str)}}">
+                                    <i class="fa-solid fa-table-cells"></i> &nbsp; NBLAST scores
+                                </a>
                             </li>
-                            <li>
+                            <li class="list-group-item">
                                 <a class="btn btn-link" onclick="loading();"
-                                   href="{{url_for('app.path_length', cell_names_or_ids=root_ids_str)}}">Pathway lengths
-                                    <i class="fa-solid fa-route"></i></a>
+                                   href="{{url_for('app.path_length', cell_names_or_ids=root_ids_str)}}">
+                                    <i class="fa-solid fa-route"></i> &nbsp; Pathway lengths
+                                </a>
                             </li>
-                            <li>
-                                <a class="btn btn-link" onclick="copyRootIdsToClipboard();">Copy Cell IDs <i class="fa-regular fa-clipboard"></i></a>
+                            <li class="list-group-item">
+                                <a class="btn btn-link" onclick="copyRootIdsToClipboard();">
+                                    <i class="fa-regular fa-clipboard"></i> &nbsp; Copy Cell IDs
+                                </a>
                                 <script type="text/javascript">
-                      function copyRootIdsToClipboard() {
-                        navigator.clipboard.writeText("{{root_ids_str}}");
-                      }
-
+                                  function copyRootIdsToClipboard() {
+                                    navigator.clipboard.writeText("{{root_ids_str}}");
+                                  }
                                 </script>
                             </li>
-                            <li>
+                            <li class="list-group-item">
                                 <a class="btn btn-link"
-                                   href="{{url_for('app.connections', download=1, root_ids=root_ids_str)}}"
-                                   target="_blank">Download connections table <i class="fa-solid fa-download"></i></a>
+                                   href="{{url_for('app.connections', download=1, root_ids=root_ids_str)}}" target="_blank">
+                                    <i class="fa-solid fa-download"></i> &nbsp; Download connections table
+                                </a>
                             </li>
                             {% else %}
-                            <li>
+                            <li class="list-group-item">
                                 <a class="btn btn-link"
-                                   href="{{url_for('app.root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download
-                                    Cell IDs <i class="fa-solid fa-download"></i></a>
+                                   href="{{url_for('app.root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
+                                    <i class="fa-solid fa-download"></i> &nbsp; Download Cell IDs </a>
                             </li>
                             {% endif %}
-                            <li>
+                            <li class="list-group-item">
                                 <a class="btn btn-link"
-                                   href="{{url_for('app.download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">Download
-                                    results as CSV <i class="fa-solid fa-download"></i></a>
+                                   href="{{url_for('app.download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
+                                    <i class="fa-solid fa-download"></i> &nbsp; Download results as CSV </a>
                             </li>
                         </ul>
                     </div>
