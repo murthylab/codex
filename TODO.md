@@ -1,4 +1,4 @@
-# Keep in sync with [public doc](codex.flywire.ai/todo_list)
+# Keep in sync with [public doc](https://codex.flywire.ai/todo_list)
 
 ## Search / cell lists
 1. filters / sorting options for search page
