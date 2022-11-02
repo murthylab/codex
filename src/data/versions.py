@@ -1,6 +1,6 @@
 DATA_SNAPSHOT_VERSION_DESCRIPTIONS = {
-    '420': 'Materialization version 420 from 2022-07-08',
-    '447': 'Materialization version 447 from 2022-08-15',
+    "420": "Materialization version 420 from 2022-07-08",
+    "447": "Materialization version 447 from 2022-08-15",
 }
 
 DATA_SNAPSHOT_VERSIONS = sorted(DATA_SNAPSHOT_VERSION_DESCRIPTIONS.keys(), reverse=True)

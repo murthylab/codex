@@ -1,15 +1,15 @@
 from src.data.vocabulary import STOP_WORDS
 from src.utils.logging import log
 
-DELIMS = ['=', '-', '. ', ',', '?', '!', ';', ':' '//', '/', '(', ')', '"', '&']
+DELIMS = ["=", "-", ". ", ",", "?", "!", ";", ":" "//", "/", "(", ")", '"', "&"]
 
 
 def tokenize(s):
     for d in DELIMS:
-        s = s.replace(d, ' ')
+        s = s.replace(d, " ")
 
     def clean(tk):
-        if any([tk.endswith(c) for c in ['.', ':']]):
+        if any([tk.endswith(c) for c in [".", ":"]]):
             tk = tk[:-1]
         return tk
 
@@ -39,8 +39,10 @@ class SearchIndex(object):
             for lc_label in [str(t).lower() for t in label_list]:
                 self.add_to_index(lc_label, i, self.lc_labels)
 
-        log(f"App initialization search index created: {len(self.CS_token_to_row_id)=} {len(self.ci_token_to_row_id)=}"
-            f" {len(self.CS_tag_to_row_id)=} {len(self.ci_tag_to_row_id)=}")
+        log(
+            f"App initialization search index created: {len(self.CS_token_to_row_id)=} {len(self.ci_token_to_row_id)=}"
+            f" {len(self.CS_tag_to_row_id)=} {len(self.ci_tag_to_row_id)=}"
+        )
 
     @staticmethod
     def edit_distance(s1, s2):
@@ -54,7 +56,9 @@ class SearchIndex(object):
                 if c1 == c2:
                     distances_.append(distances[i1])
                 else:
-                    distances_.append(1 + min((distances[i1], distances[i1 + 1], distances_[-1])))
+                    distances_.append(
+                        1 + min((distances[i1], distances[i1 + 1], distances_[-1]))
+                    )
             distances = distances_
         return distances[-1]
 
@@ -110,29 +114,32 @@ class SearchIndex(object):
         return matching_doc_ids_ranked, matching_doc_ids_set
 
     def search(self, term, case_sensitive=False, word_match=False):
-        if not term or term == '*':
+        if not term or term == "*":
             return list(self.all_doc_ids())
 
         matching_doc_ids_ranked, matching_doc_ids_set = self._search_inner(
-            term=term.replace('\"', ''),
+            term=term.replace('"', ""),
             case_sensitive=case_sensitive,
-            word_match=word_match
+            word_match=word_match,
         )
 
         # try breaking the search term into tokens. run search for each token and collect resulting doc ids.
         # then append them in this order: first those docs that contain all the terms, then those that do not contain
         # all the terms (ranking)
-        if not (term.startswith('\"') and term.endswith('\"')):
+        if not (term.startswith('"') and term.endswith('"')):
             tokens = tokenize(term)
-            if len(tokens) > 1 or (len(tokens) == 1 and tokens[0] != term):  # 2nd cond if tokenization changes the term
+            if len(tokens) > 1 or (
+                len(tokens) == 1 and tokens[0] != term
+            ):  # 2nd cond if tokenization changes the term
                 log(f"Tokenized search term {term} into {tokens}")
                 doc_ids_ranked_lst = []
                 doc_ids_set_lst = []
                 for tk in tokens:
-                    tk_matching_doc_ids_ranked, tk_matching_doc_ids_set = self._search_inner(
-                        term=tk,
-                        case_sensitive=case_sensitive,
-                        word_match=word_match
+                    (
+                        tk_matching_doc_ids_ranked,
+                        tk_matching_doc_ids_set,
+                    ) = self._search_inner(
+                        term=tk, case_sensitive=case_sensitive, word_match=word_match
                     )
                     doc_ids_ranked_lst.append(tk_matching_doc_ids_ranked)
                     doc_ids_set_lst.append(tk_matching_doc_ids_set)
@@ -140,7 +147,10 @@ class SearchIndex(object):
                 # append new docs that match all tokens first
                 for lst in doc_ids_ranked_lst:
                     for doc_id in lst:
-                        if doc_id in intersection_all and doc_id not in matching_doc_ids_set:
+                        if (
+                            doc_id in intersection_all
+                            and doc_id not in matching_doc_ids_set
+                        ):
                             matching_doc_ids_set.add(doc_id)
                             matching_doc_ids_ranked.append(doc_id)
                 # lastly append new docs that match some of the tokens
@@ -162,7 +172,9 @@ class SearchIndex(object):
             indx = self.ci_token_to_row_id
             term = term.lower()
         key_set = set(
-            indx.keys() if not limited_ids_set else [k for k, i in indx.items() if not i.isdisjoint(limited_ids_set)]
+            indx.keys()
+            if not limited_ids_set
+            else [k for k, i in indx.items() if not i.isdisjoint(limited_ids_set)]
         )
 
         # exclude_stopwords
@@ -180,8 +192,7 @@ class SearchIndex(object):
         res_set = set()
         res_list = []
         # collect ids of neurons with tags firs, then the rest
-        for indx in [self.CS_tag_to_row_id,
-                     self.lc_labels]:
+        for indx in [self.CS_tag_to_row_id, self.lc_labels]:
             for ids in indx.values():
                 for rid in ids:
                     if rid not in res_set:

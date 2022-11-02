@@ -1,11 +1,12 @@
 NEURO_TRANSMITTER_NAMES = {
-    'DA': 'dopamine',
-    'SER': 'seratonin',
-    'GABA': 'gabaergic',
-    'GLUT': 'glutamate',
-    'ACH': 'acetylcholine',
-    'OCT': 'octopamine'
+    "DA": "dopamine",
+    "SER": "seratonin",
+    "GABA": "gabaergic",
+    "GLUT": "glutamate",
+    "ACH": "acetylcholine",
+    "OCT": "octopamine",
 }
+
 
 def lookup_nt_type(txt):
     if txt:
