@@ -33,7 +33,6 @@ SYNAPSE_TABLE_COLUMN_NAMES = ['pre_pt_root_id', 'post_pt_root_id', 'neuropil', '
 
 NEURON_NT_TYPES_FILE_NAME = "neuron_nt_types.feather"
 NEURON_NT_TYPES_COLUMN_NAMES = ['pre_pt_root_id', 'gaba_avg', 'ach_avg', 'glut_avg', 'oct_avg', 'ser_avg', 'da_avg']
-NT_TYPES = ['gaba', 'ach', 'glut', 'oct', 'ser', 'da']
 
 NEURON_INFO_FILE_NAME = "neuron_info.feather"
 NEURON_INFO_COLUMN_NAMES = ['id', 'valid', 'pt_supervoxel_id', 'pt_root_id', 'tag', 'user_id', 'pt_position']
