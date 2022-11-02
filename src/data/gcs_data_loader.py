@@ -249,7 +249,7 @@ def load_precomputed_distances_for_root_ids(
         else:
             return [row[column_idx[rid]] for rid in root_ids if rid in column_idx]
 
-    table = [["from \ to"] + project_to_found_root_ids(targets)]
+    table = [["from \\ to"] + project_to_found_root_ids(targets)]
     for p in zip(root_ids, results):
         if p[1]:
             table.append([p[0]] + project_to_found_root_ids(p[1]))
