@@ -24,7 +24,8 @@ python3 -m src.etl.pickle_data
 ```
 
 ## Test
-`python3 -m pytest`
+`python3 -m pytest tests/unit`
+`python3 -m pytest tests/integration`
 
 ## Profile
 ```python3 -m cProfile -o profile -m pytest tests/test_neuron_data.py -k test_augmentation_loading```
