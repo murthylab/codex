@@ -18,25 +18,29 @@ Instructions:
 - Run `python generate_thumbnails.py`. For each `<root_id>.h5` skeleton file, a corresponding thumbnail in the thumbnails folder named `<root_id>.png` will be created.
 """
 
-DATA_PATH = os.path.join("flywire_resource_data_files", LATEST_DATA_SNAPSHOT_VERSION, "l2_skeletons")
+DATA_PATH = os.path.join(
+    "flywire_resource_data_files", LATEST_DATA_SNAPSHOT_VERSION, "l2_skeletons"
+)
 BRAIN_MESH_PATH = "brain_mesh_v141.obj"
 
 SEGMENT_COLOR = (160 / 255, 42 / 255, 250 / 255)
 
 full_brain = trimesh_io.read_mesh(BRAIN_MESH_PATH)
 full_brain_mesh = trimesh_io.Mesh(full_brain[0], full_brain[1], full_brain[2])
-full_brain_mesh_actor = trimesh_vtk.mesh_actor(full_brain_mesh, color=(0, 0, 0), opacity=0.025)
+full_brain_mesh_actor = trimesh_vtk.mesh_actor(
+    full_brain_mesh, color=(0, 0, 0), opacity=0.025
+)
 
 ngl_state = {
     "navigation": {
         "pose": {
             "position": {
                 "voxelSize": [4, 4, 40],
-                "voxelCoordinates": [131529, 53923, 2000]
+                "voxelCoordinates": [131529, 53923, 2000],
             }
         }
     },
-    "perspectiveZoom": 2500
+    "perspectiveZoom": 2500,
 }
 cam = trimesh_vtk.camera_from_ngl_state(ngl_state)
 
@@ -45,10 +49,17 @@ def render(filename, out_path=None):
     if out_path is None:
         out_path = os.path.join("thumbnails", filename)
     skeleton = skeleton_io.read_skeleton_h5(os.path.join(DATA_PATH, filename))
-    skeleton_actor = trimesh_vtk.skeleton_actor(skeleton, color=SEGMENT_COLOR, opacity=0.75)
+    skeleton_actor = trimesh_vtk.skeleton_actor(
+        skeleton, color=SEGMENT_COLOR, opacity=0.75
+    )
     out_filename = out_path.replace(".h5", ".png")
-    trimesh_vtk.render_actors([full_brain_mesh_actor, skeleton_actor], filename=out_filename, camera=cam, scale=1,
-                              do_save=True)
+    trimesh_vtk.render_actors(
+        [full_brain_mesh_actor, skeleton_actor],
+        filename=out_filename,
+        camera=cam,
+        scale=1,
+        do_save=True,
+    )
     add_transparency(out_filename)
 
 

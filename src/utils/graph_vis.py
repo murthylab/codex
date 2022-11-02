@@ -6,11 +6,11 @@ from src.data.brain_regions import neuropil_description
 
 
 def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
-    '''
-        connection_table has 4 columns: pre root id, post root id, neuropil, syn count
-        neuron_data_fetcher is a lambda that returns neuron metadata given it's id
-        center_id is the id of the neuron that is being inspected
-    '''
+    """
+    connection_table has 4 columns: pre root id, post root id, neuropil, syn count
+    neuron_data_fetcher is a lambda that returns neuron metadata given it's id
+    center_id is the id of the neuron that is being inspected
+    """
     edge_physics = True
     node_physics = True
 
@@ -18,27 +18,27 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
         return 10
 
     def node_shape(ndata):
-        if ndata['root_id'] == center_id:
-            return 'circle'
-        return 'dot'
+        if ndata["root_id"] == center_id:
+            return "circle"
+        return "dot"
 
     def node_color(ndata):
         return {
-            'ach': '#aa0000',
-            'gaba': '#00aa00',
-            'glut': '#0000aa',
-            'oct': '#aaaa00',
-            'ser': '#aa00aa',
-            'da': '#00aaaa'
-        }.get(ndata['nt_type'].lower(), '#fafafa')
+            "ach": "#aa0000",
+            "gaba": "#00aa00",
+            "glut": "#0000aa",
+            "oct": "#aaaa00",
+            "ser": "#aa00aa",
+            "da": "#00aaaa",
+        }.get(ndata["nt_type"].lower(), "#fafafa")
 
     def node_title(nd):
-        rid = nd['root_id']
-        name = nd['name']
+        rid = nd["root_id"]
+        name = nd["name"]
         return f"<a href='cell_details?root_id={rid}' target='_parent'>{name}</a>"
 
     def edge_title(row):
-        return f'{row[2]}'
+        return f"{row[2]}"
 
     def edge_size(row):
         return pow(row[3], 1 / 2)
@@ -49,8 +49,8 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
     pil_to_cell_counts = defaultdict(int)
     for r in connection_table:
         pil_name = r[2]
-        if not pil_name or pil_name == 'None':
-            pil_name = 'Neuropil NA'
+        if not pil_name or pil_name == "None":
+            pil_name = "Neuropil NA"
         cell_to_pil_counts[(r[0], pil_name)] += r[3]
         pil_to_cell_counts[(pil_name, r[1])] += r[3]
 
@@ -60,13 +60,13 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
         if nid not in added_cell_nodes:
             nd = neuron_data_fetcher(nid)
             net.add_node(
-                nd['root_id'],
+                nd["root_id"],
                 label=f"{nd['name']}",
                 title=node_title(nd),
                 physics=node_physics,
                 color=node_color(nd),
                 shape=node_shape(nd),
-                size=node_size(nd)
+                size=node_size(nd),
             )
             added_cell_nodes.add(k[0])
             net.add_legend(nd["nt_type"].upper(), color=node_color(nd))
@@ -82,8 +82,8 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
                 label=f"{pil} ({'in' if is_input else 'out'})",
                 title=pil_desc,
                 physics=node_physics,
-                shape='box',
-                size=20
+                shape="box",
+                size=20,
             )
             added_pil_nodes.add(nid)
         return nid
@@ -102,29 +102,29 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
 
     # bundle any remaining connections (to prevent too large graphs)
     def add_super_cell_node():
-        scid = 'other_cells'
+        scid = "other_cells"
         if scid not in added_cell_nodes:
             net.add_node(
                 scid,
                 label=f"Other Cells",
                 physics=node_physics,
                 color="#fafafa",
-                shape='database',
-                size=40
+                shape="database",
+                size=40,
             )
             added_cell_nodes.add(scid)
         return scid
 
     def add_super_pil_node():
-        spid = 'other_neuropils'
+        spid = "other_neuropils"
         if spid not in added_pil_nodes:
             net.add_node(
                 spid,
                 label=f"Other Neuropils",
                 physics=node_physics,
-                color='#fafafa',
-                shape='database',
-                size='40'
+                color="#fafafa",
+                shape="database",
+                size="40",
             )
             added_pil_nodes.add(spid)
         return spid
@@ -137,7 +137,9 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
             net.add_edge(f, t, value=v, physics=edge_physics, label=str(v))
             added_super_edge_pairs.add((f, t))
 
-    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[max_nodes:2 * max_nodes]:
+    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[
+        max_nodes : 2 * max_nodes
+    ]:
         if k[0] in added_cell_nodes:
             if k[1] in added_pil_nodes:
                 add_super_edge(k[0], k[1], v)
@@ -153,7 +155,9 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
                 sp = add_super_pil_node()
                 add_super_edge(sc, sp, v)
 
-    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[max_nodes:2 * max_nodes]:
+    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[
+        max_nodes : 2 * max_nodes
+    ]:
         if k[1] in added_cell_nodes:
             if k[0] in added_pil_nodes:
                 add_super_edge(k[0], k[1], v)
@@ -201,11 +205,9 @@ class Network(object):
         source = str(source)
         to = str(to)
         # verify nodes exist
-        assert source in self.node_ids, \
-            "non existent node '" + str(source) + "'"
+        assert source in self.node_ids, "non existent node '" + str(source) + "'"
 
-        assert to in self.node_ids, \
-            "non existent node '" + str(to) + "'"
+        assert to in self.node_ids, "non existent node '" + str(to) + "'"
 
         e = Edge(source, to, True, **options)
         self.edges.append(e.options)
@@ -216,7 +218,9 @@ class Network(object):
             self.legend.append(legend_entry)
 
     def generate_html(self):
-        return render_template("network_graph.html", nodes=self.nodes, edges=self.edges, legend=self.legend)
+        return render_template(
+            "network_graph.html", nodes=self.nodes, edges=self.edges, legend=self.legend
+        )
 
 
 class Node(object):
