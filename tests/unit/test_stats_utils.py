@@ -1,14 +1,8 @@
-import os
 from unittest import TestCase
 
 from src.data.local_data_loader import unpickle_neuron_db, DATA_ROOT_PATH
 from src.utils import stats
-
-# for IDE test
-TEST_DATA_ROOT_PATH = os.getcwd().replace('tests/unit', DATA_ROOT_PATH)
-# for pytest
-if not TEST_DATA_ROOT_PATH.endswith(DATA_ROOT_PATH):
-    TEST_DATA_ROOT_PATH += f'/{DATA_ROOT_PATH}'
+from tests import TEST_DATA_ROOT_PATH
 
 
 class Test(TestCase):
