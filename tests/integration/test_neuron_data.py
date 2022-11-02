@@ -4,7 +4,6 @@ from src.data.local_data_loader import unpickle_all_neuron_db_versions, \
     load_neuron_db
 from src.data.neuron_data_factory import NeuronDataFactory
 
-# for IDE test
 from src.data.versions import DATA_SNAPSHOT_VERSIONS
 from tests import TEST_DATA_ROOT_PATH
 

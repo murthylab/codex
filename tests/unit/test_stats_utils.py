@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from src.data.local_data_loader import unpickle_neuron_db, DATA_ROOT_PATH
+from src.data.local_data_loader import unpickle_neuron_db
 from src.utils import stats
 from tests import TEST_DATA_ROOT_PATH
 
