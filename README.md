@@ -5,7 +5,7 @@ Flask web app for finding and analyzing neurons/cells proofread by the
 FlyWire community (see flywire.ai). See [demo clip](https://codex.flywire.ai/demo_clip).
 
 ## Service URLs
-[prod](https://codex.flywire.ai) / [staging](https://codex-staging.flywire.ai)
+[prod](https://codex.flywire.ai) / [staging (may take few secs to load)](https://codex-staging.flywire.ai)
 
 ## Run service locally
 ```
