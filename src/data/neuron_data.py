@@ -4,6 +4,7 @@ from random import choice
 from src.data.brain_regions import lookup_neuropil
 from src.data.gcs_data_loader import load_connections_for_root_id
 from src.data.neuron_collections import NEURON_COLLECTIONS
+from src.data.neurotransmitters import lookup_nt_type
 from src.data.search_index import SearchIndex
 from src.utils.logging import log
 
@@ -96,7 +97,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = {
                                'belong to zero or more classes.'),
     'label': ('tag', None, 'Human readable label assigned during cell identification process. Each cell can have zero '
                            'or more labels.'),
-    'nt': ('nt_type', lambda x: x.upper(), 'Neuro-transmitter type. One of ACH, GABA, GLUT, SER, OCT, DA.'),
+    'nt': ('nt_type', lambda x: lookup_nt_type(x), 'Neuro-transmitter type. One of ACH, GABA, GLUT, SER, OCT, DA.'),
     'input_neuropil': ('input_neuropils', lambda x: lookup_neuropil(x), 'Brain region / neuropil with upstream synaptic connections.'),
     'output_neuropil': ('output_neuropils', lambda x: lookup_neuropil(x), 'Brain region / neuropil with downstream synaptic connections.'),
     'io_hemisphere': ('hemisphere_fingerprint', None, 'Input / Output Hemispheres'),
