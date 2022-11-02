@@ -356,10 +356,16 @@ def render_info(message='Operation complete.'):
     return render_template("info.html", message=f'{message}')
 
 @base.route('/todo_list', methods=['GET'])
-@request_wrapper
 def todo_list():
     log_activity('Loading todo list')
     return redirect('https://docs.google.com/document/d/1iPtT9teD9i2k2YN7XrKjeY9UwPo7s9CNFWtmCkRelkg/edit?usp=sharing')
+
+
+@base.route('/demo_clip', methods=['GET'])
+def demo_clip():
+    log_activity('Loading demo clip')
+    return redirect('https://www.youtube.com/watch?v=YQoXg_UA-ZY&ab_channel=FlyWirePrinceton')
+
 
 def activity_suffix(filter_string, data_version):
     return (f"for '{filter_string}'" if filter_string else '') + \
