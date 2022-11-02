@@ -517,6 +517,7 @@ def nblast():
         cell_names_or_ids = sample_input
     download = request.args.get('download', 0, type=int)
     log_activity(f"Generating NBLAST table for '{cell_names_or_ids}' {download=}")
+    message = None
 
     if cell_names_or_ids:
         neuron_db = neuron_data_factory.get()
@@ -525,9 +526,9 @@ def nblast():
             return render_error(title="No matching cells found",
                                 message=f"Could not find any cells matching '{cell_names_or_ids}'")
         elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
-            return render_error(title="Too many cells match",
-                                message=f"{len(root_ids)} cells match '{cell_names_or_ids}'. "
-                                        f"NBLAST scores can be fetched for up to {MAX_NEURONS_FOR_DOWNLOAD} cells at a time.")
+            message = f"{len(root_ids)} cells match '{cell_names_or_ids}'. " \
+                      f"Fetching NBLAST scores for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
+            root_ids = root_ids[:MAX_NEURONS_FOR_DOWNLOAD // 2]
         elif len(cell_names_or_ids) == 1:
             return render_error(
                 message=f"Only one cell matches the input. Need 2 or more cells for pairwise NBLAST score(s).",
@@ -598,6 +599,7 @@ def nblast():
                       "source/target pairs.<br>"
                       f"{nblast_doc['a']}",
             sample_input=sample_input,
+            message=message,
         )
 
 
@@ -613,6 +615,7 @@ def path_length():
         cell_names_or_ids = sample_input
     download = request.args.get('download', 0, type=int)
     log_activity(f"Generating path lengths table for '{cell_names_or_ids}' {download=}")
+    message = None
 
     if cell_names_or_ids:
         neuron_db = neuron_data_factory.get()
@@ -621,9 +624,9 @@ def path_length():
             return render_error(title="No matching cells found",
                                 message=f"Could not find any cells matching '{cell_names_or_ids}'")
         elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
-            return render_error(title="Too many cells match",
-                                message=f"{len(root_ids)} cells match '{cell_names_or_ids}'. "
-                                        f"Path lengths can be fetched for up to {MAX_NEURONS_FOR_DOWNLOAD} cells at a time.")
+            message = f"{len(root_ids)} cells match '{cell_names_or_ids}'. " \
+                      f"Fetching path lengths for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
+            root_ids = root_ids[:MAX_NEURONS_FOR_DOWNLOAD // 2]
         elif len(cell_names_or_ids) == 1:
             return render_error(
                 message=f"Only one cell matches the input. Need 2 or more cells for pairwise path length(s).",
@@ -661,7 +664,8 @@ def path_length():
                       "or more source cells + one or more target cells, and get a matrix with shortest path lengths "
                       "for all source/target pairs.<br>"
                       f"{paths_doc['a']}",
-            sample_input=sample_input
+            sample_input=sample_input,
+            message=message
         )
 
 
