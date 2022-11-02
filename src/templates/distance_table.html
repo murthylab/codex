@@ -14,6 +14,17 @@
     </form>
 </nav>
 
+{% if message %}
+<div class="card" style="margin: 15px;">
+    <div class="card-header" style="color: purple;">
+        Note
+    </div>
+    <div class="card-body">
+        {{message|safe}}
+    </div>
+</div>
+{% endif %}
+
 {% if distance_table %}
 <div style="overflow-x:auto;">
     <table class="table">
