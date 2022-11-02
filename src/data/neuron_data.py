@@ -99,6 +99,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = {
     'nt': ('nt_type', lambda x: x.upper(), 'Neuro-transmitter type. One of ACH, GABA, GLUT, SER, OCT, DA.'),
     'input_neuropil': ('input_neuropils', lambda x: lookup_neuropil(x), 'Brain region / neuropil with upstream synaptic connections.'),
     'output_neuropil': ('output_neuropils', lambda x: lookup_neuropil(x), 'Brain region / neuropil with downstream synaptic connections.'),
+    'io_hemisphere': ('hemisphere_fingerprint', None, 'Input / Output Hemispheres'),
 }
 
 

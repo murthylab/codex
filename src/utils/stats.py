@@ -33,7 +33,7 @@ def _make_data_charts(data_list):
             type="donut", key_title="Type", val_title="Count", item_list=nt_types, search_filter="nt")
     if input_output_regions:
         result['Input/Output hemispheres'] = make_chart_from_list(
-            type="donut", key_title="Output regions", val_title="Count", item_list=input_output_regions, search_filter="io_hemispheres")
+            type="donut", key_title="Output regions", val_title="Count", item_list=input_output_regions, search_filter="io_hemisphere")
     if classes:
         result['Num. Assigned Neuron Classes'] = make_chart_from_list(
             type="donut", key_title="Num Classes", val_title="Count", item_list=classes, searchable=False)
