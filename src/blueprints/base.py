@@ -355,6 +355,11 @@ def render_info(message='Operation complete.'):
     log_activity(f"Rendering info: {message}")
     return render_template("info.html", message=f'{message}')
 
+@base.route('/todo_list', methods=['GET'])
+@request_wrapper
+def todo_list():
+    log_activity('Loading todo list')
+    return redirect('https://docs.google.com/document/d/1iPtT9teD9i2k2YN7XrKjeY9UwPo7s9CNFWtmCkRelkg/edit?usp=sharing')
 
 def activity_suffix(filter_string, data_version):
     return (f"for '{filter_string}'" if filter_string else '') + \
