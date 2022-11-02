@@ -13,7 +13,6 @@ Stats
 
   function drawChart(title, json, elem) {
     const data = google.visualization.arrayToDataTable(json["data"]);
-    console.log(title, data);
     const options = {
         title: title
     };
@@ -21,9 +20,11 @@ Stats
     if (json["type"] === "donut") {
         options.pieHole = 0.4;
         chart = new google.visualization.PieChart(elem);
-    }
-    else if (json["type"] === "bar") {
+    } else if (json["type"] === "bar") {
         chart = new google.visualization.BarChart(elem);
+    } else {
+        console.log('Unknown chart type', data);
+        return;
     }
 
     if (json["searchable"]) {
