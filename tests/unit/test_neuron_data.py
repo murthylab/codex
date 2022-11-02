@@ -1,19 +1,12 @@
 from unittest import TestCase
-import os
 
 from src.data.brain_regions import REGIONS
 from src.data.neuron_data import *
-from src.data.local_data_loader import DATA_ROOT_PATH, unpickle_all_neuron_db_versions, \
-    load_neuron_db
-from src.data.neuron_data_factory import NeuronDataFactory
+from src.data.local_data_loader import unpickle_all_neuron_db_versions
 
 # for IDE test
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSION
-
-TEST_DATA_ROOT_PATH = os.getcwd().replace('tests/unit', DATA_ROOT_PATH)
-# for pytest
-if not TEST_DATA_ROOT_PATH.endswith(DATA_ROOT_PATH):
-    TEST_DATA_ROOT_PATH += f'/{DATA_ROOT_PATH}'
+from tests import TEST_DATA_ROOT_PATH
 
 
 class NeuronDataTest(TestCase):
