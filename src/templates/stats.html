@@ -12,12 +12,39 @@ Stats
   google.charts.setOnLoadCallback(drawCharts);
 
   function drawChart(title, json, elem) {
-    const data = google.visualization.arrayToDataTable(json);
+    const data = google.visualization.arrayToDataTable(json["data"]);
     const options = {
-      title: title,
-      pieHole: 0.4,
+        title: title
     };
-    const chart = new google.visualization.PieChart(elem);
+    var chart;
+    if (json["type"] === "donut") {
+        options.pieHole = 0.4;
+        chart = new google.visualization.PieChart(elem);
+    } else if (json["type"] === "bar") {
+        chart = new google.visualization.BarChart(elem);
+    } else {
+        console.log('Unknown chart type', data);
+        return;
+    }
+
+    if (json["searchable"]) {
+        function selectHandler() {
+        const selectedItem = chart.getSelection()[0];
+        if (selectedItem) {
+            const value = data.getValue(selectedItem.row, 0);
+            let url = {{url_for('app.search', case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version, filter_string=filter_string)|tojson}};
+            if (!{{filter_string|tojson}}.split(" ").includes(value)) {
+                if ({{filter_string|tojson}}) {
+                    url += "+%26%26+";
+                }
+                url += json["search_filter"] + "+%3D%3D+" + value;
+                }
+                window.location = url;
+            }
+        }
+        google.visualization.events.addListener(chart, 'select', selectHandler);
+    }
+
     chart.draw(data, options);
   }
   function drawCharts() {

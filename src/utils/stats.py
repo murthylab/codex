@@ -1,15 +1,16 @@
 from collections import defaultdict
 
 
-def make_donut_chart_from_counts(key_title, val_title, counts_dict):
-    return [[key_title, val_title]] + [[t, c] for t, c in sorted(counts_dict.items(), key=lambda p: p[0])]
+def make_chart_from_counts(type, key_title, val_title, counts_dict, searchable=True, search_filter="", sort_by_freq=False):
+    sorted_counts = sorted(counts_dict.items(), key=lambda p: p[1], reverse=True) if sort_by_freq else sorted(counts_dict.items(), key=lambda p: p[0])
+    return {"type": type, "searchable": searchable, "search_filter": search_filter, "data": [[key_title, val_title]] + [[t, c] for t, c in sorted_counts]}
 
 
-def make_donut_chart_from_list(key_title, val_title, item_list):
+def make_chart_from_list(type, key_title, val_title, item_list, searchable=True, sort_by_freq=False, search_filter=""):
     counts = defaultdict(int)
     for i in item_list:
         counts[i] += 1
-    return make_donut_chart_from_counts(key_title=key_title, val_title=val_title, counts_dict=counts)
+    return make_chart_from_counts(type=type, key_title=key_title, val_title=val_title, counts_dict=counts, searchable=searchable, search_filter=search_filter, sort_by_freq=sort_by_freq)
 
 
 def _make_data_charts(data_list):
@@ -28,20 +29,20 @@ def _make_data_charts(data_list):
 
     result = {}
     if nt_types:
-        result['Neurotransmitter Types'] = make_donut_chart_from_list(
-            key_title="Type", val_title="Count", item_list=nt_types)
+        result['Neurotransmitter Types'] = make_chart_from_list(
+            type="donut", key_title="Type", val_title="Count", item_list=nt_types, search_filter="nt")
     if input_output_regions:
-        result['Input/Output hemispheres'] = make_donut_chart_from_list(
-            key_title="Output regions", val_title="Count", item_list=input_output_regions)
+        result['Input/Output hemispheres'] = make_chart_from_list(
+            type="donut", key_title="Output regions", val_title="Count", item_list=input_output_regions, search_filter="io_hemispheres")
     if classes:
-        result['Num. Assigned Neuron Classes'] = make_donut_chart_from_list(
-            key_title="Num Classes", val_title="Count", item_list=classes)
+        result['Num. Assigned Neuron Classes'] = make_chart_from_list(
+            type="donut", key_title="Num Classes", val_title="Count", item_list=classes, searchable=False)
     if input_neuropils:
-        result['Input neuropils'] = make_donut_chart_from_list(
-            key_title="Input neuropils", val_title="Count", item_list=input_neuropils)
+        result['Input neuropils'] = make_chart_from_list(
+            type="bar", key_title="Input neuropils", val_title="Count", item_list=input_neuropils, search_filter="input_neuropil", sort_by_freq=True)
     if output_neuropils:
-        result['Output neuropils'] = make_donut_chart_from_list(
-            key_title="Output neuropils", val_title="Count", item_list=output_neuropils)
+        result['Output neuropils'] = make_chart_from_list(
+            type="bar", key_title="Output neuropils", val_title="Count", item_list=output_neuropils, search_filter="output_neuropil", sort_by_freq=True)
 
     return result
 
