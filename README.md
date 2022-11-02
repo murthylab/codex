@@ -23,9 +23,14 @@ python3 -m src.etl.compile_data
 python3 -m src.etl.pickle_data
 ```
 
-## Test
+## Testing before posting a PR or merging
+### Manual UI testing (Required)
+run service locally and click around in all pages
+### Unit tests (Required)
 `python3 -m pytest tests/unit`
+### Integration/perf tests (Optional, requires setup)
 `python3 -m pytest tests/integration`
+
 
 ## Profile
 ```python3 -m cProfile -o profile -m pytest tests/test_neuron_data.py -k test_augmentation_loading```
@@ -39,8 +44,11 @@ p.print_stats(50)
 ```
 
 ## Deploy
-First make sure to update the most recent commit SHA in `about.html` template.
-Then:
+### Staging
+```
+./deploy-staging.sh
+```
+### Prod
 ```
 ./deploy.sh
 ```
