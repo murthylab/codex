@@ -243,3 +243,5 @@ class Edge(object):
         if directed:
             if "arrows" not in self.options:
                 self.options["arrows"] = "to"
+        if "label" in self.options:
+            self.options["title"] = self.options["label"]
