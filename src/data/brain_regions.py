@@ -77,25 +77,34 @@ REGIONS = {
 }
 
 
-def neuropil_description(pil):
-    if not pil:
-        return "Unspecified Region"
-    pil = pil.upper()
-    val = REGIONS.get(pil)
-    if not val:
-        return pil
-    else:
-        return f"{val[2]}" + (f" / {val[1]}" if val[1] else "")
+def neuropil_description(txt):
+    pil = match_to_neuropil(txt)
+    if pil not in REGIONS:
+        return pil or "Unspecified Region"
+    val = REGIONS[pil]
+    return f"{val[2]}" + (f" / {val[1]}" if val[1] else "")
 
 
-# find a neuropil from free-form text
-def lookup_neuropil(txt):
+# find a matching neuropil from free-form text. if no matches, return unchanged
+def match_to_neuropil(txt):
+    nset = lookup_neuropil_set(txt)
+    return nset.pop() if len(nset) == 1 else txt
+
+# find a set of matching neuropils from free-form text
+def lookup_neuropil_set(txt):
+    res = None
     if txt:
-        pil = txt.upper()
-        if pil in REGIONS:
-            return pil
-        for k, v in REGIONS.items():
-            if pil == v[2].upper():
-                return k
-    # no matches
-    return txt
+        txt_uc = txt.upper()
+        txt_lc = txt.lower()
+        if txt_uc in REGIONS:
+            res = {txt_uc}
+        elif txt_lc in ['left', 'right']:
+            res = set([k for k, v in REGIONS.items() if v[1] == txt_lc])
+        elif txt_lc in ['center', 'mid', 'middle']:
+            res = set([k for k, v in REGIONS.items() if not v[1]])
+        else:
+            res = set()
+            for k, v in REGIONS.items():
+                if k.startswith(txt_uc) or txt_lc == v[2] or any([txt_lc == t for t in v[2].split()]):
+                    res.add(k)
+    return res
