@@ -466,10 +466,14 @@ class NeuronDB(object):
         query = query.strip()
         if not query or query.isnumeric():  # do not suggest number/id close matches
             return None
-        chaining_rule, free_form_terms, structured_terms = NeuronDB._parse_search_query(query)
-        if chaining_rule or structured_terms: # do not suggest for structured queries
+        chaining_rule, free_form_terms, structured_terms = NeuronDB._parse_search_query(
+            query
+        )
+        if chaining_rule or structured_terms:  # do not suggest for structured queries
             return None
-        return self.search_index.closest_token(term=query, case_sensitive=case_sensitive, limited_ids_set=limited_ids_set)
+        return self.search_index.closest_token(
+            term=query, case_sensitive=case_sensitive, limited_ids_set=limited_ids_set
+        )
 
     def closest_token_from_inherited_tags(self, term, case_sensitive):
         return self.closest_token(
