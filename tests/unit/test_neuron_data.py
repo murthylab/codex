@@ -128,6 +128,21 @@ class NeuronDataTest(TestCase):
         upstream = self.neuron_db.search('{upstream} 720575940629495808')
         self.assertEqual(18, len(upstream))
 
+    def test_downstream_upstream_region_queries(self):
+        downstream = self.neuron_db.search('left {downstream_region} 720575940629495808')
+        self.assertEqual(40, len(downstream))
+        downstream = self.neuron_db.search('right {downstream_region} 720575940629495808')
+        self.assertEqual(15, len(downstream))
+        downstream = self.neuron_db.search('mid {downstream_region} 720575940629495808')
+        self.assertEqual([720575940611639794, 720575940636691824, 720575940626476038], downstream)
+
+        upstream = self.neuron_db.search('left {upstream_region} 720575940629495808')
+        self.assertEqual(8, len(upstream))
+        upstream = self.neuron_db.search('right {upstream_region} 720575940629495808')
+        self.assertEqual(3, len(upstream))
+        upstream = self.neuron_db.search('center {upstream_region} 720575940629495808')
+        self.assertEqual(10, len(upstream))
+
     def test_structured_query_parsing(self):
         # free form
         self.assertEqual(NeuronDB._parse_search_query('foo'), (None, ['foo'], []))

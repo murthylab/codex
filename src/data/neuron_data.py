@@ -1,7 +1,7 @@
 from functools import lru_cache
 from random import choice
 
-from src.data.brain_regions import lookup_neuropil
+from src.data.brain_regions import match_to_neuropil, lookup_neuropil_set
 from src.data.gcs_data_loader import load_connections_for_root_id
 from src.data.neuron_collections import NEURON_COLLECTIONS
 from src.data.neurotransmitters import lookup_nt_type
@@ -53,6 +53,8 @@ OP_HAS = "{has}"
 OP_NOT = "{not}"
 OP_UPSTREAM = "{upstream}"
 OP_DOWNSTREAM = "{downstream}"
+OP_UPSTREAM_REGION = "{upstream_region}"
+OP_DOWNSTREAM_REGION = "{downstream_region}"
 OP_AND = "{and}"
 OP_OR = "{or}"
 
@@ -75,6 +77,10 @@ OPERATOR_METADATA = {
     OP_NOT: ("!$", "Unary, attribute of the cell has no value (empty)"),
     OP_UPSTREAM: ("^^", "Unary, matches cells upstream of specified Cell ID)"),
     OP_DOWNSTREAM: ("!^", "Unary, matches cells downstream of specified Cell ID)"),
+    OP_UPSTREAM_REGION: ("^R", "Binary, matches cells upstream of RHS, with synapses in LHS region, where region "
+                               "is either hemisphere (left/right/center) or neuropil (e.g. GNG)."),
+    OP_DOWNSTREAM_REGION: ("!R", "Binary, matches cells downstream of RHS, with synapses in LHS region, where region "
+                                 "is either hemisphere (left/right/center) or neuropil (e.g. GNG)."),
     OP_AND: ("&&", "N-ary, all terms are true"),
     OP_OR: ("||", "N-ary, at least one of the terms is true"),
 }
@@ -84,6 +90,8 @@ SEARCH_TERM_BINARY_OPERATORS = [
     OP_NOT_EQUAL,  # not equal to
     OP_IN,  # one of the values on rhs (rhs is comma separated list)
     OP_NOT_IN,  # none of the values on rhs (rhs is comma separated list)
+    OP_UPSTREAM_REGION,  # upstream to RHS in LHS region
+    OP_DOWNSTREAM_REGION,  # downstream to RHS in LHS region
 ]
 SEARCH_TERM_UNARY_OPERATORS = [
     OP_HAS,  # exists / has value
@@ -133,12 +141,12 @@ STRUCTURED_SEARCH_ATTRIBUTES = {
     ),
     "input_neuropil": (
         "input_neuropils",
-        lambda x: lookup_neuropil(x),
+        lambda x: match_to_neuropil(x),
         "Brain region / neuropil with upstream synaptic connections.",
     ),
     "output_neuropil": (
         "output_neuropils",
-        lambda x: lookup_neuropil(x),
+        lambda x: match_to_neuropil(x),
         "Brain region / neuropil with downstream synaptic connections.",
     ),
     "io_hemisphere": ("hemisphere_fingerprint", None, "Input / Output Hemispheres"),
@@ -532,12 +540,17 @@ class NeuronDB(object):
             else:
                 return lambda x: not any([p(x) for p in predicates])
         elif structured_term["op"] in [OP_DOWNSTREAM, OP_UPSTREAM]:
-            downstream, upstream = load_connections_for_root_id(structured_term["rhs"])
-            return lambda x: x["root_id"] in (
-                set(downstream)
-                if structured_term["op"] == OP_DOWNSTREAM
-                else set(upstream)
-            )
+            downstream, upstream = load_connections_for_root_id(structured_term["rhs"], by_neuropil=False)
+            target_rid_set = set(downstream) if structured_term["op"] == OP_DOWNSTREAM else set(upstream)
+            return lambda x: x["root_id"] in target_rid_set
+        elif structured_term["op"] in [OP_DOWNSTREAM_REGION, OP_UPSTREAM_REGION]:
+            downstream, upstream = load_connections_for_root_id(structured_term["rhs"], by_neuropil=True)
+            region_neuropil_set = lookup_neuropil_set(structured_term["lhs"])
+            target_rid_set = set()
+            for k, v in (downstream if structured_term["op"] == OP_DOWNSTREAM_REGION else upstream).items():
+                if k in region_neuropil_set:
+                    target_rid_set |= set(v)
+            return lambda x: x["root_id"] in target_rid_set
         else:
             raise ValueError(f"Unsupported query operator {structured_term['op']}")
 
