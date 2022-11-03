@@ -462,11 +462,17 @@ class NeuronDB(object):
         else:
             return self.rids_of_neurons_with_inherited_tags
 
-    def closest_token(self, term, case_sensitive):
-        return self.search_index.closest_token(term=term, case_sensitive=case_sensitive)
+    def closest_token(self, query, case_sensitive, limited_ids_set=None):
+        query = query.strip()
+        if not query or query.isnumeric():  # do not suggest number/id close matches
+            return None
+        chaining_rule, free_form_terms, structured_terms = NeuronDB._parse_search_query(query)
+        if chaining_rule or structured_terms: # do not suggest for structured queries
+            return None
+        return self.search_index.closest_token(term=query, case_sensitive=case_sensitive, limited_ids_set=limited_ids_set)
 
     def closest_token_from_inherited_tags(self, term, case_sensitive):
-        return self.search_index.closest_token(
+        return self.closest_token(
             term,
             case_sensitive=case_sensitive,
             limited_ids_set=set(self.rids_of_neurons_with_inherited_tags),

@@ -123,7 +123,10 @@ def load_connection_table_for_root_id(root_id):
 
 
 def load_connections_for_root_id(root_id, by_neuropil, min_syn_cnt=5):
-    root_id = int(root_id)
+    try:
+        root_id = int(root_id)
+    except:
+        raise ValueError(f"'{root_id}' is not a valid cell ID")
     table = load_connection_table_for_root_id(root_id)
     if by_neuropil:
         downstream = defaultdict(list)
@@ -131,7 +134,7 @@ def load_connections_for_root_id(root_id, by_neuropil, min_syn_cnt=5):
     else:
         downstream = []
         upstream = []
-    for r in table:
+    for r in table or []:
         if r[3] < min_syn_cnt:
             continue
         if r[0] == root_id:
