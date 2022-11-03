@@ -1,6 +1,7 @@
 import csv
 import gzip
 import io
+from collections import defaultdict
 from functools import lru_cache, partial
 from multiprocessing import Pool
 
@@ -121,19 +122,29 @@ def load_connection_table_for_root_id(root_id):
             log_error(f"Exception while loading connection table for {root_id}: {e}")
 
 
-def load_connections_for_root_id(root_id, min_syn_cnt=5):
+def load_connections_for_root_id(root_id, by_neuropil, min_syn_cnt=5):
     root_id = int(root_id)
     table = load_connection_table_for_root_id(root_id)
-    downstream = []
-    upstream = []
+    if by_neuropil:
+        downstream = defaultdict(list)
+        upstream = defaultdict(list)
+    else:
+        downstream = []
+        upstream = []
     for r in table:
         if r[3] < min_syn_cnt:
             continue
         if r[0] == root_id:
-            downstream.append(r[1])
+            if by_neuropil:
+                downstream[r[2]].append(r[1])
+            else:
+                downstream.append(r[1])
         else:
             assert r[1] == root_id
-            upstream.append(r[0])
+            if by_neuropil:
+                upstream[r[2]].append(r[0])
+            else:
+                downstream.append(r[0])
     return downstream, upstream
 
 
