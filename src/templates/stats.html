@@ -48,13 +48,15 @@ Stats
     chart.draw(data, options);
   }
   function drawCharts() {
-    data_container = document.getElementById('data_container');
+    data_container = document.getElementById("data_container");
+    let chart_json;
     {% for k, v in data_charts.items() %}
-        elem = document.createElement('div');
+        chart_json = {{v|tojson}};
+        elem = document.createElement("div");
         elem.setAttribute("class", "card");
-        elem.setAttribute("style", "width: 100%; height: 400px;");
+        elem.setAttribute("style", "width: 100%; height: " + chart_json["height_px"] + "px;");
         data_container.appendChild(elem);
-        drawChart("{{k}}", {{v|tojson}}, elem);
+        drawChart("{{k}}", chart_json, elem);
     {% endfor %}
   }
 

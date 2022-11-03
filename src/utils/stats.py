@@ -2,7 +2,7 @@ from collections import defaultdict
 
 
 def make_chart_from_counts(
-    chart_type, key_title, val_title, counts_dict, search_filter="", sort_by_freq=False
+    chart_type, key_title, val_title, counts_dict, search_filter="", sort_by_freq=False, height_px=400
 ):
     sorted_counts = (
         sorted(counts_dict.items(), key=lambda p: p[1], reverse=True)
@@ -13,12 +13,13 @@ def make_chart_from_counts(
         "type": chart_type,
         "searchable": bool(search_filter),
         "search_filter": search_filter,
+        "height_px": height_px,
         "data": [[key_title, val_title]] + [[t, c] for t, c in sorted_counts],
     }
 
 
 def make_chart_from_list(
-    chart_type, key_title, val_title, item_list, sort_by_freq=False, search_filter=""
+    chart_type, key_title, val_title, item_list, search_filter="", sort_by_freq=False, height_px=400
 ):
     counts = defaultdict(int)
     for i in item_list:
@@ -30,6 +31,7 @@ def make_chart_from_list(
         counts_dict=counts,
         search_filter=search_filter,
         sort_by_freq=sort_by_freq,
+        height_px=height_px,
     )
 
 
@@ -85,6 +87,7 @@ def _make_data_charts(data_list):
             item_list=input_neuropils,
             search_filter="input_neuropil",
             sort_by_freq=True,
+            height_px=(800 if len(input_neuropils) > 5 else 400),
         )
     if output_neuropils:
         result["Output neuropils"] = make_chart_from_list(
@@ -94,6 +97,7 @@ def _make_data_charts(data_list):
             item_list=output_neuropils,
             search_filter="output_neuropil",
             sort_by_freq=True,
+            height_px=(800 if len(output_neuropils) > 5 else 400),
         )
 
     return result
