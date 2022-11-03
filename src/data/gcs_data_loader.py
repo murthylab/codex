@@ -144,7 +144,7 @@ def load_connections_for_root_id(root_id, by_neuropil, min_syn_cnt=5):
             if by_neuropil:
                 upstream[r[2]].append(r[0])
             else:
-                downstream.append(r[0])
+                upstream.append(r[0])
     return downstream, upstream
 
 
