@@ -77,10 +77,16 @@ OPERATOR_METADATA = {
     OP_NOT: ("!$", "Unary, attribute of the cell has no value (empty)"),
     OP_UPSTREAM: ("^^", "Unary, matches cells upstream of specified Cell ID)"),
     OP_DOWNSTREAM: ("!^", "Unary, matches cells downstream of specified Cell ID)"),
-    OP_UPSTREAM_REGION: ("^R", "Binary, matches cells upstream of RHS, with synapses in LHS region, where region "
-                               "is either hemisphere (left/right/center) or neuropil (e.g. GNG)."),
-    OP_DOWNSTREAM_REGION: ("!R", "Binary, matches cells downstream of RHS, with synapses in LHS region, where region "
-                                 "is either hemisphere (left/right/center) or neuropil (e.g. GNG)."),
+    OP_UPSTREAM_REGION: (
+        "^R",
+        "Binary, matches cells upstream of RHS, with synapses in LHS region, where region "
+        "is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
+    ),
+    OP_DOWNSTREAM_REGION: (
+        "!R",
+        "Binary, matches cells downstream of RHS, with synapses in LHS region, where region "
+        "is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
+    ),
     OP_AND: ("&&", "N-ary, all terms are true"),
     OP_OR: ("||", "N-ary, at least one of the terms is true"),
 }
@@ -540,14 +546,26 @@ class NeuronDB(object):
             else:
                 return lambda x: not any([p(x) for p in predicates])
         elif structured_term["op"] in [OP_DOWNSTREAM, OP_UPSTREAM]:
-            downstream, upstream = load_connections_for_root_id(structured_term["rhs"], by_neuropil=False)
-            target_rid_set = set(downstream) if structured_term["op"] == OP_DOWNSTREAM else set(upstream)
+            downstream, upstream = load_connections_for_root_id(
+                structured_term["rhs"], by_neuropil=False
+            )
+            target_rid_set = (
+                set(downstream)
+                if structured_term["op"] == OP_DOWNSTREAM
+                else set(upstream)
+            )
             return lambda x: x["root_id"] in target_rid_set
         elif structured_term["op"] in [OP_DOWNSTREAM_REGION, OP_UPSTREAM_REGION]:
-            downstream, upstream = load_connections_for_root_id(structured_term["rhs"], by_neuropil=True)
+            downstream, upstream = load_connections_for_root_id(
+                structured_term["rhs"], by_neuropil=True
+            )
             region_neuropil_set = lookup_neuropil_set(structured_term["lhs"])
             target_rid_set = set()
-            for k, v in (downstream if structured_term["op"] == OP_DOWNSTREAM_REGION else upstream).items():
+            for k, v in (
+                downstream
+                if structured_term["op"] == OP_DOWNSTREAM_REGION
+                else upstream
+            ).items():
                 if k in region_neuropil_set:
                     target_rid_set |= set(v)
             return lambda x: x["root_id"] in target_rid_set

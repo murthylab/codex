@@ -90,6 +90,7 @@ def match_to_neuropil(txt):
     nset = lookup_neuropil_set(txt)
     return nset.pop() if len(nset) == 1 else txt
 
+
 # find a set of matching neuropils from free-form text
 def lookup_neuropil_set(txt):
     res = None
@@ -98,13 +99,17 @@ def lookup_neuropil_set(txt):
         txt_lc = txt.lower()
         if txt_uc in REGIONS:
             res = {txt_uc}
-        elif txt_lc in ['left', 'right']:
+        elif txt_lc in ["left", "right"]:
             res = set([k for k, v in REGIONS.items() if v[1] == txt_lc])
-        elif txt_lc in ['center', 'mid', 'middle']:
+        elif txt_lc in ["center", "mid", "middle"]:
             res = set([k for k, v in REGIONS.items() if not v[1]])
         else:
             res = set()
             for k, v in REGIONS.items():
-                if k.startswith(txt_uc) or txt_lc == v[2] or any([txt_lc == t for t in v[2].split()]):
+                if (
+                    k.startswith(txt_uc)
+                    or txt_lc == v[2]
+                    or any([txt_lc == t for t in v[2].split()])
+                ):
                     res.add(k)
     return res
