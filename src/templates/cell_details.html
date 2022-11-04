@@ -19,22 +19,32 @@
       google.charts.setOnLoadCallback(drawCharts);
 
       function drawChart(title, json, elem) {
-        const data = google.visualization.arrayToDataTable(json);
+        const data = google.visualization.arrayToDataTable(json["data"]);
         const options = {
-          title: title,
-          pieHole: 0.4,
+            title: title
         };
-        const chart = new google.visualization.PieChart(elem);
+        var chart;
+        if (json["type"] === "donut") {
+            options.pieHole = 0.4;
+            chart = new google.visualization.PieChart(elem);
+        } else if (json["type"] === "bar") {
+            chart = new google.visualization.BarChart(elem);
+        } else {
+            console.log('Unknown chart type', data);
+            return;
+        }
         chart.draw(data, options);
       }
       function drawCharts() {
-        charts_container = document.getElementById('charts_container');
+        charts_container = document.getElementById("charts_container");
+        let chart_json;
         {% for k, v in charts.items() %}
-            elem = document.createElement('div');
+            chart_json = {{v|tojson}};
+            elem = document.createElement("div");
             elem.setAttribute("class", "card");
-            elem.setAttribute("style", "width: 100%; height: 400px;");
+            elem.setAttribute("style", "width: 100%; height: " + chart_json["height_px"] + "px;");
             charts_container.appendChild(elem);
-            drawChart("{{k}}", {{v|tojson}}, elem);
+            drawChart("{{k}}", chart_json, elem);
         {% endfor %}
       }
 
