@@ -535,9 +535,7 @@ def cell_details():
             )
             related_cells[search_link] = nglui_link
 
-    connectivity = gcs_data_loader.load_connection_table_for_root_id(root_id)
-    if connectivity and min_syn_cnt:
-        connectivity = [r for r in connectivity if r[3] >= min_syn_cnt]
+    connectivity = gcs_data_loader.load_connection_table_for_root_id(root_id, min_syn_count=min_syn_cnt)
     if connectivity:
         input_neuropil_synapse_count = defaultdict(int)
         output_neuropil_synapse_count = defaultdict(int)
