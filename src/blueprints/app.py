@@ -19,6 +19,7 @@ from src.data import gcs_data_loader
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data import OP_DOWNSTREAM, OP_UPSTREAM
 from src.data.search_index import tokenize
+from src.data.sorting import sort_search_results, DOWNSTREAM_SYNAPSE_COUNT, UPSTREAM_SYNAPSE_COUNT
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
 from src.utils.graph_vis import make_graph_html
@@ -189,30 +190,6 @@ def render_neuron_list(
     )
 
 
-def sort_search_results(ids, sort_by):
-    try:
-        parts = sort_by.split(":")
-        if len(parts) != 2 or parts[0] not in [
-            "downstream_synapses",
-            "upstream_synapses",
-        ]:
-            raise ValueError(f"Unsupported sort_by parameter: {sort_by}")
-        sort_by_target_cell_rid = int(parts[1])
-        con_table = gcs_data_loader.load_connection_table_for_root_id(
-            sort_by_target_cell_rid
-        )
-        if parts[0] == "downstream_synapses":
-            dct = {r[1]: r[3] for r in con_table if r[0] == sort_by_target_cell_rid}
-        else:
-            dct = {r[0]: r[3] for r in con_table if r[1] == sort_by_target_cell_rid}
-        extra_data = ("#Syn", dct)
-        ids = sorted(ids, key=lambda x: -dct[x])
-        return ids, extra_data
-    except Exception as e:
-        log_error(f"Sort by failed for {sort_by=} and {len(ids)=}: {e}")
-        return ids, None
-
-
 @app.route("/search", methods=["GET"])
 @request_wrapper
 @require_data_access
@@ -236,10 +213,9 @@ def search():
         log_activity(
             f"Got {len(filtered_root_id_list)} search results {activity_suffix(filter_string, data_version)}"
         )
-        if sort_by:
-            filtered_root_id_list, extra_data = sort_search_results(
-                ids=filtered_root_id_list, sort_by=sort_by
-            )
+        filtered_root_id_list, extra_data = sort_search_results(
+            ids=filtered_root_id_list, sort_by=sort_by
+        )
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
         log_error(f"No results for '{filter_string}', sending hint '{hint}'")
@@ -558,7 +534,7 @@ def cell_details():
             search_endpoint=url_for(
                 "app.search",
                 filter_string=f"{OP_UPSTREAM} {root_id}",
-                sort_by=f"upstream_synapses:{root_id}",
+                sort_by=f"{UPSTREAM_SYNAPSE_COUNT}:{root_id}",
             ),
         )
         insert_neuron_list_links(
@@ -567,7 +543,7 @@ def cell_details():
             search_endpoint=url_for(
                 "app.search",
                 filter_string=f"{OP_DOWNSTREAM} {root_id}",
-                sort_by=f"downstream_synapses:{root_id}",
+                sort_by=f"{DOWNSTREAM_SYNAPSE_COUNT}:{root_id}",
             ),
         )
 
