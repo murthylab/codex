@@ -115,6 +115,7 @@ def render_neuron_list(
     whole_word,
     page_number,
     hint,
+    sort_by,
     extra_data,
 ):
     neuron_db = neuron_data_factory.get(data_version)
@@ -183,6 +184,7 @@ def render_neuron_list(
         data_version=data_version,
         case_sensitive=case_sensitive,
         whole_word=whole_word,
+        sort_by=sort_by,
         extra_data=extra_data
     )
 
@@ -247,6 +249,7 @@ def search():
         whole_word=whole_word,
         page_number=page_number,
         hint=hint,
+        sort_by=sort_by,
         extra_data=extra_data,
     )
 
@@ -386,6 +389,7 @@ def labeling_suggestions():
         whole_word=whole_word,
         page_number=page_number,
         hint=hint,
+        sort_by=None,
         extra_data=None,
     )
 
