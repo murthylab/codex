@@ -506,7 +506,9 @@ def cell_details():
             )
             related_cells[search_link] = nglui_link
 
-    connectivity = gcs_data_loader.load_connection_table_for_root_id(root_id, min_syn_count=min_syn_cnt)
+    connectivity = gcs_data_loader.load_connection_table_for_root_id(
+        root_id, min_syn_count=min_syn_cnt
+    )
     if connectivity:
         input_neuropil_synapse_count = defaultdict(int)
         output_neuropil_synapse_count = defaultdict(int)
@@ -527,16 +529,14 @@ def cell_details():
             "input cells (upstream) with 5+ synapses",
             upstream,
             search_endpoint=url_for(
-                "app.search",
-                filter_string=f"{OP_UPSTREAM} {root_id}"
+                "app.search", filter_string=f"{OP_UPSTREAM} {root_id}"
             ),
         )
         insert_neuron_list_links(
             "output cells (downstream) with 5+ synapses",
             downstream,
             search_endpoint=url_for(
-                "app.search",
-                filter_string=f"{OP_DOWNSTREAM} {root_id}"
+                "app.search", filter_string=f"{OP_DOWNSTREAM} {root_id}"
             ),
         )
 
