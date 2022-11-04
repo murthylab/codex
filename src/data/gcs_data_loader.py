@@ -111,7 +111,7 @@ CONNECTION_TABLES_PREFIX = "connection-tables"
 
 
 @lru_cache
-def load_connection_table_for_root_id(root_id):
+def _load_raw_connection_table_for_root_id(root_id):
     table = load_csv_content_from_compressed_object_on_gcs(
         f"{CONNECTION_TABLES_PREFIX}/{root_id}"
     )
@@ -122,12 +122,19 @@ def load_connection_table_for_root_id(root_id):
             log_error(f"Exception while loading connection table for {root_id}: {e}")
 
 
+def load_connection_table_for_root_id(root_id, min_syn_count=5):
+    raw_table = _load_raw_connection_table_for_root_id(root_id)
+    if raw_table and min_syn_count > 0:
+        raw_table = [r for r in raw_table if r[3] >= min_syn_count]
+    return raw_table
+
+
 def load_connections_for_root_id(root_id, by_neuropil, min_syn_cnt=5):
     try:
         root_id = int(root_id)
     except:
         raise ValueError(f"'{root_id}' is not a valid cell ID")
-    table = load_connection_table_for_root_id(root_id)
+    table = load_connection_table_for_root_id(root_id, min_syn_count=min_syn_cnt)
     if by_neuropil:
         downstream = defaultdict(list)
         upstream = defaultdict(list)
@@ -135,8 +142,6 @@ def load_connections_for_root_id(root_id, by_neuropil, min_syn_cnt=5):
         downstream = []
         upstream = []
     for r in table or []:
-        if r[3] < min_syn_cnt:
-            continue
         if r[0] == root_id:
             if by_neuropil:
                 downstream[r[2]].append(r[1])
