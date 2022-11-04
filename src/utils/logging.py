@@ -52,7 +52,14 @@ def _is_smoke_test_request():
         return False
 
 
-def _fetch_user_info():
+def _fetch_user_name():
+    try:
+        return session["id_info"]["name"]
+    except:
+        return None
+
+
+def _fetch_user_email():
     try:
         return session["id_info"]["email"]
     except:
@@ -76,14 +83,14 @@ def log(msg):
     if client_info:
         msg = f"{client_info} > {msg}"
 
-    user_info = _fetch_user_info()
+    user_info = _fetch_user_email()
     if user_info:
         msg = f"{user_info} > {msg}"
     print(msg)
     return msg
 
 
-def _post_to_slk(text, real_user_activity, extra_hk):
+def _post_to_slk(username, access_granted, text, real_user_activity, extra_hk):
     if any(
         [
             bot in text
@@ -107,7 +114,12 @@ def _post_to_slk(text, real_user_activity, extra_hk):
     res = [
         requests.post(
             hk,
-            data=json.dumps({"text": text, "unfurl_links": False}),
+            data=json.dumps({
+                "username": username or "unknown",
+                "icon_emoji": ":large_green_circle:" if access_granted else ":large_yellow_circle:",
+                "text": text,
+                "unfurl_links": False
+            }),
             headers={"Content-Type": "application/json"},
         )
         for hk in hks
@@ -118,8 +130,10 @@ def _post_to_slk(text, real_user_activity, extra_hk):
 
 def post_to_slk(text, hk=None):
     real_user_activity = APP_ENVIRONMENT != "DEV" and not _is_smoke_test_request()
+    username = _fetch_user_name()
+    access_granted = "data_access_token" in session
     Process(
-        target=_post_to_slk, args=(text, real_user_activity, hk), daemon=True
+        target=_post_to_slk, args=(username, access_granted, text, real_user_activity, hk), daemon=True
     ).start()
 
 

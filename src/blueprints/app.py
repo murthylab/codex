@@ -23,7 +23,7 @@ from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
 from src.utils.graph_vis import make_graph_html
-from src.utils.logging import log_activity, log_error, format_link, user_agent
+from src.utils.logging import log_activity, log_error, format_link, user_agent, log
 from src.utils.thumbnails import url_for_skeleton
 
 app = Blueprint("app", __name__, url_prefix="/app")
@@ -200,7 +200,7 @@ def search():
     neuron_db = neuron_data_factory.get(data_version)
     hint = None
     extra_data = None
-    log_activity(
+    log(
         f"Loading search page {page_number} {activity_suffix(filter_string, data_version)}"
     )
     filtered_root_id_list = neuron_db.search(
@@ -208,7 +208,7 @@ def search():
     )
     if filtered_root_id_list:
         log_activity(
-            f"Got {len(filtered_root_id_list)} search results {activity_suffix(filter_string, data_version)}"
+            f"Loaded {len(filtered_root_id_list)} search results for page {page_number} {activity_suffix(filter_string, data_version)}"
         )
         filtered_root_id_list, extra_data = sort_search_results(
             query=filter_string, ids=filtered_root_id_list
@@ -477,7 +477,7 @@ def cell_details():
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     neuron_db = neuron_data_factory.get(data_version)
-    log_activity(f"Generating neuron info {activity_suffix(root_id, data_version)}")
+    log(f"Generating neuron info {activity_suffix(root_id, data_version)}")
     nd = neuron_db.get_neuron_data(root_id=root_id)
     cell_attributes = {
         "Name": nd["name"],
