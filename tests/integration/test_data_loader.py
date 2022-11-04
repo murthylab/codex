@@ -79,7 +79,7 @@ class Test(TestCase):
         # time parallel loading
         start_time = datetime.datetime.now()
         parallel_connections = load_connection_table_for_root_ids(sample_root_ids, pool_size=8)
-        self.assertEqual(57110, len(parallel_connections))
+        self.assertEqual(8982, len(parallel_connections))
         self.assertLess((datetime.datetime.now() - start_time).total_seconds(), 6)
 
     def test_precomputed_distance_loading_perf(self):
