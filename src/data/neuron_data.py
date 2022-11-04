@@ -418,7 +418,7 @@ class NeuronDB(object):
         # index lookups (and quick), while structured queries are evaluated in a linear scan. Then we combine the
         # collected results with the chaining rule (intersection for '&&' / union for '||').
 
-        chaining_rule, free_form_terms, structured_terms = NeuronDB._parse_search_query(
+        chaining_rule, free_form_terms, structured_terms = NeuronDB.parse_search_query(
             search_query
         )
         log(
@@ -466,7 +466,7 @@ class NeuronDB(object):
         query = query.strip()
         if not query or query.isnumeric():  # do not suggest number/id close matches
             return None
-        chaining_rule, free_form_terms, structured_terms = NeuronDB._parse_search_query(
+        chaining_rule, free_form_terms, structured_terms = NeuronDB.parse_search_query(
             query
         )
         if chaining_rule or structured_terms:  # do not suggest for structured queries
@@ -674,7 +674,7 @@ class NeuronDB(object):
         return parts
 
     @staticmethod
-    def _parse_search_query(search_query):
+    def parse_search_query(search_query):
         chaining_rule, terms = NeuronDB._parse_chained_search_query(search_query)
         free_form, structured = NeuronDB._parse_search_terms(terms)
         return chaining_rule, free_form, structured
