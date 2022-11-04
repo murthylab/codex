@@ -11,81 +11,6 @@
         <button class="btn btn btn-primary my-2 my-sm-0" type="submit"><i class="fa-solid fa-magnifying-glass"></i>
         </button>
 
-        {% if num_items and filter_string %}
-        <button type="button" class="btn btn-success" style="margin-left: 5px;" title="Analyze Matches"
-                data-toggle="modal" data-target="#actionsModal"><i class="fa-solid fa-ellipsis"></i></button>
-        <div class="modal fade" id="actionsModal" tabindex="-1" role="dialog" aria-labelledby="actionsModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" style="color:blue;" id="actionsModalLabel">{{ "{:,}".format(num_items)
-                            }} matches</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">
-                                <a class="btn btn-link"
-                                   href="{{url_for('app.stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
-                                    <i class="fa-solid fa-chart-pie"></i> &nbsp; Show stats
-                                </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a class="btn btn-link"
-                                   href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}"
-                                   target="_blank"><i class="fa-solid fa-cube"></i> &nbsp; View matches in FlyWire </a>
-                            </li>
-                            {% if root_ids_str %}
-                            <li class="list-group-item">
-                                <a class="btn btn-link" onclick="loading();"
-                                   href="{{url_for('app.nblast', cell_names_or_ids=root_ids_str)}}">
-                                    <i class="fa-solid fa-table-cells"></i> &nbsp; NBLAST scores
-                                </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a class="btn btn-link" onclick="loading();"
-                                   href="{{url_for('app.path_length', cell_names_or_ids=root_ids_str)}}">
-                                    <i class="fa-solid fa-route"></i> &nbsp; Pathway lengths
-                                </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a class="btn btn-link" onclick="copyRootIdsToClipboard();">
-                                    <i class="fa-regular fa-clipboard"></i> &nbsp; Copy Cell IDs
-                                </a>
-                                <script type="text/javascript">
-                                  function copyRootIdsToClipboard() {
-                                    navigator.clipboard.writeText("{{root_ids_str}}");
-                                  }
-                                </script>
-                            </li>
-                            <li class="list-group-item">
-                                <a class="btn btn-link"
-                                   href="{{url_for('app.connections', download=1, root_ids=root_ids_str)}}" target="_blank">
-                                    <i class="fa-solid fa-download"></i> &nbsp; Download connections table
-                                </a>
-                            </li>
-                            {% else %}
-                            <li class="list-group-item">
-                                <a class="btn btn-link"
-                                   href="{{url_for('app.root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
-                                    <i class="fa-solid fa-download"></i> &nbsp; Download Cell IDs </a>
-                            </li>
-                            {% endif %}
-                            <li class="list-group-item">
-                                <a class="btn btn-link"
-                                   href="{{url_for('app.download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
-                                    <i class="fa-solid fa-download"></i> &nbsp; Download results as CSV </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
         <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Settings"
                 data-toggle="modal" data-target="#filterModal"><i class="fa-solid fa-sliders"></i></button>
         <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel"
@@ -133,9 +58,53 @@
 
     </form>
 </nav>
+
 {% if filter_string %}
-<h6 style="margin-left: 15px; margin-top: 5px; color: grey; font-size: 11px;">{{"{:,}".format(num_items)}} matches</h6>
+<div class="card bg-light mb-3">
+<span style="margin-left: 15px; margin-top: 5px; color: black; font-size: 12px;">{{"{:,}".format(num_items)}} matches</span>
+{% if num_items %}
+<div class="row flex-row flex-nowrap" style="overflow-x: auto; padding-left: 20px;">
+    <a class="btn btn-link"
+       href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}"
+       target="_blank"><i class="fa-solid fa-cube"></i> &nbsp; View in 3D </a>
+    <a class="btn btn-link"
+       href="{{url_for('app.stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
+        <i class="fa-solid fa-chart-pie"></i> &nbsp; Show stats
+    </a>
+    {% if root_ids_str %}
+    <a class="btn btn-link" onclick="loading();"
+       href="{{url_for('app.nblast', cell_names_or_ids=root_ids_str)}}">
+        <i class="fa-solid fa-table-cells"></i> &nbsp; NBLAST scores
+    </a>
+    <a class="btn btn-link" onclick="loading();"
+       href="{{url_for('app.path_length', cell_names_or_ids=root_ids_str)}}">
+        <i class="fa-solid fa-route"></i> &nbsp; Path lengths
+    </a>
+    <a class="btn btn-link" onclick="copyRootIdsToClipboard();">
+        <i class="fa-regular fa-clipboard"></i> &nbsp; Copy IDs
+    </a>
+    <script type="text/javascript">
+      function copyRootIdsToClipboard() {
+        navigator.clipboard.writeText("{{root_ids_str}}");
+      }
+    </script>
+    <a class="btn btn-link"
+       href="{{url_for('app.connections', download=1, root_ids=root_ids_str)}}" target="_blank">
+        <i class="fa-solid fa-download"></i> &nbsp; Connections table
+    </a>
+        <a class="btn btn-link"
+       href="{{url_for('app.download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
+        <i class="fa-solid fa-download"></i> &nbsp; CSV </a>
+    {% else %}
+    <a class="btn btn-link"
+       href="{{url_for('app.root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
+        <i class="fa-solid fa-download"></i> &nbsp; Cell IDs </a>
+    {% endif %}
+</div>
 {% endif %}
+</div>
+{% endif %}
+
 {% if hint %}
 <button class="btn btn-btn-link" style="color: blue;" type="button"
         onclick="searchbox = document.getElementById('filter_string'); searchbox.value = '{{hint}}'; searchbox.form.submit();">
@@ -146,11 +115,11 @@
 
 {% if num_items %}
 
-<div style="overflow-x:auto;">
+<div style="overflow-x:auto; margin-top: 20px;">
     <table class="table">
         <thead>
         <tr>
-            <th scope="col"></th>
+            <th scope="col">Shape</th>
             <th scope="col">Cell Name/ID</th>
             <th scope="col">Class</th>
             <th scope="col">Annotations</th>
@@ -179,7 +148,7 @@
             <td style="color:#3A3AAA;">{{neuron.nt_type}}</td>
             <td style="color:#3A3AAA;">{{neuron.hemisphere_fingerprint|safe}}</td>
             <td><a class="btn btn-outline-primary" href="{{url_for('app.flywire_url', root_ids=[neuron.root_id])}}"
-                   target="_blank" role="button" title="Open in FlyWire"><i class="fa-solid fa-cube"></i></a></td>
+                   target="_blank" role="button" title="Render in 3D"><i class="fa-solid fa-cube"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>
