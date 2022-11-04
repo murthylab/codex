@@ -122,11 +122,6 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label style="margin: 20px;">Sort By</label>
-                            <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" type="search"
-                                name="sort_by" placeholder="sort criteria" value="{{sort_by}}">
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary">Reset</button>
@@ -195,7 +190,7 @@
     {% for page_info in pagination_info %}
     <li class="page-item {{page_info.status}}">
         <a class="page-link"
-           href="{{url_for('app.search', page_number=page_info.number, filter_string=filter_string, sort_by=sort_by, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">{{page_info.label}}</a>
+           href="{{url_for('app.search', page_number=page_info.number, filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">{{page_info.label}}</a>
     </li>
     {% endfor %}
 </ul>
