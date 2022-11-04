@@ -19,7 +19,7 @@ from src.data import gcs_data_loader
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data import OP_DOWNSTREAM, OP_UPSTREAM
 from src.data.search_index import tokenize
-from src.data.sorting import sort_search_results, DOWNSTREAM_SYNAPSE_COUNT, UPSTREAM_SYNAPSE_COUNT
+from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
 from src.utils.graph_vis import make_graph_html
@@ -116,7 +116,6 @@ def render_neuron_list(
     whole_word,
     page_number,
     hint,
-    sort_by,
     extra_data,
 ):
     neuron_db = neuron_data_factory.get(data_version)
@@ -185,7 +184,6 @@ def render_neuron_list(
         data_version=data_version,
         case_sensitive=case_sensitive,
         whole_word=whole_word,
-        sort_by=sort_by,
         extra_data=extra_data,
     )
 
@@ -195,7 +193,6 @@ def render_neuron_list(
 @require_data_access
 def search():
     filter_string = request.args.get("filter_string", "")
-    sort_by = request.args.get("sort_by", "")
     page_number = int(request.args.get("page_number", 1))
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
@@ -214,7 +211,7 @@ def search():
             f"Got {len(filtered_root_id_list)} search results {activity_suffix(filter_string, data_version)}"
         )
         filtered_root_id_list, extra_data = sort_search_results(
-            ids=filtered_root_id_list, sort_by=sort_by
+            query=filter_string, ids=filtered_root_id_list
         )
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
@@ -229,7 +226,6 @@ def search():
         whole_word=whole_word,
         page_number=page_number,
         hint=hint,
-        sort_by=sort_by,
         extra_data=extra_data,
     )
 
@@ -369,7 +365,6 @@ def labeling_suggestions():
         whole_word=whole_word,
         page_number=page_number,
         hint=hint,
-        sort_by=None,
         extra_data=None,
     )
 
@@ -533,8 +528,7 @@ def cell_details():
             upstream,
             search_endpoint=url_for(
                 "app.search",
-                filter_string=f"{OP_UPSTREAM} {root_id}",
-                sort_by=f"{UPSTREAM_SYNAPSE_COUNT}:{root_id}",
+                filter_string=f"{OP_UPSTREAM} {root_id}"
             ),
         )
         insert_neuron_list_links(
@@ -542,8 +536,7 @@ def cell_details():
             downstream,
             search_endpoint=url_for(
                 "app.search",
-                filter_string=f"{OP_DOWNSTREAM} {root_id}",
-                sort_by=f"{DOWNSTREAM_SYNAPSE_COUNT}:{root_id}",
+                filter_string=f"{OP_DOWNSTREAM} {root_id}"
             ),
         )
 
