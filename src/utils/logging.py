@@ -114,12 +114,16 @@ def _post_to_slk(username, access_granted, text, real_user_activity, extra_hk):
     res = [
         requests.post(
             hk,
-            data=json.dumps({
-                "username": username or "unknown",
-                "icon_emoji": ":large_green_circle:" if access_granted else ":large_yellow_circle:",
-                "text": text,
-                "unfurl_links": False
-            }),
+            data=json.dumps(
+                {
+                    "username": username or "unknown",
+                    "icon_emoji": ":large_green_circle:"
+                    if access_granted
+                    else ":large_yellow_circle:",
+                    "text": text,
+                    "unfurl_links": False,
+                }
+            ),
             headers={"Content-Type": "application/json"},
         )
         for hk in hks
@@ -133,7 +137,9 @@ def post_to_slk(text, hk=None):
     username = _fetch_user_name()
     access_granted = "data_access_token" in session
     Process(
-        target=_post_to_slk, args=(username, access_granted, text, real_user_activity, hk), daemon=True
+        target=_post_to_slk,
+        args=(username, access_granted, text, real_user_activity, hk),
+        daemon=True,
     ).start()
 
 
