@@ -61,20 +61,20 @@
 
 {% if filter_string %}
 <div class="card bg-light mb-3">
-<span style="margin-left: 15px; margin-top: 5px; color: black; font-size: 12px;">{{"{:,}".format(num_items)}} matches</span>
+<span style="margin-left: 15px; margin-top: 5px; color: black; font-size: 12px;">{{"{:,}".format(num_items) + (" matches, further analysis:" if num_items else " matches")}}</span>
 {% if num_items %}
 <div class="row flex-row flex-nowrap" style="overflow-x: auto; padding-left: 20px;">
     <a class="btn btn-link"
        href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}"
-       target="_blank"><i class="fa-solid fa-cube"></i> &nbsp; View in 3D </a>
+       target="_blank"><i class="fa-solid fa-cube"></i> &nbsp; 3D view</a>
     <a class="btn btn-link"
        href="{{url_for('app.stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
-        <i class="fa-solid fa-chart-pie"></i> &nbsp; Show stats
+        <i class="fa-solid fa-chart-pie"></i> &nbsp; Stats
     </a>
     {% if root_ids_str %}
     <a class="btn btn-link" onclick="loading();"
        href="{{url_for('app.nblast', cell_names_or_ids=root_ids_str)}}">
-        <i class="fa-solid fa-table-cells"></i> &nbsp; NBLAST scores
+        <i class="fa-solid fa-table-cells"></i> &nbsp; NBLAST
     </a>
     <a class="btn btn-link" onclick="loading();"
        href="{{url_for('app.path_length', cell_names_or_ids=root_ids_str)}}">
@@ -86,13 +86,19 @@
     <script type="text/javascript">
       function copyRootIdsToClipboard() {
         navigator.clipboard.writeText("{{root_ids_str}}");
+        alert("{{num_items}} IDs copied to clipboard");
       }
     </script>
+    <a class="btn btn-link" onclick="loading();"
+       href="{{url_for('app.connectivity', root_ids=root_ids_str)}}" >
+        <i class="fa-solid fa-circle-nodes"></i> &nbsp; Connectivity
+    </a>
+
     <a class="btn btn-link"
        href="{{url_for('app.connections', download=1, root_ids=root_ids_str)}}" target="_blank">
-        <i class="fa-solid fa-download"></i> &nbsp; Connections table
+        <i class="fa-solid fa-download"></i> &nbsp; Synapse table
     </a>
-        <a class="btn btn-link"
+    <a class="btn btn-link"
        href="{{url_for('app.download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
         <i class="fa-solid fa-download"></i> &nbsp; CSV </a>
     {% else %}

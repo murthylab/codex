@@ -303,6 +303,13 @@ def index(path):
                 #        'url': 'app.labeling_suggestions'
             },
             {
+                "header": "Cell Details",
+                "body": "Information about individual cells, their connectivity, similar/twin "
+                        "cells, 3D rendering and annotations",
+                "asset_filename": "card-cell-details.png",
+                "url": "app.cell_details",
+            },
+            {
                 "header": "NBLAST",
                 "body": "Pairwise morphological similarity scores for sets of neurons",
                 "asset_filename": "card-nblast.jpg",
@@ -310,9 +317,9 @@ def index(path):
             },
             {
                 "header": "Connectivity",
-                "body": "Visualize connectivity of neurons in various regions of the brain",
+                "body": "Visualize network of neurons and their synaptic connections",
                 "asset_filename": "card-network.jpg",
-                "url": "app.cell_details",
+                "url": "app.connectivity",
             },
             {
                 "header": "Pathways",
@@ -321,7 +328,7 @@ def index(path):
                 "url": "app.path_length",
             },
             {
-                "header": "API",
+                "header": "API [coming soon]",
                 "body": "Programmatic access to the data and analysis tools",
                 "asset_filename": "card-api.jpg",
                 "url": "api.index",

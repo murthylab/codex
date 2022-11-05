@@ -861,6 +861,14 @@ def path_length():
         )
 
 
+@app.route("/connectivity")
+@request_wrapper
+@require_data_access
+def connectivity():
+    return connections()
+
+
+# headless network view (no search box / nav bar etc.)
 @app.route("/connections")
 @request_wrapper
 @require_data_access

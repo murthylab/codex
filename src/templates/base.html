@@ -31,10 +31,13 @@
             </li>
             -->
             <li class="nav-item">
-                <a class="nav-link" id="nav_nblast" href="{{url_for('app.nblast')}}">NBLAST</a>
+                <a class="nav-link" id="nav_connectivity" href="{{url_for('app.connectivity')}}">Connectivity</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="nav_path_length" href="{{url_for('app.path_length')}}">Path Length</a>
+                <a class="nav-link" id="nav_path_length" href="{{url_for('app.path_length')}}">Path Lengths</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="nav_nblast" href="{{url_for('app.nblast')}}">NBLAST</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="nav_faq" href="{{url_for('base.faq')}}">FAQ</a>
@@ -45,7 +48,8 @@
 
             <script>
               function nav_elem_id(cur_url) {
-                let tabs = ['search', 'cell_details', 'stats', 'explore', 'labeling_suggestions', 'nblast', 'path_length', 'faq', 'about'];
+                let tabs = ['search', 'cell_details', 'stats', 'explore', 'labeling_suggestions',
+                            'nblast', 'connectivity','path_length', 'faq', 'about'];
                 for (const tab of tabs){
                     if (cur_url.includes(tab)) {
                       return 'nav_' + tab;
