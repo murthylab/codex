@@ -61,10 +61,10 @@
     {% if load_connections %}
     <div class="card" style="width: 100%; height: 450px;">
         <div class="card-header" style="color: purple;">
-            <a href="{{url_for('app.connections', root_ids=cell_id, log_request=0)}}" target="_blank">Connections with
+            <a href="{{url_for('app.connectivity', cell_names_or_ids=cell_names_or_id)}}" target="_blank">Connections with
                 5+ synapses<i style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i> </a>
         </div>
-        <iframe style="width: 100%; height: 100%;" src="{{url_for('app.connections', root_ids=cell_id, log_request=0)}}"
+        <iframe style="width: 100%; height: 100%;" src="{{url_for('app.connectivity', cell_names_or_ids=cell_names_or_id, headless=1)}}"
                 title="connectivity" loading="lazy"></iframe>
     </div>
     {% endif %}

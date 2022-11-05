@@ -458,6 +458,7 @@ def cell_details():
             if cell_names_or_id == "{random_cell}":
                 log_activity(f"Generated random cell detail page")
                 root_id = neuron_db.random_cell_id()
+                cell_names_or_id = f"name == {neuron_db.get_neuron_data(root_id)['name']}"
             else:
                 log_activity(
                     f"Generating cell detail page from search: '{cell_names_or_id}"
@@ -865,35 +866,42 @@ def path_length():
 @request_wrapper
 @require_data_access
 def connectivity():
-    return connections()
-
-
-# headless network view (no search box / nav bar etc.)
-@app.route("/connections")
-@request_wrapper
-@require_data_access
-def connections():
-    root_ids = request.args.get("root_ids", "")
+    sample_input = (
+        "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
+    )
     nt_type = request.args.get("nt_type", "all")
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
+    cell_names_or_ids = request.args.get("cell_names_or_ids", "")
+    if (
+        request.args.get("with_sample_input", type=int, default=0)
+        and not cell_names_or_ids
+    ):
+        cell_names_or_ids = sample_input
     download = request.args.get("download", 0, type=int)
-    log_request = request.args.get("log_request", default=1, type=int)
-    neuron_db = neuron_data_factory.get()
+    # headless network view (no search box / nav bar etc.)
+    headless = request.args.get("headless", default=0, type=int)
+    log_request = request.args.get("log_request", default=0 if headless else 1, type=int)
     if log_request:
-        log_activity(
-            f"Generating connection table for '{root_ids}' {download=} {min_syn_cnt=} {nt_type=}"
-        )
-    try:
-        root_ids = [int(root_id) for root_id in tokenize(root_ids)]
-    except Exception as e:
-        return render_error(f"Could not extract valid Cell IDs from {root_ids}: {e}")
+        log_activity(f"Generating network for '{cell_names_or_ids}' {download=}")
 
-    if len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
-        return render_error(
-            f"Connections can be fetched for up to {MAX_NEURONS_FOR_DOWNLOAD} cells at a time."
-        )
+    root_ids = []
+    message = None
 
-    if root_ids:
+    if cell_names_or_ids:
+        neuron_db = neuron_data_factory.get()
+        root_ids = neuron_db.search(search_query=cell_names_or_ids)
+        if not root_ids:
+            return render_error(
+                title="No matching cells found",
+                message=f"Could not find any cells matching '{cell_names_or_ids}'",
+            )
+        elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
+            message = (
+                f"Too many ({len(root_ids)}) cells match '{cell_names_or_ids}'. "
+                f"Generating connectivity network for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
+            )
+            root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
+
         contable = gcs_data_loader.load_connection_table_for_root_ids(root_ids)
         nt_type = nt_type.upper()
         if nt_type and nt_type != "ALL":
@@ -911,22 +919,61 @@ def connections():
             log_activity(
                 f"Generated connections table for {root_ids} {download=} {min_syn_cnt=} {nt_type=}"
             )
-    else:
-        matrix = []
+        if download:
+            fname = f"connections.csv"
+            return Response(
+                "\n".join([",".join([str(r) for r in row]) for row in matrix]),
+                mimetype="text/csv",
+                headers={"Content-disposition": f"attachment; filename={fname}"},
+            )
 
-    if download:
-        fname = f"connections.csv"
-        return Response(
-            "\n".join([",".join([str(r) for r in row]) for row in matrix]),
-            mimetype="text/csv",
-            headers={"Content-disposition": f"attachment; filename={fname}"},
-        )
-    else:
-        return make_graph_html(
+        network_html = make_graph_html(
             connection_table=matrix[1:],
             neuron_data_fetcher=lambda nid: neuron_db.get_neuron_data(nid),
             center_id=root_ids[0] if len(root_ids) == 1 else None,
         )
+        if headless:
+            return network_html
+        else:
+            return render_template(
+                "connectivity.html",
+                cell_names_or_ids=cell_names_or_ids,
+                min_syn_cnt=min_syn_cnt,
+                nt_type=nt_type,
+                network_html=network_html,
+                download_url=url_for(
+                    "app.connectivity",
+                    download=1,
+                    cell_names_or_ids=cell_names_or_ids,
+                    nt_type=nt_type,
+                    min_syn_cnt=min_syn_cnt,
+                ),
+                info_text=None,
+                sample_input=None,
+                message=message,
+            )
+    else:
+        con_doc = FAQ_QA_KB["connectivity"]
+        return render_template(
+            "connectivity.html",
+            cell_names_or_ids=cell_names_or_ids,
+            min_syn_cnt=min_syn_cnt,
+            nt_type=nt_type,
+            network_html=None,
+            download_url=None,
+            info_text="With this tool you can specify one or more cells and visualie their connectivity network.<br>"
+                      f"{con_doc['a']}",
+            sample_input=sample_input,
+            message=None,
+        )
+
+
+
+
+
+
+
+
 
 
 @app.route("/activity_log")

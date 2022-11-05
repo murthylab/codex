@@ -90,12 +90,12 @@
       }
     </script>
     <a class="btn btn-link" onclick="loading();"
-       href="{{url_for('app.connectivity', root_ids=root_ids_str)}}" >
+       href="{{url_for('app.connectivity', cell_names_or_ids=root_ids_str)}}" >
         <i class="fa-solid fa-circle-nodes"></i> &nbsp; Connectivity
     </a>
 
     <a class="btn btn-link"
-       href="{{url_for('app.connections', download=1, root_ids=root_ids_str)}}" target="_blank">
+       href="{{url_for('app.connectivity', download=1, cell_names_or_ids=root_ids_str)}}" target="_blank">
         <i class="fa-solid fa-download"></i> &nbsp; Synapse table
     </a>
     <a class="btn btn-link"
