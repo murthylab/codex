@@ -458,7 +458,9 @@ def cell_details():
             if cell_names_or_id == "{random_cell}":
                 log_activity(f"Generated random cell detail page")
                 root_id = neuron_db.random_cell_id()
-                cell_names_or_id = f"name == {neuron_db.get_neuron_data(root_id)['name']}"
+                cell_names_or_id = (
+                    f"name == {neuron_db.get_neuron_data(root_id)['name']}"
+                )
             else:
                 log_activity(
                     f"Generating cell detail page from search: '{cell_names_or_id}"
@@ -880,7 +882,9 @@ def connectivity():
     download = request.args.get("download", 0, type=int)
     # headless network view (no search box / nav bar etc.)
     headless = request.args.get("headless", default=0, type=int)
-    log_request = request.args.get("log_request", default=0 if headless else 1, type=int)
+    log_request = request.args.get(
+        "log_request", default=0 if headless else 1, type=int
+    )
     if log_request:
         log_activity(f"Generating network for '{cell_names_or_ids}' {download=}")
 
@@ -962,18 +966,10 @@ def connectivity():
             network_html=None,
             download_url=None,
             info_text="With this tool you can specify one or more cells and visualie their connectivity network.<br>"
-                      f"{con_doc['a']}",
+            f"{con_doc['a']}",
             sample_input=sample_input,
             message=None,
         )
-
-
-
-
-
-
-
-
 
 
 @app.route("/activity_log")

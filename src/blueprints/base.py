@@ -305,7 +305,7 @@ def index(path):
             {
                 "header": "Cell Details",
                 "body": "Information about individual cells, their connectivity, similar/twin "
-                        "cells, 3D rendering and annotations",
+                "cells, 3D rendering and annotations",
                 "asset_filename": "card-cell-details.png",
                 "url": "app.cell_details",
             },
