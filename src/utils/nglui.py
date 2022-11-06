@@ -4,7 +4,9 @@ import urllib.parse
 _BASE_URL = "https://neuroglancer-demo.appspot.com"
 _PREFIX = (
     '{"dimensions":{"x":[1.6e-8,"m"],"y":[1.6e-8,"m"],"z":[4e-8,"m"]},"projectionScale":30000,'
-    '"layers":[{"source":"precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf",'
+    '"layers":['
+    '{"type":"image","source":"precomputed://https://bossdb-open-data.s3.amazonaws.com/flywire/fafbv14","tab":"source","name":"EM"},'
+    '{"source":"precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf",'
     '"type":"segmentation","selectedAlpha":0,"saturation":0,"objectAlpha":0.1,"segmentColors":{"1":"#b5b5b5"},'
     '"segments":["1"],"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":"tissue"},'
     '{"type":"segmentation","source":"precomputed://gs://flywire_v141_m447"'
