@@ -30,6 +30,12 @@ DATA_FILE_COLUMNS = [
     "position",
     "closest_nblast_root_ids",
     "closest_nblast_scores",
+    "gaba_avg",
+    "ach_avg",
+    "glut_avg",
+    "oct_avg",
+    "ser_avg",
+    "da_avg",
 ]
 
 # Keywords will be matched against these attributes
@@ -214,6 +220,12 @@ class NeuronDB(object):
                 ),
                 "user_id": self._get_value(r, "user_id", split=True),
                 "position": self._get_value(r, "position", split=True),
+                "gaba_avg": self._get_value(r, "gaba_avg", to_type=float),
+                "ach_avg": self._get_value(r, "ach_avg", to_type=float),
+                "glut_avg": self._get_value(r, "glut_avg", to_type=float),
+                "oct_avg": self._get_value(r, "oct_avg", to_type=float),
+                "ser_avg": self._get_value(r, "ser_avg", to_type=float),
+                "da_avg": self._get_value(r, "da_avg", to_type=float),
             }
 
         log(f"App initialization augmenting..")

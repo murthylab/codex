@@ -20,6 +20,7 @@ from src.blueprints.base import (
 from src.data import gcs_data_loader
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data import OP_DOWNSTREAM, OP_UPSTREAM
+from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.search_index import tokenize
 from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
@@ -489,7 +490,11 @@ def cell_details():
         "Name": nd["name"],
         "FlyWire Root ID": root_id,
         "Annotations": "&nbsp; <b>&#x2022;</b> &nbsp;".join(nd["tag"]),
-        "Type": nd["nt_type"],
+        "NT Type": nd["nt_type"]
+        + "<br>scores "
+        + ", ".join(
+            [f"{k}: {nd[f'{k.lower()}_avg']}" for k in NEURO_TRANSMITTER_NAMES]
+        ),
         "Classification": nd["class"],
         "Position": "<br>".join(nd["position"]),
     }
@@ -519,14 +524,12 @@ def cell_details():
         input_neuropil_synapse_count = defaultdict(int)
         output_neuropil_synapse_count = defaultdict(int)
         input_nt_type_count = defaultdict(int)
-        output_nt_type_count = defaultdict(int)
         downstream = []
         upstream = []
         for r in connectivity:
             if r[0] == root_id:
                 downstream.append(r[1])
                 output_neuropil_synapse_count[r[2]] += r[3]
-                output_nt_type_count[r[4].upper()] += r[3]
             else:
                 assert r[1] == root_id
                 upstream.append(r[0])
@@ -589,15 +592,6 @@ def cell_details():
                 key_title="Neurotransmitter Type",
                 val_title="Synapse count",
                 counts_dict=input_nt_type_count,
-            )
-
-        if output_nt_type_count:
-            charts[
-                "Output Synapse Neurotransmitters"
-            ] = stats_utils.make_donut_chart_data_from_counts(
-                key_title="Neurotransmitter Type",
-                val_title="Synapse count",
-                counts_dict=output_nt_type_count,
             )
 
         if output_neuropil_synapse_count:
