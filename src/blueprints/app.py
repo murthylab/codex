@@ -519,12 +519,14 @@ def cell_details():
         input_neuropil_synapse_count = defaultdict(int)
         output_neuropil_synapse_count = defaultdict(int)
         input_nt_type_count = defaultdict(int)
+        output_nt_type_count = defaultdict(int)
         downstream = []
         upstream = []
         for r in connectivity:
             if r[0] == root_id:
                 downstream.append(r[1])
                 output_neuropil_synapse_count[r[2]] += r[3]
+                output_nt_type_count[r[4].upper()] += r[3]
             else:
                 assert r[1] == root_id
                 upstream.append(r[0])
@@ -587,6 +589,15 @@ def cell_details():
                 key_title="Neurotransmitter Type",
                 val_title="Synapse count",
                 counts_dict=input_nt_type_count,
+            )
+
+        if output_nt_type_count:
+            charts[
+                "Output Synapse Neurotransmitters"
+            ] = stats_utils.make_donut_chart_data_from_counts(
+                key_title="Neurotransmitter Type",
+                val_title="Synapse count",
+                counts_dict=output_nt_type_count,
             )
 
         if output_neuropil_synapse_count:
