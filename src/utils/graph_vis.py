@@ -5,31 +5,32 @@ from flask import render_template
 from src.data.brain_regions import neuropil_description
 
 
-def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
+def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
     """
     connection_table has 4 columns: pre root id, post root id, neuropil, syn count
     neuron_data_fetcher is a lambda that returns neuron metadata given it's id
-    center_id is the id of the neuron that is being inspected
+    center_ids is the ids of the neurons that are being inspected
     """
     edge_physics = True
     node_physics = True
+    center_ids = center_ids or []
 
     def node_size(ndata):
         return 10
 
     def node_shape(ndata):
-        if ndata["root_id"] == center_id:
+        if ndata["root_id"] in center_ids:
             return "circle"
         return "dot"
 
     def node_color(ndata):
         return {
-            "ach": "#aa0000",
-            "gaba": "#00aa00",
-            "glut": "#0000aa",
-            "oct": "#aaaa00",
-            "ser": "#aa00aa",
-            "da": "#00aaaa",
+            "ach": "#ff9999",
+            "gaba": "#99ff99",
+            "glut": "#9999ff",
+            "oct": "#ffff99",
+            "ser": "#ff99ff",
+            "da": "#99ffff",
         }.get(ndata["nt_type"].lower(), "#fafafa")
 
     def node_title(nd):
@@ -93,11 +94,11 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_id=None):
     max_nodes = 30
     for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:max_nodes]:
         add_cell_node(k[0])
-        pnid = add_pil_node(k[1], is_input=k[0] != center_id)
+        pnid = add_pil_node(k[1], is_input=k[0] not in center_ids)
         net.add_edge(k[0], pnid, value=v, physics=edge_physics, label=str(v))
     for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[:max_nodes]:
         add_cell_node(k[1])
-        pnid = add_pil_node(k[0], is_input=k[1] == center_id)
+        pnid = add_pil_node(k[0], is_input=k[1] in center_ids)
         net.add_edge(pnid, k[1], value=v, physics=edge_physics, label=str(v))
 
     # bundle any remaining connections (to prevent too large graphs)

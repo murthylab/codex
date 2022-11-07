@@ -961,7 +961,7 @@ def connectivity():
         network_html = make_graph_html(
             connection_table=contable,
             neuron_data_fetcher=lambda nid: neuron_db.get_neuron_data(nid),
-            center_id=root_ids[0] if len(root_ids) == 1 else None,
+            center_ids=root_ids,
         )
         if headless:
             return network_html
