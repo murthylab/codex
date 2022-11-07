@@ -20,8 +20,7 @@ from src.blueprints.base import (
 from src.data import gcs_data_loader
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data import OP_DOWNSTREAM, OP_UPSTREAM
-from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
-from src.data.search_index import tokenize
+from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
 from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
@@ -490,11 +489,11 @@ def cell_details():
         "Name": nd["name"],
         "FlyWire Root ID": root_id,
         "Annotations": "&nbsp; <b>&#x2022;</b> &nbsp;".join(nd["tag"]),
-        "NT Type": nd["nt_type"]
-        + "<br>scores "
+        "NT Type": nd["nt_type"] + f' ({lookup_nt_type_name(nd["nt_type"])})'
+        + "<br><small>predictions "
         + ", ".join(
-            [f"{k}: {nd[f'{k.lower()}_avg']}" for k in NEURO_TRANSMITTER_NAMES]
-        ),
+            [f"{k}: {nd[f'{k.lower()}_avg']}" for k in sorted(NEURO_TRANSMITTER_NAMES)]
+        ) + "</small>",
         "Classification": nd["class"],
         "Position": "<br>".join(nd["position"]),
     }
