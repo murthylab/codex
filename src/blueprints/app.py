@@ -1,6 +1,8 @@
+import json
 import math
 import re
 from collections import defaultdict
+from datetime import datetime
 from functools import lru_cache
 
 from flask import render_template, request, redirect, Response, url_for, Blueprint
@@ -22,6 +24,7 @@ from src.data.search_index import tokenize
 from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
+from src.utils.formatting import synapse_table_to_csv_string, synapse_table_to_json_dict
 from src.utils.graph_vis import make_graph_html
 from src.utils.logging import log_activity, log_error, format_link, user_agent, log
 from src.utils.thumbnails import url_for_skeleton
@@ -871,6 +874,7 @@ def connectivity():
     sample_input = (
         "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
     )
+    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     nt_type = request.args.get("nt_type", "all")
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
@@ -879,7 +883,7 @@ def connectivity():
         and not cell_names_or_ids
     ):
         cell_names_or_ids = sample_input
-    download = request.args.get("download", 0, type=int)
+    download = request.args.get("download")
     # headless network view (no search box / nav bar etc.)
     headless = request.args.get("headless", default=0, type=int)
     log_request = request.args.get(
@@ -892,7 +896,7 @@ def connectivity():
     message = None
 
     if cell_names_or_ids:
-        neuron_db = neuron_data_factory.get()
+        neuron_db = neuron_data_factory.get(data_version)
         root_ids = neuron_db.search(search_query=cell_names_or_ids)
         if not root_ids:
             return render_error(
@@ -916,23 +920,46 @@ def connectivity():
             return render_error(
                 f"Connections for {min_syn_cnt=}, {nt_type=} and Cell IDs {root_ids} are unavailable."
             )
-        matrix = [
-            ["From", "To", "Neuropil", "Synapses", "Neuro Transmitter"]
-        ] + contable
         if log_request:
             log_activity(
                 f"Generated connections table for {root_ids} {download=} {min_syn_cnt=} {nt_type=}"
             )
         if download:
-            fname = f"connections.csv"
-            return Response(
-                "\n".join([",".join([str(r) for r in row]) for row in matrix]),
-                mimetype="text/csv",
-                headers={"Content-disposition": f"attachment; filename={fname}"},
-            )
+            if download.lower() == "json":
+                return Response(
+                    json.dumps(
+                        synapse_table_to_json_dict(
+                            table=contable,
+                            neuron_data_fetcher=lambda rid: neuron_db.get_neuron_data(
+                                rid
+                            ),
+                            meta_data={
+                                "generated": str(datetime.now()),
+                                "data_version": data_version,
+                                "query": cell_names_or_ids,
+                                "min_syn_cnt": min_syn_cnt,
+                                "nt_types": nt_type,
+                                "url": str(request.url),
+                            },
+                        ),
+                        indent=4,
+                    ),
+                    mimetype="application/json",
+                    headers={
+                        "Content-disposition": f"attachment; filename=connections.json"
+                    },
+                )
+            else:
+                return Response(
+                    synapse_table_to_csv_string(contable),
+                    mimetype="text/csv",
+                    headers={
+                        "Content-disposition": f"attachment; filename=connections.csv"
+                    },
+                )
 
         network_html = make_graph_html(
-            connection_table=matrix[1:],
+            connection_table=contable,
             neuron_data_fetcher=lambda nid: neuron_db.get_neuron_data(nid),
             center_id=root_ids[0] if len(root_ids) == 1 else None,
         )
@@ -945,13 +972,6 @@ def connectivity():
                 min_syn_cnt=min_syn_cnt,
                 nt_type=nt_type,
                 network_html=network_html,
-                download_url=url_for(
-                    "app.connectivity",
-                    download=1,
-                    cell_names_or_ids=cell_names_or_ids,
-                    nt_type=nt_type,
-                    min_syn_cnt=min_syn_cnt,
-                ),
                 info_text=None,
                 sample_input=None,
                 message=message,
@@ -964,7 +984,6 @@ def connectivity():
             min_syn_cnt=min_syn_cnt,
             nt_type=nt_type,
             network_html=None,
-            download_url=None,
             info_text="With this tool you can specify one or more cells and visualie their connectivity network.<br>"
             f"{con_doc['a']}",
             sample_input=sample_input,
