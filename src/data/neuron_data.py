@@ -241,6 +241,8 @@ class NeuronDB(object):
                 nd["input_neuropils"], nd["output_neuropils"]
             )
             nd["class"] = ", ".join([c for c in nd["classes"]])
+            nt_score_key = f'{nd["nt_type"].lower()}_avg'
+            nd["nt_type_score"] = nd.get(nt_score_key, '')
 
         log(f"App initialization sorting..")
 
