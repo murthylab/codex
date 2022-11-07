@@ -16,6 +16,9 @@ class NeuronDataTest(TestCase):
         versions = DATA_SNAPSHOT_VERSIONS
         loaded_neuron_dbs = {v: load_neuron_db(version=v, data_root_path=TEST_DATA_ROOT_PATH) for v in versions}
 
+        def isnan(vl):
+            return vl != vl
+
         # check that all versions loaded
         for v in versions:
             self.assertIsNotNone(loaded_neuron_dbs[v])
@@ -24,7 +27,14 @@ class NeuronDataTest(TestCase):
             self.assertEqual(set(loaded_neuron_dbs[v].neuron_data.keys()),
                              set(self.neuron_dbs[v].neuron_data.keys()))
             for rid, nd in loaded_neuron_dbs[v].neuron_data.items():
-                self.assertEqual(nd, self.neuron_dbs[v].get_neuron_data(rid))
+                ndp = self.neuron_dbs[v].get_neuron_data(rid)
+                self.assertEqual(set(nd.keys()), set(ndp.keys()))
+                for k, val in nd.items():
+                    if isnan(val):
+                        nanset.add(rid)
+                        self.assertTrue(isnan(ndp[k]))
+                    else:
+                        self.assertEqual(val, ndp[k])
 
         # check the same for data factory
         neuron_data_factory = NeuronDataFactory(data_root_path=TEST_DATA_ROOT_PATH)
@@ -34,4 +44,11 @@ class NeuronDataTest(TestCase):
             self.assertEqual(set(neuron_data_factory.get(v).neuron_data.keys()),
                              set(self.neuron_dbs[v].neuron_data.keys()))
             for rid, nd in neuron_data_factory.get(v).neuron_data.items():
-                self.assertEqual(nd, self.neuron_dbs[v].get_neuron_data(rid))
+                ndp = self.neuron_dbs[v].get_neuron_data(rid)
+                self.assertEqual(set(nd.keys()), set(ndp.keys()))
+                for k, val in nd.items():
+                    if isnan(val):
+                        nanset.add(rid)
+                        self.assertTrue(isnan(ndp[k]))
+                    else:
+                        self.assertEqual(val, ndp[k])
