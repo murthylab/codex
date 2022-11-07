@@ -330,7 +330,48 @@ def replace_classes_in_existing_data():
     write_csv(filename=f"{fname_out}_new", rows=content, compress=True)
 
 
+def compact_nt_scores_data(save_to_filename=None):
+    nt_scores_data = load_feather_file(
+        filename=NEURON_NT_TYPES_FILE_NAME, columns_to_read=NEURON_NT_TYPES_COLUMN_NAMES
+    )
+
+    def round_floats(row):
+        return ["{:0.2f}".format(v) for v in row]
+
+    nt_scores_data = [nt_scores_data[0]] + [
+        [r[0]] + round_floats(r[1:]) for r in nt_scores_data[1:]
+    ]
+    print(f"{len(nt_scores_data)=}")
+    if save_to_filename:
+        write_csv(save_to_filename, rows=nt_scores_data, compress=True)
+
+    return nt_scores_data
+
+
+def augment_with_nt_scores(version=LATEST_DATA_SNAPSHOT_VERSION):
+    fname_in = f"static/data/{version}/neuron_data.csv.gz"
+    fname_out = f"static/data/{version}/neuron_data_with_scores.csv.gz"
+    content = read_csv(fname_in)
+
+    nt_scores_data = compact_nt_scores_data()
+    nt_scores_dict = {r[0]: r[1:] for r in nt_scores_data[1:]}
+
+    not_found = 0
+    content[0].extend(nt_scores_data[0][1:])
+    for r in content[1:]:
+        rid = int(r[0])
+        if rid in nt_scores_dict:
+            r.extend(nt_scores_dict[int(r[0])])
+        else:
+            not_found += 1
+            r.extend([0] * 6)
+
+    print(f"{not_found=}")
+    write_csv(filename=f"{fname_out}_new", rows=content, compress=True)
+
+
 if __name__ == "__main__":
     # compile_data()
     # augment_existing_data()
-    replace_classes_in_existing_data()
+    # replace_classes_in_existing_data()
+    augment_with_nt_scores()
