@@ -31,7 +31,6 @@ class NeuronDataTest(TestCase):
                 self.assertEqual(set(nd.keys()), set(ndp.keys()))
                 for k, val in nd.items():
                     if isnan(val):
-                        nanset.add(rid)
                         self.assertTrue(isnan(ndp[k]))
                     else:
                         self.assertEqual(val, ndp[k])
@@ -48,7 +47,6 @@ class NeuronDataTest(TestCase):
                 self.assertEqual(set(nd.keys()), set(ndp.keys()))
                 for k, val in nd.items():
                     if isnan(val):
-                        nanset.add(rid)
                         self.assertTrue(isnan(ndp[k]))
                     else:
                         self.assertEqual(val, ndp[k])
