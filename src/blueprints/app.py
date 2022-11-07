@@ -988,7 +988,7 @@ def connectivity():
             min_syn_cnt=min_syn_cnt,
             nt_type=nt_type,
             network_html=None,
-            info_text="With this tool you can specify one or more cells and visualie their connectivity network.<br>"
+            info_text="With this tool you can specify one or more cells and visualize their connectivity network.<br>"
             f"{con_doc['a']}",
             sample_input=sample_input,
             message=None,
