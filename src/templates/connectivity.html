@@ -6,8 +6,22 @@
         <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search"
                id="cell_names_or_ids" name="cell_names_or_ids" placeholder="Cell names or IDs"
                aria-label="Cell Names or IDs" value="{{cell_names_or_ids}}">
+        <input type="hidden" id="download_type" name="download" value=""/>
         <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();">
             <i class="fa-solid fa-circle-nodes"></i></button>
+        {% if network_html %}
+            <script type="text/javascript">
+                function download_data(val) {
+                    elem = document.getElementById("download_type");
+                    elem.value = val;
+                    elem.form.submit();
+                }
+            </script>
+            <a class="btn btn btn-outline-primary my-2 my-sm-0" style="margin: 15px;"
+               onclick="download_data('csv');"><i class="fa-solid fa-download"></i> &nbsp;  CSV</a>
+            <a class="btn btn btn-outline-primary my-2 my-sm-0"
+                onclick="download_data('json');"><i class="fa-solid fa-download"></i> &nbsp;  JSON</a>
+        {% endif %}
     </form>
 </nav>
 
