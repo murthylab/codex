@@ -132,7 +132,7 @@
             {% if extra_data %}
                 <th scope="col" title="{{extra_data.title}}">{{extra_data.column_name}}</th>
             {% endif %}
-            <th scope="col" title="Neurotransmitter Type">NT</th>
+            <th scope="col" title="Neurotransmitter Type & Confidence Score">NT</th>
             <th scope="col" title="Input/Output Hemisphere">In/Out</th>
             <th scope="col"></th>
         </tr>
@@ -149,9 +149,10 @@
             <td style="color:#3A3AAA;">{{neuron.class}}</td>
             <td style="color:#3A3A3A;">{{neuron.annotations|safe}}</td>
             {% if extra_data %}
-                <td style="color:green;">{{extra_data.values_dict.get(neuron.root_id)}}</td>
+                <td style="color:black;">{{extra_data.values_dict.get(neuron.root_id)}}</td>
             {% endif %}
-            <td style="color:#3A3AAA;">{{neuron.nt_type}}<br><small>{{neuron.nt_type_score}}</small></td>
+            <td style="color:#3A3AAA;">{{neuron.nt_type}}<br>
+                <small style="color: {{'green' if neuron.nt_type_score > 0.65 else ('orange' if neuron.nt_type_score > 0.45 else 'red')}}">{{neuron.nt_type_score}}</small></td>
             <td style="color:#3A3AAA;">{{neuron.hemisphere_fingerprint|safe}}</td>
             <td><a class="btn btn-outline-primary" href="{{url_for('app.flywire_url', root_ids=[neuron.root_id])}}"
                    target="_blank" role="button" title="Render in 3D"><i class="fa-solid fa-cube"></i></a></td>
