@@ -489,11 +489,13 @@ def cell_details():
         "Name": nd["name"],
         "FlyWire Root ID": root_id,
         "Annotations": "&nbsp; <b>&#x2022;</b> &nbsp;".join(nd["tag"]),
-        "NT Type": nd["nt_type"] + f' ({lookup_nt_type_name(nd["nt_type"])})'
+        "NT Type": nd["nt_type"]
+        + f' ({lookup_nt_type_name(nd["nt_type"])})'
         + "<br><small>predictions "
         + ", ".join(
             [f"{k}: {nd[f'{k.lower()}_avg']}" for k in sorted(NEURO_TRANSMITTER_NAMES)]
-        ) + "</small>",
+        )
+        + "</small>",
         "Classification": nd["class"],
         "Position": "<br>".join(nd["position"]),
     }
