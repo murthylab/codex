@@ -69,9 +69,17 @@ def _fetch_user_email():
 def _fetch_client_info():
     try:
         ip_addr = request.headers.get("X-Forwarded-For", request.remote_addr)
-        return f"<https://ipinfo.io/{ip_addr}|{user_agent()}"
+        return f"<https://ipinfo.io/{ip_addr}|{user_agent()}>"
     except:
         return None
+
+
+def with_url_link(txt):
+    try:
+        url = str(request.url)
+        return format_link(url, txt)
+    except:
+        return txt
 
 
 def log(msg):
@@ -144,7 +152,7 @@ def post_to_slk(text, hk=None):
 
 
 def log_activity(msg):
-    msg = log(f":eyes: > {msg}")
+    msg = log(f":eyes: {with_url_link('go')} > {msg}")
     post_to_slk(msg)
 
 
