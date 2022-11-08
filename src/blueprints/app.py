@@ -552,7 +552,6 @@ def cell_details():
                 key_title="Neuropil",
                 val_title="Synapse count",
                 counts_dict=input_neuropil_synapse_count,
-                search_filter="input_neuropil",
                 sort_by_freq=True,
                 height_px=(800 if len(input_neuropil_synapse_count) > 5 else 400),
             )
@@ -579,7 +578,6 @@ def cell_details():
                 key_title="Neuropil",
                 val_title="Synapse count",
                 counts_dict=output_neuropil_synapse_count,
-                search_filter="input_neuropil",
                 sort_by_freq=True,
                 height_px=(800 if len(output_neuropil_synapse_count) > 5 else 400),
             )

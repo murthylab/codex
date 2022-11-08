@@ -33,6 +33,30 @@
             console.log('Unknown chart type', data);
             return;
         }
+
+        function selectHandler() {
+            const selectedItem = chart.getSelection()[0];
+            if (selectedItem) {
+                const value = data.getValue(selectedItem.row, 0);
+                var filter_string;
+                if (title === "Inputs / Outputs") {
+                    const region = value.includes("Input") ? "upstream" : "downstream";
+                    filter_string = "{" + region + "}+{{cell_id}}";
+                }
+                else if (title.includes("Neurotransmitters")) {
+                    const region = title.includes("Input") ? "upstream" : "downstream";
+                    filter_string = "{" + region + "}+{{cell_id}}+%26%26+nt+%3D%3D+" + value;
+                }
+                else {
+                    const region = title.includes("Input") ? "upstream_region" : "downstream_region";
+                    filter_string = value + "+{" + region + "}+{{cell_id}}";
+                }
+                const url = {{url_for('app.search', case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version, filter_string="")|tojson}} + filter_string;
+                window.location = url;
+            }
+        }
+        google.visualization.events.addListener(chart, 'select', selectHandler);
+
         chart.draw(data, options);
       }
       function drawCharts() {
