@@ -346,7 +346,8 @@ def replace_classes_in_existing_data():
 
 def compact_nt_scores_data():
     nt_scores_data = load_feather_file(
-        filename=SYNAPSE_TABLE_WITH_NT_TYPES_FILE_NAME, columns_to_read=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES
+        filename=SYNAPSE_TABLE_WITH_NT_TYPES_FILE_NAME,
+        columns_to_read=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES,
     )
 
     header = nt_scores_data[0]
@@ -369,7 +370,7 @@ def compact_nt_scores_data():
         normalize(scores)
 
     for r in nt_scores_data[1:5]:
-        print(f'{r[0]}: {rid_to_scores[r[0]]}')
+        print(f"{r[0]}: {rid_to_scores[r[0]]}")
 
     return rid_to_scores
 
@@ -404,20 +405,18 @@ def correct_nt_scores(version=LATEST_DATA_SNAPSHOT_VERSION):
     nt_scores_dict = compact_nt_scores_data()
 
     not_found = 0
-    cols_idx = {c: content[0].index(c) for c in ["gaba_avg",
-                "ach_avg",
-                "glut_avg",
-                "oct_avg",
-                "ser_avg",
-                "da_avg"]}
+    cols_idx = {
+        c: content[0].index(c)
+        for c in ["gaba_avg", "ach_avg", "glut_avg", "oct_avg", "ser_avg", "da_avg"]
+    }
     nt_type_idx = content[0].index("nt_type")
 
     def max_nt_type(sd):
         max_pair = max(sd.items(), key=lambda p: p[1])
         if max_pair[1] > 0.1:
-            return max_pair[0].replace('_avg', '').upper()
+            return max_pair[0].replace("_avg", "").upper()
         else:
-            return ''
+            return ""
 
     for r in content[1:]:
         rid = int(r[0])
@@ -430,7 +429,9 @@ def correct_nt_scores(version=LATEST_DATA_SNAPSHOT_VERSION):
             sdict = {c: float(r[i]) for c, i in cols_idx.items()}
             r[nt_type_idx] = max_nt_type(sdict)
             if r[nt_type_idx]:
-                print(f'recovered: {r[nt_type_idx]} {[r[i] for i in cols_idx.values()]}')
+                print(
+                    f"recovered: {r[nt_type_idx]} {[r[i] for i in cols_idx.values()]}"
+                )
             else:
                 not_found += 1
 
