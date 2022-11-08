@@ -564,23 +564,23 @@ def cell_details():
                 ] += v
             return res
 
-        charts["Inputs / Outputs"] = stats_utils.make_donut_chart_data_from_counts(
+        charts["Inputs / Outputs"] = stats_utils.make_chart_from_counts(
+            chart_type="donut",
             key_title="Cell",
             val_title="Count",
             counts_dict={"Inputs": len(upstream), "Outputs": len(downstream)},
         )
 
         if input_neuropil_synapse_count:
-            charts[
-                "Input Synapse Neuropils"
-            ] = stats_utils.make_donut_chart_data_from_counts(
+            charts["Input Synapse Neuropils"] = stats_utils.make_chart_from_counts(
+                chart_type="bar",
                 key_title="Neuropil",
                 val_title="Synapse count",
                 counts_dict=input_neuropil_synapse_count,
+                sort_by_freq=True,
             )
-            charts[
-                "Input Synapse Hemisphere"
-            ] = stats_utils.make_donut_chart_data_from_counts(
+            charts["Input Synapse Hemisphere"] = stats_utils.make_chart_from_counts(
+                chart_type="donut",
                 key_title="Hemisphere",
                 val_title="Synapse count",
                 counts_dict=hemisphere_counts(input_neuropil_synapse_count),
@@ -589,23 +589,23 @@ def cell_details():
         if input_nt_type_count:
             charts[
                 "Input Synapse Neurotransmitters"
-            ] = stats_utils.make_donut_chart_data_from_counts(
+            ] = stats_utils.make_chart_from_counts(
+                chart_type="donut",
                 key_title="Neurotransmitter Type",
                 val_title="Synapse count",
                 counts_dict=input_nt_type_count,
             )
 
         if output_neuropil_synapse_count:
-            charts[
-                "Output Synapse Neuropils"
-            ] = stats_utils.make_donut_chart_data_from_counts(
+            charts["Output Synapse Neuropils"] = stats_utils.make_chart_from_counts(
+                chart_type="bar",
                 key_title="Neuropil",
                 val_title="Synapse count",
                 counts_dict=output_neuropil_synapse_count,
+                sort_by_freq=True,
             )
-            charts[
-                "Output Synapse Hemisphere"
-            ] = stats_utils.make_donut_chart_data_from_counts(
+            charts["Output Synapse Hemisphere"] = stats_utils.make_chart_from_counts(
+                chart_type="donut",
                 key_title="Hemisphere",
                 val_title="Synapse count",
                 counts_dict=hemisphere_counts(output_neuropil_synapse_count),

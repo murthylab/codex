@@ -32,14 +32,16 @@ Stats
         const selectedItem = chart.getSelection()[0];
         if (selectedItem) {
             const value = data.getValue(selectedItem.row, 0);
-            let url = {{url_for('app.search', case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version, filter_string=filter_string)|tojson}};
-            if (!{{filter_string|tojson}}.split(" ").includes(value)) {
-                if ({{filter_string|tojson}}) {
-                    url += "+%26%26+";
+            let filter_string = {{filter_string|tojson}};
+            if (!filter_string.split(" ").includes(value)) {
+                if (filter_string) {
+                    filter_string += " && ";
                 }
-                url += json["search_filter"] + "+%3D%3D+" + value;
+                filter_string += json["search_filter"] + " == " + value;
                 }
-                window.location = url;
+                const searchbox = document.getElementById("filter_string");
+                searchbox.value = filter_string;
+                searchbox.form.submit();
             }
         }
         google.visualization.events.addListener(chart, 'select', selectHandler);
@@ -48,13 +50,15 @@ Stats
     chart.draw(data, options);
   }
   function drawCharts() {
-    data_container = document.getElementById('data_container');
+    data_container = document.getElementById("data_container");
+    let chart_json;
     {% for k, v in data_charts.items() %}
-        elem = document.createElement('div');
+        chart_json = {{v|tojson}};
+        elem = document.createElement("div");
         elem.setAttribute("class", "card");
-        elem.setAttribute("style", "width: 100%; height: 400px;");
+        elem.setAttribute("style", "width: 100%; height: " + chart_json["height_px"] + "px;");
         data_container.appendChild(elem);
-        drawChart("{{k}}", {{v|tojson}}, elem);
+        drawChart("{{k}}", chart_json, elem);
     {% endfor %}
   }
 
