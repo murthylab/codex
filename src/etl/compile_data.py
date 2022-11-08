@@ -352,11 +352,16 @@ def compact_nt_scores_data():
 
     header = nt_scores_data[0]
     rid_to_scores = {}
+
+    def isnan(v):
+        return v != v
+
     for r in nt_scores_data[1:]:
         if r[0] not in rid_to_scores:
             rid_to_scores[r[0]] = defaultdict(int)
         for i in [4, 5, 6, 7, 8, 9]:
-            rid_to_scores[r[0]][header[i]] += r[3] * r[i]
+            if not isnan(r[3]) and not isnan(r[i]):
+                rid_to_scores[r[0]][header[i]] += r[3] * r[i]
 
     def round_float(f):
         return float("{:0.2f}".format(f))
@@ -433,6 +438,9 @@ def correct_nt_scores(version=LATEST_DATA_SNAPSHOT_VERSION):
                     f"recovered: {r[nt_type_idx]} {[r[i] for i in cols_idx.values()]}"
                 )
             else:
+                print(
+                    f"not found: {r[nt_type_idx]} {[r[i] for i in cols_idx.values()]}"
+                )
                 not_found += 1
 
     print(f"{not_found=}")

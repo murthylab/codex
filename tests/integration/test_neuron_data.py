@@ -6,6 +6,7 @@ from src.data.neuron_data_factory import NeuronDataFactory
 
 from src.data.versions import DATA_SNAPSHOT_VERSIONS
 from tests import TEST_DATA_ROOT_PATH
+from collections import defaultdict
 
 
 class NeuronDataTest(TestCase):
@@ -26,17 +27,17 @@ class NeuronDataTest(TestCase):
             self.assertEqual(set(tested.neuron_data.keys()),
                              set(golden.neuron_data.keys()))
 
-            diff_keys = set()
+            diff_keys = defaultdict(int)
             for rid, nd in tested.neuron_data.items():
                 ndp = golden.get_neuron_data(rid)
                 self.assertEqual(set(nd.keys()), set(ndp.keys()))
                 for k, val in nd.items():
                     if isnan(val):
                         if not isnan(ndp[k]):
-                            diff_keys.add(k)
+                            diff_keys[k] += 1
                     else:
                         if val != ndp[k]:
-                            diff_keys.add(k)
+                            diff_keys[k] += 1
             self.assertEqual(0, len(diff_keys), f"Diff keys not empty: {diff_keys}")
 
         # check that all versions loaded
