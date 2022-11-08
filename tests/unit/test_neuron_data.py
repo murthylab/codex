@@ -29,7 +29,7 @@ class NeuronDataTest(TestCase):
             self.assertGreaterEqual(num_present, lower_bound)
 
         check_min_values_present('name', 66812)
-        check_min_values_present('nt_type', 68121)
+        check_min_values_present('nt_type', 67852)
         check_min_values_present('hemisphere_fingerprint', 66633)
         check_min_values_present('classes', 10782)
         check_min_values_present('similar_root_ids', 66633)
