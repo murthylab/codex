@@ -1,4 +1,3 @@
-python -m webbrowser -t http://127.0.0.1/:5000/ && \
 export FLASK_APP=src.main && \
 export FLASK_SECRET_KEY=dev_dummy_key && \
 export SMOKE_TEST_KEY=dev_smoke_test_key && \

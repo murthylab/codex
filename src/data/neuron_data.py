@@ -53,6 +53,7 @@ COLUMN_INDEX = {c: i for i, c in enumerate(DATA_FILE_COLUMNS)}
 # Structured search operators
 OP_EQUAL = "{equal}"
 OP_NOT_EQUAL = "{not equal}"
+OP_STARTS_WITH = "{starts_with}"
 OP_IN = "{in}"
 OP_NOT_IN = "{not in}"
 OP_HAS = "{has}"
@@ -71,6 +72,7 @@ OPERATOR_METADATA = {
         "!=",
         "Binary, LHS attribute of the cell and RHS value are not equal",
     ),
+    OP_STARTS_WITH: ("^*", "Binary, LHS attribute of the cell starts with RHS value (e.g., label {starts_with} LC"),
     OP_IN: (
         "<<",
         "Binary, LHS attribute of the cell equals one of the comma-separated values on RHS",
@@ -100,6 +102,7 @@ OPERATOR_METADATA = {
 SEARCH_TERM_BINARY_OPERATORS = [
     OP_EQUAL,  # equals
     OP_NOT_EQUAL,  # not equal to
+    OP_STARTS_WITH,  # starts with
     OP_IN,  # one of the values on rhs (rhs is comma separated list)
     OP_NOT_IN,  # none of the values on rhs (rhs is comma separated list)
     OP_UPSTREAM_REGION,  # upstream to RHS in LHS region
@@ -499,7 +502,7 @@ class NeuronDB(object):
     # Private helpers
 
     @staticmethod
-    def _make_equality_predicate(lhs, rhs):
+    def _make_comparison_predicate(lhs, rhs, op):
         lhs = lhs.lower()
         if lhs not in STRUCTURED_SEARCH_ATTRIBUTES:
             NeuronDB._raise_unsupported_attr_for_structured_search(lhs)
@@ -513,14 +516,26 @@ class NeuronDB(object):
         except:
             return lambda x: False
 
-        def eq_checker(x):
+        def op_checker(x):
             val = x.get(attr_key)
             if isinstance(val, list):
-                return rhs in val
+                if op == OP_EQUAL:
+                    return rhs in val
+                elif op == OP_NOT_EQUAL:
+                    return rhs not in val
+                elif op == OP_STARTS_WITH:
+                    return any([str(v).startswith(str(rhs)) for v in val])
             else:
-                return rhs == val
+                if op == OP_EQUAL:
+                    return rhs == val
+                elif op == OP_NOT_EQUAL:
+                    return rhs != val
+                elif op == OP_STARTS_WITH:
+                    return str(val).startswith(str(rhs))
 
-        return lambda nd: eq_checker(nd)
+            raise ValueError(f"Unsupported comparison operand: {op}")
+
+        return lambda nd: op_checker(nd)
 
     @staticmethod
     def _make_has_predicate(rhs):
@@ -544,15 +559,10 @@ class NeuronDB(object):
 
     @staticmethod
     def _make_predicate(structured_term):
-        if structured_term["op"] == OP_EQUAL:
-            return NeuronDB._make_equality_predicate(
-                lhs=structured_term["lhs"], rhs=structured_term["rhs"]
+        if structured_term["op"] in [OP_EQUAL, OP_NOT_EQUAL, OP_STARTS_WITH]:
+            return NeuronDB._make_comparison_predicate(
+                lhs=structured_term["lhs"], rhs=structured_term["rhs"], op=structured_term["op"]
             )
-        elif structured_term["op"] == OP_NOT_EQUAL:
-            eqp = NeuronDB._make_equality_predicate(
-                lhs=structured_term["lhs"], rhs=structured_term["rhs"]
-            )
-            return lambda x: not eqp(x)
         elif structured_term["op"] == OP_HAS:
             hp = NeuronDB._make_has_predicate(rhs=structured_term["rhs"])
             return lambda x: hp(x)
@@ -562,7 +572,7 @@ class NeuronDB(object):
         elif structured_term["op"] in [OP_IN, OP_NOT_IN]:
             rhs_items = [item.strip() for item in structured_term["rhs"].split(",")]
             predicates = [
-                NeuronDB._make_equality_predicate(lhs=structured_term["lhs"], rhs=i)
+                NeuronDB._make_comparison_predicate(lhs=structured_term["lhs"], rhs=i, op=OP_EQUAL)
                 for i in rhs_items
             ]
             if structured_term["op"] == OP_IN:

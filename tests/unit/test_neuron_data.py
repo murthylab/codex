@@ -125,6 +125,10 @@ class NeuronDataTest(TestCase):
         self.assertEqual(2, len(self.neuron_db.search('720575940624284903,720575940625504714')))
         self.assertEqual(2, len(self.neuron_db.search('720575940624284903, 720575940625504714')))
 
+        # starts with op
+        self.assertGreater(len(self.neuron_db.search('label {starts_with} LC')), 500)
+        self.assertGreater(len(self.neuron_db.search('id {starts_with} 72')), 65000)
+
     def test_downstream_upstream_queries(self):
         downstream = self.neuron_db.search('{downstream} 720575940629495808')
         self.assertEqual(55, len(downstream))
