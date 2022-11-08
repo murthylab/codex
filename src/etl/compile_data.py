@@ -37,6 +37,20 @@ SYNAPSE_TABLE_COLUMN_NAMES = [
     "syn_count",
 ]
 
+SYNAPSE_TABLE_WITH_NT_TYPES_FILE_NAME = "synapse_table_with_nt_types.feather"
+SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES = [
+    "pre_pt_root_id",
+    "post_pt_root_id",
+    "neuropil",
+    "syn_count",
+    "gaba_avg",
+    "ach_avg",
+    "glut_avg",
+    "oct_avg",
+    "ser_avg",
+    "da_avg",
+]
+
 NEURON_NT_TYPES_FILE_NAME = "neuron_nt_types.feather"
 NEURON_NT_TYPES_COLUMN_NAMES = [
     "pre_pt_root_id",
@@ -330,22 +344,34 @@ def replace_classes_in_existing_data():
     write_csv(filename=f"{fname_out}_new", rows=content, compress=True)
 
 
-def compact_nt_scores_data(save_to_filename=None):
+def compact_nt_scores_data():
     nt_scores_data = load_feather_file(
-        filename=NEURON_NT_TYPES_FILE_NAME, columns_to_read=NEURON_NT_TYPES_COLUMN_NAMES
+        filename=SYNAPSE_TABLE_WITH_NT_TYPES_FILE_NAME, columns_to_read=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES
     )
 
-    def round_floats(row):
-        return ["{:0.2f}".format(v) for v in row]
+    header = nt_scores_data[0]
+    rid_to_scores = {}
+    for r in nt_scores_data[1:]:
+        if r[0] not in rid_to_scores:
+            rid_to_scores[r[0]] = defaultdict(int)
+        for i in [4, 5, 6, 7, 8, 9]:
+            rid_to_scores[r[0]][header[i]] += r[3] * r[i]
 
-    nt_scores_data = [nt_scores_data[0]] + [
-        [r[0]] + round_floats(r[1:]) for r in nt_scores_data[1:]
-    ]
-    print(f"{len(nt_scores_data)=}")
-    if save_to_filename:
-        write_csv(save_to_filename, rows=nt_scores_data, compress=True)
+    def round_float(f):
+        return float("{:0.2f}".format(f))
 
-    return nt_scores_data
+    def normalize(scores_dict):
+        tot = sum(scores_dict.values())
+        for k, v in scores_dict.items():
+            scores_dict[k] = round_float(v / tot)
+
+    for rid, scores in rid_to_scores.items():
+        normalize(scores)
+
+    for r in nt_scores_data[1:5]:
+        print(f'{r[0]}: {rid_to_scores[r[0]]}')
+
+    return rid_to_scores
 
 
 def augment_with_nt_scores(version=LATEST_DATA_SNAPSHOT_VERSION):
@@ -370,8 +396,51 @@ def augment_with_nt_scores(version=LATEST_DATA_SNAPSHOT_VERSION):
     write_csv(filename=f"{fname_out}_new", rows=content, compress=True)
 
 
+def correct_nt_scores(version=LATEST_DATA_SNAPSHOT_VERSION):
+    fname_in = f"static/data/{version}/neuron_data.csv.gz"
+    fname_out = f"static/data/{version}/neuron_data_with_corrected_nt_scores.csv.gz"
+    content = read_csv(fname_in)
+
+    nt_scores_dict = compact_nt_scores_data()
+
+    not_found = 0
+    cols_idx = {c: content[0].index(c) for c in ["gaba_avg",
+                "ach_avg",
+                "glut_avg",
+                "oct_avg",
+                "ser_avg",
+                "da_avg"]}
+    nt_type_idx = content[0].index("nt_type")
+
+    def max_nt_type(sd):
+        max_pair = max(sd.items(), key=lambda p: p[1])
+        if max_pair[1] > 0.1:
+            return max_pair[0].replace('_avg', '').upper()
+        else:
+            return ''
+
+    for r in content[1:]:
+        rid = int(r[0])
+        if rid in nt_scores_dict:
+            for c, idx in cols_idx.items():
+                r[idx] = nt_scores_dict[rid][c]
+            r[nt_type_idx] = max_nt_type(nt_scores_dict[rid])
+        else:
+            # use existing scores to fill in NT type
+            sdict = {c: float(r[i]) for c, i in cols_idx.items()}
+            r[nt_type_idx] = max_nt_type(sdict)
+            if r[nt_type_idx]:
+                print(f'recovered: {r[nt_type_idx]} {[r[i] for i in cols_idx.values()]}')
+            else:
+                not_found += 1
+
+    print(f"{not_found=}")
+    write_csv(filename=fname_out, rows=content, compress=True)
+
+
 if __name__ == "__main__":
     # compile_data()
     # augment_existing_data()
     # replace_classes_in_existing_data()
-    augment_with_nt_scores()
+    # augment_with_nt_scores()
+    correct_nt_scores()
