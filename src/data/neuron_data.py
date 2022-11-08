@@ -72,7 +72,10 @@ OPERATOR_METADATA = {
         "!=",
         "Binary, LHS attribute of the cell and RHS value are not equal",
     ),
-    OP_STARTS_WITH: ("^*", "Binary, LHS attribute of the cell starts with RHS value (e.g., label {starts_with} LC"),
+    OP_STARTS_WITH: (
+        "^*",
+        "Binary, LHS attribute of the cell starts with RHS value (e.g., label {starts_with} LC",
+    ),
     OP_IN: (
         "<<",
         "Binary, LHS attribute of the cell equals one of the comma-separated values on RHS",
@@ -561,7 +564,9 @@ class NeuronDB(object):
     def _make_predicate(structured_term):
         if structured_term["op"] in [OP_EQUAL, OP_NOT_EQUAL, OP_STARTS_WITH]:
             return NeuronDB._make_comparison_predicate(
-                lhs=structured_term["lhs"], rhs=structured_term["rhs"], op=structured_term["op"]
+                lhs=structured_term["lhs"],
+                rhs=structured_term["rhs"],
+                op=structured_term["op"],
             )
         elif structured_term["op"] == OP_HAS:
             hp = NeuronDB._make_has_predicate(rhs=structured_term["rhs"])
@@ -572,7 +577,9 @@ class NeuronDB(object):
         elif structured_term["op"] in [OP_IN, OP_NOT_IN]:
             rhs_items = [item.strip() for item in structured_term["rhs"].split(",")]
             predicates = [
-                NeuronDB._make_comparison_predicate(lhs=structured_term["lhs"], rhs=i, op=OP_EQUAL)
+                NeuronDB._make_comparison_predicate(
+                    lhs=structured_term["lhs"], rhs=i, op=OP_EQUAL
+                )
                 for i in rhs_items
             ]
             if structured_term["op"] == OP_IN:
