@@ -41,18 +41,18 @@
                 var filter_string;
                 if (title === "Inputs / Outputs") {
                     const region = value.includes("Input") ? "upstream" : "downstream";
-                    filter_string = "{" + region + "}+{{cell_id}}";
+                    filter_string = "{" + region + "} {{cell_id}}";
                 }
                 else if (title.includes("Neurotransmitters")) {
                     const region = title.includes("Input") ? "upstream" : "downstream";
-                    filter_string = "{" + region + "}+{{cell_id}}+%26%26+nt+%3D%3D+" + value;
+                    filter_string = "{" + region + "} {{cell_id}} && nt == " + value;
                 }
                 else {
                     const region = title.includes("Input") ? "upstream_region" : "downstream_region";
-                    filter_string = value + "+{" + region + "}+{{cell_id}}";
+                    filter_string = value + "+{" + region + "} {{cell_id}}";
                 }
-                const url = {{url_for('app.search', case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version, filter_string="")|tojson}} + filter_string;
-                window.location = url;
+                document.getElementById("cell_names_or_id").value = filter_string;
+                document.querySelector("form").submit();
             }
         }
         google.visualization.events.addListener(chart, 'select', selectHandler);
