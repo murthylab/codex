@@ -6,6 +6,7 @@ profile
 
 # Source data files
 static/data/*/neuron_data*.csv.gz
+static/data/*/connections*.csv.gz
 static/raw_data/
 static/secrets/
 
