@@ -49,10 +49,11 @@
                 }
                 else {
                     const region = title.includes("Input") ? "upstream_region" : "downstream_region";
-                    filter_string = value + "+{" + region + "} {{cell_id}}";
+                    filter_string = value + " {" + region + "} {{cell_id}}";
                 }
-                document.getElementById("cell_names_or_id").value = filter_string;
-                document.querySelector("form").submit();
+                const searchbox = document.getElementById("cell_names_or_id");
+                searchbox.value = filter_string;
+                searchbox.form.submit();
             }
         }
         google.visualization.events.addListener(chart, 'select', selectHandler);

@@ -39,8 +39,9 @@ Stats
                 }
                 filter_string += json["search_filter"] + " == " + value;
                 }
-                document.getElementById("filter_string").value = filter_string;
-                document.querySelector("form").submit();
+                const searchbox = document.getElementById("filter_string");
+                searchbox.value = filter_string;
+                searchbox.form.submit();
             }
         }
         google.visualization.events.addListener(chart, 'select', selectHandler);
