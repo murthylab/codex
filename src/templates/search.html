@@ -151,8 +151,11 @@
             {% if extra_data %}
                 <td style="color:black;">{{extra_data.values_dict.get(neuron.root_id)}}</td>
             {% endif %}
-            <td style="color:#3A3AAA;">{{neuron.nt_type}}<br>
-                <small style="color: {{'green' if neuron.nt_type_score > 0.65 else ('orange' if neuron.nt_type_score > 0.45 else 'red')}}">{{neuron.nt_type_score}}</small></td>
+            <td style="color:#3A3AAA;">{{neuron.nt_type}}
+                {% if neuron.nt_type_score %}
+                <br><small style="color: {{'green' if neuron.nt_type_score > 0.65 else ('orange' if neuron.nt_type_score > 0.45 else 'red')}}">{{neuron.nt_type_score}}</small>
+                {% endif %}
+            </td>
             <td style="color:#3A3AAA;">{{neuron.hemisphere_fingerprint|safe}}</td>
             <td><a class="btn btn-outline-primary" href="{{url_for('app.flywire_url', root_ids=[neuron.root_id])}}"
                    target="_blank" role="button" title="Render in 3D"><i class="fa-solid fa-cube"></i></a></td>
