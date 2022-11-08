@@ -45,4 +45,4 @@ class Test(TestCase):
                           'Neurotransmitter Types',
                           'Num. Assigned Neuron Classes',
                           'Output neuropils'], sorted(data_charts.keys()))
-        self.assertEqual([4, 4, 4, 4, 4], [len(data_charts[k]) for k in sorted(data_charts.keys())])
+        self.assertEqual([5, 5, 5, 5, 5], [len(data_charts[k]) for k in sorted(data_charts.keys())])
