@@ -19,34 +19,31 @@ class NeuronDataTest(TestCase):
         def isnan(vl):
             return vl != vl
 
-        # check that all versions loaded
-        for v in versions:
-            self.assertIsNotNone(loaded_neuron_dbs[v])
-            self.assertEqual(set(loaded_neuron_dbs[v].neuron_data.keys()),
-                             set(loaded_neuron_dbs[v].search_index.all_doc_ids()))
-            self.assertEqual(set(loaded_neuron_dbs[v].neuron_data.keys()),
-                             set(self.neuron_dbs[v].neuron_data.keys()))
-            for rid, nd in loaded_neuron_dbs[v].neuron_data.items():
-                ndp = self.neuron_dbs[v].get_neuron_data(rid)
+        def compare_neuron_dbs(tested, golden):
+            self.assertIsNotNone(tested)
+            self.assertEqual(set(tested.neuron_data.keys()),
+                             set(tested.search_index.all_doc_ids()))
+            self.assertEqual(set(tested.neuron_data.keys()),
+                             set(golden.neuron_data.keys()))
+
+            diff_keys = set()
+            for rid, nd in tested.neuron_data.items():
+                ndp = golden.get_neuron_data(rid)
                 self.assertEqual(set(nd.keys()), set(ndp.keys()))
                 for k, val in nd.items():
                     if isnan(val):
-                        self.assertTrue(isnan(ndp[k]))
+                        if not isnan(ndp[k]):
+                            diff_keys.add(k)
                     else:
-                        self.assertEqual(val, ndp[k])
+                        if val != ndp[k]:
+                            diff_keys.add(k)
+            self.assertEqual(0, len(diff_keys), f"Diff keys not empty: {diff_keys}")
+
+        # check that all versions loaded
+        for v in versions:
+            compare_neuron_dbs(tested=loaded_neuron_dbs[v], golden=self.neuron_dbs[v])
 
         # check the same for data factory
         neuron_data_factory = NeuronDataFactory(data_root_path=TEST_DATA_ROOT_PATH)
         for v in versions:
-            self.assertEqual(set(neuron_data_factory.get(v).neuron_data.keys()),
-                             set(neuron_data_factory.get(v).search_index.all_doc_ids()))
-            self.assertEqual(set(neuron_data_factory.get(v).neuron_data.keys()),
-                             set(self.neuron_dbs[v].neuron_data.keys()))
-            for rid, nd in neuron_data_factory.get(v).neuron_data.items():
-                ndp = self.neuron_dbs[v].get_neuron_data(rid)
-                self.assertEqual(set(nd.keys()), set(ndp.keys()))
-                for k, val in nd.items():
-                    if isnan(val):
-                        self.assertTrue(isnan(ndp[k]))
-                    else:
-                        self.assertEqual(val, ndp[k])
+            compare_neuron_dbs(tested=neuron_data_factory.get(v), golden=self.neuron_dbs[v])
