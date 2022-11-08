@@ -553,7 +553,6 @@ def cell_details():
                 val_title="Synapse count",
                 counts_dict=input_neuropil_synapse_count,
                 sort_by_freq=True,
-                height_px=(800 if len(input_neuropil_synapse_count) > 5 else 400),
             )
             charts["Input Synapse Hemisphere"] = stats_utils.make_chart_from_counts(
                 chart_type="donut",
@@ -579,7 +578,6 @@ def cell_details():
                 val_title="Synapse count",
                 counts_dict=output_neuropil_synapse_count,
                 sort_by_freq=True,
-                height_px=(800 if len(output_neuropil_synapse_count) > 5 else 400),
             )
             charts["Output Synapse Hemisphere"] = stats_utils.make_chart_from_counts(
                 chart_type="donut",
