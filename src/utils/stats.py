@@ -2,23 +2,35 @@ from collections import defaultdict
 
 
 def make_chart_from_counts(
-    chart_type, key_title, val_title, counts_dict, search_filter="", sort_by_freq=False
+    chart_type,
+    key_title,
+    val_title,
+    counts_dict,
+    search_filter="",
+    sort_by_freq=False,
 ):
     sorted_counts = (
         sorted(counts_dict.items(), key=lambda p: p[1], reverse=True)
         if sort_by_freq
         else sorted(counts_dict.items(), key=lambda p: p[0])
     )
+    height_px = 800 if chart_type == "bar" and len(counts_dict) > 5 else 400
     return {
         "type": chart_type,
         "searchable": bool(search_filter),
         "search_filter": search_filter,
+        "height_px": height_px,
         "data": [[key_title, val_title]] + [[t, c] for t, c in sorted_counts],
     }
 
 
 def make_chart_from_list(
-    chart_type, key_title, val_title, item_list, sort_by_freq=False, search_filter=""
+    chart_type,
+    key_title,
+    val_title,
+    item_list,
+    search_filter="",
+    sort_by_freq=False,
 ):
     counts = defaultdict(int)
     for i in item_list:
@@ -31,12 +43,6 @@ def make_chart_from_list(
         search_filter=search_filter,
         sort_by_freq=sort_by_freq,
     )
-
-
-def make_donut_chart_data_from_counts(key_title, val_title, counts_dict):
-    return [[key_title, val_title]] + [
-        [t, c] for t, c in sorted(counts_dict.items(), key=lambda p: p[0])
-    ]
 
 
 def _make_data_charts(data_list):
