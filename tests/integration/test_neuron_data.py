@@ -39,6 +39,12 @@ class NeuronDataTest(TestCase):
                         if val != ndp[k]:
                             diff_keys[k] += 1
             self.assertEqual(0, len(diff_keys), f"Diff keys not empty: {diff_keys}")
+            # compare optional output sets (adjacency)
+            self.assertEqual(tested.adjacencies, golden.adjacencies)
+            if tested.adjacencies:
+                connected_cells = set(tested.adjacencies['input_sets'].keys()).union(set(tested.adjacencies['output_sets'].keys()))
+                not_connected_cells = set(tested.neuron_data.keys()) - connected_cells
+                self.assertGreater(2000, len(not_connected_cells))
 
         # check that all versions loaded
         for v in versions:

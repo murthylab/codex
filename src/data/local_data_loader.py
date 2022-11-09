@@ -1,5 +1,6 @@
 import csv
 import gzip
+import os
 import pickle
 
 from src.data.neuron_data import NeuronDB
@@ -8,6 +9,7 @@ from src.utils.logging import log, log_error
 
 DATA_ROOT_PATH = "static/data"
 NEURON_DATA_FILE_NAME = "neuron_data.csv.gz"
+CONNECTIONS_FILE_NAME = "connections_lite.csv.gz"
 NEURON_DB_PICKLE_FILE_NAME = "neuron_db.pickle.gz"
 
 
@@ -22,11 +24,20 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         version=version, data_root_path=data_root_path
     )
     log(f"App initialization loading data from {data_file_path}...")
-    rows = read_csv(f"{data_file_path}/{NEURON_DATA_FILE_NAME}")
-    log(f"App initialization loaded {len(rows)} items from {data_file_path}.")
-    neuron_db = NeuronDB(rows)
+    neuron_data_rows = read_csv(f"{data_file_path}/{NEURON_DATA_FILE_NAME}")
+    if os.path.exists(f"{data_file_path}/{CONNECTIONS_FILE_NAME}"):
+        connection_rows = read_csv(f"{data_file_path}/{CONNECTIONS_FILE_NAME}")
+    else:
+        connection_rows = None
+    log(
+        f"App initialization loaded {len(neuron_data_rows)} items from {data_file_path}."
+    )
+    neuron_db = NeuronDB(
+        data_file_rows=neuron_data_rows, connection_rows=connection_rows
+    )
     # free mem
-    del rows
+    del neuron_data_rows
+    del connection_rows
     return neuron_db
 
 

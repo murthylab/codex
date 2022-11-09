@@ -1,3 +1,4 @@
+from collections import defaultdict
 from functools import lru_cache
 from random import choice
 
@@ -172,7 +173,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = {
 
 
 class NeuronDB(object):
-    def __init__(self, data_file_rows):
+    def __init__(self, data_file_rows, connection_rows):
         self.neuron_data = {}
         self.rids_of_neurons_with_inherited_tags = []
 
@@ -270,6 +271,18 @@ class NeuronDB(object):
                 for k, nd in self.neuron_data.items()
             ]
         )
+
+        if connection_rows:
+            output_sets = defaultdict(set)
+            input_sets = defaultdict(set)
+            for r in connection_rows:
+                from_node, to_node = int(r[0]), int(r[1])
+                assert from_node in self.neuron_data and to_node in self.neuron_data
+                output_sets[from_node].add(to_node)
+                input_sets[to_node].add(from_node)
+            self.adjacencies = {"input_sets": input_sets, "output_sets": output_sets}
+        else:
+            self.adjacencies = None
 
     @lru_cache
     def neuropils(self):
