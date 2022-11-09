@@ -1,6 +1,5 @@
 from src.data.gcs_data_loader import load_connection_table_for_root_id
-from src.data.neuron_data import NeuronDB
-from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM
+from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM, parse_search_query
 from src.utils.logging import log_error, log
 
 DOWNSTREAM_SYNAPSE_COUNT = "downstream_synapse_count"
@@ -9,7 +8,7 @@ UPSTREAM_SYNAPSE_COUNT = "upstream_synapse_count"
 
 def infer_sort_by(query):
     sort_by = None
-    chaining_rule, free_form, structured = NeuronDB.parse_search_query(query)
+    chaining_rule, free_form, structured = parse_search_query(query)
     if structured:
         up_down_stream_parts = [
             t for t in structured if t["op"] in [OP_UPSTREAM, OP_DOWNSTREAM]
