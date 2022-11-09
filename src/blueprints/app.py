@@ -100,14 +100,14 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            data_stats["Downstream Descendants (5+ syn)"] = reachable_counts
+            data_stats["Downstream Reachable (5+ syn)"] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources=filtered_root_id_list,
             neighbor_sets=neuron_db.adjacencies["input_sets"],
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            data_stats["Upstream Ancestors (5+ syn)"] = reachable_counts
+            data_stats["Upstream Reachable (5+ syn)"] = reachable_counts
     return len(filtered_root_id_list), hint, caption, data_stats, data_charts
 
 
@@ -678,14 +678,14 @@ def cell_details():
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            cell_extra_data["Downstream Descendants (5+ syn)"] = reachable_counts
+            cell_extra_data["Downstream Reachable (5+ syn)"] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources={root_id},
             neighbor_sets=neuron_db.adjacencies["input_sets"],
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            cell_extra_data["Upstream Ancestors (5+ syn)"] = reachable_counts
+            cell_extra_data["Upstream Reachable (5+ syn)"] = reachable_counts
 
     log_activity(
         f"Generated neuron info for {root_id} with {len(cell_attributes) + len(related_cells)} items"
