@@ -36,7 +36,14 @@ from src.utils.cookies import fetch_flywire_user_id
 from src.utils.formatting import synapse_table_to_csv_string, synapse_table_to_json_dict
 from src.utils.graph_algos import reachable_node_counts
 from src.utils.graph_vis import make_graph_html
-from src.utils.logging import log_activity, log_error, format_link, user_agent, log, log_user_help
+from src.utils.logging import (
+    log_activity,
+    log_error,
+    format_link,
+    user_agent,
+    log,
+    log_user_help,
+)
 from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
 
@@ -482,13 +489,14 @@ def cell_details():
         neuron_db = neuron_data_factory.get()
         ndata = neuron_db.get_neuron_data(annotation_cell_id)
         coordinates = ndata["position"][0] if ndata["position"] else None
+        fw_user_id = fetch_flywire_user_id(session)
         log_user_help(
-            f"Submitting annotation '{annotation}' for cell {annotation_cell_id} with coordinates {coordinates}"
+            f"Submitting annotation '{annotation}' for cell {annotation_cell_id} with user id {fw_user_id=} and coordinates {coordinates}"
         )
         return redirect(
             cell_identification_url(
                 cell_id=annotation_cell_id,
-                user_id=fetch_flywire_user_id(session),
+                user_id=fw_user_id,
                 coordinates=coordinates,
                 annotation=annotation,
             )
