@@ -9,6 +9,8 @@ import requests
 from flask import session, request
 from user_agents import parse as parse_ua
 
+from src.utils.cookies import fetch_user_name, fetch_user_email, is_granted_data_access
+
 APP_ENVIRONMENT = str(os.environ.get("APP_ENVIRONMENT", "PROD"))
 
 proc_id = str(uuid.uuid4())[-4:] + f"-{APP_ENVIRONMENT[:1]}"
@@ -52,20 +54,6 @@ def _is_smoke_test_request():
         return False
 
 
-def _fetch_user_name():
-    try:
-        return session["id_info"]["name"]
-    except:
-        return None
-
-
-def _fetch_user_email():
-    try:
-        return session["id_info"]["email"]
-    except:
-        return None
-
-
 def _fetch_client_info():
     try:
         ip_addr = request.headers.get("X-Forwarded-For", request.remote_addr)
@@ -91,7 +79,7 @@ def log(msg):
     if client_info:
         msg = f"{client_info} > {msg}"
 
-    user_info = _fetch_user_email()
+    user_info = fetch_user_email(session)
     if user_info:
         msg = f"{user_info} > {msg}"
     print(msg)
@@ -142,8 +130,8 @@ def _post_to_slk(username, access_granted, text, real_user_activity, extra_hk):
 
 def post_to_slk(text, hk=None):
     real_user_activity = APP_ENVIRONMENT != "DEV" and not _is_smoke_test_request()
-    username = _fetch_user_name()
-    access_granted = "data_access_token" in session
+    username = fetch_user_name()
+    access_granted = is_granted_data_access(session)
     Process(
         target=_post_to_slk,
         args=(username, access_granted, text, real_user_activity, hk),
