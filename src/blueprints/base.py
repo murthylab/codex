@@ -23,6 +23,8 @@ from src.data.versions import (
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
 )
 from src.utils.auth import extract_access_token
+from src.utils.cookies import store_flywire_data_access, is_user_authenticated, fetch_user_email, \
+    is_granted_data_access, fetch_user_name, fetch_user_picture, delete_cookies, store_user_info
 from src.utils.logging import (
     log,
     log_activity,
@@ -84,11 +86,11 @@ def request_wrapper(func):
                 log_activity(f"Redirecting base URL from  {request.url}: {new_url}")
                 return redirect(new_url)
 
-        if "id_info" not in session and not _is_smoke_test_request():
+        if not is_user_authenticated(session) and not _is_smoke_test_request():
             if request.endpoint not in ["base.login", "base.logout"]:
                 return render_auth_page(redirect_to=request.url)
         elif log_verbose:
-            log(f"Executing authenticated request for: {session.get('id_info')}")
+            log(f"Executing authenticated request for: {fetch_user_email(session)}")
 
         # if we got here, this could be authenticated or non-authenticated request
         try:
@@ -105,7 +107,7 @@ def request_wrapper(func):
 def require_data_access(func):
     @wraps(func)
     def wrap(*args, **kwargs):
-        if "data_access_token" not in session and not _is_smoke_test_request():
+        if not is_granted_data_access(session) and not _is_smoke_test_request():
             if request.endpoint not in [
                 "base.login",
                 "base.logout",
@@ -188,7 +190,7 @@ def error():
         title=title,
         back_button=back_button,
         message_sent=message_sent,
-        user_email=session.get("id_info", {}).get("email", "email missing"),
+        user_email=fetch_user_email(session, default_to="email missing"),
     )
 
 
@@ -217,9 +219,9 @@ def about():
             message_sent = True
     return render_template(
         "about.html",
-        user_email=session["id_info"]["email"],
-        user_name=session["id_info"]["name"],
-        user_picture=session["id_info"]["picture"],
+        user_email=fetch_user_email(session),
+        user_name=fetch_user_name(session),
+        user_picture=fetch_user_picture(session),
         message_sent=message_sent,
         build_git_sha=BUILD_GIT_SHA,
         build_timestamp=BUILD_TIMESTAMP,
@@ -244,7 +246,7 @@ def faq():
     return render_template(
         "faq.html",
         faq_dict=FAQ_QA_KB,
-        user_email=session["id_info"]["email"],
+        user_email=fetch_user_email(session),
         message_sent=message_sent,
     )
 
@@ -370,7 +372,7 @@ def login():
             # ID token is valid. Save it to session and redirect to home page.
             log_activity(f"Logged in: {id_info}")
             session.permanent = True
-            session["id_info"] = id_info
+            store_user_info(session, id_info=id_info)
             return redirect(request.args.get("redirect_to", "/"))
         except ValueError:
             log_activity(f"Invalid token provided upon login: {request.form}")
@@ -398,8 +400,7 @@ def data_access_token():
             "fafb", {}
         ):
             log_activity(f"Data access granted: {access_payload}")
-            session["data_access_token"] = access_token
-            session["data_access_payload"] = access_payload
+            store_flywire_data_access(session, access_token=access_token, access_payload=access_payload)
             return redirect(request.args.get("redirect_to", "/"))
         else:
             log_activity(f"Data access denied: {access_payload}")
@@ -419,10 +420,7 @@ def data_access_token():
 @request_wrapper
 def logout():
     log_activity(f"Logging out")
-    if "id_info" in session:
-        del session["id_info"]
-    if "data_access_token" in session:
-        del session["data_access_token"]
+    delete_cookies()
     return render_auth_page()
 
 
