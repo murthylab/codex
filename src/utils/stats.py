@@ -61,22 +61,14 @@ def _make_data_charts(data_list):
 
     result = {}
     if nt_types:
-        result["Neurotransmitter Types"] = make_chart_from_list(
+        result["Num cells with neurotransmitter types"] = make_chart_from_list(
             chart_type="donut",
             key_title="Type",
-            val_title="Count",
+            val_title="Num Cells",
             item_list=nt_types,
             search_filter="nt",
         )
-    if input_output_regions:
-        result["Input/Output hemispheres"] = make_chart_from_list(
-            chart_type="donut",
-            key_title="Output regions",
-            val_title="Count",
-            item_list=input_output_regions,
-            search_filter="io_hemisphere",
-        )
-    if classes:
+    if classes and len(set(classes)) > 1:
         result["Num. Assigned Neuron Classes"] = make_chart_from_list(
             chart_type="donut",
             key_title="Num Classes",
@@ -84,22 +76,30 @@ def _make_data_charts(data_list):
             item_list=classes,
         )
     if input_neuropils:
-        result["Input neuropils"] = make_chart_from_list(
+        result["Num cells with inputs in region"] = make_chart_from_list(
             chart_type="bar",
             key_title="Input neuropils",
-            val_title="Count",
+            val_title="Num Cells",
             item_list=input_neuropils,
             search_filter="input_neuropil",
             sort_by_freq=True,
         )
     if output_neuropils:
-        result["Output neuropils"] = make_chart_from_list(
+        result["Num cells with outputs in region"] = make_chart_from_list(
             chart_type="bar",
             key_title="Output neuropils",
-            val_title="Count",
+            val_title="Num Cells",
             item_list=output_neuropils,
             search_filter="output_neuropil",
             sort_by_freq=True,
+        )
+    if input_output_regions:
+        result["Num cells with inputs/outputs in hemispheres"] = make_chart_from_list(
+            chart_type="donut",
+            key_title="Output regions",
+            val_title="Num Cells",
+            item_list=input_output_regions,
+            search_filter="io_hemisphere",
         )
 
     return result

@@ -30,15 +30,15 @@ Stats
 
     if (json["searchable"]) {
         function selectHandler() {
-        const selectedItem = chart.getSelection()[0];
-        if (selectedItem) {
-            const value = data.getValue(selectedItem.row, 0);
-            let filter_string = {{filter_string|tojson}};
-            if (!filter_string.split(" ").includes(value)) {
-                if (filter_string) {
-                    filter_string += " && ";
-                }
-                filter_string += json["search_filter"] + " == " + value;
+            const selectedItem = chart.getSelection()[0];
+            if (selectedItem) {
+                const value = data.getValue(selectedItem.row, 0);
+                let filter_string = {{filter_string|tojson}};
+                if (!filter_string.split(" ").includes(value)) {
+                    if (filter_string) {
+                        filter_string += " && ";
+                    }
+                    filter_string += json["search_filter"] + " == " + value;
                 }
                 const searchbox = document.getElementById("filter_string");
                 searchbox.value = filter_string;

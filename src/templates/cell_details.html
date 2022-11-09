@@ -36,25 +36,25 @@
         }
 
         function selectHandler() {
-            const selectedItem = chart.getSelection()[0];
-            if (selectedItem) {
-                const value = data.getValue(selectedItem.row, 0);
-                var filter_string;
-                if (title === "Inputs / Outputs") {
-                    const region = value.includes("Input") ? "upstream" : "downstream";
-                    filter_string = "{" + region + "} {{cell_id}}";
+            if (json["search_filter"]) {
+                const selectedItem = chart.getSelection()[0];
+                if (selectedItem) {
+                    const value = data.getValue(selectedItem.row, 0);
+                    var filter_string;
+                    if (json["search_filter"] === "input_output") {
+                        const region = value.includes("Input") ? "upstream" : "downstream";
+                        filter_string = "{" + region + "} {{cell_id}}";
+                    } else if (json["search_filter"] === "input_nt_type") {
+                        filter_string = "{upstream} {{cell_id}} && nt == " + value;
+                    } else if (json["search_filter"] === "input_neuropils" || json["search_filter"] === "input_hemisphere") {
+                        filter_string = value + " {upstream_region} {{cell_id}}";
+                    } else if (json["search_filter"] === "output_neuropils" || json["search_filter"] === "output_hemisphere") {
+                        filter_string = value + " {downstream_region} {{cell_id}}";
+                    }
+                    const searchbox = document.getElementById("cell_names_or_id");
+                    searchbox.value = filter_string;
+                    searchbox.form.submit();
                 }
-                else if (title.includes("Neurotransmitters")) {
-                    const region = title.includes("Input") ? "upstream" : "downstream";
-                    filter_string = "{" + region + "} {{cell_id}} && nt == " + value;
-                }
-                else {
-                    const region = title.includes("Input") ? "upstream_region" : "downstream_region";
-                    filter_string = value + " {" + region + "} {{cell_id}}";
-                }
-                const searchbox = document.getElementById("cell_names_or_id");
-                searchbox.value = filter_string;
-                searchbox.form.submit();
             }
         }
         google.visualization.events.addListener(chart, 'select', selectHandler);
