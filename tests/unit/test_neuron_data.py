@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from src.data.brain_regions import REGIONS
 from src.data.neuron_data import *
+from src.data.structured_search_filters import *
 from src.data.local_data_loader import unpickle_all_neuron_db_versions
 
 # for IDE test
@@ -230,78 +231,72 @@ class NeuronDataTest(TestCase):
 
     def test_structured_query_parsing(self):
         # free form
-        self.assertEqual(NeuronDB.parse_search_query("foo"), (None, ["foo"], []))
-        self.assertEqual(
-            NeuronDB.parse_search_query("foo bar"), (None, ["foo bar"], [])
-        )
+        self.assertEqual(parse_search_query("foo"), (None, ["foo"], []))
+        self.assertEqual(parse_search_query("foo bar"), (None, ["foo bar"], []))
 
         # structured
         self.assertEqual(
-            NeuronDB.parse_search_query("foo {equal} bar"),
+            parse_search_query("foo {equal} bar"),
             (None, [], [{"op": "{equal}", "lhs": "foo", "rhs": "bar"}]),
         )
         self.assertEqual(
-            NeuronDB.parse_search_query("foo == bar"),
+            parse_search_query("foo == bar"),
             (None, [], [{"op": "{equal}", "lhs": "foo", "rhs": "bar"}]),
         )
 
         self.assertEqual(
-            NeuronDB.parse_search_query("foo {not equal} bar"),
+            parse_search_query("foo {not equal} bar"),
             (None, [], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
         )
         self.assertEqual(
-            NeuronDB.parse_search_query("foo != bar"),
+            parse_search_query("foo != bar"),
             (None, [], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
         )
         self.assertEqual(
-            NeuronDB.parse_search_query(" {has} bar"),
+            parse_search_query(" {has} bar"),
             (None, [], [{"op": "{has}", "rhs": "bar"}]),
         )
         self.assertEqual(
-            NeuronDB.parse_search_query(" !$ bar"),
+            parse_search_query(" !$ bar"),
             (None, [], [{"op": "{not}", "rhs": "bar"}]),
         )
 
         # false cases
         self.assertEqual(
-            NeuronDB.parse_search_query("== foo == bar"), (None, ["== foo == bar"], [])
+            parse_search_query("== foo == bar"), (None, ["== foo == bar"], [])
         )
-        self.assertEqual(NeuronDB.parse_search_query("=="), (None, ["=="], []))
+        self.assertEqual(parse_search_query("=="), (None, ["=="], []))
+        self.assertEqual(parse_search_query("foo == !="), (None, ["foo == !="], []))
         self.assertEqual(
-            NeuronDB.parse_search_query("foo == !="), (None, ["foo == !="], [])
+            parse_search_query("foo {has} bar"), (None, ["foo {has} bar"], [])
         )
-        self.assertEqual(
-            NeuronDB.parse_search_query("foo {has} bar"), (None, ["foo {has} bar"], [])
-        )
-        self.assertEqual(
-            NeuronDB.parse_search_query(" {!$} bar"), (None, [" {!$} bar"], [])
-        )
+        self.assertEqual(parse_search_query(" {!$} bar"), (None, [" {!$} bar"], []))
 
         # combos
         self.assertEqual(
-            NeuronDB.parse_search_query("foo != bar && other"),
+            parse_search_query("foo != bar && other"),
             ("{and}", ["other"], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
         )
         self.assertEqual(
-            NeuronDB.parse_search_query("other || foo {not equal} bar"),
+            parse_search_query("other || foo {not equal} bar"),
             ("{or}", ["other"], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
         )
 
         # and/or mix not allowed
         self.assertEqual(
-            NeuronDB.parse_search_query("other {or} foo != bar && third"),
+            parse_search_query("other {or} foo != bar && third"),
             (None, ["other {or} foo != bar && third"], []),
         )
 
         # another false case
         self.assertEqual(
-            NeuronDB.parse_search_query("|| other || foo != bar"),
+            parse_search_query("|| other || foo != bar"),
             (None, ["|| other || foo != bar"], []),
         )
 
         # structured search should not be triggered if the query is wrapped in quotes
         self.assertEqual(
-            NeuronDB.parse_search_query('"foo == bar"'), (None, ['"foo == bar"'], [])
+            parse_search_query('"foo == bar"'), (None, ['"foo == bar"'], [])
         )
 
     def test_structured_query_operators(self):
