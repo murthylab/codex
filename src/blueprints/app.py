@@ -553,6 +553,10 @@ def cell_details():
                 input_neuropil_synapse_count[r[2]] += r[3]
                 input_nt_type_count[r[4].upper()] += r[3]
 
+        # dedupe
+        downstream = sorted(set(downstream))
+        upstream = sorted(set(upstream))
+
         insert_neuron_list_links(
             "input cells (upstream) with 5+ synapses",
             upstream,
@@ -580,11 +584,11 @@ def cell_details():
                 ] += v
             return res
 
-        charts["Input / Output Cells"] = stats_utils.make_chart_from_counts(
+        charts["Input / Output Synapses"] = stats_utils.make_chart_from_counts(
             chart_type="donut",
             key_title="Cell",
             val_title="Count",
-            counts_dict={"Inputs": len(upstream), "Outputs": len(downstream)},
+            counts_dict={"Inputs": sum(input_neuropil_synapse_count.values()), "Outputs": sum(output_neuropil_synapse_count.values())},
             search_filter='input_output'
         )
 
