@@ -5,7 +5,15 @@ from collections import defaultdict
 from datetime import datetime
 from functools import lru_cache
 
-from flask import render_template, request, redirect, Response, url_for, Blueprint, session
+from flask import (
+    render_template,
+    request,
+    redirect,
+    Response,
+    url_for,
+    Blueprint,
+    session,
+)
 
 from src.blueprints.base import (
     request_wrapper,
@@ -474,9 +482,17 @@ def cell_details():
         neuron_db = neuron_data_factory.get()
         ndata = neuron_db.get_neuron_data(annotation_cell_id)
         coordinates = ndata["position"][0] if ndata["position"] else None
-        log_activity(f"Submitting annotation '{annotation}' for cell {annotation_cell_id} with coordinates {coordinates}")
-        return redirect(cell_identification_url(cell_id=annotation_cell_id, user_id=fetch_flywire_user_id(session),
-                                                coordinates=coordinates, annotation=annotation))
+        log_activity(
+            f"Submitting annotation '{annotation}' for cell {annotation_cell_id} with coordinates {coordinates}"
+        )
+        return redirect(
+            cell_identification_url(
+                cell_id=annotation_cell_id,
+                user_id=fetch_flywire_user_id(session),
+                coordinates=coordinates,
+                annotation=annotation,
+            )
+        )
 
     root_id = None
     cell_names_or_id = None

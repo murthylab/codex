@@ -23,8 +23,16 @@ from src.data.versions import (
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
 )
 from src.utils.auth import extract_access_token
-from src.utils.cookies import store_flywire_data_access, is_user_authenticated, fetch_user_email, \
-    is_granted_data_access, fetch_user_name, fetch_user_picture, delete_cookies, store_user_info
+from src.utils.cookies import (
+    store_flywire_data_access,
+    is_user_authenticated,
+    fetch_user_email,
+    is_granted_data_access,
+    fetch_user_name,
+    fetch_user_picture,
+    delete_cookies,
+    store_user_info,
+)
 from src.utils.logging import (
     log,
     log_activity,
@@ -400,7 +408,9 @@ def data_access_token():
             "fafb", {}
         ):
             log_activity(f"Data access granted: {access_payload}")
-            store_flywire_data_access(session, access_token=access_token, access_payload=access_payload)
+            store_flywire_data_access(
+                session, access_token=access_token, access_payload=access_payload
+            )
             return redirect(request.args.get("redirect_to", "/"))
         else:
             log_activity(f"Data access denied: {access_payload}")
