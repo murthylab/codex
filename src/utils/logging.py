@@ -130,7 +130,7 @@ def _post_to_slk(username, access_granted, text, real_user_activity, extra_hk):
 
 def post_to_slk(text, hk=None):
     real_user_activity = APP_ENVIRONMENT != "DEV" and not _is_smoke_test_request()
-    username = fetch_user_name()
+    username = fetch_user_name(session)
     access_granted = is_granted_data_access(session)
     Process(
         target=_post_to_slk,

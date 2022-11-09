@@ -35,8 +35,7 @@ def fetch_flywire_token(storage):
     return storage["data_access_token"]
 
 def fetch_flywire_user_id(storage):
-    payload = storage["data_access_payload"]
-    print(f'+++ {payload}')
+    return storage["data_access_payload"]["id"]
 
 def is_granted_data_access(storage):
     return "data_access_token" in storage
