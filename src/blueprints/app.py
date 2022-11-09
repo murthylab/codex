@@ -664,6 +664,23 @@ def cell_details():
     cell_attributes = {k: v for k, v in cell_attributes.items() if v}
     related_cells = {k: v for k, v in related_cells.items() if v}
 
+    cell_extra_data = {}
+    if neuron_db.adjacencies:
+        reachable_counts = reachable_node_counts(
+            sources={root_id},
+            neighbor_sets=neuron_db.adjacencies["output_sets"],
+            total_count=neuron_db.num_cells(),
+        )
+        if reachable_counts:
+            cell_extra_data["Downstream Descendants (5+ syn)"] = reachable_counts
+        reachable_counts = reachable_node_counts(
+            sources={root_id},
+            neighbor_sets=neuron_db.adjacencies["input_sets"],
+            total_count=neuron_db.num_cells(),
+        )
+        if reachable_counts:
+            cell_extra_data["Upstream Ancestors (5+ syn)"] = reachable_counts
+
     log_activity(
         f"Generated neuron info for {root_id} with {len(cell_attributes) + len(related_cells)} items"
     )
@@ -672,6 +689,7 @@ def cell_details():
         cell_names_or_id=cell_names_or_id or nd["name"],
         cell_id=root_id,
         cell_attributes=cell_attributes,
+        cell_extra_data=cell_extra_data,
         related_cells=related_cells,
         charts=charts,
         load_connections=1 if connectivity and len(connectivity) > 1 else 0,
