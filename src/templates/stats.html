@@ -14,7 +14,8 @@ Stats
   function drawChart(title, json, elem) {
     const data = google.visualization.arrayToDataTable(json["data"]);
     const options = {
-        title: title
+        title: title,
+        legend: {position: 'bottom'}
     };
     var chart;
     if (json["type"] === "donut") {
