@@ -21,6 +21,8 @@ Navigate to [localhost:5000](http://localhost:5000)
 ### Manual UI testing (Required)
 run service locally and click around in all pages
 ### Unit tests (Required)
+You may need to first run `pip install pytest`
+
 `python3 -m pytest tests/unit`
 ### Integration/perf tests (Optional, requires setup)
 `python3 -m pytest tests/integration`
