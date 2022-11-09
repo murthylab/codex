@@ -27,7 +27,7 @@ from src.blueprints.base import (
 )
 from src.data import gcs_data_loader
 from src.data.faq_qa_kb import FAQ_QA_KB
-from src.data.neuron_data import OP_DOWNSTREAM, OP_UPSTREAM
+from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
 from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
