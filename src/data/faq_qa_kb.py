@@ -1,4 +1,4 @@
-from src.data.neuron_data import (
+from src.data.structured_search_filters import (
     OPERATOR_METADATA,
     SEARCH_TERM_UNARY_OPERATORS,
     SEARCH_TERM_BINARY_OPERATORS,
