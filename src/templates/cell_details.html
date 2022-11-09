@@ -132,6 +132,25 @@
     </div>
 </div>
 <div class="card-columns" id="charts_container" style="padding: 5px;">
+    {% for hdr, attribs in cell_extra_data.items() %}
+    <div class="card" style="width: 100%;">
+        <div class="card-header" style="color: purple;">
+            {{hdr|safe}}
+        </div>
+        <div class="body">
+            <table class="table">
+                <tbody>
+                {% for k, v in attribs.items() %}
+                <tr>
+                    <td>{{k|safe}}</td>
+                    <td>{{v|safe}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
 </div>
 {% else %}
 <div class="card" style="margin: 15px;">
