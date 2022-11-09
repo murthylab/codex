@@ -25,6 +25,7 @@ from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
 from src.utils.formatting import synapse_table_to_csv_string, synapse_table_to_json_dict
+from src.utils.graph_algos import reachable_node_counts
 from src.utils.graph_vis import make_graph_html
 from src.utils.logging import log_activity, log_error, format_link, user_agent, log
 from src.utils.thumbnails import url_for_skeleton
@@ -92,6 +93,21 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
         match_words=whole_word,
         data_version=data_version,
     )
+    if neuron_db.adjacencies:
+        reachable_counts = reachable_node_counts(
+            sources=filtered_root_id_list,
+            neighbor_sets=neuron_db.adjacencies["output_sets"],
+            total_count=neuron_db.num_cells(),
+        )
+        if reachable_counts:
+            data_stats["Downstream Descendants (5+ syn)"] = reachable_counts
+        reachable_counts = reachable_node_counts(
+            sources=filtered_root_id_list,
+            neighbor_sets=neuron_db.adjacencies["input_sets"],
+            total_count=neuron_db.num_cells(),
+        )
+        if reachable_counts:
+            data_stats["Upstream Ancestors (5+ syn)"] = reachable_counts
     return len(filtered_root_id_list), hint, caption, data_stats, data_charts
 
 

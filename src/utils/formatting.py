@@ -29,3 +29,7 @@ def synapse_table_to_json_dict(table, neuron_data_fetcher, meta_data):
     }
     network_dict["edges"] = [synapse_json(r) for r in table]
     return {"meta": meta_data, "network": network_dict} if meta_data else network_dict
+
+
+def percentage(part, whole):
+    return f"{max(0, min(100, int(100 * float(part) / float(whole))))}%"
