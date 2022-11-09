@@ -1,7 +1,6 @@
 from unittest import TestCase
 
-from src.data.local_data_loader import unpickle_all_neuron_db_versions, \
-    load_neuron_db
+from src.data.local_data_loader import unpickle_all_neuron_db_versions, load_neuron_db
 from src.data.neuron_data_factory import NeuronDataFactory
 
 from src.data.versions import DATA_SNAPSHOT_VERSIONS
@@ -11,21 +10,28 @@ from collections import defaultdict
 
 class NeuronDataTest(TestCase):
     def setUp(self):
-        self.neuron_dbs = unpickle_all_neuron_db_versions(data_root_path=TEST_DATA_ROOT_PATH)
+        self.neuron_dbs = unpickle_all_neuron_db_versions(
+            data_root_path=TEST_DATA_ROOT_PATH
+        )
 
     def test_data_load_equals_pickled_db(self):
         versions = DATA_SNAPSHOT_VERSIONS
-        loaded_neuron_dbs = {v: load_neuron_db(version=v, data_root_path=TEST_DATA_ROOT_PATH) for v in versions}
+        loaded_neuron_dbs = {
+            v: load_neuron_db(version=v, data_root_path=TEST_DATA_ROOT_PATH)
+            for v in versions
+        }
 
         def isnan(vl):
             return vl != vl
 
         def compare_neuron_dbs(tested, golden):
             self.assertIsNotNone(tested)
-            self.assertEqual(set(tested.neuron_data.keys()),
-                             set(tested.search_index.all_doc_ids()))
-            self.assertEqual(set(tested.neuron_data.keys()),
-                             set(golden.neuron_data.keys()))
+            self.assertEqual(
+                set(tested.neuron_data.keys()), set(tested.search_index.all_doc_ids())
+            )
+            self.assertEqual(
+                set(tested.neuron_data.keys()), set(golden.neuron_data.keys())
+            )
 
             diff_keys = defaultdict(int)
             for rid, nd in tested.neuron_data.items():
@@ -42,7 +48,9 @@ class NeuronDataTest(TestCase):
             # compare optional output sets (adjacency)
             self.assertEqual(tested.adjacencies, golden.adjacencies)
             if tested.adjacencies:
-                connected_cells = set(tested.adjacencies['input_sets'].keys()).union(set(tested.adjacencies['output_sets'].keys()))
+                connected_cells = set(tested.adjacencies["input_sets"].keys()).union(
+                    set(tested.adjacencies["output_sets"].keys())
+                )
                 not_connected_cells = set(tested.neuron_data.keys()) - connected_cells
                 self.assertGreater(2000, len(not_connected_cells))
 
@@ -53,4 +61,6 @@ class NeuronDataTest(TestCase):
         # check the same for data factory
         neuron_data_factory = NeuronDataFactory(data_root_path=TEST_DATA_ROOT_PATH)
         for v in versions:
-            compare_neuron_dbs(tested=neuron_data_factory.get(v), golden=self.neuron_dbs[v])
+            compare_neuron_dbs(
+                tested=neuron_data_factory.get(v), golden=self.neuron_dbs[v]
+            )
