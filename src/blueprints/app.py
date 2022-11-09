@@ -5,7 +5,7 @@ from collections import defaultdict
 from datetime import datetime
 from functools import lru_cache
 
-from flask import render_template, request, redirect, Response, url_for, Blueprint
+from flask import render_template, request, redirect, Response, url_for, Blueprint, session
 
 from src.blueprints.base import (
     request_wrapper,
@@ -24,10 +24,12 @@ from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_n
 from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
+from src.utils.cookies import fetch_flywire_user_id
 from src.utils.formatting import synapse_table_to_csv_string, synapse_table_to_json_dict
 from src.utils.graph_algos import reachable_node_counts
 from src.utils.graph_vis import make_graph_html
 from src.utils.logging import log_activity, log_error, format_link, user_agent, log
+from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
 
 app = Blueprint("app", __name__, url_prefix="/app")
@@ -462,10 +464,20 @@ def ngl_redirect_with_browser_check(ngl_url):
         )
 
 
-@app.route("/cell_details")
+@app.route("/cell_details", methods=["GET", "POST"])
 @request_wrapper
 @require_data_access
 def cell_details():
+    if request.method == "POST":
+        annotation = request.form.get("annotation_text")
+        annotation_cell_id = request.form.get("annotation_cell_id")
+        neuron_db = neuron_data_factory.get()
+        ndata = neuron_db.get_neuron_data(annotation_cell_id)
+        coordinates = ndata["position"][0] if ndata["position"] else None
+        log_activity(f"Submitting annotation '{annotation}' for cell {annotation_cell_id} with coordinates {coordinates}")
+        return redirect(cell_identification_url(cell_id=annotation_cell_id, user_id=fetch_flywire_user_id(session),
+                                                coordinates=coordinates, annotation=annotation))
+
     root_id = None
     cell_names_or_id = None
     if "root_id" in request.args:
