@@ -430,7 +430,7 @@ def data_access_token():
 @request_wrapper
 def logout():
     log_activity(f"Logging out")
-    delete_cookies()
+    delete_cookies(session)
     return render_auth_page()
 
 
