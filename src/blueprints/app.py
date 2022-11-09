@@ -580,11 +580,12 @@ def cell_details():
                 ] += v
             return res
 
-        charts["Inputs / Outputs"] = stats_utils.make_chart_from_counts(
+        charts["Input / Output Cells"] = stats_utils.make_chart_from_counts(
             chart_type="donut",
             key_title="Cell",
             val_title="Count",
             counts_dict={"Inputs": len(upstream), "Outputs": len(downstream)},
+            search_filter='input_output'
         )
 
         if input_neuropil_synapse_count:
@@ -594,12 +595,14 @@ def cell_details():
                 val_title="Synapse count",
                 counts_dict=input_neuropil_synapse_count,
                 sort_by_freq=True,
+                search_filter='input_neuropils'
             )
             charts["Input Synapse Hemisphere"] = stats_utils.make_chart_from_counts(
                 chart_type="donut",
                 key_title="Hemisphere",
                 val_title="Synapse count",
                 counts_dict=hemisphere_counts(input_neuropil_synapse_count),
+                search_filter='input_hemisphere'
             )
 
         if input_nt_type_count:
@@ -610,6 +613,7 @@ def cell_details():
                 key_title="Neurotransmitter Type",
                 val_title="Synapse count",
                 counts_dict=input_nt_type_count,
+                search_filter='input_nt_type'
             )
 
         if output_neuropil_synapse_count:
@@ -619,12 +623,14 @@ def cell_details():
                 val_title="Synapse count",
                 counts_dict=output_neuropil_synapse_count,
                 sort_by_freq=True,
+                search_filter='output_neuropils'
             )
             charts["Output Synapse Hemisphere"] = stats_utils.make_chart_from_counts(
                 chart_type="donut",
                 key_title="Hemisphere",
                 val_title="Synapse count",
                 counts_dict=hemisphere_counts(output_neuropil_synapse_count),
+                search_filter='output_hemisphere'
             )
     else:
         charts = {}
