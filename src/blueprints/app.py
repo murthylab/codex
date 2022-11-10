@@ -193,6 +193,7 @@ def render_neuron_list(
         display_data_ids = filtered_root_id_list
 
     display_data = [neuron_db.get_neuron_data(i) for i in display_data_ids]
+
     skeleton_thumbnail_urls = {
         nd["root_id"]: url_for_skeleton(nd["root_id"], data_version=data_version)
         for nd in display_data
@@ -202,6 +203,7 @@ def render_neuron_list(
             skeleton_thumbnail_urls[nd["inherited_tag_root_id"]] = url_for_skeleton(
                 nd["inherited_tag_root_id"], data_version=data_version
             )
+        nd['annotations'] = nd['annotations'].replace(filter_string,f"<b>{filter_string}</b>") 
 
     return render_template(
         template_name_or_list=template_name,
