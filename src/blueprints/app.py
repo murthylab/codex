@@ -217,15 +217,22 @@ def render_neuron_list(
                     + annotations[index + len(filter_string) :]
                 )
             else:
+                match_positions = []
                 for token in search_tokens:
                     folded_token = token.casefold()
-                    if folded_token in colored_annotations.casefold():
-                        index = colored_annotations.casefold().index(folded_token)
-                        colored_annotations = (
-                            colored_annotations[:index]
-                            + f"<span style='color:orange;font-weight:bold'>{colored_annotations[index:index+len(token)]}</span>"
-                            + colored_annotations[index + len(token) :]
-                        )
+                    if folded_token in folded_annotations:
+                        index = folded_annotations.index(folded_token)
+                        if match_positions == [] or index > match_positions[-1][1]: ## don't want to overlap
+                            match_positions.append((index, index + len(token)))
+                
+                colored_annotations = ""
+                last_index = 0
+                for start, end in match_positions:
+                    colored_annotations += annotations[last_index:start]
+                    colored_annotations += f"<span style='color:orange;font-weight:bold'>{annotations[start:end]}</span>"
+                    last_index = end
+                colored_annotations += annotations[last_index:]
+                
         nd["colored_annotations"] = colored_annotations
 
     return render_template(
