@@ -147,7 +147,7 @@
             <td><a href="{{url_for('app.cell_details', root_id=neuron.root_id)}}">{{neuron.name}}</a><br><small>{{neuron.root_id}}</small>
             </td>
             <td style="color:#3A3AAA;">{{neuron.class}}</td>
-            <td style="color:#3A3A3A;">{{neuron.annotations|safe}}</td>
+            <td style="color:#3A3A3A;">{{neuron.colored_annotations|safe}}</td>
             {% if extra_data %}
                 <td style="color:black;">{{extra_data.values_dict.get(neuron.root_id)}}</td>
             {% endif %}

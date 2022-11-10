@@ -29,6 +29,7 @@ from src.data import gcs_data_loader
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
+from src.data.search_index import tokenize
 from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
@@ -198,12 +199,26 @@ def render_neuron_list(
         nd["root_id"]: url_for_skeleton(nd["root_id"], data_version=data_version)
         for nd in display_data
     }
+
+    search_tokens = tokenize(filter_string)
+
     for nd in display_data:
         if nd["inherited_tag_root_id"]:
             skeleton_thumbnail_urls[nd["inherited_tag_root_id"]] = url_for_skeleton(
                 nd["inherited_tag_root_id"], data_version=data_version
-            )
-        nd['annotations'] = nd['annotations'].replace(filter_string,f"<b>{filter_string}</b>") 
+            ) 
+     
+        nd['colored_annotations'] = nd['annotations']
+        annotations = nd['annotations']
+        if filter_string:
+            if filter_string.casefold() in nd['annotations'].casefold():
+                index = nd['annotations'].casefold().index(filter_string.casefold())
+                nd['colored_annotations'] = nd['annotations'][:index] + f"<span style='color:green'>{nd['annotations'][index:index+len(filter_string)]}</span>" + nd['annotations'][index+len(filter_string):]
+            else:
+                for token in search_tokens:
+                    if token.casefold() in nd['colored_annotations'].casefold():
+                        index = nd['colored_annotations'].casefold().index(token.casefold())
+                        nd['colored_annotations'] = nd['colored_annotations'][:index] + f"<span style='color:orange'>{nd['colored_annotations'][index:index+len(token)]}</span>" + nd['colored_annotations'][index+len(token):]
 
     return render_template(
         template_name_or_list=template_name,
@@ -251,6 +266,7 @@ def search():
         filtered_root_id_list, extra_data = sort_search_results(
             query=filter_string, ids=filtered_root_id_list
         )
+        log_activity(filtered_root_id_list)
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
         log_error(f"No results for '{filter_string}', sending hint '{hint}'")
