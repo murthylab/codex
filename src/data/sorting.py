@@ -1,5 +1,9 @@
 from src.data.gcs_data_loader import load_connection_table_for_root_id
-from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM, parse_search_query
+from src.data.structured_search_filters import (
+    OP_DOWNSTREAM,
+    OP_UPSTREAM,
+    parse_search_query,
+)
 from src.utils.logging import log_error, log
 
 DOWNSTREAM_SYNAPSE_COUNT = "downstream_synapse_count"

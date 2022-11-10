@@ -206,19 +206,30 @@ def render_neuron_list(
         if nd["inherited_tag_root_id"]:
             skeleton_thumbnail_urls[nd["inherited_tag_root_id"]] = url_for_skeleton(
                 nd["inherited_tag_root_id"], data_version=data_version
-            ) 
-     
-        nd['colored_annotations'] = nd['annotations']
-        annotations = nd['annotations']
+            )
+
+        colored_annotations = annotations = nd["annotations"]
+        folded_annotations = annotations.casefold()
         if filter_string:
-            if filter_string.casefold() in nd['annotations'].casefold():
-                index = nd['annotations'].casefold().index(filter_string.casefold())
-                nd['colored_annotations'] = nd['annotations'][:index] + f"<span style='color:green'>{nd['annotations'][index:index+len(filter_string)]}</span>" + nd['annotations'][index+len(filter_string):]
+            folded_filter_string = filter_string.casefold()
+            if folded_filter_string in folded_annotations:
+                index = folded_annotations.index(folded_filter_string)
+                colored_annotations = (
+                    annotations[:index]
+                    + f"<span style='color:green;font-weight:bold'>{annotations[index:index+len(filter_string)]}</span>"
+                    + annotations[index + len(filter_string) :]
+                )
             else:
                 for token in search_tokens:
-                    if token.casefold() in nd['colored_annotations'].casefold():
-                        index = nd['colored_annotations'].casefold().index(token.casefold())
-                        nd['colored_annotations'] = nd['colored_annotations'][:index] + f"<span style='color:orange'>{nd['colored_annotations'][index:index+len(token)]}</span>" + nd['colored_annotations'][index+len(token):]
+                    folded_token = token.casefold()
+                    if folded_token in colored_annotations.casefold():
+                        index = colored_annotations.casefold().index(folded_token)
+                        colored_annotations = (
+                            colored_annotations[:index]
+                            + f"<span style='color:orange;font-weight:bold'>{colored_annotations[index:index+len(token)]}</span>"
+                            + colored_annotations[index + len(token) :]
+                        )
+        nd["colored_annotations"] = colored_annotations
 
     return render_template(
         template_name_or_list=template_name,
