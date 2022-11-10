@@ -347,7 +347,10 @@ class NeuronDB(object):
         ]
         if structured_terms:
             predicate = make_structured_terms_predicate(
-                chaining_rule=chaining_rule, structured_terms=structured_terms
+                chaining_rule=chaining_rule,
+                structured_terms=structured_terms,
+                input_sets=self.adjacencies["input_sets"],
+                output_sets=self.adjacencies["output_sets"],
             )
             term_search_results.append(
                 [k for k, v in self.neuron_data.items() if predicate(v)]

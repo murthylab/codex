@@ -1,6 +1,5 @@
-# Finds the set of neurons reachable in one step from a given set of source neurons 's'.
 from collections import defaultdict
-
+from src.utils.logging import log_error
 from src.utils.formatting import percentage
 
 
@@ -60,6 +59,13 @@ def distance_matrix(sources, targets, neighbor_sets):
 # given a source and a target node, finds all nodes along shortest-path pathways from source to target
 # and their distance from source (or None if not reachable)
 def pathways(source, target, input_sets, output_sets):
+    try:
+        source = int(source)
+        target = int(target)
+    except:
+        log_error(f"Invalid Cell IDs for pathways: {source=} {target=}")
+        return None
+
     if source == target or source not in output_sets or target not in input_sets:
         return None
 

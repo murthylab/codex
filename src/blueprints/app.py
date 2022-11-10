@@ -247,7 +247,9 @@ def search():
             f"Loaded {len(filtered_root_id_list)} search results for page {page_number} {activity_suffix(filter_string, data_version)}"
         )
         filtered_root_id_list, extra_data = sort_search_results(
-            query=filter_string, ids=filtered_root_id_list
+            query=filter_string,
+            ids=filtered_root_id_list,
+            output_sets=neuron_db.adjacencies["output_sets"],
         )
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
