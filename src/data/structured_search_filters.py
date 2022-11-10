@@ -1,6 +1,7 @@
 from src.data.brain_regions import match_to_neuropil, lookup_neuropil_set
 from src.data.gcs_data_loader import load_connections_for_root_id
 from src.data.neurotransmitters import lookup_nt_type
+from src.utils.graph_algos import pathways
 
 # Structured search operators
 OP_EQUAL = "{equal}"
@@ -14,6 +15,7 @@ OP_UPSTREAM = "{upstream}"
 OP_DOWNSTREAM = "{downstream}"
 OP_UPSTREAM_REGION = "{upstream_region}"
 OP_DOWNSTREAM_REGION = "{downstream_region}"
+OP_PATHWAYS = "{pathways}"
 OP_AND = "{and}"
 OP_OR = "{or}"
 
@@ -50,6 +52,10 @@ OPERATOR_METADATA = {
         "Binary, matches cells downstream of RHS, with synapses in LHS region, where region "
         "is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
     ),
+    OP_PATHWAYS: (
+        "->",
+        "Binary, match all cells along shortest-path pathways from LHS to RHS",
+    ),
     OP_AND: ("&&", "N-ary, all terms are true"),
     OP_OR: ("||", "N-ary, at least one of the terms is true"),
 }
@@ -62,6 +68,7 @@ SEARCH_TERM_BINARY_OPERATORS = [
     OP_NOT_IN,  # none of the values on rhs (rhs is comma separated list)
     OP_UPSTREAM_REGION,  # upstream to RHS in LHS region
     OP_DOWNSTREAM_REGION,  # downstream to RHS in LHS region
+    OP_PATHWAYS,  # pathways from LHS to RHS
 ]
 SEARCH_TERM_UNARY_OPERATORS = [
     OP_HAS,  # exists / has value
@@ -179,7 +186,7 @@ def _raise_unsupported_attr_for_structured_search(attr_name):
     )
 
 
-def _make_predicate(structured_term):
+def _make_predicate(structured_term, input_sets, output_sets):
     if structured_term["op"] in [OP_EQUAL, OP_NOT_EQUAL, OP_STARTS_WITH]:
         return _make_comparison_predicate(
             lhs=structured_term["lhs"],
@@ -222,12 +229,28 @@ def _make_predicate(structured_term):
             if k in region_neuropil_set:
                 target_rid_set |= set(v)
         return lambda x: x["root_id"] in target_rid_set
+    elif structured_term["op"] == OP_PATHWAYS:
+        pathway_distance_map = pathways(
+            source=structured_term["lhs"],
+            target=structured_term["rhs"],
+            input_sets=input_sets,
+            output_sets=output_sets,
+        )
+        pathway_distance_map = pathway_distance_map or {}
+        return lambda x: x["root_id"] in pathway_distance_map
     else:
         raise ValueError(f"Unsupported query operator {structured_term['op']}")
 
 
-def make_structured_terms_predicate(chaining_rule, structured_terms):
-    predicates = [_make_predicate(structured_term=t) for t in structured_terms]
+def make_structured_terms_predicate(
+    chaining_rule, structured_terms, input_sets, output_sets
+):
+    predicates = [
+        _make_predicate(
+            structured_term=t, input_sets=input_sets, output_sets=output_sets
+        )
+        for t in structured_terms
+    ]
     if len(structured_terms) == 1:
         return predicates[0]
     elif chaining_rule == OP_AND:
