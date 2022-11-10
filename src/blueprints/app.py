@@ -34,7 +34,7 @@ from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
 from src.utils.cookies import fetch_flywire_user_id
 from src.utils.formatting import synapse_table_to_csv_string, synapse_table_to_json_dict
-from src.utils.graph_algos import reachable_node_counts
+from src.utils.graph_algos import reachable_node_counts, distance_matrix
 from src.utils.graph_vis import make_graph_html
 from src.utils.logging import (
     log_activity,
@@ -880,8 +880,6 @@ def path_length():
     sample_input = (
         "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
     )
-    nt_type = request.args.get("nt_type", "all")
-    min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     if (
         request.args.get("with_sample_input", type=int, default=0)
@@ -912,23 +910,21 @@ def path_length():
                 title="Cell list is too short",
             )
 
-        distance_matrix = gcs_data_loader.load_precomputed_distances_for_root_ids(
-            root_ids, nt_type=nt_type, min_syn_cnt=min_syn_cnt, whole_rows=False
-        )
-        if len(distance_matrix) <= 1:
+        matrix = distance_matrix(sources=root_ids, targets=root_ids, neighbor_sets=neuron_db.adjacencies.get('output_sets'))
+        if len(matrix) <= 1:
             return render_error(
                 f"Path lengths for Cell IDs {root_ids} are not available."
             )
         log_activity(
-            f"Generated path lengths table for {root_ids} {download=} {min_syn_cnt=} {nt_type=}"
+            f"Generated path lengths table for {root_ids} {download=}"
         )
     else:
-        distance_matrix = []
+        matrix = []
 
     if download:
         fname = f"path_lengths.csv"
         return Response(
-            "\n".join([",".join([str(r) for r in row]) for row in distance_matrix]),
+            "\n".join([",".join([str(r) for r in row]) for row in matrix]),
             mimetype="text/csv",
             headers={"Content-disposition": f"attachment; filename={fname}"},
         )
@@ -937,15 +933,11 @@ def path_length():
         return render_template(
             "distance_table.html",
             cell_names_or_ids=cell_names_or_ids,
-            min_syn_cnt=min_syn_cnt,
-            nt_type=nt_type,
-            distance_table=distance_matrix,
+            distance_table=matrix,
             download_url=url_for(
                 "app.path_length",
                 download=1,
-                cell_names_or_ids=cell_names_or_ids,
-                nt_type=nt_type,
-                min_syn_cnt=min_syn_cnt,
+                cell_names_or_ids=cell_names_or_ids
             ),
             info_text="With this tool you can specify one "
             "or more source cells + one or more target cells, and get a matrix with shortest path lengths "
