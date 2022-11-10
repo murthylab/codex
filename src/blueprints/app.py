@@ -266,7 +266,6 @@ def search():
         filtered_root_id_list, extra_data = sort_search_results(
             query=filter_string, ids=filtered_root_id_list
         )
-        log_activity(filtered_root_id_list)
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
         log_error(f"No results for '{filter_string}', sending hint '{hint}'")
