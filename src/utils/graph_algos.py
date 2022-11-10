@@ -49,9 +49,39 @@ def reachable_node_counts(sources, neighbor_sets, total_count):
 
 # given set of sources and target nodes, calculates the pairwise distance matrix from any source to any target
 def distance_matrix(sources, targets, neighbor_sets):
-    matrix = [['from \ to'] + targets]
+    matrix = [["from \ to"] + targets]
     for s in sources:
         reached = reachable_nodes(sources=[s], neighbor_sets=neighbor_sets)
         matrix.append([s] + [reached.get(t, -1) for t in targets])
         del reached
     return matrix
+
+
+# given a source and a target node, finds all nodes along shortest-path pathways from source to target
+# and their distance from source (or None if not reachable)
+def pathways(source, target, input_sets, output_sets):
+    if source == target or source not in output_sets or target not in input_sets:
+        return None
+
+    fwd = reachable_nodes(sources=[source], neighbor_sets=output_sets)
+    if target not in fwd:
+        return None
+    distance = fwd[target]
+    assert distance > 0
+
+    bwd = reachable_nodes(sources=[target], neighbor_sets=input_sets)
+    assert source in bwd and distance == bwd[source]
+
+    path_nodes = defaultdict(int)
+    for n, df in fwd.items():
+        if n in bwd:
+            db = bwd[n]
+
+            if df + db == distance:
+                path_nodes[n] = df
+            else:
+                assert df + db >= distance
+    distant_nodes = [n for n, d in path_nodes.items() if d == distance]
+    assert distant_nodes == [target]
+
+    return path_nodes
