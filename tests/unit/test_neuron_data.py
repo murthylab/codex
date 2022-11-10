@@ -49,7 +49,7 @@ class NeuronDataTest(TestCase):
         check_min_values_present("inherited_tag_root_id", 2871)
         check_min_values_present("inherited_tag_score", 2871)
         check_min_values_present("user_id", 23155)
-        check_min_values_present("position", 23155)
+        check_min_values_present("position", 68375)
 
     def test_annotations(self):
         neurons_with_tags = [n for n in self.neuron_db.neuron_data.values() if n["tag"]]
