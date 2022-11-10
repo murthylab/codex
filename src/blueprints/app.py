@@ -910,14 +910,16 @@ def path_length():
                 title="Cell list is too short",
             )
 
-        matrix = distance_matrix(sources=root_ids, targets=root_ids, neighbor_sets=neuron_db.adjacencies.get('output_sets'))
+        matrix = distance_matrix(
+            sources=root_ids,
+            targets=root_ids,
+            neighbor_sets=neuron_db.adjacencies.get("output_sets"),
+        )
         if len(matrix) <= 1:
             return render_error(
                 f"Path lengths for Cell IDs {root_ids} are not available."
             )
-        log_activity(
-            f"Generated path lengths table for {root_ids} {download=}"
-        )
+        log_activity(f"Generated path lengths table for {root_ids} {download=}")
     else:
         matrix = []
 
@@ -935,9 +937,7 @@ def path_length():
             cell_names_or_ids=cell_names_or_ids,
             distance_table=matrix,
             download_url=url_for(
-                "app.path_length",
-                download=1,
-                cell_names_or_ids=cell_names_or_ids
+                "app.path_length", download=1, cell_names_or_ids=cell_names_or_ids
             ),
             info_text="With this tool you can specify one "
             "or more source cells + one or more target cells, and get a matrix with shortest path lengths "
