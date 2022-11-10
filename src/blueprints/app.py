@@ -194,14 +194,11 @@ def render_neuron_list(
         display_data_ids = filtered_root_id_list
 
     display_data = [neuron_db.get_neuron_data(i) for i in display_data_ids]
-
     skeleton_thumbnail_urls = {
         nd["root_id"]: url_for_skeleton(nd["root_id"], data_version=data_version)
         for nd in display_data
     }
-
     search_tokens = tokenize(filter_string)
-
     for nd in display_data:
         if nd["inherited_tag_root_id"]:
             skeleton_thumbnail_urls[nd["inherited_tag_root_id"]] = url_for_skeleton(
