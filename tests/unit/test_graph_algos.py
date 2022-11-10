@@ -67,3 +67,16 @@ class TestGraphAlgos(TestCase):
             },
             pathways(s, t, isets, osets),
         )
+
+        s = 720575940631057731
+        t = 720575940618324790
+
+        # lots of paths
+        self.assertEqual(496, len(pathways(s, t, isets, osets)))
+
+        t = 720575940633509913
+
+        # single hop
+        self.assertEqual(
+            {720575940631057731: 0, 720575940633509913: 1}, pathways(s, t, isets, osets)
+        )
