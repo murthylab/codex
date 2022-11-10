@@ -35,7 +35,7 @@ from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
 from src.utils.cookies import fetch_flywire_user_id
 from src.utils.formatting import synapse_table_to_csv_string, synapse_table_to_json_dict
-from src.utils.graph_algos import reachable_node_counts
+from src.utils.graph_algos import reachable_node_counts, distance_matrix
 from src.utils.graph_vis import make_graph_html
 from src.utils.logging import (
     log_activity,
@@ -118,14 +118,14 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            data_stats["Downstream Reachable (5+ syn)"] = reachable_counts
+            data_stats["Downstream Reachable Cells (5+ syn)"] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources=filtered_root_id_list,
             neighbor_sets=neuron_db.adjacencies["input_sets"],
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            data_stats["Upstream Reachable (5+ syn)"] = reachable_counts
+            data_stats["Upstream Reachable Cells (5+ syn)"] = reachable_counts
     return len(filtered_root_id_list), hint, caption, data_stats, data_charts
 
 
@@ -279,7 +279,9 @@ def search():
             f"Loaded {len(filtered_root_id_list)} search results for page {page_number} {activity_suffix(filter_string, data_version)}"
         )
         filtered_root_id_list, extra_data = sort_search_results(
-            query=filter_string, ids=filtered_root_id_list
+            query=filter_string,
+            ids=filtered_root_id_list,
+            output_sets=neuron_db.adjacencies["output_sets"],
         )
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
@@ -753,14 +755,14 @@ def cell_details():
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            cell_extra_data["Downstream Reachable (5+ syn)"] = reachable_counts
+            cell_extra_data["Downstream Reachable Cells (5+ syn)"] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources={root_id},
             neighbor_sets=neuron_db.adjacencies["input_sets"],
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            cell_extra_data["Upstream Reachable (5+ syn)"] = reachable_counts
+            cell_extra_data["Upstream Reachable Cells (5+ syn)"] = reachable_counts
 
     log_activity(
         f"Generated neuron info for {root_id} with {len(cell_attributes) + len(related_cells)} items"
@@ -912,8 +914,6 @@ def path_length():
     sample_input = (
         "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
     )
-    nt_type = request.args.get("nt_type", "all")
-    min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     if (
         request.args.get("with_sample_input", type=int, default=0)
@@ -944,23 +944,23 @@ def path_length():
                 title="Cell list is too short",
             )
 
-        distance_matrix = gcs_data_loader.load_precomputed_distances_for_root_ids(
-            root_ids, nt_type=nt_type, min_syn_cnt=min_syn_cnt, whole_rows=False
+        matrix = distance_matrix(
+            sources=root_ids,
+            targets=root_ids,
+            neighbor_sets=neuron_db.adjacencies.get("output_sets"),
         )
-        if len(distance_matrix) <= 1:
+        if len(matrix) <= 1:
             return render_error(
                 f"Path lengths for Cell IDs {root_ids} are not available."
             )
-        log_activity(
-            f"Generated path lengths table for {root_ids} {download=} {min_syn_cnt=} {nt_type=}"
-        )
+        log_activity(f"Generated path lengths table for {root_ids} {download=}")
     else:
-        distance_matrix = []
+        matrix = []
 
     if download:
         fname = f"path_lengths.csv"
         return Response(
-            "\n".join([",".join([str(r) for r in row]) for row in distance_matrix]),
+            "\n".join([",".join([str(r) for r in row]) for row in matrix]),
             mimetype="text/csv",
             headers={"Content-disposition": f"attachment; filename={fname}"},
         )
@@ -969,15 +969,9 @@ def path_length():
         return render_template(
             "distance_table.html",
             cell_names_or_ids=cell_names_or_ids,
-            min_syn_cnt=min_syn_cnt,
-            nt_type=nt_type,
-            distance_table=distance_matrix,
+            distance_table=matrix,
             download_url=url_for(
-                "app.path_length",
-                download=1,
-                cell_names_or_ids=cell_names_or_ids,
-                nt_type=nt_type,
-                min_syn_cnt=min_syn_cnt,
+                "app.path_length", download=1, cell_names_or_ids=cell_names_or_ids
             ),
             info_text="With this tool you can specify one "
             "or more source cells + one or more target cells, and get a matrix with shortest path lengths "
