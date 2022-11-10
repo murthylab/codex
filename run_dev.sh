@@ -9,4 +9,4 @@ BUILD_GIT_SHA="$(git log | head -1 | cut -d " " -f 2)" && \
 export BUILD_GIT_SHA && \
 BUILD_TIMESTAMP="$(date)" &&\
 export BUILD_TIMESTAMP && \
-flask run 
+flask run
