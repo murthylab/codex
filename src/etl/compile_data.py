@@ -447,9 +447,39 @@ def correct_nt_scores(version=LATEST_DATA_SNAPSHOT_VERSION):
     write_csv(filename=fname_out, rows=content, compress=True)
 
 
+def fill_missing_positions(version=LATEST_DATA_SNAPSHOT_VERSION):
+    fname_in = f"static/data/{version}/neuron_data.csv.gz"
+    fname_out = f"static/data/{version}/neuron_data_with_filled_positions.csv.gz"
+
+    prinfo = load_proofreading_info_from_cave(client=init_cave_client())
+    position_dict = {str(r[0]): r[1] for r in prinfo}
+
+    content = read_csv(fname_in)
+
+    mismatch = match = not_found = filled = contained = 0
+    pos_col_idx = content[0].index("position")
+    for r in content[1:]:
+        pos = position_dict.get(r[0])
+        if not pos:
+            not_found += 1
+        elif not r[pos_col_idx]:
+            r[pos_col_idx] = pos
+            filled += 1
+        elif r[pos_col_idx] == pos:
+            match += 1
+        elif pos in r[pos_col_idx]:
+            contained += 1
+        else:
+            r[pos_col_idx] = f"{pos},{r[pos_col_idx]}"
+            mismatch += 1
+    print(f"{not_found=} {filled=} {match=} {mismatch=} {contained=}")
+    write_csv(filename=fname_out, rows=content, compress=True)
+
+
 if __name__ == "__main__":
     # compile_data()
     # augment_existing_data()
     # replace_classes_in_existing_data()
     # augment_with_nt_scores()
-    correct_nt_scores()
+    # correct_nt_scores()
+    fill_missing_positions()
