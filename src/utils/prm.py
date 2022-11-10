@@ -18,6 +18,7 @@ def cell_identification_url(cell_id, user_id, coordinates, annotation):
         coordinates = coordinates.replace("]", "")
         coordinates = [p for p in coordinates.split() if p]
         if len(coordinates) == 3:
+            # convert from nm to FlyWire units
             coordinates = f"{int(coordinates[0]) // 4},{int(coordinates[1]) // 4},{int(coordinates[2]) // 40}"
         else:
             coordinates = ""
