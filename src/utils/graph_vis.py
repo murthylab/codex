@@ -17,6 +17,7 @@ NT_COLORS = {
 }
 UNSPECIFIED_COLOR = "#fafafa"
 
+
 def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
     """
     connection_table has 4 columns: pre root id, post root id, neuropil, syn count
@@ -48,12 +49,14 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
             class_and_annotations += f'<br>{nd["annotations"]}'
 
         prefix = "selected cell" if rid in center_ids else "connected cell"
-        cell_detail_url = url_for('app.cell_details', root_id=rid)
-        thumbnail_url = url_for('base.skeleton_thumbnail_url', root_id=rid)
-        return f'<a href="{cell_detail_url}" target="_parent">{name}</a><br>({prefix})<br><small>{rid}' \
-               f"</small><br><small>{class_and_annotations}</small><br>" \
-               f'<a href="{cell_detail_url}" target="_parent">' \
-               f'<img src="{thumbnail_url}" width="200px" height="150px;" border="0px;"></a>'
+        cell_detail_url = url_for("app.cell_details", root_id=rid)
+        thumbnail_url = url_for("base.skeleton_thumbnail_url", root_id=rid)
+        return (
+            f'<a href="{cell_detail_url}" target="_parent">{name}</a><br>({prefix})<br><small>{rid}'
+            f"</small><br><small>{class_and_annotations}</small><br>"
+            f'<a href="{cell_detail_url}" target="_parent">'
+            f'<img src="{thumbnail_url}" width="200px" height="150px;" border="0px;"></a>'
+        )
 
     def edge_title(num):
         return f"{num} synapses"
@@ -103,7 +106,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
                 title=title,
                 shape="box",
                 size=20,
-                color=NEUROPIL_COLOR
+                color=NEUROPIL_COLOR,
             )
             added_pil_nodes.add(nid)
             net.add_legend("Neuropil", color=NEUROPIL_COLOR)
@@ -113,11 +116,15 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
     for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:MAX_NODES]:
         add_cell_node(k[0])
         pnid = add_pil_node(k[1], is_input=k[0] not in center_ids)
-        net.add_edge(source=k[0], target=pnid, value=v, label=str(v), title=edge_title(v))
+        net.add_edge(
+            source=k[0], target=pnid, value=v, label=str(v), title=edge_title(v)
+        )
     for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[:MAX_NODES]:
         add_cell_node(k[1])
         pnid = add_pil_node(k[0], is_input=k[1] in center_ids)
-        net.add_edge(source=pnid, target=k[1], value=v, label=str(v), title=edge_title(v))
+        net.add_edge(
+            source=pnid, target=k[1], value=v, label=str(v), title=edge_title(v)
+        )
 
     # bundle any remaining connections (to prevent too large graphs)
     def add_super_cell_node():
@@ -228,15 +235,17 @@ class Network(object):
         assert source in self.node_map, f"non existent node '{str(source)}'"
         assert target in self.node_map, f"non existent node '{str(target)}'"
 
-        self.edges.append({
-            "from": source,
-            "to": target,
-            "value": value,
-            "physics": self.edge_physics,
-            "label": label,
-            "title": title,
-            "arrows": "to",
-        })
+        self.edges.append(
+            {
+                "from": source,
+                "to": target,
+                "value": value,
+                "physics": self.edge_physics,
+                "label": label,
+                "title": title,
+                "arrows": "to",
+            }
+        )
 
     def add_legend(self, label, color):
         legend_entry = {"label": label, "color": color}
@@ -245,6 +254,8 @@ class Network(object):
 
     def generate_html(self):
         return render_template(
-            "network_graph.html", nodes=list(self.node_map.values()), edges=self.edges, legend=self.legend
+            "network_graph.html",
+            nodes=list(self.node_map.values()),
+            edges=self.edges,
+            legend=self.legend,
         )
-
