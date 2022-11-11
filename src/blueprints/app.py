@@ -27,7 +27,15 @@ from src.blueprints.base import (
 )
 from src.data import gcs_data_loader
 from src.data.faq_qa_kb import FAQ_QA_KB
-from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM, OP_PATHWAYS, OPERATOR_METADATA, SEARCH_TERM_BINARY_OPERATORS, SEARCH_TERM_UNARY_OPERATORS, STRUCTURED_SEARCH_ATTRIBUTES
+from src.data.structured_search_filters import (
+    OP_DOWNSTREAM,
+    OP_UPSTREAM,
+    OP_PATHWAYS,
+    OPERATOR_METADATA,
+    SEARCH_TERM_BINARY_OPERATORS,
+    SEARCH_TERM_UNARY_OPERATORS,
+    STRUCTURED_SEARCH_ATTRIBUTES,
+)
 from src.data.brain_regions import REGIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
 from src.data.sorting import sort_search_results
@@ -257,11 +265,13 @@ def search():
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
         log_error(f"No results for '{filter_string}', sending hint '{hint}'")
-    
+
     operators = SEARCH_TERM_BINARY_OPERATORS + SEARCH_TERM_UNARY_OPERATORS
     operator_types = {}
     for op in SEARCH_TERM_BINARY_OPERATORS:
-        operator_types[op] = "binary_region" if "stream_region" in op else "binary_attribute"
+        operator_types[op] = (
+            "binary_region" if "stream_region" in op else "binary_attribute"
+        )
     for op in SEARCH_TERM_UNARY_OPERATORS:
         operator_types[op] = "unary_stream" if "stream" in op else "unary_attribute"
     regions = ["Left", "Right", "Center"]
