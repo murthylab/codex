@@ -232,26 +232,41 @@ def highlight_annotations(filter_string, nd):
     colored_annotations = annotations = nd["annotations"]
     folded_annotations = annotations.casefold()
 
-    print(f"{tokenize(nd['tag'][0])=}")
     if filter_string:
         folded_filter_string = filter_string.casefold()
         if folded_filter_string in folded_annotations:
-            index = folded_annotations.index(folded_filter_string)
-            colored_annotations = (
-                annotations[:index]
-                + f"<span style='padding:2px;border-radius:5px;background-color:lightgreen'>{annotations[index:index+len(filter_string)]}</span>"
-                + annotations[index + len(filter_string) :]
-            )
+            match_positions = []
+            results = [
+                m.start(0)
+                for m in re.finditer(folded_filter_string, folded_annotations)
+            ]
+            for index in results:
+                if match_positions == [] or index > match_positions[-1][1]:
+                    match_positions.append((index, index + len(folded_filter_string)))
+            colored_annotations = ""
+            last_end = 0
+            for start, end in match_positions:
+                colored_annotations += (
+                    annotations[last_end:start]
+                    + f"<span style='padding:2px;border-radius:5px;background-color:lightgreen'>{annotations[start:end]}</span>"
+                )
+                last_end = end
+            colored_annotations += annotations[last_end:]
         else:
             match_positions = []
             for token in search_tokens:
                 folded_token = token.casefold()
                 if folded_token in folded_annotations:
-                    index = folded_annotations.index(folded_token)
-                    if (
-                        match_positions == [] or index > match_positions[-1][1]
-                    ):  ## don't want to overlap
-                        match_positions.append((index, index + len(token)))
+                    results = [
+                        m.start(0)
+                        for m in re.finditer(folded_token, folded_annotations)
+                    ]
+                    print(f"{results=}")
+                    for index in results:
+                        if (
+                            match_positions == [] or index > match_positions[-1][1]
+                        ):  ## don't want to overlap
+                            match_positions.append((index, index + len(token)))
 
             colored_annotations = ""
             last_index = 0
