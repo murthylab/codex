@@ -56,6 +56,145 @@
             </div>
         </div>
 
+        <script type="text/javascript">
+            function chooseOperator(elem) {
+                //TODO make default selection work
+                console.log("Chose", elem, elem.value);
+                const searchTermElem = elem.parentElement.parentElement;
+                const attributeElem = searchTermElem.querySelector(".search-attribute");
+                const regionElem = searchTermElem.querySelector(".search-region");
+                const valueElem = searchTermElem.querySelector(".search-value");
+                //TODO clear selections/values?
+                const valueLabel = valueElem.querySelector("label");
+                attributeElem.setAttribute("hidden", true);
+                regionElem.setAttribute("hidden", true);
+                valueElem.setAttribute("hidden", true);
+                const operator_types = {{advanced_search_data.operator_types|tojson}};
+                const operator_type = operator_types[elem.value];
+                if (operator_type == "binary_attribute") {
+                    //move attribute before operator
+                    searchTermElem.insertBefore(attributeElem, regionElem);
+                    attributeElem.removeAttribute("hidden");
+                    valueLabel.innerHTML = "Value";
+                    valueElem.removeAttribute("hidden");
+                }
+                else if (operator_type == "binary_region") {
+                    regionElem.removeAttribute("hidden");
+                    valueLabel.innerHTML = "Cell ID";
+                    valueElem.removeAttribute("hidden");
+                }
+                else if (operator_type == "unary_attribute") {
+                    //move attribute after operator
+                    searchTermElem.appendChild(attributeElem);
+                    attributeElem.removeAttribute("hidden");
+                }
+                else if (operator_type == "unary_stream") {
+                    valueLabel.innerHTML = "Cell ID";
+                    valueElem.removeAttribute("hidden");
+                }
+                else {
+                    console.log("Unknown operator type", operator_type);
+                }
+            }
+
+            function addSearchTerm(buttonElem) {
+                //TODO add fresh search term just before button
+                //display "AND" between them somehow
+            }
+
+            function doAdvancedSearch() {
+                let searchString = "";
+                const searchTerms = document.querySelectorAll(".search-term");
+                for (const searchElem of searchTerms) {
+                    console.log(searchElem);
+                    if (searchString !== "") {
+                        searchString += " && ";
+                    }
+                    const operator = searchElem.querySelector(".search-operator > select").value;
+                    const attribute = searchElem.querySelector(".search-attribute > select").value;
+                    const region = searchElem.querySelector(".search-region > select").value;
+                    const valueText = searchElem.querySelector(".search-value > input").value;
+                    const operator_types = {{advanced_search_data.operator_types|tojson}};
+                    const operator_type = operator_types[operator];
+                    if (operator_type == "binary_attribute") {
+                        searchString += attribute + " " + operator + " " + valueText;
+                    }
+                    else if (operator_type == "binary_region") {
+                        searchString += region + " " + operator + " " + valueText;
+                    }
+                    else if (operator_type == "unary_attribute") {
+                        searchString += operator + " " + attribute;
+                    }
+                    else if (operator_type == "unary_stream") {
+                        searchString += operator + " " + valueText;
+                    }
+                    else {
+                        console.log("Unknown operator type", operator_type);
+                    }
+                }
+                const filterBox = document.getElementById("filter_string");
+                filterBox.value = searchString;
+                filterBox.form.submit();
+            }
+        </script>
+        <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Advanced Search"
+                data-toggle="modal" data-target="#advancedModal"><i class="fa-solid fa-magnifying-glass-chart"></i></button>
+        <div class="modal fade" id="advancedModal" tabindex="-1" role="dialog" aria-labelledby="advancedModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" style="color:blue;" id="advancedModalLabel">Advanced Search</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="search-terms">
+                            <div class="search-term">
+                                <div class="form-group search-attribute" hidden>
+                                    <label style="margin: 20px;">Attribute</label>
+                                    <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                                            aria-label="Attribute" name="attribute">
+                                        {% for a in advanced_search_data.attributes %}
+                                        <option value="{{a}}">{{a}} {{advanced_search_data.attributes[a][2]}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group search-region" hidden>
+                                    <label style="margin: 20px;">Region</label>
+                                    <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                                            aria-label="region" name="region">
+                                        {% for r in advanced_search_data.regions %}
+                                        <option value="{{r}}">{{r}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group search-operator">
+                                    <label style="margin: 20px;">Operator</label>
+                                    <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                                            aria-label="Operator" name="operator" onChange="chooseOperator(this);">
+                                        {% for op in advanced_search_data.operators %}
+                                        <option value="{{op}}">{{op}} {{advanced_search_data.operator_metadata[op]}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group search-value" hidden>
+                                    <label style="margin: 20px;">Value</label>
+                                    <input class="form-control" type="text" name="value">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="addSearchTerm(this);">Add Search Term</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="doAdvancedSearch();">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </form>
 </nav>
 

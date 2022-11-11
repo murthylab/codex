@@ -27,7 +27,8 @@ from src.blueprints.base import (
 )
 from src.data import gcs_data_loader
 from src.data.faq_qa_kb import FAQ_QA_KB
-from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM, OP_PATHWAYS
+from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM, OP_PATHWAYS, OPERATOR_METADATA, SEARCH_TERM_BINARY_OPERATORS, SEARCH_TERM_UNARY_OPERATORS, STRUCTURED_SEARCH_ATTRIBUTES
+from src.data.brain_regions import REGIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
 from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
@@ -153,6 +154,7 @@ def render_neuron_list(
     page_number,
     hint,
     extra_data,
+    advanced_search_data,
 ):
     neuron_db = neuron_data_factory.get(data_version)
     num_items = len(filtered_root_id_list)
@@ -221,6 +223,7 @@ def render_neuron_list(
         case_sensitive=case_sensitive,
         whole_word=whole_word,
         extra_data=extra_data,
+        advanced_search_data=advanced_search_data,
     )
 
 
@@ -254,6 +257,23 @@ def search():
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
         log_error(f"No results for '{filter_string}', sending hint '{hint}'")
+    
+    operators = SEARCH_TERM_BINARY_OPERATORS + SEARCH_TERM_UNARY_OPERATORS
+    operator_types = {}
+    for op in SEARCH_TERM_BINARY_OPERATORS:
+        operator_types[op] = "binary_region" if "stream_region" in op else "binary_attribute"
+    for op in SEARCH_TERM_UNARY_OPERATORS:
+        operator_types[op] = "unary_stream" if "stream" in op else "unary_attribute"
+    regions = ["Left", "Right", "Center"]
+    for r in REGIONS:
+        regions.append(r)
+    advanced_search_data = {
+        "operators": operators,
+        "operator_types": operator_types,
+        "operator_metadata": OPERATOR_METADATA,
+        "attributes": STRUCTURED_SEARCH_ATTRIBUTES,
+        "regions": regions,
+    }
 
     return render_neuron_list(
         data_version=data_version,
@@ -265,6 +285,7 @@ def search():
         page_number=page_number,
         hint=hint,
         extra_data=extra_data,
+        advanced_search_data=advanced_search_data,
     )
 
 
@@ -404,6 +425,7 @@ def labeling_suggestions():
         page_number=page_number,
         hint=hint,
         extra_data=None,
+        advanced_search_data=None,
     )
 
 
