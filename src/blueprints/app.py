@@ -27,16 +27,7 @@ from src.blueprints.base import (
 )
 from src.data import gcs_data_loader
 from src.data.faq_qa_kb import FAQ_QA_KB
-from src.data.structured_search_filters import (
-    OP_DOWNSTREAM,
-    OP_UPSTREAM,
-    OP_PATHWAYS,
-    OPERATOR_METADATA,
-    SEARCH_TERM_BINARY_OPERATORS,
-    SEARCH_TERM_UNARY_OPERATORS,
-    STRUCTURED_SEARCH_ATTRIBUTES,
-)
-from src.data.brain_regions import REGIONS
+from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM, OP_PATHWAYS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
 from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
@@ -55,6 +46,7 @@ from src.utils.logging import (
 )
 from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
+from src.utils.search import get_advanced_search_data
 
 app = Blueprint("app", __name__, url_prefix="/app")
 
@@ -84,8 +76,6 @@ def stats():
             f"No stats {activity_suffix(filter_string, data_version)}, sending hint '{hint}'"
         )
 
-    advanced_search_data = get_advanced_search_data()
-
     return render_template(
         "stats.html",
         caption=caption,
@@ -98,7 +88,7 @@ def stats():
         data_version=data_version,
         case_sensitive=case_sensitive,
         whole_word=whole_word,
-        advanced_search_data=advanced_search_data,
+        advanced_search_data=get_advanced_search_data(),
     )
 
 
@@ -165,7 +155,6 @@ def render_neuron_list(
     page_number,
     hint,
     extra_data,
-    advanced_search_data,
 ):
     neuron_db = neuron_data_factory.get(data_version)
     num_items = len(filtered_root_id_list)
@@ -234,30 +223,8 @@ def render_neuron_list(
         case_sensitive=case_sensitive,
         whole_word=whole_word,
         extra_data=extra_data,
-        advanced_search_data=advanced_search_data,
+        advanced_search_data=get_advanced_search_data(),
     )
-
-
-def get_advanced_search_data():
-    operators = SEARCH_TERM_BINARY_OPERATORS + SEARCH_TERM_UNARY_OPERATORS
-    operator_types = {}
-    for op in SEARCH_TERM_BINARY_OPERATORS:
-        operator_types[op] = (
-            "binary_region" if "stream_region" in op else "binary_attribute"
-        )
-    for op in SEARCH_TERM_UNARY_OPERATORS:
-        operator_types[op] = "unary_stream" if "stream" in op else "unary_attribute"
-    hemispheres = ["Left", "Right", "Center"]
-    regions = list(REGIONS.keys())
-    regions.sort()
-    return {
-        "operators": operators,
-        "operator_types": operator_types,
-        "operator_metadata": OPERATOR_METADATA,
-        "attributes": STRUCTURED_SEARCH_ATTRIBUTES,
-        "hemispheres": hemispheres,
-        "regions": regions,
-    }
 
 
 @app.route("/search", methods=["GET"])
@@ -291,8 +258,6 @@ def search():
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
         log_error(f"No results for '{filter_string}', sending hint '{hint}'")
 
-    advanced_search_data = get_advanced_search_data()
-
     return render_neuron_list(
         data_version=data_version,
         template_name="search.html",
@@ -303,7 +268,6 @@ def search():
         page_number=page_number,
         hint=hint,
         extra_data=extra_data,
-        advanced_search_data=advanced_search_data,
     )
 
 
@@ -443,7 +407,6 @@ def labeling_suggestions():
         page_number=page_number,
         hint=hint,
         extra_data=None,
-        advanced_search_data=None,
     )
 
 
