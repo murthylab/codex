@@ -274,14 +274,15 @@ def search():
         )
     for op in SEARCH_TERM_UNARY_OPERATORS:
         operator_types[op] = "unary_stream" if "stream" in op else "unary_attribute"
-    regions = ["Left", "Right", "Center"]
-    for r in REGIONS:
-        regions.append(r)
+    hemispheres = ["Left", "Right", "Center"]
+    regions = list(REGIONS.keys())
+    regions.sort()
     advanced_search_data = {
         "operators": operators,
         "operator_types": operator_types,
         "operator_metadata": OPERATOR_METADATA,
         "attributes": STRUCTURED_SEARCH_ATTRIBUTES,
+        "hemispheres": hemispheres,
         "regions": regions,
     }
 
