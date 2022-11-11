@@ -27,7 +27,7 @@ from src.blueprints.base import (
 )
 from src.data import gcs_data_loader
 from src.data.faq_qa_kb import FAQ_QA_KB
-from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM
+from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM, OP_PATHWAYS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
 from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
@@ -268,7 +268,7 @@ def search():
     )
 
 
-@app.route("/app/download_search_results")
+@app.route("/download_search_results")
 @request_wrapper
 @require_data_access
 def download_search_results():
@@ -310,7 +310,7 @@ def download_search_results():
     )
 
 
-@app.route("/app/root_ids_from_search_results")
+@app.route("/root_ids_from_search_results")
 @request_wrapper
 @require_data_access
 def root_ids_from_search_results():
@@ -895,9 +895,9 @@ def path_length():
     download = request.args.get("download", 0, type=int)
     log_activity(f"Generating path lengths table for '{cell_names_or_ids}' {download=}")
     message = None
+    neuron_db = neuron_data_factory.get()
 
     if cell_names_or_ids:
-        neuron_db = neuron_data_factory.get()
         root_ids = neuron_db.search(search_query=cell_names_or_ids)
         if not root_ids:
             return render_error(
@@ -937,6 +937,27 @@ def path_length():
             headers={"Content-disposition": f"attachment; filename={fname}"},
         )
     else:
+        if matrix:
+            # format matrix with cell info/hyperlinks and pathway hyperlinks
+            for i, r in enumerate(matrix[1:]):
+                from_root_id = int(r[0])
+                for j, val in enumerate(r):
+                    if j == 0:
+                        r[
+                            j
+                        ] = f'<a href="{url_for("app.search", filter_string="id == " + str(from_root_id))}">{neuron_db.get_neuron_data(from_root_id)["name"]}</a><br><small>{from_root_id}</small>'
+                    elif val > 0:
+                        to_root_id = int(matrix[0][j])
+                        q = f"{from_root_id} {OP_PATHWAYS} {to_root_id}"
+                        r[
+                            j
+                        ] = f'<a href="{url_for("app.search", filter_string=q)}">{val} hops</a>'
+            for j, val in enumerate(matrix[0]):
+                if j > 0:
+                    matrix[0][
+                        j
+                    ] = f'<a href="{url_for("app.search", filter_string="id == " + str(val))}">{neuron_db.get_neuron_data(int(val))["name"]}</a><br><small>{val}</small>'
+
         paths_doc = FAQ_QA_KB["paths"]
         return render_template(
             "distance_table.html",
