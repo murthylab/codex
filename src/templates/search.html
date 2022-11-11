@@ -85,7 +85,7 @@
                 }
                 else if (operator_type == "unary_attribute") {
                     //move attribute after operator
-                    searchTermElem.appendChild(attributeElem);
+                    searchTermElem.insertBefore(attributeElem, valueElem);
                     attributeElem.removeAttribute("hidden");
                 }
                 else if (operator_type == "unary_stream") {
@@ -98,8 +98,31 @@
             }
 
             function addSearchTerm(buttonElem) {
-                //TODO add fresh search term just before button
-                //display "AND" between them somehow
+                const searchTermTemplate = document.querySelector(".search-term-template");
+                const newTerm = searchTermTemplate.cloneNode(true);
+                newTerm.classList.remove("search-term-template");
+                newTerm.classList.add("search-term");
+                newTerm.removeAttribute("hidden");
+                searchTermTemplate.parentElement.insertBefore(newTerm, buttonElem);
+                //TODO display "--AND--" divider between them if multiple
+
+                const removeButtons = document.querySelectorAll(".search-term > .search-remove-term");
+                if (removeButtons.length > 1) {
+                    for (const removeButton of removeButtons) {
+                        removeButton.removeAttribute("hidden");
+                    }
+                }
+
+                chooseOperator(newTerm.querySelector(".search-operator > select"));
+            }
+
+            function removeSearchTerm(buttonElem) {
+                const searchTermElem = buttonElem.parentElement.parentElement;
+                searchTermElem.remove();
+                const removeButtons = document.querySelectorAll(".search-term > .search-remove-term");
+                if (removeButtons.length === 1) {
+                    removeButtons[0].setAttribute("hidden", true);
+                }
             }
 
             function doAdvancedSearch() {
@@ -136,9 +159,16 @@
                 filterBox.value = searchString;
                 filterBox.form.submit();
             }
+
+            function addStarterButton() {
+                const searchTerms = document.querySelectorAll(".search-term");
+                if (searchTerms.length === 0) {
+                    addSearchTerm(document.querySelector("#addTermButton"));
+                }
+            }
         </script>
         <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Advanced Search"
-                data-toggle="modal" data-target="#advancedModal"><i class="fa-solid fa-magnifying-glass-chart"></i></button>
+                data-toggle="modal" data-target="#advancedModal" onclick="addStarterButton();"><i class="fa-solid fa-magnifying-glass-chart"></i></button>
         <div class="modal fade" id="advancedModal" tabindex="-1" role="dialog" aria-labelledby="advancedModalLabel"
              aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -150,45 +180,48 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="search-terms">
-                            <div class="search-term">
-                                <div class="form-group search-attribute" hidden>
-                                    <label style="margin: 20px;">Attribute</label>
-                                    <select style="margin: 20px;" class="form-select form-select-lg mb-3"
-                                            aria-label="Attribute" name="attribute">
-                                        {% for a in advanced_search_data.attributes %}
-                                        <option value="{{a}}">{{a}} {{advanced_search_data.attributes[a][2]}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group search-region" hidden>
-                                    <label style="margin: 20px;">Region</label>
-                                    <select style="margin: 20px;" class="form-select form-select-lg mb-3"
-                                            aria-label="region" name="region">
-                                        {% for r in advanced_search_data.regions %}
-                                        <option value="{{r}}">{{r}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group search-operator">
-                                    <label style="margin: 20px;">Operator</label>
-                                    <select style="margin: 20px;" class="form-select form-select-lg mb-3"
-                                            aria-label="Operator" name="operator" onChange="chooseOperator(this);">
-                                        {% for op in advanced_search_data.operators %}
-                                        <option value="{{op}}">{{op}} {{advanced_search_data.operator_metadata[op]}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group search-value" hidden>
-                                    <label style="margin: 20px;">Value</label>
-                                    <input class="form-control" type="text" name="value">
-                                </div>
+                        <div class="search-term-template" hidden>
+                            <div class="form-group search-attribute" hidden>
+                                <label style="margin: 20px;">Attribute</label>
+                                <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                                        aria-label="Attribute" name="attribute">
+                                    {% for a in advanced_search_data.attributes %}
+                                    <option value="{{a}}">{{a}} {{advanced_search_data.attributes[a][2]}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group search-region" hidden>
+                                <label style="margin: 20px;">Region</label>
+                                <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                                        aria-label="region" name="region">
+                                    {% for r in advanced_search_data.regions %}
+                                    <option value="{{r}}">{{r}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group search-operator">
+                                <label style="margin: 20px;">Operator</label>
+                                <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                                        aria-label="Operator" name="operator" onChange="chooseOperator(this);">
+                                    {% for op in advanced_search_data.operators %}
+                                    <option value="{{op}}">{{op}} {{advanced_search_data.operator_metadata[op]}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group search-value" hidden>
+                                <label style="margin: 20px;">Value</label>
+                                <input class="form-control" type="text" name="value">
+                            </div>
+                            <div class="search-remove-term" hidden>
+                                <button type="button" class="btn btn-danger"
+                                        onclick="removeSearchTerm(this);">Delete Search Term</button>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-primary" onclick="addSearchTerm(this);">Add Search Term</button>
+                        <button type="button" class="btn btn-primary"
+                                onclick="addSearchTerm(this);" id="addTermButton">Add Search Term</button>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-primary" onclick="doAdvancedSearch();">Search</button>
                     </div>
                 </div>
