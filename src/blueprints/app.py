@@ -29,7 +29,7 @@ from src.data import gcs_data_loader
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
-from src.data.search_index import tokenize
+from src.data.search_index import tokenize, tokenize_with_location
 from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
@@ -227,55 +227,77 @@ def render_neuron_list(
     )
 
 
+def not_intersecting(list_of_ranges, start, end):
+    if list_of_ranges == []:
+        return True
+    for r in list_of_ranges:
+        if r[1] <= start <= r[2] or r[1] <= end <= r[2]:
+            return False
+    return True
+
+
 def highlight_annotations(filter_string, nd):
     search_tokens = tokenize(filter_string)
-    colored_annotations = annotations = nd["annotations"]
-    folded_annotations = annotations.casefold()
+    folded_search_tokens = [t.casefold() for t in search_tokens]
+    tags = [
+        (tag_string, tokenize_with_location(tag_string, fold=True))
+        for tag_string in nd["tag"]
+    ]
 
-    if filter_string:
-        folded_filter_string = filter_string.casefold()
-        if folded_filter_string in folded_annotations:
-            match_positions = []
-            results = [
-                m.start(0)
-                for m in re.finditer(folded_filter_string, folded_annotations)
-            ]
-            for index in results:
-                if match_positions == [] or index > match_positions[-1][1]:
-                    match_positions.append((index, index + len(folded_filter_string)))
-            colored_annotations = ""
-            last_end = 0
-            for start, end in match_positions:
-                colored_annotations += (
-                    annotations[last_end:start]
-                    + f"<span style='padding:2px;border-radius:5px;background-color:lightgreen'>{annotations[start:end]}</span>"
-                )
-                last_end = end
-            colored_annotations += annotations[last_end:]
+    print(f"{tags=}")
+
+    highlighted_annotations = []
+    for tag_string, tag_tokens in tags:
+        folded_tag_string = tag_string.casefold()
+        where_to_highlight_green = []
+        where_to_highlight_yellow = []
+        # looks like this: [(color, start, end), (color, start, end), ...]
+        highlight_locations = []
+        for tag_token in tag_tokens:
+            token, start, end = tag_token
+            if token in folded_search_tokens:
+                # mark for green highlighting
+
+                # only add if not overlapping
+                if not_intersecting(highlight_locations, start, end):
+                    highlight_locations.append(("lightgreen", start, end))
+            else:
+                for search_token in search_tokens:
+                    if search_token in token:
+                        index = token.index(search_token)
+                        # mark for yellow highlighting
+                        if not_intersecting(
+                            highlight_locations,
+                            start + index,
+                            start + index + len(search_token),
+                        ):
+                            highlight_locations.append(
+                                (
+                                    "yellow",
+                                    start + index,
+                                    start + index + len(search_token),
+                                )
+                            )
+
+        # now highlight the tag string
+        highlighted_tag_string = ""
+        if highlight_locations == []:
+            highlighted_tag_string = tag_string
+
         else:
-            match_positions = []
-            for token in search_tokens:
-                folded_token = token.casefold()
-                if folded_token in folded_annotations:
-                    results = [
-                        m.start(0)
-                        for m in re.finditer(folded_token, folded_annotations)
+            for i, (color, start, end) in enumerate(highlight_locations):
+                if i == 0:
+                    highlighted_tag_string += tag_string[:start]
+                else:
+                    highlighted_tag_string += tag_string[
+                        highlight_locations[i - 1][2] : start
                     ]
-                    print(f"{results=}")
-                    for index in results:
-                        if (
-                            match_positions == [] or index > match_positions[-1][1]
-                        ):  ## don't want to overlap
-                            match_positions.append((index, index + len(token)))
+                highlighted_tag_string += f'<span style="padding:1px;border-radius:5px;background-color:{color}">{tag_string[start:end]}</span>'
+            highlighted_tag_string += tag_string[end:]
 
-            colored_annotations = ""
-            last_index = 0
-            for start, end in match_positions:
-                colored_annotations += annotations[last_index:start]
-                colored_annotations += f"<span style='padding:2px;border-radius:5px;background-color:yellow'>{annotations[start:end]}</span>"
-                last_index = end
-            colored_annotations += annotations[last_index:]
-    return colored_annotations
+        highlighted_annotations.append(highlighted_tag_string)
+
+    return " • ".join(highlighted_annotations)
 
 
 @app.route("/search", methods=["GET"])
