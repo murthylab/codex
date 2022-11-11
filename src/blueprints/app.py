@@ -198,42 +198,13 @@ def render_neuron_list(
         nd["root_id"]: url_for_skeleton(nd["root_id"], data_version=data_version)
         for nd in display_data
     }
-    search_tokens = tokenize(filter_string)
     for nd in display_data:
         if nd["inherited_tag_root_id"]:
             skeleton_thumbnail_urls[nd["inherited_tag_root_id"]] = url_for_skeleton(
                 nd["inherited_tag_root_id"], data_version=data_version
             )
 
-        colored_annotations = annotations = nd["annotations"]
-        folded_annotations = annotations.casefold()
-        if filter_string:
-            folded_filter_string = filter_string.casefold()
-            if folded_filter_string in folded_annotations:
-                index = folded_annotations.index(folded_filter_string)
-                colored_annotations = (
-                    annotations[:index]
-                    + f"<span style='color:green;font-weight:bold'>{annotations[index:index+len(filter_string)]}</span>"
-                    + annotations[index + len(filter_string) :]
-                )
-            else:
-                match_positions = []
-                for token in search_tokens:
-                    folded_token = token.casefold()
-                    if folded_token in folded_annotations:
-                        index = folded_annotations.index(folded_token)
-                        if match_positions == [] or index > match_positions[-1][1]: ## don't want to overlap
-                            match_positions.append((index, index + len(token)))
-                
-                colored_annotations = ""
-                last_index = 0
-                for start, end in match_positions:
-                    colored_annotations += annotations[last_index:start]
-                    colored_annotations += f"<span style='color:orange;font-weight:bold'>{annotations[start:end]}</span>"
-                    last_index = end
-                colored_annotations += annotations[last_index:]
-                
-        nd["colored_annotations"] = colored_annotations
+        nd["colored_annotations"] = highlight_annotations(filter_string, nd)
 
     return render_template(
         template_name_or_list=template_name,
@@ -254,6 +225,42 @@ def render_neuron_list(
         whole_word=whole_word,
         extra_data=extra_data,
     )
+
+
+def highlight_annotations(filter_string, nd):
+    search_tokens = tokenize(filter_string)
+    colored_annotations = annotations = nd["annotations"]
+    folded_annotations = annotations.casefold()
+
+    print(f"{tokenize(nd['tag'][0])=}")
+    if filter_string:
+        folded_filter_string = filter_string.casefold()
+        if folded_filter_string in folded_annotations:
+            index = folded_annotations.index(folded_filter_string)
+            colored_annotations = (
+                annotations[:index]
+                + f"<span style='padding:2px;border-radius:5px;background-color:lightgreen'>{annotations[index:index+len(filter_string)]}</span>"
+                + annotations[index + len(filter_string) :]
+            )
+        else:
+            match_positions = []
+            for token in search_tokens:
+                folded_token = token.casefold()
+                if folded_token in folded_annotations:
+                    index = folded_annotations.index(folded_token)
+                    if (
+                        match_positions == [] or index > match_positions[-1][1]
+                    ):  ## don't want to overlap
+                        match_positions.append((index, index + len(token)))
+
+            colored_annotations = ""
+            last_index = 0
+            for start, end in match_positions:
+                colored_annotations += annotations[last_index:start]
+                colored_annotations += f"<span style='padding:2px;border-radius:5px;background-color:yellow'>{annotations[start:end]}</span>"
+                last_index = end
+            colored_annotations += annotations[last_index:]
+    return colored_annotations
 
 
 @app.route("/search", methods=["GET"])
