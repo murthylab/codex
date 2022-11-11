@@ -72,10 +72,12 @@
                 const attributeElem = searchTermElem.querySelector(".search-attribute");
                 const regionElem = searchTermElem.querySelector(".search-region");
                 const valueElem = searchTermElem.querySelector(".search-value");
-                const valueLabel = valueElem.querySelector("label");
+                const placeholderElem = searchTermElem.querySelector(".search-unary-placeholder");
+                const valueLabel = valueElem.querySelector(".search-label");
                 attributeElem.setAttribute("hidden", true);
                 regionElem.setAttribute("hidden", true);
                 valueElem.setAttribute("hidden", true);
+                placeholderElem.setAttribute("hidden", true);
                 const operator_type = operator_types[operator];
                 if (operator_type == "binary_attribute") {
                     //move attribute before operator
@@ -90,11 +92,13 @@
                     valueElem.removeAttribute("hidden");
                 }
                 else if (operator_type == "unary_attribute") {
+                    placeholderElem.removeAttribute("hidden");
                     //move attribute after operator
                     searchTermElem.insertBefore(attributeElem, valueElem);
                     attributeElem.removeAttribute("hidden");
                 }
                 else if (operator_type == "unary_stream") {
+                    placeholderElem.removeAttribute("hidden");
                     valueLabel.innerHTML = "Cell ID";
                     valueElem.removeAttribute("hidden");
                 }
@@ -103,13 +107,13 @@
                 }
             }
 
-            function addSearchTerm(buttonElem) {
+            function addSearchTerm() {
                 const searchTermTemplate = document.querySelector(".search-term-template");
                 const newTerm = searchTermTemplate.cloneNode(true);
                 newTerm.classList.remove("search-term-template");
                 newTerm.classList.add("search-term");
                 newTerm.removeAttribute("hidden");
-                searchTermTemplate.parentElement.insertBefore(newTerm, buttonElem);
+                searchTermTemplate.parentElement.appendChild(newTerm);
 
                 const dropdowns = newTerm.querySelectorAll(".dropdown > .dropdown-menu");
                 for (const dropdown of dropdowns) {
@@ -124,18 +128,28 @@
                     }
                 }
 
-                //TODO display "--AND--" divider between them if multiple
+                showHideDividers();
 
                 chooseOperator(newTerm.querySelector(".search-operator > .dropdown > .dropdown-menu > .dropdown-item"));
             }
 
             function removeSearchTerm(buttonElem) {
-                const searchTermElem = buttonElem.parentElement.parentElement;
+                const searchTermElem = buttonElem.parentElement.parentElement.parentElement;
                 searchTermElem.remove();
                 const removeButtons = document.querySelectorAll(".search-term > .search-remove-term");
                 if (removeButtons.length === 1) {
                     removeButtons[0].setAttribute("hidden", true);
                 }
+                showHideDividers();
+            }
+
+            function showHideDividers() {
+                //show all search dividers but the last one
+                const dividers = document.querySelectorAll(".search-divider");
+                for (const divider of dividers) {
+                    divider.removeAttribute("hidden");
+                }
+                dividers[dividers.length - 1].setAttribute("hidden", true);
             }
 
             function doAdvancedSearch() {
@@ -188,12 +202,30 @@
                 max-height: 400px;
                 overflow: auto;
             }
+            .search-term-grid {
+                display: grid;
+                grid-template-columns: minmax(min-content, 30%) minmax(min-content, 30%) minmax(min-content, 40%);
+            }
+            .search-component {
+                display: grid;
+                grid-template-rows: auto auto;
+            }
+            .search-remove-term {
+                margin-top: 1em;
+            }
+            .search-divider-text {
+                font-weight: bold;
+                margin: auto;
+            }
+            .search-add-term {
+                margin-top: 2em;
+            }
         </style>
         <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Advanced Search"
                 data-toggle="modal" data-target="#advancedModal" onclick="addStarterTerm();"><i class="fa-solid fa-magnifying-glass-chart"></i></button>
         <div class="modal fade" id="advancedModal" tabindex="-1" role="dialog" aria-labelledby="advancedModalLabel"
              aria-hidden="true">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" style="color:blue;" id="advancedModalLabel">Advanced Search</h5>
@@ -202,59 +234,73 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="search-term-template" hidden>
-                            <div class="form-group search-attribute" hidden>
-                                <label style="margin: 20px;">Attribute</label>
-                                <div class="dropdown">
-                                    <button type="button" id="attributeDropdownButton" class="btn btn-light dropdown-toggle"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="attributeDropdownButton">
-                                        {% for a in advanced_search_data.attributes %}
-                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this);" value="{{a}}">{{a}}
-                                            <div class="dropdown-description">{{advanced_search_data.attributes[a][2]}}</div></a>
-                                        {% endfor %}
+                        <div class="search-terms">
+                            <div class="search-term-template" hidden>
+                                <div class="search-term-grid">
+                                    <div class="search-component search-attribute" hidden>
+                                        <div class="search-label">Attribute</div>
+                                        <div class="dropdown">
+                                            <button type="button" id="attributeDropdownButton" class="btn btn-light dropdown-toggle"
+                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                            <div class="dropdown-menu search-dropdown-menu" aria-labelledby="attributeDropdownButton">
+                                                {% for a in advanced_search_data.attributes %}
+                                                <a class="dropdown-item" href="#" onclick="selectDropdownOption(this);" value="{{a}}">{{a}}
+                                                    <div class="dropdown-description">{{advanced_search_data.attributes[a][2]}}</div></a>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="search-component search-region" hidden>
+                                        <div class="search-label">Region</div>
+                                        <div class="dropdown">
+                                            <button type="button" id="regionDropdownButton" class="btn btn-light dropdown-toggle"
+                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                            <div class="dropdown-menu search-dropdown-menu" aria-labelledby="regionDropdownButton">
+                                                {% for h in advanced_search_data.hemispheres %}
+                                                <a class="dropdown-item" href="#" onclick="selectDropdownOption(this);" value="{{h}}">{{h}}</a>
+                                                {% endfor %}
+                                                <div class="dropdown-divider"></div>
+                                                {% for r in advanced_search_data.regions %}
+                                                <a class="dropdown-item" href="#" onclick="selectDropdownOption(this);" value="{{r}}">{{r}}</a>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="search-unary-placeholder" hidden></div>
+                                    <div class="search-component search-operator">
+                                        <div class="search-label">Operator</div>
+                                        <div class="dropdown">
+                                            <button type="button" id="operatorDropdownButton" class="btn btn-light dropdown-toggle"
+                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                            <div class="dropdown-menu search-dropdown-menu" aria-labelledby="operatorDropdownButton">
+                                                {% for op in advanced_search_data.operators %}
+                                                <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); chooseOperator(this);" value="{{op}}">{{op}}
+                                                    <div class="dropdown-description">{{advanced_search_data.operator_metadata[op][1]}}</div></a>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="search-component search-value" hidden>
+                                        <div class="search-label">Value</div>
+                                        <input class="form-control" type="text" name="value">
                                     </div>
                                 </div>
-                            </div>
-                            <div class="form-group search-region" hidden>
-                                <label style="margin: 20px;">Region</label>
-                                <div class="dropdown">
-                                    <button type="button" id="regionDropdownButton" class="btn btn-light dropdown-toggle"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="regionDropdownButton">
-                                        {% for h in advanced_search_data.hemispheres %}
-                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this);" value="{{h}}">{{h}}</a>
-                                        {% endfor %}
-                                        <div class="dropdown-divider"></div>
-                                        {% for r in advanced_search_data.regions %}
-                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this);" value="{{r}}">{{r}}</a>
-                                        {% endfor %}
+                                <div class="search-remove-term" hidden>
+                                    <div class="d-flex justify-content-end">
+                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                            onclick="removeSearchTerm(this);">Delete Search Term</button>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="form-group search-operator">
-                                <label style="margin: 20px;">Operator</label>
-                                <div class="dropdown">
-                                    <button type="button" id="operatorDropdownButton" class="btn btn-light dropdown-toggle"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="operatorDropdownButton">
-                                        {% for op in advanced_search_data.operators %}
-                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); chooseOperator(this);" value="{{op}}">{{op}}
-                                            <div class="dropdown-description">{{advanced_search_data.operator_metadata[op]}}</div></a>
-                                        {% endfor %}
-                                    </div>
+                                <div class="search-divider row" hidden>
+                                    <div class="col"><hr></div>
+                                    <div class="col-auto search-divider-text">AND</div>
+                                    <div class="col"><hr></div>
                                 </div>
-                            </div>
-                            <div class="form-group search-value" hidden>
-                                <label style="margin: 20px;">Value</label>
-                                <input class="form-control" type="text" name="value">
-                            </div>
-                            <div class="search-remove-term" hidden>
-                                <button type="button" class="btn btn-danger"
-                                        onclick="removeSearchTerm(this);">Delete Search Term</button>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-secondary" onclick="addSearchTerm(this);" id="addTermButton">Add Search Term</button>
+                        <div class="search-add-term d-flex justify-content-center">
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="addSearchTerm();" id="addTermButton">Add Search Term</button>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
