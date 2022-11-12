@@ -1,4 +1,4 @@
-from src.data.brain_regions import match_to_neuropil, lookup_neuropil_set
+from src.data.brain_regions import match_to_neuropil, lookup_neuropil_set, REGIONS
 from src.data.gcs_data_loader import load_connections_for_root_id
 from src.data.neurotransmitters import lookup_nt_type
 from src.utils.graph_algos import pathways
@@ -371,3 +371,20 @@ def parse_search_query(search_query):
     chaining_rule, terms = _parse_chained_search_query(search_query)
     free_form, structured = _parse_search_terms(terms)
     return chaining_rule, free_form, structured
+
+def get_advanced_search_data():
+    operators = SEARCH_TERM_BINARY_OPERATORS + SEARCH_TERM_UNARY_OPERATORS
+    operator_types = {}
+    for op in operators:
+        operator_types[op] = OPERATOR_METADATA[op][2]
+    hemispheres = ["Left", "Right", "Center"]
+    regions = list(REGIONS.keys())
+    regions.sort()
+    return {
+        "operators": operators,
+        "operator_types": operator_types,
+        "operator_metadata": OPERATOR_METADATA,
+        "attributes": STRUCTURED_SEARCH_ATTRIBUTES,
+        "hemispheres": hemispheres,
+        "regions": regions,
+    }
