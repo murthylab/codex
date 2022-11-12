@@ -3,6 +3,14 @@ from src.data.gcs_data_loader import load_connections_for_root_id
 from src.data.neurotransmitters import lookup_nt_type
 from src.utils.graph_algos import pathways
 
+# Operator types
+TYPE_BINARY_ATTRIBUTE = "binary_attribute"
+TYPE_BINARY_REGION = "binary_region"
+TYPE_BINARY_TWOIDS = "binary_twoids"
+TYPE_UNARY_ATTRIBUTE = "unary_attribute"
+TYPE_UNARY_STREAM = "unary_stream"
+TYPE_NARY = "nary"
+
 # Structured search operators
 OP_EQUAL = "{equal}"
 OP_NOT_EQUAL = "{not equal}"
@@ -20,44 +28,71 @@ OP_AND = "{and}"
 OP_OR = "{or}"
 
 OPERATOR_METADATA = {
-    # user facing op: (alternative shorthand, description)
-    OP_EQUAL: ("==", "Binary, LHS attribute of the cell and RHS value are equal"),
+    # user facing op: (alternative shorthand, description, type)
+    OP_EQUAL: (
+        "==",
+        "Binary, LHS attribute of the cell and RHS value are equal",
+        TYPE_BINARY_ATTRIBUTE,
+    ),
     OP_NOT_EQUAL: (
         "!=",
         "Binary, LHS attribute of the cell and RHS value are not equal",
+        TYPE_BINARY_ATTRIBUTE,
     ),
     OP_STARTS_WITH: (
         "^*",
         "Binary, LHS attribute of the cell starts with RHS value (e.g., label {starts_with} LC",
+        TYPE_BINARY_ATTRIBUTE,
     ),
     OP_IN: (
         "<<",
         "Binary, LHS attribute of the cell equals one of the comma-separated values on RHS",
+        TYPE_BINARY_ATTRIBUTE,
     ),
     OP_NOT_IN: (
         "!<",
         "Binary, LHS attribute of the cell is not equal to any of the comma-separated values on RHS",
+        TYPE_BINARY_ATTRIBUTE,
     ),
-    OP_HAS: ("$$", "Unary, attribute of the cell has value (not empty)"),
-    OP_NOT: ("!$", "Unary, attribute of the cell has no value (empty)"),
-    OP_UPSTREAM: ("^^", "Unary, matches cells upstream of specified Cell ID)"),
-    OP_DOWNSTREAM: ("!^", "Unary, matches cells downstream of specified Cell ID)"),
+    OP_HAS: (
+        "$$",
+        "Unary, attribute of the cell has value (not empty)",
+        TYPE_UNARY_ATTRIBUTE,
+    ),
+    OP_NOT: (
+        "!$",
+        "Unary, attribute of the cell has no value (empty)",
+        TYPE_UNARY_ATTRIBUTE,
+    ),
+    OP_UPSTREAM: (
+        "^^",
+        "Unary, matches cells upstream of specified Cell ID)",
+        TYPE_UNARY_STREAM,
+    ),
+    OP_DOWNSTREAM: (
+        "!^",
+        "Unary, matches cells downstream of specified Cell ID)",
+        TYPE_UNARY_STREAM,
+    ),
     OP_UPSTREAM_REGION: (
         "^R",
         "Binary, matches cells upstream of RHS, with synapses in LHS region, where region "
         "is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
+        TYPE_BINARY_REGION,
     ),
     OP_DOWNSTREAM_REGION: (
         "!R",
         "Binary, matches cells downstream of RHS, with synapses in LHS region, where region "
         "is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
+        TYPE_BINARY_REGION,
     ),
     OP_PATHWAYS: (
         "->",
         "Binary, match all cells along shortest-path pathways from LHS to RHS",
+        TYPE_BINARY_TWOIDS,
     ),
-    OP_AND: ("&&", "N-ary, all terms are true"),
-    OP_OR: ("||", "N-ary, at least one of the terms is true"),
+    OP_AND: ("&&", "N-ary, all terms are true", TYPE_NARY),
+    OP_OR: ("||", "N-ary, at least one of the terms is true", TYPE_NARY),
 }
 
 SEARCH_TERM_BINARY_OPERATORS = [

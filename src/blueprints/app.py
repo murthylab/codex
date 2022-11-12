@@ -46,6 +46,7 @@ from src.utils.logging import (
 )
 from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
+from src.utils.search import get_advanced_search_data
 
 app = Blueprint("app", __name__, url_prefix="/app")
 
@@ -87,6 +88,7 @@ def stats():
         data_version=data_version,
         case_sensitive=case_sensitive,
         whole_word=whole_word,
+        advanced_search_data=get_advanced_search_data(),
     )
 
 
@@ -221,6 +223,7 @@ def render_neuron_list(
         case_sensitive=case_sensitive,
         whole_word=whole_word,
         extra_data=extra_data,
+        advanced_search_data=get_advanced_search_data(),
     )
 
 
