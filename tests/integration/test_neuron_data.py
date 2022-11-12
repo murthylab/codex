@@ -47,7 +47,7 @@ class NeuronDataTest(TestCase):
             self.assertEqual(0, len(diff_keys), f"Diff keys not empty: {diff_keys}")
             # compare optional output sets (adjacency)
             self.assertEqual(tested.adjacencies, golden.adjacencies)
-            if tested.adjacencies:
+            if tested.adjacencies["input_sets"]:
                 connected_cells = set(tested.adjacencies["input_sets"].keys()).union(
                     set(tested.adjacencies["output_sets"].keys())
                 )
