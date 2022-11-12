@@ -372,6 +372,7 @@ def parse_search_query(search_query):
     free_form, structured = _parse_search_terms(terms)
     return chaining_rule, free_form, structured
 
+
 def get_advanced_search_data():
     operators = SEARCH_TERM_BINARY_OPERATORS + SEARCH_TERM_UNARY_OPERATORS
     operator_types = {}
