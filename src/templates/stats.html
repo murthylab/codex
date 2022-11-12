@@ -80,53 +80,8 @@ Stats
                 class="fa-solid fa-list"></i></a>
         {% endif %}
 
-        <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Settings"
-                data-toggle="modal" data-target="#filterModal"><i class="fa-solid fa-sliders"></i></button>
-        <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" style="color:blue;" id="filterModalLabel">Settings</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label style="margin: 20px;">Match</label>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="case_sensitive"
-                                       name="case_sensitive" value="1" {{ 'checked' if case_sensitive==1}}>
-                                <label class="form-check-label" for="case_sensitive">Case sensitive</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="whole_word" name="whole_word"
-                                       value="1" {{ 'checked' if whole_word==1}}>
-                                <label class="form-check-label" for="whole_word">Whole word</label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label style="margin: 20px;">Data version</label>
-                            <select style="margin: 20px;" class="form-select form-select-lg mb-3"
-                                    aria-label="Data Version" name="data_version">
-                                {% for v in data_versions %}
-                                <option value="{{v}}" {{
-                                'selected' if data_version==v}}>{{v}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary">Reset</button>
-                        <button type="button" class="btn btn-primary" onclick="this.form.submit()">Apply</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         {% include "advanced_search.html" %}
-
+        {% include "search_settings.html" %}
     </form>
 </nav>
 
