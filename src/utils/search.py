@@ -10,12 +10,8 @@ from src.data.brain_regions import REGIONS
 def get_advanced_search_data():
     operators = SEARCH_TERM_BINARY_OPERATORS + SEARCH_TERM_UNARY_OPERATORS
     operator_types = {}
-    for op in SEARCH_TERM_BINARY_OPERATORS:
-        operator_types[op] = (
-            "binary_region" if "stream_region" in op else "binary_attribute"
-        )
-    for op in SEARCH_TERM_UNARY_OPERATORS:
-        operator_types[op] = "unary_stream" if "stream" in op else "unary_attribute"
+    for op in operators:
+        operator_types[op] = OPERATOR_METADATA[op][2]
     hemispheres = ["Left", "Right", "Center"]
     regions = list(REGIONS.keys())
     regions.sort()

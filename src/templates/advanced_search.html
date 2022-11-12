@@ -13,11 +13,13 @@
         const searchTermElem = elem.parentElement.parentElement.parentElement.parentElement;
         const attributeElem = searchTermElem.querySelector(".search-attribute");
         const regionElem = searchTermElem.querySelector(".search-region");
+        const valueBeforeElem = searchTermElem.querySelector(".search-value-before");
         const valueElem = searchTermElem.querySelector(".search-value");
         const placeholderElem = searchTermElem.querySelector(".search-unary-placeholder");
         const valueLabel = valueElem.querySelector(".search-label");
         attributeElem.setAttribute("hidden", true);
         regionElem.setAttribute("hidden", true);
+        valueBeforeElem.setAttribute("hidden", true);
         valueElem.setAttribute("hidden", true);
         placeholderElem.setAttribute("hidden", true);
         const operator_type = operator_types[operator];
@@ -31,6 +33,11 @@
         else if (operator_type == "binary_region") {
             regionElem.removeAttribute("hidden");
             valueLabel.innerHTML = "Cell ID";
+            valueElem.removeAttribute("hidden");
+        }
+        else if (operator_type == "binary_twoids") {
+            valueBeforeElem.removeAttribute("hidden");
+            valueLabel.innerHTML = "Target ID";
             valueElem.removeAttribute("hidden");
         }
         else if (operator_type == "unary_attribute") {
@@ -105,6 +112,7 @@
             const operator = searchElem.querySelector(".search-operator > .dropdown").getAttribute("value");
             const attribute = searchElem.querySelector(".search-attribute > .dropdown").getAttribute("value");
             const region = searchElem.querySelector(".search-region > .dropdown").getAttribute("value");
+            const valueBeforeText = searchElem.querySelector(".search-value-before > input").value;
             const valueText = searchElem.querySelector(".search-value > input").value;
             const operator_type = operator_types[operator];
             if (operator_type == "binary_attribute") {
@@ -112,6 +120,9 @@
             }
             else if (operator_type == "binary_region") {
                 searchString += region + " " + operator + " " + valueText;
+            }
+            else if (operator_type == "binary_twoids") {
+                searchString += valueBeforeText + " " + operator + " " + valueText;
             }
             else if (operator_type == "unary_attribute") {
                 searchString += operator + " " + attribute;
@@ -207,6 +218,10 @@
                                         {% endfor %}
                                     </div>
                                 </div>
+                            </div>
+                            <div class="search-component search-value-before" hidden>
+                                <div class="search-label">Source ID</div>
+                                <input class="form-control" type="text" name="value">
                             </div>
                             <div class="search-unary-placeholder" hidden></div>
                             <div class="search-component search-operator">
