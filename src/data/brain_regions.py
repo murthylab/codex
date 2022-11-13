@@ -86,13 +86,13 @@ REGIONS = {
 
 def neuropil_hemisphere(pil):
     pil = pil.upper()
-    if pil.endswith('_L'):
+    if pil.endswith("_L"):
         return LEFT
-    elif pil.endswith('_R'):
+    elif pil.endswith("_R"):
         return RIGHT
     else:
         return CENTER
-        
+
 
 def neuropil_description(txt):
     pil = match_to_neuropil(txt)
@@ -122,7 +122,9 @@ def lookup_neuropil_set(txt):
 
     for hs in HEMISPHERES:
         if hs.lower() == txt_lc:
-            return set([rgn for rgn in REGIONS.keys() if neuropil_hemisphere(rgn) == hs])
+            return set(
+                [rgn for rgn in REGIONS.keys() if neuropil_hemisphere(rgn) == hs]
+            )
 
     res = set()
     txt_lc_tokens = tokenize(txt_lc)
@@ -131,7 +133,10 @@ def lookup_neuropil_set(txt):
         if (
             rgn.startswith(txt_uc)
             or txt_lc == desc_lc
-            or (desc_lc in txt_lc_tokens and neuropil_hemisphere(rgn).lower() in txt_lc_tokens)
+            or (
+                desc_lc in txt_lc_tokens
+                and neuropil_hemisphere(rgn).lower() in txt_lc_tokens
+            )
             or any([txt_lc == t for t in tokenize(desc_lc)])
         ):
             res.add(rgn)

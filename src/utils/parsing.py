@@ -12,4 +12,3 @@ def tokenize(s):
 
     res = [clean(t) for t in s.split() if t]
     return [t for t in res if t]
-
