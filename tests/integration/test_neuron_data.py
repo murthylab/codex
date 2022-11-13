@@ -43,7 +43,7 @@ class NeuronDataTest(TestCase):
                             diff_keys[k] += 1
                     else:
                         if val != ndp[k]:
-                            diff_keys[k] += 1
+                            diff_keys[f"{k}: {val} vs {ndp[k]}"] += 1
             self.assertEqual(0, len(diff_keys), f"Diff keys not empty: {diff_keys}")
             # compare optional output sets (adjacency)
             self.assertEqual(tested.adjacencies, golden.adjacencies)
