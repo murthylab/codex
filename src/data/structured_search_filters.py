@@ -3,6 +3,58 @@ from src.data.gcs_data_loader import load_connections_for_root_id
 from src.data.neurotransmitters import lookup_nt_type
 from src.utils.graph_algos import pathways
 
+STRUCTURED_SEARCH_ATTRIBUTES = {
+    # user facing attr: (internal attr, conversion - optional, description)
+    "label": (
+        "tag",
+        None,
+        "Human readable label assigned during cell identification process. Each cell can have zero "
+        "or more labels.",
+    ),
+    "nt": (
+        "nt_type",
+        lambda x: lookup_nt_type(x),
+        "Neuro-transmitter type. One of ACH, GABA, GLUT, SER, OCT, DA.",
+    ),
+    "input_neuropil": (
+        "input_neuropils",
+        lambda x: match_to_neuropil(x),
+        "Brain region / neuropil with upstream synaptic connections.",
+    ),
+    "output_neuropil": (
+        "output_neuropils",
+        lambda x: match_to_neuropil(x),
+        "Brain region / neuropil with downstream synaptic connections.",
+    ),
+    "io_hemisphere": (
+        "hemisphere_fingerprint", None, "Input / Output Hemispheres"
+    ),
+    "class": (
+        "classes",
+        None,
+        "Cell typing attribute. Indicates function or other property of the cell. Each cell can "
+        "belong to zero or more classes.",
+    ),
+    "group": (
+        "group",
+        None,
+        "Automatically assigned group name (based on properties of the cell).",
+    ),
+    "name": (
+        "name",
+        None,
+        "Automatically assigned name (based on properties of the cell). Unique across data "
+        "versions, but might get replaced if affected by proofreading.",
+    ),
+    "id": (
+        "root_id",
+        lambda x: int(x),
+        "ID of the cell. Unique across data versions, "
+        "but might get replaced if affected by proofreading.",
+    ),
+}
+
+
 # Operator types
 TYPE_BINARY_ATTRIBUTE = "binary_attribute"
 TYPE_BINARY_REGION = "binary_region"
@@ -115,54 +167,6 @@ SEARCH_CHAINING_OPERATORS = [
     OP_AND,  # and / conjunction
     OP_OR,  # or / disjunction
 ]
-STRUCTURED_SEARCH_ATTRIBUTES = {
-    # user facing attr: (internal attr, conversion - optional, description)
-    "id": (
-        "root_id",
-        lambda x: int(x),
-        "ID of the cell. Unique across data versions, "
-        "but might get replaced if affected by proofreading.",
-    ),
-    "name": (
-        "name",
-        None,
-        "Automatically assigned name (based on properties of the cell). Unique across data "
-        "versions, but might get replaced if affected by proofreading.",
-    ),
-    "group": (
-        "group",
-        None,
-        "Automatically assigned group name (based on properties of the cell).",
-    ),
-    "class": (
-        "classes",
-        None,
-        "Cell typing attribute. Indicates function or other property of the cell. Each cell can "
-        "belong to zero or more classes.",
-    ),
-    "label": (
-        "tag",
-        None,
-        "Human readable label assigned during cell identification process. Each cell can have zero "
-        "or more labels.",
-    ),
-    "nt": (
-        "nt_type",
-        lambda x: lookup_nt_type(x),
-        "Neuro-transmitter type. One of ACH, GABA, GLUT, SER, OCT, DA.",
-    ),
-    "input_neuropil": (
-        "input_neuropils",
-        lambda x: match_to_neuropil(x),
-        "Brain region / neuropil with upstream synaptic connections.",
-    ),
-    "output_neuropil": (
-        "output_neuropils",
-        lambda x: match_to_neuropil(x),
-        "Brain region / neuropil with downstream synaptic connections.",
-    ),
-    "io_hemisphere": ("hemisphere_fingerprint", None, "Input / Output Hemispheres"),
-}
 
 
 def _make_comparison_predicate(lhs, rhs, op):
