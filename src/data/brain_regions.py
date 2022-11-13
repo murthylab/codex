@@ -1,3 +1,5 @@
+from src.utils.parsing import tokenize
+
 REGIONS = {
     "AME_R": [1, "right", "accessory medulla"],
     "AME_L": [42, "left", "accessory medulla"],
@@ -105,10 +107,12 @@ def lookup_neuropil_set(txt):
             res = set([k for k, v in REGIONS.items() if not v[1]])
         else:
             res = set()
+            txt_lc_tokens = tokenize(txt_lc)
             for k, v in REGIONS.items():
                 if (
                     k.startswith(txt_uc)
                     or txt_lc == v[2]
+                    or (v[2] in txt_lc_tokens and v[1] in txt_lc_tokens)
                     or any([txt_lc == t for t in v[2].split()])
                 ):
                     res.add(k)
