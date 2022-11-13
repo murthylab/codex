@@ -2,6 +2,7 @@ from collections import defaultdict
 from functools import lru_cache
 from random import choice
 
+from src.data.brain_regions import neuropil_hemisphere
 from src.data.neuron_collections import NEURON_COLLECTIONS
 from src.data.search_index import SearchIndex
 from src.data.structured_search_filters import (
@@ -281,19 +282,11 @@ class NeuronDB(object):
     def hemisphere_fingerprint(input_pils, output_pils):
         def fp(pils):
             if pils:
-                left = any([p.endswith("_L") for p in pils])
-                center = any([not (p.endswith("_L") or p.endswith("_R")) for p in pils])
-                right = any([p.endswith("_R") for p in pils])
-                if len([v for v in [left, center, right] if v]) > 1:
+                hemispheres = set([neuropil_hemisphere(p) for p in pils])
+                if len(hemispheres) > 1:
                     return "Mix"
-                elif left:
-                    return "Left"
-                elif center:
-                    return "Mid"
-                elif right:
-                    return "Right"
                 else:
-                    return "?"
+                    return hemispheres.pop()
 
         if input_pils or output_pils:
             return f"{fp(input_pils)}/{fp(output_pils)}"

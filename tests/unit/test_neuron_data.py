@@ -217,7 +217,7 @@ class NeuronDataTest(TestCase):
             "right {downstream_region} 720575940629495808"
         )
         self.assertEqual(15, len(downstream))
-        downstream = self.neuron_db.search("mid {downstream_region} 720575940629495808")
+        downstream = self.neuron_db.search("center {downstream_region} 720575940629495808")
         self.assertEqual(
             [720575940611639794, 720575940636691824, 720575940626476038], downstream
         )

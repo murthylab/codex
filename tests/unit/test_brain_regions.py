@@ -28,12 +28,11 @@ class RegionsTest(TestCase):
         for p in pil_set:
             self.assertTrue(p.endswith("_R"))
 
-        for mid in ["middle", "mid", "center"]:
-            pil_set = lookup_neuropil_set(mid)
-            self.assertEqual(7, len(pil_set))
-            for p in pil_set:
-                self.assertFalse(p.endswith("_L"))
-                self.assertFalse(p.endswith("_R"))
+        pil_set = lookup_neuropil_set("Center")
+        self.assertEqual(7, len(pil_set))
+        for p in pil_set:
+            self.assertFalse(p.endswith("_L"))
+            self.assertFalse(p.endswith("_R"))
 
     def test_lookup_neuropil_set_by_abrv(self):
         pil_set = lookup_neuropil_set("ame")

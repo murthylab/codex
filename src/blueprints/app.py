@@ -26,6 +26,7 @@ from src.blueprints.base import (
     warning_with_redirect,
 )
 from src.data import gcs_data_loader
+from src.data.brain_regions import neuropil_hemisphere
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM, OP_PATHWAYS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
@@ -621,11 +622,7 @@ def cell_details():
         def hemisphere_counts(neuropil_counts):
             res = defaultdict(int)
             for k, v in neuropil_counts.items():
-                res[
-                    "Left"
-                    if k.upper().endswith("_L")
-                    else ("Right" if k.upper().endswith("_R") else "Center")
-                ] += v
+                res[neuropil_hemisphere(k)] += v
             return res
 
         charts["Input / Output Synapses"] = stats_utils.make_chart_from_counts(
