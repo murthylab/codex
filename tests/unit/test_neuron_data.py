@@ -1,6 +1,5 @@
 from unittest import TestCase
 
-from src.data.brain_regions import REGIONS
 from src.data.neuron_data import *
 from src.data.structured_search_filters import *
 from src.data.local_data_loader import unpickle_all_neuron_db_versions
@@ -217,7 +216,9 @@ class NeuronDataTest(TestCase):
             "right {downstream_region} 720575940629495808"
         )
         self.assertEqual(15, len(downstream))
-        downstream = self.neuron_db.search("center {downstream_region} 720575940629495808")
+        downstream = self.neuron_db.search(
+            "center {downstream_region} 720575940629495808"
+        )
         self.assertEqual(
             [720575940611639794, 720575940636691824, 720575940626476038], downstream
         )
@@ -228,105 +229,6 @@ class NeuronDataTest(TestCase):
         self.assertEqual(3, len(upstream))
         upstream = self.neuron_db.search("center {upstream_region} 720575940629495808")
         self.assertEqual(10, len(upstream))
-
-    def test_structured_query_parsing(self):
-        # free form
-        self.assertEqual(parse_search_query("foo"), (None, ["foo"], []))
-        self.assertEqual(parse_search_query("foo bar"), (None, ["foo bar"], []))
-
-        # structured
-        self.assertEqual(
-            parse_search_query("foo {equal} bar"),
-            (None, [], [{"op": "{equal}", "lhs": "foo", "rhs": "bar"}]),
-        )
-        self.assertEqual(
-            parse_search_query("foo == bar"),
-            (None, [], [{"op": "{equal}", "lhs": "foo", "rhs": "bar"}]),
-        )
-
-        self.assertEqual(
-            parse_search_query("foo {not equal} bar"),
-            (None, [], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
-        )
-        self.assertEqual(
-            parse_search_query("foo != bar"),
-            (None, [], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
-        )
-        self.assertEqual(
-            parse_search_query(" {has} bar"),
-            (None, [], [{"op": "{has}", "rhs": "bar"}]),
-        )
-        self.assertEqual(
-            parse_search_query(" !$ bar"),
-            (None, [], [{"op": "{not}", "rhs": "bar"}]),
-        )
-
-        # false cases
-        self.assertEqual(
-            parse_search_query("== foo == bar"), (None, ["== foo == bar"], [])
-        )
-        self.assertEqual(parse_search_query("=="), (None, ["=="], []))
-        self.assertEqual(parse_search_query("foo == !="), (None, ["foo == !="], []))
-        self.assertEqual(
-            parse_search_query("foo {has} bar"), (None, ["foo {has} bar"], [])
-        )
-        self.assertEqual(parse_search_query(" {!$} bar"), (None, [" {!$} bar"], []))
-
-        # combos
-        self.assertEqual(
-            parse_search_query("foo != bar && other"),
-            ("{and}", ["other"], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
-        )
-        self.assertEqual(
-            parse_search_query("other || foo {not equal} bar"),
-            ("{or}", ["other"], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
-        )
-
-        # and/or mix not allowed
-        self.assertEqual(
-            parse_search_query("other {or} foo != bar && third"),
-            (None, ["other {or} foo != bar && third"], []),
-        )
-
-        # another false case
-        self.assertEqual(
-            parse_search_query("|| other || foo != bar"),
-            (None, ["|| other || foo != bar"], []),
-        )
-
-        # structured search should not be triggered if the query is wrapped in quotes
-        self.assertEqual(
-            parse_search_query('"foo == bar"'), (None, ['"foo == bar"'], [])
-        )
-
-    def test_structured_query_operators(self):
-        op_keys = set(OPERATOR_METADATA.keys())
-        self.assertTrue(all(op_keys))
-        self.assertEqual(len(op_keys), len(OPERATOR_METADATA))
-        self.assertEqual(
-            len(
-                SEARCH_CHAINING_OPERATORS
-                + SEARCH_TERM_BINARY_OPERATORS
-                + SEARCH_TERM_UNARY_OPERATORS
-            ),
-            len(OPERATOR_METADATA),
-        )
-
-        op_shorthands = set([p[0] for p in OPERATOR_METADATA.values()])
-        self.assertTrue(all(op_shorthands))
-        self.assertEqual(len(op_shorthands), len(OPERATOR_METADATA))
-        self.assertTrue(op_keys.isdisjoint(op_shorthands))
-
-        # Check descriptions are present and unique
-        descs = set([p[1] for p in OPERATOR_METADATA.values()])
-        self.assertTrue(all(descs))
-        self.assertEqual(len(descs), len(OPERATOR_METADATA))
-
-        # check that operators or their shorthands are not substrings of each other
-        all_ops = op_shorthands.union(op_keys)
-        for op1 in all_ops:
-            for op2 in all_ops:
-                self.assertTrue(op1 == op2 or op1 not in op2)
 
     def test_neuropils(self):
         expected_list = [
