@@ -28,7 +28,12 @@ from src.blueprints.base import (
 from src.data import gcs_data_loader
 from src.data.brain_regions import neuropil_hemisphere
 from src.data.faq_qa_kb import FAQ_QA_KB
-from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM, OP_PATHWAYS
+from src.data.structured_search_filters import (
+    OP_DOWNSTREAM,
+    OP_UPSTREAM,
+    OP_PATHWAYS,
+    parse_search_query,
+)
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
 from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
@@ -210,7 +215,10 @@ def render_neuron_list(
                 nd["inherited_tag_root_id"], data_version=data_version
             )
 
-        nd["colored_annotations"] = highlight_annotations(filter_string, nd["tag"])
+        # Only highlight free-form search tokens (and not structured search attributes)
+        nd["colored_annotations"] = highlight_annotations(
+            parse_search_query(filter_string)[1], nd["tag"]
+        )
 
     return render_template(
         template_name_or_list=template_name,

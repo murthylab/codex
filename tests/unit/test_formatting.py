@@ -1,4 +1,6 @@
 from unittest import TestCase
+
+from src.data.structured_search_filters import parse_search_query
 from src.utils.parsing import tokenize_and_fold_for_highlight
 from src.utils.formatting import highlight_annotations
 
@@ -63,7 +65,18 @@ class TestHighlighting(TestCase):
                 ["Mushroom Body Kenyon cell KC"],
                 'Mu<span style="padding:1px;border-radius:5px;background-color:yellow">shroo</span>m Body Kenyon cell KC',
             ),
+            (
+                "{has} name",
+                ["there is name here but it should not be highlighted"],
+                "there is name here but it should not be highlighted",
+            ),
+            (
+                "some label",
+                ["some label*"],
+                '<span style="padding:1px;border-radius:5px;background-color:lightgreen">some</span> <span style="padding:1px;border-radius:5px;background-color:lightgreen">label</span>*',
+            ),
         ]
         for filter_string, tags, expected in input:
-            actual = highlight_annotations(filter_string, tags)
+            free_form_search_terms = parse_search_query(filter_string)[1]
+            actual = highlight_annotations(free_form_search_terms, tags)
             self.assertEqual(actual, expected)
