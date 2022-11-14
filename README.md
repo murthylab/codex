@@ -34,7 +34,7 @@ pip install git+https://github.com/psf/black && black src
 ```
 
 ## Profiling
-```python3 -m cProfile -o profile -m pytest tests/test_neuron_data.py -k test_augmentation_loading```
+```python3 -m cProfile -o profile -m pytest tests/unit/test_neuron_data.py -k test_augmentation_loading```
 Then load the generated `profile` file:
 ```
 import pstats
