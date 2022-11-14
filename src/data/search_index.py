@@ -1,5 +1,6 @@
 from src.data.vocabulary import STOP_WORDS
 from src.utils.logging import log
+
 from src.utils.parsing import tokenize
 
 
