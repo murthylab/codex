@@ -1,4 +1,21 @@
-DELIMS = ["=", "-", ". ", ",", "?", "!", ";", ":" "//", "/", "(", ")", '"', "&"]
+DELIMS = ["=", "-", ". ", ",", "?", "!", ";", ":", "//", "/", "(", ")", '"', "&"]
+HIGHLIGHTING_DELIMS = [
+    "=",
+    "-",
+    ".",
+    ",",
+    "?",
+    "!",
+    ";",
+    ":",
+    "//",
+    "/",
+    "(",
+    ")",
+    '"',
+    "&",
+    "_",
+]
 
 
 def tokenize(s):
@@ -14,26 +31,10 @@ def tokenize(s):
     return [t for t in res if t]
 
 
-def tokenize_for_highlight(s):
+def tokenize_and_fold_for_highlight(s):
     tokens = []
 
-    # slightly different than existing
-    for d in [
-        "=",
-        "-",
-        ".",
-        ",",
-        "?",
-        "!",
-        ";",
-        ":" "//",
-        "/",
-        "(",
-        ")",
-        '"',
-        "&",
-        "_",
-    ]:
+    for d in HIGHLIGHTING_DELIMS:
         s = s.replace(d, " ")
 
     i = 0

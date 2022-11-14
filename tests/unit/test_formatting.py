@@ -1,5 +1,5 @@
 from unittest import TestCase
-from src.utils.parsing import tokenize_for_highlight
+from src.utils.parsing import tokenize_and_fold_for_highlight
 from src.utils.formatting import highlight_annotations
 
 
@@ -11,14 +11,14 @@ class TestHighlighting(TestCase):
             "ventral unpaired medial/VUM?",
         ]
         for tag in tags:
-            tokens = tokenize_for_highlight(tag)
+            tokens = tokenize_and_fold_for_highlight(tag)
             assert len(tokens) > 0
             for token, start, end in tokens:
-                assert start >= 0
-                assert end >= 0
-                assert end > start
-                assert len(token) > 0
-                assert token == tag[start:end].casefold()
+                self.assertGreaterEqual(start, 0)
+                self.assertGreaterEqual(end, 0)
+                self.assertGreater(end, start)
+                self.assertGreater(len(token), 0)
+                self.assertEqual(token, tag[start:end].casefold())
 
     def test_highlight_annotations(self):
         input = [  # (filter_string, tags, expected)
@@ -40,4 +40,4 @@ class TestHighlighting(TestCase):
         ]
         for filter_string, tags, expected in input:
             actual = highlight_annotations(filter_string, tags)
-            assert actual == expected
+            self.assertEqual(actual, expected)

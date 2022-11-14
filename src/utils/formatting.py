@@ -1,4 +1,4 @@
-from src.utils.parsing import tokenize, tokenize_for_highlight
+from src.utils.parsing import tokenize, tokenize_and_fold_for_highlight
 
 
 def synapse_table_to_csv_string(table):
@@ -42,7 +42,7 @@ def highlight_annotations(filter_string, tags):
     search_tokens = tokenize(filter_string)
     folded_search_tokens = [t.casefold() for t in search_tokens]
     parsed_tags = [
-        (tag_string, tokenize_for_highlight(tag_string)) for tag_string in tags
+        (tag_string, tokenize_and_fold_for_highlight(tag_string)) for tag_string in tags
     ]
     highlighted_annotations = []
     for tag_string, tag_tokens in parsed_tags:
