@@ -46,16 +46,17 @@ class TestHighlighting(TestCase):
             self.assertEqual(actual, expected)
 
     def test_highlight_annotations(self):
+        self.maxDiff = None
         input = [  # (filter_string, tags, expected)
             (
-                "KC",
+                "Kenyon cell KC",
                 ["Mushroom Body Kenyon cell KC"],
-                'Mushroom Body <span style="padding:1px;border-radius:5px;background-color:lightgreen">Kenyon cell</span> <span style="padding:1px;border-radius:5px;background-color:lightgreen">KC</span>',
+                'Mushroom Body <span style="padding:1px;border-radius:5px;background-color:lightgreen">Kenyon</span> <span style="padding:1px;border-radius:5px;background-color:lightgreen">cell</span> <span style="padding:1px;border-radius:5px;background-color:lightgreen">KC</span>',
             ),
             (
                 "mushroom body",
                 ["Mushroom Body Kenyon cell KC"],
-                '<span style="padding:1px;border-radius:5px;background-color:lightgreen">Mushroom Body</span> Kenyon cell KC',
+                '<span style="padding:1px;border-radius:5px;background-color:lightgreen">Mushroom</span> <span style="padding:1px;border-radius:5px;background-color:lightgreen">Body</span> Kenyon cell KC',
             ),
             (
                 "shroo",
