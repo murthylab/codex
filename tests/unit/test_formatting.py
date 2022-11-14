@@ -12,7 +12,8 @@ class TestHighlighting(TestCase):
         ]
         for tag in tags:
             tokens = tokenize_and_fold_for_highlight(tag)
-            assert len(tokens) > 0
+            self.assertGreater(len(tokens), 0)
+
             for token, start, end in tokens:
                 self.assertGreaterEqual(start, 0)
                 self.assertGreaterEqual(end, 0)
