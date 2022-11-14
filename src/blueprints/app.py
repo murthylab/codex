@@ -89,7 +89,7 @@ def stats():
         data_version=data_version,
         case_sensitive=case_sensitive,
         whole_word=whole_word,
-        advanced_search_data=get_advanced_search_data(),
+        advanced_search_data=get_advanced_search_data(current_query=filter_string),
     )
 
 
@@ -224,7 +224,7 @@ def render_neuron_list(
         case_sensitive=case_sensitive,
         whole_word=whole_word,
         extra_data=extra_data,
-        advanced_search_data=get_advanced_search_data(),
+        advanced_search_data=get_advanced_search_data(current_query=filter_string),
     )
 
 
