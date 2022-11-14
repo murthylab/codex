@@ -83,6 +83,72 @@ REGIONS = {
     "GA_L": [75, "gall"],
 }
 
+REGION_CATEGORIES = {
+    "optic lobe": ["AME_R", "AME_L", "LO_R", "LO_L", "LOP_R", "LOP_L", "ME_R", "ME_L"],
+    "central complex": ["NO", "PB", "EB", "FB"],
+    "lateral complex": ["BU_R", "BU_L", "LAL_R", "LAL_L", "GA_R", "GA_L"],
+    "lateral horn": ["LH_R", "LH_L"],
+    "periesophageal neuropils": [
+        "SAD",
+        "CAN_R",
+        "CAN_L",
+        "AMMC_R",
+        "AMMC_L",
+        "FLA_R",
+        "FLA_L",
+        "PRW",
+    ],
+    "inferior neuropils": [
+        "ICL_R",
+        "ICL_L",
+        "IB_R",
+        "IB_L",
+        "ATL_R",
+        "ATL_L",
+        "CRE_R",
+        "CRE_L",
+        "SCL_R",
+        "SCL_L",
+    ],
+    "ventromedial neuropils": [
+        "VES_R",
+        "VES_L",
+        "GOR_R",
+        "GOR_L",
+        "SPS_R",
+        "SPS_L",
+        "IPS_R",
+        "IPS_L",
+        "EPA_R",
+        "EPA_L",
+    ],
+    "mushroom body": [
+        "MB_PED_R",
+        "MB_PED_L",
+        "MB_VL_R",
+        "MB_VL_L",
+        "MB_ML_R",
+        "MB_ML_L",
+        "MB_CA_R",
+        "MB_CA_L",
+    ],
+    "antennal lobe": ["AL_R", "AL_L"],
+    "superior neuropils": ["SLP_R", "SLP_L", "SIP_R", "SIP_L", "SMP_R", "SMP_L"],
+    "ventrolateral neuropils": [
+        "AVLP_R",
+        "AVLP_L",
+        "PVLP_R",
+        "PVLP_L",
+        "WED_R",
+        "WED_L",
+        "PLP_R",
+        "PLP_L",
+        "AOTU_R",
+        "AOTU_L",
+    ],
+    "gnathal ganglia": ["GNG"],
+}
+
 
 def neuropil_hemisphere(pil):
     pil = pil.upper()
