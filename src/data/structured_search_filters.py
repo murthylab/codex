@@ -554,7 +554,9 @@ def get_advanced_search_data(current_query):
     def clean(dct):
         clean_dict = {}
         for k, v in dct.items():
-            if v is not None and any([isinstance(v, t) for t in [str, Iterable]]):
+            if v == SEARCH_ATTRIBUTE_NAMES:
+                clean_dict[k] = "attributes"
+            elif v is not None and any([isinstance(v, t) for t in [str, Iterable]]):
                 clean_dict[k] = v
         return clean_dict
 
