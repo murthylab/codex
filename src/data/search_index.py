@@ -3,47 +3,6 @@ from src.utils.logging import log
 from src.utils.parsing import tokenize
 
 
-
-def tokenize_with_location(s, fold=False):
-    tokens = []
-
-    # slightly different than existing
-    for d in [
-        "=",
-        "-",
-        ".",
-        ",",
-        "?",
-        "!",
-        ";",
-        ":" "//",
-        "/",
-        "(",
-        ")",
-        '"',
-        "&",
-        "_",
-    ]:
-        s = s.replace(d, " ")
-
-    i = 0
-    length = len(s)
-    while i < length:
-        c = s[i]
-        if c == " ":
-            i += 1
-            continue
-        start = i
-        while i < length and s[i] != " ":
-            i += 1
-        end = i
-        token = s[start:end].casefold() if fold else s[start:end]
-        if token:
-            tokens.append((token, start, end))
-
-    return tokens
-
-
 class SearchIndex(object):
     def __init__(self, texts_labels_id_tuples):
         self.CS_tag_to_row_id = {}

@@ -30,12 +30,15 @@ from src.data.brain_regions import neuropil_hemisphere
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM, OP_PATHWAYS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
-from src.data.search_index import tokenize, tokenize_with_location
 from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
 from src.utils.cookies import fetch_flywire_user_id
-from src.utils.formatting import synapse_table_to_csv_string, synapse_table_to_json_dict
+from src.utils.formatting import (
+    synapse_table_to_csv_string,
+    synapse_table_to_json_dict,
+    highlight_annotations,
+)
 from src.utils.graph_algos import reachable_node_counts, distance_matrix
 from src.utils.graph_vis import make_graph_html
 from src.utils.logging import (
@@ -229,79 +232,6 @@ def render_neuron_list(
         extra_data=extra_data,
         advanced_search_data=get_advanced_search_data(),
     )
-
-
-def not_intersecting(list_of_ranges, start, end):
-    if list_of_ranges == []:
-        return True
-    for r in list_of_ranges:
-        if r[1] <= start <= r[2] or r[1] <= end <= r[2]:
-            return False
-    return True
-
-
-def highlight_annotations(filter_string, nd):
-    search_tokens = tokenize(filter_string)
-    folded_search_tokens = [t.casefold() for t in search_tokens]
-    tags = [
-        (tag_string, tokenize_with_location(tag_string, fold=True))
-        for tag_string in nd["tag"]
-    ]
-
-    print(f"{tags=}")
-
-    highlighted_annotations = []
-    for tag_string, tag_tokens in tags:
-        folded_tag_string = tag_string.casefold()
-        where_to_highlight_green = []
-        where_to_highlight_yellow = []
-        # looks like this: [(color, start, end), (color, start, end), ...]
-        highlight_locations = []
-        for tag_token in tag_tokens:
-            token, start, end = tag_token
-            if token in folded_search_tokens:
-                # mark for green highlighting
-
-                # only add if not overlapping
-                if not_intersecting(highlight_locations, start, end):
-                    highlight_locations.append(("lightgreen", start, end))
-            else:
-                for search_token in search_tokens:
-                    if search_token in token:
-                        index = token.index(search_token)
-                        # mark for yellow highlighting
-                        if not_intersecting(
-                            highlight_locations,
-                            start + index,
-                            start + index + len(search_token),
-                        ):
-                            highlight_locations.append(
-                                (
-                                    "yellow",
-                                    start + index,
-                                    start + index + len(search_token),
-                                )
-                            )
-
-        # now highlight the tag string
-        highlighted_tag_string = ""
-        if highlight_locations == []:
-            highlighted_tag_string = tag_string
-
-        else:
-            for i, (color, start, end) in enumerate(highlight_locations):
-                if i == 0:
-                    highlighted_tag_string += tag_string[:start]
-                else:
-                    highlighted_tag_string += tag_string[
-                        highlight_locations[i - 1][2] : start
-                    ]
-                highlighted_tag_string += f'<span style="padding:1px;border-radius:5px;background-color:{color}">{tag_string[start:end]}</span>'
-            highlighted_tag_string += tag_string[end:]
-
-        highlighted_annotations.append(highlighted_tag_string)
-
-    return " • ".join(highlighted_annotations)
 
 
 @app.route("/search", methods=["GET"])
