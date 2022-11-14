@@ -6,6 +6,7 @@ CENTER = "Center"
 HEMISPHERES = [LEFT, RIGHT, CENTER]
 
 REGIONS = {
+    # region abbreviation: [segment ID, description]
     "AME_R": [1, "accessory medulla"],
     "AME_L": [42, "accessory medulla"],
     "LO_R": [2, "lobula"],
