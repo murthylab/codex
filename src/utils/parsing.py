@@ -14,7 +14,6 @@ HIGHLIGHTING_DELIMS = [
     ")",
     '"',
     "&",
-    "_",
     "*",
 ]
 
