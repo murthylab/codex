@@ -1,3 +1,6 @@
+import json
+from collections import Iterable
+
 from src.data.brain_regions import (
     match_to_neuropil,
     lookup_neuropil_set,
@@ -9,81 +12,93 @@ from src.data.gcs_data_loader import load_connections_for_root_id
 from src.data.neurotransmitters import lookup_nt_type, NEURO_TRANSMITTER_NAMES
 from src.utils.graph_algos import pathways
 
-STRUCTURED_SEARCH_ATTRIBUTES = {
-    # user facing attr: (neuron attr getter, conversion - optional, description, restricted_values)
-    "label": (
-        lambda nd: nd["tag"],
-        None,
-        "Human readable label assigned during cell identification process. Each cell can have zero or more labels.",
-        None,
-    ),
-    "nt": (
-        lambda nd: nd["nt_type"],
-        lambda x: lookup_nt_type(x),
-        "Neuro-transmitter type",
-        NEURO_TRANSMITTER_NAMES,
-    ),
-    "input_neuropil": (
-        lambda nd: nd["input_neuropils"],
-        lambda x: match_to_neuropil(x),
-        "Brain region / neuropil with upstream synaptic connections.",
-        list(REGIONS.keys()),
-    ),
-    "output_neuropil": (
-        lambda nd: nd["output_neuropils"],
-        lambda x: match_to_neuropil(x),
-        "Brain region / neuropil with downstream synaptic connections.",
-        list(REGIONS.keys()),
-    ),
-    "input_hemisphere": (
-        lambda nd: [neuropil_hemisphere(p) for p in nd["input_neuropils"]],
-        None,
-        "Brain hemisphere / side with upstream synaptic connections.",
-        HEMISPHERES,
-    ),
-    "output_hemisphere": (
-        lambda nd: [neuropil_hemisphere(p) for p in nd["output_neuropils"]],
-        None,
-        "Brain hemisphere / side with downstream synaptic connections.",
-        HEMISPHERES,
-    ),
-    "class": (
-        lambda nd: nd["classes"],
-        None,
-        "Cell typing attribute. Indicates function or other property of the cell. Each cell can "
-        "belong to zero or more classes.",
-        None,
-    ),
-    "group": (
-        lambda nd: nd["group"],
-        None,
-        "Automatically assigned group name (based on properties of the cell).",
-        None,
-    ),
-    "name": (
-        lambda nd: nd["name"],
-        None,
-        "Automatically assigned name (based on properties of the cell). Unique across data "
-        "versions, but might get replaced if affected by proofreading.",
-        None,
-    ),
-    "id": (
-        lambda nd: nd["root_id"],
-        lambda x: int(x),
-        "ID of the cell. Unique across data versions, "
-        "but might get replaced if affected by proofreading.",
-        None,
-    ),
-}
+
+class SearchAttribute(object):
+    def __init__(self, name, value_getter, convertor, description, value_range):
+        self.name = name
+        self.value_getter = value_getter
+        self.convertor = convertor
+        self.description = description
+        self.value_range = list(value_range) if value_range is not None else None
 
 
-# Operator types
-TYPE_BINARY_ATTRIBUTE = "binary_attribute"
-TYPE_BINARY_REGION = "binary_region"
-TYPE_BINARY_TWOIDS = "binary_twoids"
-TYPE_UNARY_ATTRIBUTE = "unary_attribute"
-TYPE_UNARY_STREAM = "unary_stream"
-TYPE_NARY = "nary"
+STRUCTURED_SEARCH_ATTRIBUTES = [
+    SearchAttribute(
+        name="label",
+        value_getter=lambda nd: nd["tag"],
+        convertor=None,
+        description="Human readable label assigned during cell identification process. Each cell can have zero or more labels.",
+        value_range=None,
+    ),
+    SearchAttribute(
+        name="nt",
+        value_getter=lambda nd: nd["nt_type"],
+        convertor=lambda x: lookup_nt_type(x),
+        description="Neuro-transmitter type",
+        value_range=NEURO_TRANSMITTER_NAMES,
+    ),
+    SearchAttribute(
+        name="input_neuropil",
+        value_getter=lambda nd: nd["input_neuropils"],
+        convertor=lambda x: match_to_neuropil(x),
+        description="Brain region / neuropil with upstream synaptic connections.",
+        value_range=REGIONS.keys(),
+    ),
+    SearchAttribute(
+        name="output_neuropil",
+        value_getter=lambda nd: nd["output_neuropils"],
+        convertor=lambda x: match_to_neuropil(x),
+        description="Brain region / neuropil with downstream synaptic connections.",
+        value_range=REGIONS.keys(),
+    ),
+    SearchAttribute(
+        name="input_hemisphere",
+        value_getter=lambda nd: [neuropil_hemisphere(p) for p in nd["input_neuropils"]],
+        convertor=None,
+        description="Brain hemisphere / side with upstream synaptic connections.",
+        value_range=HEMISPHERES,
+    ),
+    SearchAttribute(
+        name="output_hemisphere",
+        value_getter=lambda nd: [
+            neuropil_hemisphere(p) for p in nd["output_neuropils"]
+        ],
+        convertor=None,
+        description="Brain hemisphere / side with downstream synaptic connections.",
+        value_range=HEMISPHERES,
+    ),
+    SearchAttribute(
+        name="class",
+        value_getter=lambda nd: nd["classes"],
+        convertor=None,
+        description="Cell typing attribute. Indicates function or other property of the cell. Each cell can belong to zero or more classes.",
+        value_range=None,
+    ),
+    SearchAttribute(
+        name="group",
+        value_getter=lambda nd: nd["group"],
+        convertor=None,
+        description="Automatically assigned group name (based on properties of the cell).",
+        value_range=None,
+    ),
+    SearchAttribute(
+        name="name",
+        value_getter=lambda nd: nd["name"],
+        convertor=None,
+        description="Automatically assigned name (based on properties of the cell). Unique across data versions, but might get replaced if affected by proofreading.",
+        value_range=None,
+    ),
+    SearchAttribute(
+        name="id",
+        value_getter=lambda nd: nd["root_id"],
+        convertor=lambda x: int(x),
+        description="ID of the cell. Unique across data versions, but might get replaced if affected by proofreading.",
+        value_range=None,
+    ),
+]
+
+SEARCH_ATTRIBUTE_NAMES = [a.name for a in STRUCTURED_SEARCH_ATTRIBUTES]
+
 
 # Structured search operators
 OP_EQUAL = "{equal}"
@@ -101,168 +116,196 @@ OP_PATHWAYS = "{pathways}"
 OP_AND = "{and}"
 OP_OR = "{or}"
 
-OPERATOR_METADATA = {
-    # user facing op: (alternative shorthand, description, type, lhs_restricted_values, rhs_testricted_values)
-    OP_EQUAL: (
-        "==",
-        "Binary, LHS attribute of the cell and RHS value are equal",
-        TYPE_BINARY_ATTRIBUTE,
-        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
-        None,
-    ),
-    OP_NOT_EQUAL: (
-        "!=",
-        "Binary, LHS attribute of the cell and RHS value are not equal",
-        TYPE_BINARY_ATTRIBUTE,
-        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
-        None,
-    ),
-    OP_STARTS_WITH: (
-        "^*",
-        "Binary, LHS attribute of the cell starts with RHS value (e.g., label {starts_with} LC",
-        TYPE_BINARY_ATTRIBUTE,
-        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
-        None,
-    ),
-    OP_IN: (
-        "<<",
-        "Binary, LHS attribute of the cell equals one of the comma-separated values on RHS",
-        TYPE_BINARY_ATTRIBUTE,
-        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
-        None,
-    ),
-    OP_NOT_IN: (
-        "!<",
-        "Binary, LHS attribute of the cell is not equal to any of the comma-separated values on RHS",
-        TYPE_BINARY_ATTRIBUTE,
-        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
-        None,
-    ),
-    OP_HAS: (
-        "$$",
-        "Unary, attribute of the cell has value (not empty)",
-        TYPE_UNARY_ATTRIBUTE,
-        lambda x: x is None or len(x) == 0,
-        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
-    ),
-    OP_NOT: (
-        "!$",
-        "Unary, attribute of the cell has no value (empty)",
-        TYPE_UNARY_ATTRIBUTE,
-        lambda x: x is None or len(x) == 0,
-        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
-    ),
-    OP_UPSTREAM: (
-        "^^",
-        "Unary, matches cells upstream of specified Cell ID)",
-        TYPE_UNARY_STREAM,
-        lambda x: x is None or len(x) == 0,
-        None,
-    ),
-    OP_DOWNSTREAM: (
-        "!^",
-        "Unary, matches cells downstream of specified Cell ID)",
-        TYPE_UNARY_STREAM,
-        lambda x: x is None or len(x) == 0,
-        None,
-    ),
-    OP_UPSTREAM_REGION: (
-        "^R",
-        "Binary, matches cells upstream of RHS, with synapses in LHS region, where region "
-        "is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
-        TYPE_BINARY_REGION,
-        HEMISPHERES + list(REGIONS.keys()),
-        None,
-    ),
-    OP_DOWNSTREAM_REGION: (
-        "!R",
-        "Binary, matches cells downstream of RHS, with synapses in LHS region, where region "
-        "is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
-        TYPE_BINARY_REGION,
-        HEMISPHERES + list(REGIONS.keys()),
-        None,
-    ),
-    OP_PATHWAYS: (
-        "->",
-        "Binary, match all cells along shortest-path pathways from LHS to RHS",
-        TYPE_BINARY_TWOIDS,
-        None,
-        None,
-    ),
-    OP_AND: ("&&", "N-ary, all terms are true", TYPE_NARY, None, None),
-    OP_OR: ("||", "N-ary, at least one of the terms is true", TYPE_NARY, None, None),
-}
-
-SEARCH_TERM_BINARY_OPERATORS = [
-    OP_EQUAL,  # equals
-    OP_NOT_EQUAL,  # not equal to
-    OP_STARTS_WITH,  # starts with
-    OP_IN,  # one of the values on rhs (rhs is comma separated list)
-    OP_NOT_IN,  # none of the values on rhs (rhs is comma separated list)
-    OP_UPSTREAM_REGION,  # upstream to RHS in LHS region
-    OP_DOWNSTREAM_REGION,  # downstream to RHS in LHS region
-    OP_PATHWAYS,  # pathways from LHS to RHS
-]
-SEARCH_TERM_UNARY_OPERATORS = [
-    OP_HAS,  # exists / has value
-    OP_NOT,  # does not exist / has no value
-    OP_DOWNSTREAM,  # match downstream connections
-    OP_UPSTREAM,  # match upstream connections
-]
-SEARCH_CHAINING_OPERATORS = [
-    OP_AND,  # and / conjunction
-    OP_OR,  # or / disjunction
-]
+# Operator types
+TYPE_BINARY_OP = "binary_operator"
+TYPE_UNARY_OP = "unary_operator"
+TYPE_NARY_OP = "nary_operator"
 
 
-def _make_comparison_predicate(lhs, rhs, op):
-    lhs = lhs.lower()
-    if lhs not in STRUCTURED_SEARCH_ATTRIBUTES:
-        _raise_unsupported_attr_for_structured_search(lhs)
+class SearchOperator(object):
+    def __init__(self, name, shorthand, op_type, description):
+        if type(self) is SearchOperator:
+            raise Exception(
+                "SearchOperator is an abstract class and cannot be instantiated directly"
+            )
+        self.name = name
+        self.shorthand = shorthand
+        self.op_type = op_type
+        self.description = description
 
-    # attempt conversion
-    try:
-        conversion_func = STRUCTURED_SEARCH_ATTRIBUTES[lhs][1]
-        if conversion_func:
-            rhs = conversion_func(rhs)
-    except:
-        _raise_invalid_value_for_structured_search(
-            attr_name=lhs, value=rhs, valid_values=STRUCTURED_SEARCH_ATTRIBUTES[lhs][3]
+
+class BinarySearchOperator(SearchOperator):
+    def __init__(
+        self,
+        name,
+        shorthand,
+        description,
+        lhs_description,
+        lhs_range,
+        rhs_description,
+        rhs_range,
+    ):
+        super().__init__(
+            name=name,
+            shorthand=shorthand,
+            op_type=TYPE_BINARY_OP,
+            description=description,
+        )
+        self.lhs_description = lhs_description
+        self.lhs_range = lhs_range
+        self.rhs_description = rhs_description
+        self.rhs_range = rhs_range
+
+
+class UnarySearchOperator(SearchOperator):
+    def __init__(self, name, shorthand, description, rhs_description, rhs_range):
+        super().__init__(
+            name=name,
+            shorthand=shorthand,
+            op_type=TYPE_UNARY_OP,
+            description=description,
+        )
+        self.rhs_description = rhs_description
+        self.rhs_range = rhs_range
+
+
+class NarySearchOperator(SearchOperator):
+    def __init__(self, name, shorthand, description):
+        super().__init__(
+            name=name,
+            shorthand=shorthand,
+            op_type=TYPE_NARY_OP,
+            description=description,
         )
 
-    def op_checker(val):
-        if isinstance(val, list):
-            if op == OP_EQUAL:
-                return rhs in val
-            elif op == OP_NOT_EQUAL:
-                return rhs not in val
-            elif op == OP_STARTS_WITH:
-                return any([str(v).startswith(str(rhs)) for v in val])
-        else:
-            if op == OP_EQUAL:
-                return rhs == val
-            elif op == OP_NOT_EQUAL:
-                return rhs != val
-            elif op == OP_STARTS_WITH:
-                return str(val).startswith(str(rhs))
 
-        raise ValueError(f"Unsupported comparison operand: {op}")
+STRUCTURED_SEARCH_OPERATORS = [
+    BinarySearchOperator(
+        name=OP_EQUAL,
+        shorthand="==",
+        description="Binary, LHS attribute of the cell and RHS value are equal",
+        lhs_description="Attribute",
+        lhs_range=SEARCH_ATTRIBUTE_NAMES,
+        rhs_description="Value",
+        rhs_range=None,
+    ),
+    BinarySearchOperator(
+        name=OP_NOT_EQUAL,
+        shorthand="!=",
+        description="Binary, LHS attribute of the cell and RHS value are not equal",
+        lhs_description="Attribute",
+        lhs_range=SEARCH_ATTRIBUTE_NAMES,
+        rhs_description="Value",
+        rhs_range=None,
+    ),
+    BinarySearchOperator(
+        name=OP_STARTS_WITH,
+        shorthand="^*",
+        description="Binary, LHS attribute of the cell starts with RHS value (e.g., label {starts_with} LC",
+        lhs_description="Attribute",
+        lhs_range=SEARCH_ATTRIBUTE_NAMES,
+        rhs_description="Prefix",
+        rhs_range=None,
+    ),
+    BinarySearchOperator(
+        name=OP_IN,
+        shorthand="<<",
+        description="Binary, LHS attribute of the cell equals one of the comma-separated values on RHS",
+        lhs_description="Attribute",
+        lhs_range=SEARCH_ATTRIBUTE_NAMES,
+        rhs_description="Values",
+        rhs_range=None,
+    ),
+    BinarySearchOperator(
+        name=OP_NOT_IN,
+        shorthand="!<",
+        description="Binary, LHS attribute of the cell is not equal to any of the comma-separated values on RHS",
+        lhs_description="Attribute",
+        lhs_range=SEARCH_ATTRIBUTE_NAMES,
+        rhs_description="Values",
+        rhs_range=None,
+    ),
+    UnarySearchOperator(
+        name=OP_HAS,
+        shorthand="$$",
+        description="Unary, attribute of the cell has value (not empty)",
+        rhs_description="Attribute",
+        rhs_range=SEARCH_ATTRIBUTE_NAMES,
+    ),
+    UnarySearchOperator(
+        name=OP_NOT,
+        shorthand="!$",
+        description="Unary, attribute of the cell has no value (empty)",
+        rhs_description="Attribute",
+        rhs_range=SEARCH_ATTRIBUTE_NAMES,
+    ),
+    UnarySearchOperator(
+        name=OP_UPSTREAM,
+        shorthand="^^",
+        description="Unary, matches cells upstream of specified Cell ID)",
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    UnarySearchOperator(
+        name=OP_DOWNSTREAM,
+        shorthand="!^",
+        description="Unary, matches cells downstream of specified Cell ID)",
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    BinarySearchOperator(
+        name=OP_UPSTREAM_REGION,
+        shorthand="^R",
+        description="Binary, matches cells upstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
+        lhs_description="Region or Side",
+        lhs_range=HEMISPHERES + list(REGIONS.keys()),
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    BinarySearchOperator(
+        name=OP_DOWNSTREAM_REGION,
+        shorthand="!R",
+        description="Binary, matches cells downstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
+        lhs_description="Region or Side",
+        lhs_range=HEMISPHERES + list(REGIONS.keys()),
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    BinarySearchOperator(
+        name=OP_PATHWAYS,
+        shorthand="->",
+        description="Binary, match all cells along shortest-path pathways from LHS to RHS",
+        lhs_description="Source Cell ID",
+        lhs_range=None,
+        rhs_description="Target Cell ID",
+        rhs_range=None,
+    ),
+    NarySearchOperator(
+        name=OP_AND, shorthand="&&", description="N-ary, all terms are true"
+    ),
+    NarySearchOperator(
+        name=OP_OR,
+        shorthand="||",
+        description="N-ary, at least one of the terms is true",
+    ),
+]
 
-    return lambda nd: op_checker(STRUCTURED_SEARCH_ATTRIBUTES[lhs][0](nd))
-
-
-def _make_has_predicate(rhs):
-    rhs = rhs.lower()
-    if rhs not in STRUCTURED_SEARCH_ATTRIBUTES:
-        _raise_unsupported_attr_for_structured_search(rhs)
-    return lambda nd: STRUCTURED_SEARCH_ATTRIBUTES[rhs][0](nd)
+STRUCTURED_SEARCH_BINARY_OPERATORS = [
+    op for op in STRUCTURED_SEARCH_OPERATORS if op.op_type == TYPE_BINARY_OP
+]
+STRUCTURED_SEARCH_UNARY_OPERATORS = [
+    op for op in STRUCTURED_SEARCH_OPERATORS if op.op_type == TYPE_UNARY_OP
+]
+STRUCTURED_SEARCH_NARY_OPERATORS = [
+    op for op in STRUCTURED_SEARCH_OPERATORS if op.op_type == TYPE_NARY_OP
+]
 
 
 def _raise_unsupported_attr_for_structured_search(attr_name):
     raise_malformed_structured_search_query(
         f"Structured query by attribute <b>{attr_name}</b> is not supported. Possible solutions:"
         f"<br>- look for typos in <b>{attr_name}</b>, or try searching by one of the supported "
-        f"attribute: {', '.join(STRUCTURED_SEARCH_ATTRIBUTES.keys())}"
+        f"attribute: {', '.join(SEARCH_ATTRIBUTE_NAMES)}"
     )
 
 
@@ -284,7 +327,65 @@ def raise_malformed_structured_search_query(msg="Malformed structured search que
     )
 
 
+def _search_attribute_by_name(name):
+    matches = [sa for sa in STRUCTURED_SEARCH_ATTRIBUTES if sa.name == name]
+    if len(matches) != 1:
+        raise_malformed_structured_search_query(
+            f"Attribute name '{name}' is not recognized"
+        )
+    return matches[0]
+
+
+def _search_operator_by_name(name):
+    matches = [so for so in STRUCTURED_SEARCH_OPERATORS if so.name == name]
+    if len(matches) != 1:
+        raise_malformed_structured_search_query(f"Operator '{name}' is not recognized")
+    return matches[0]
+
+
+def _make_comparison_predicate(lhs, rhs, op):
+    lhs = lhs.lower()
+    search_attr = _search_attribute_by_name(lhs)
+
+    # attempt conversion
+    try:
+        conversion_func = search_attr.convertor
+        if conversion_func:
+            rhs = conversion_func(rhs)
+    except:
+        _raise_invalid_value_for_structured_search(
+            attr_name=lhs, value=rhs, valid_values=search_attr.value_range
+        )
+
+    def op_checker(val):
+        if isinstance(val, list):
+            if op == OP_EQUAL:
+                return rhs in val
+            elif op == OP_NOT_EQUAL:
+                return rhs not in val
+            elif op == OP_STARTS_WITH:
+                return any([str(v).startswith(str(rhs)) for v in val])
+        else:
+            if op == OP_EQUAL:
+                return rhs == val
+            elif op == OP_NOT_EQUAL:
+                return rhs != val
+            elif op == OP_STARTS_WITH:
+                return str(val).startswith(str(rhs))
+
+        raise ValueError(f"Unsupported comparison operand: {op}")
+
+    return lambda nd: op_checker(search_attr.value_getter(nd))
+
+
+def _make_has_predicate(rhs):
+    rhs = rhs.lower()
+    search_attr = _search_attribute_by_name(rhs)
+    return lambda nd: search_attr.value_getter(nd)
+
+
 def _make_predicate(structured_term, input_sets, output_sets):
+    print(f"+++ {structured_term}")
     if structured_term["op"] in [OP_EQUAL, OP_NOT_EQUAL, OP_STARTS_WITH]:
         return _make_comparison_predicate(
             lhs=structured_term["lhs"],
@@ -376,15 +477,12 @@ def apply_chaining_rule(chaining_rule, term_search_results):
 
 def _extract_search_operators(term, ops=None):
     if not (term.startswith('"') and term.endswith('"')):
-        ops = (
-            ops
-            or SEARCH_TERM_BINARY_OPERATORS
-            + SEARCH_TERM_UNARY_OPERATORS
-            + SEARCH_CHAINING_OPERATORS
-        )
-        ops_shorthands = [OPERATOR_METADATA[op][0] for op in ops]
+        ops = ops or STRUCTURED_SEARCH_OPERATORS
+        ops_shorthands = [op.shorthand for op in ops]
         return [
-            op for i, op in enumerate(ops) if (op in term or ops_shorthands[i] in term)
+            op
+            for i, op in enumerate(ops)
+            if (op.name in term or ops_shorthands[i] in term)
         ]
     else:
         return []
@@ -402,13 +500,15 @@ def _parse_search_terms(terms):
             op = search_operators[0]
             parts = _extract_operands(text=term, op=op)
             if len(parts) == 2:
-                if op in SEARCH_TERM_BINARY_OPERATORS:
+                if op.op_type == TYPE_BINARY_OP:
                     if all(parts):
-                        structured.append({"op": op, "lhs": parts[0], "rhs": parts[1]})
+                        structured.append(
+                            {"op": op.name, "lhs": parts[0], "rhs": parts[1]}
+                        )
                         continue
-                elif op in SEARCH_TERM_UNARY_OPERATORS:
+                elif op.op_type == TYPE_UNARY_OP:
                     if not parts[0] and parts[1]:
-                        structured.append({"op": op, "rhs": parts[1]})
+                        structured.append({"op": op.name, "rhs": parts[1]})
                         continue
         raise_malformed_structured_search_query()
 
@@ -420,12 +520,12 @@ def _parse_chained_search_query(search_query):
         search_query.startswith('"') and search_query.endswith('"')
     ):
         search_operators = _extract_search_operators(
-            search_query, SEARCH_CHAINING_OPERATORS
+            search_query, STRUCTURED_SEARCH_NARY_OPERATORS
         )
         if len(search_operators) == 1:
             parts = _extract_operands(text=search_query, op=search_operators[0])
             if len(parts) >= 2 and all(parts):
-                return search_operators[0], parts
+                return search_operators[0].name, parts
             else:
                 raise_malformed_structured_search_query(
                     f"Malformed {search_operators[0]} query"
@@ -438,10 +538,10 @@ def _parse_chained_search_query(search_query):
 
 
 def _extract_operands(text, op):
-    parts = [p.strip() for p in text.split(op)]
+    parts = [p.strip() for p in text.split(op.name)]
     # try shorthand if op not found in text
     if len(parts) == 1:
-        parts = [p.strip() for p in text.split(OPERATOR_METADATA[op][0])]
+        parts = [p.strip() for p in text.split(op.shorthand)]
     return parts
 
 
@@ -452,15 +552,20 @@ def parse_search_query(search_query):
 
 
 def get_advanced_search_data():
-    operators = SEARCH_TERM_BINARY_OPERATORS + SEARCH_TERM_UNARY_OPERATORS
-    operator_types = {}
-    for op in operators:
-        operator_types[op] = OPERATOR_METADATA[op][2]
+    def clean(dct):
+        clean_dict = {}
+        for k, v in dct.items():
+            if v is not None and any([isinstance(v, t) for t in [str, Iterable]]):
+                clean_dict[k] = v
+        return clean_dict
+
     return {
-        "operators": operators,
-        "operator_types": operator_types,
-        "operator_metadata": OPERATOR_METADATA,
-        "attributes": STRUCTURED_SEARCH_ATTRIBUTES,
-        "hemispheres": HEMISPHERES,
-        "regions": list(REGIONS.keys()),
+        "operators": {
+            op.name: clean(op.__dict__)
+            for op in STRUCTURED_SEARCH_BINARY_OPERATORS
+            + STRUCTURED_SEARCH_UNARY_OPERATORS
+        },
+        "attributes": {
+            sa.name: clean(sa.__dict__) for sa in STRUCTURED_SEARCH_ATTRIBUTES
+        },
     }

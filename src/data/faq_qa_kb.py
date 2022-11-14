@@ -1,26 +1,25 @@
 from src.data.structured_search_filters import (
-    OPERATOR_METADATA,
-    SEARCH_TERM_UNARY_OPERATORS,
-    SEARCH_TERM_BINARY_OPERATORS,
-    SEARCH_CHAINING_OPERATORS,
+    STRUCTURED_SEARCH_UNARY_OPERATORS,
+    STRUCTURED_SEARCH_BINARY_OPERATORS,
+    STRUCTURED_SEARCH_NARY_OPERATORS,
     STRUCTURED_SEARCH_ATTRIBUTES,
+    SEARCH_ATTRIBUTE_NAMES,
 )
 
 
 def operators_list(ops):
     def _make_list_item(op):
-        op_short_and_desc = OPERATOR_METADATA[op]
-        return f"<b>{op}</b> (short alternative <b>{op_short_and_desc[0]}</b>) {op_short_and_desc[1]}"
+        return f"<b>{op.name}</b> (short alternative <b>{op.shorthand}</b>) {op.description}"
 
     li = [_make_list_item(op) for op in ops]
     return "".join([f"<li>{i}</li>" for i in li])
 
 
-def attr_list(attr_dict):
-    def _make_list_item(attr_key, attr_meta):
-        return f"<b>{attr_key}</b> {attr_meta[2]}"
+def attr_list(attrs):
+    def _make_list_item(a):
+        return f"<b>{a.name}</b> {a.description}"
 
-    li = [_make_list_item(k, v) for k, v in attr_dict.items()]
+    li = [_make_list_item(a) for a in attrs]
     return "".join([f"<li>{i}</li>" for i in li])
 
 
@@ -36,15 +35,15 @@ FAQ_QA_KB = {
     },
     "structured_search": {
         "q": "Is there an advanced search/filter? Can I search for specific attribute values?",
-        "a": f"Yes, for certain attributes ({', '.join(STRUCTURED_SEARCH_ATTRIBUTES.keys())}) you can search using "
+        "a": f"Yes, for certain attributes ({', '.join(SEARCH_ATTRIBUTE_NAMES)}) you can search using "
         f"structured query terms "
         "e.g. by typing into search box <b>class == JON</b> or <b>nt != GABA</b>. You can also chain the terms "
         "with and/or rules like so: <b>class == JON && nt != GABA</b> or similarly "
         "<b>class == JON || class == olfactory || class == dsx</b> etc. (but different chaining rules cannot be "
         "mixed)."
-        f"<br> <b>Binary operators</b> <ul> {operators_list(SEARCH_TERM_BINARY_OPERATORS)} </ul>"
-        f"<br> <b>Unary operators</b> <ul> {operators_list(SEARCH_TERM_UNARY_OPERATORS)} </ul>"
-        f"<br> <b>Chaining operators</b> <ul> {operators_list(SEARCH_CHAINING_OPERATORS)} </ul>"
+        f"<br> <b>Binary operators</b> <ul> {operators_list(STRUCTURED_SEARCH_BINARY_OPERATORS)} </ul>"
+        f"<br> <b>Unary operators</b> <ul> {operators_list(STRUCTURED_SEARCH_UNARY_OPERATORS)} </ul>"
+        f"<br> <b>Chaining operators</b> <ul> {operators_list(STRUCTURED_SEARCH_NARY_OPERATORS)} </ul>"
         f"<br> <b>Search attributes</b> <ul> {attr_list(STRUCTURED_SEARCH_ATTRIBUTES)} </ul>",
     },
     "names": {
