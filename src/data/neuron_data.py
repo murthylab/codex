@@ -2,6 +2,7 @@ from collections import defaultdict
 from functools import lru_cache
 from random import choice
 
+from src.data.brain_regions import neuropil_hemisphere
 from src.data.neuron_collections import NEURON_COLLECTIONS
 from src.data.search_index import SearchIndex
 from src.data.structured_search_filters import (
@@ -154,17 +155,15 @@ class NeuronDB(object):
             ]
         )
 
+        output_sets = defaultdict(set)
+        input_sets = defaultdict(set)
         if connection_rows:
-            output_sets = defaultdict(set)
-            input_sets = defaultdict(set)
             for r in connection_rows:
                 from_node, to_node = int(r[0]), int(r[1])
                 assert from_node in self.neuron_data and to_node in self.neuron_data
                 output_sets[from_node].add(to_node)
                 input_sets[to_node].add(from_node)
-            self.adjacencies = {"input_sets": input_sets, "output_sets": output_sets}
-        else:
-            self.adjacencies = None
+        self.adjacencies = {"input_sets": input_sets, "output_sets": output_sets}
 
     @lru_cache
     def neuropils(self):
@@ -283,19 +282,11 @@ class NeuronDB(object):
     def hemisphere_fingerprint(input_pils, output_pils):
         def fp(pils):
             if pils:
-                left = any([p.endswith("_L") for p in pils])
-                center = any([not (p.endswith("_L") or p.endswith("_R")) for p in pils])
-                right = any([p.endswith("_R") for p in pils])
-                if len([v for v in [left, center, right] if v]) > 1:
+                hemispheres = set([neuropil_hemisphere(p) for p in pils])
+                if len(hemispheres) > 1:
                     return "Mix"
-                elif left:
-                    return "Left"
-                elif center:
-                    return "Mid"
-                elif right:
-                    return "Right"
                 else:
-                    return "?"
+                    return hemispheres.pop()
 
         if input_pils or output_pils:
             return f"{fp(input_pils)}/{fp(output_pils)}"

@@ -1,21 +1,7 @@
 from src.data.vocabulary import STOP_WORDS
 from src.utils.logging import log
+from src.utils.parsing import tokenize
 
-DELIMS = ["=", "-", ". ", ",", "?", "!", ";", ":" "//", "/", "(", ")", '"', "&"]
-
-
-def clean(tk):
-    if any([tk.endswith(c) for c in [".", ":"]]):
-        tk = tk[:-1]
-    return tk
-
-
-def tokenize(s):
-    for d in DELIMS:
-        s = s.replace(d, " ")
-
-    res = [clean(t) for t in s.split() if t]
-    return [t for t in res if t]
 
 
 def tokenize_with_location(s, fold=False):

@@ -26,8 +26,9 @@ from src.blueprints.base import (
     warning_with_redirect,
 )
 from src.data import gcs_data_loader
+from src.data.brain_regions import neuropil_hemisphere
 from src.data.faq_qa_kb import FAQ_QA_KB
-from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM
+from src.data.structured_search_filters import OP_DOWNSTREAM, OP_UPSTREAM, OP_PATHWAYS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
 from src.data.search_index import tokenize, tokenize_with_location
 from src.data.sorting import sort_search_results
@@ -47,6 +48,7 @@ from src.utils.logging import (
 )
 from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
+from src.data.structured_search_filters import get_advanced_search_data
 
 app = Blueprint("app", __name__, url_prefix="/app")
 
@@ -88,6 +90,7 @@ def stats():
         data_version=data_version,
         case_sensitive=case_sensitive,
         whole_word=whole_word,
+        advanced_search_data=get_advanced_search_data(),
     )
 
 
@@ -224,6 +227,7 @@ def render_neuron_list(
         case_sensitive=case_sensitive,
         whole_word=whole_word,
         extra_data=extra_data,
+        advanced_search_data=get_advanced_search_data(),
     )
 
 
@@ -344,7 +348,7 @@ def search():
     )
 
 
-@app.route("/app/download_search_results")
+@app.route("/download_search_results")
 @request_wrapper
 @require_data_access
 def download_search_results():
@@ -386,7 +390,7 @@ def download_search_results():
     )
 
 
-@app.route("/app/root_ids_from_search_results")
+@app.route("/root_ids_from_search_results")
 @request_wrapper
 @require_data_access
 def root_ids_from_search_results():
@@ -562,21 +566,24 @@ def ngl_redirect_with_browser_check(ngl_url):
 @require_data_access
 def cell_details():
     if request.method == "POST":
-        annotation = request.form.get("annotation_text")
+        annotation_text = request.form.get("annotation_text")
+        annotation_coordinates = request.form.get("annotation_coordinates")
         annotation_cell_id = request.form.get("annotation_cell_id")
-        neuron_db = neuron_data_factory.get()
-        ndata = neuron_db.get_neuron_data(annotation_cell_id)
-        coordinates = ndata["position"][0] if ndata["position"] else None
+        if not annotation_coordinates:
+            neuron_db = neuron_data_factory.get()
+            ndata = neuron_db.get_neuron_data(annotation_cell_id)
+            annotation_coordinates = ndata["position"][0] if ndata["position"] else None
         fw_user_id = fetch_flywire_user_id(session)
         log_user_help(
-            f"Submitting annotation '{annotation}' for cell {annotation_cell_id} with user id {fw_user_id=} and coordinates {coordinates}"
+            f"Submitting annotation '{annotation_text}' for cell {annotation_cell_id} "
+            f"with user id {fw_user_id} and coordinates {annotation_coordinates}"
         )
         return redirect(
             cell_identification_url(
                 cell_id=annotation_cell_id,
                 user_id=fw_user_id,
-                coordinates=coordinates,
-                annotation=annotation,
+                coordinates=annotation_coordinates,
+                annotation=annotation_text,
             )
         )
 
@@ -648,16 +655,16 @@ def cell_details():
             )
             related_cells[search_link] = nglui_link
 
-    connectivity = gcs_data_loader.load_connection_table_for_root_id(
+    connectivity_table = gcs_data_loader.load_connection_table_for_root_id(
         root_id, min_syn_count=min_syn_cnt
     )
-    if connectivity:
+    if connectivity_table:
         input_neuropil_synapse_count = defaultdict(int)
         output_neuropil_synapse_count = defaultdict(int)
         input_nt_type_count = defaultdict(int)
         downstream = []
         upstream = []
-        for r in connectivity:
+        for r in connectivity_table:
             if r[0] == root_id:
                 downstream.append(r[1])
                 output_neuropil_synapse_count[r[2]] += r[3]
@@ -691,11 +698,7 @@ def cell_details():
         def hemisphere_counts(neuropil_counts):
             res = defaultdict(int)
             for k, v in neuropil_counts.items():
-                res[
-                    "Left"
-                    if k.upper().endswith("_L")
-                    else ("Right" if k.upper().endswith("_R") else "Center")
-                ] += v
+                res[neuropil_hemisphere(k)] += v
             return res
 
         charts["Input / Output Synapses"] = stats_utils.make_chart_from_counts(
@@ -815,11 +818,12 @@ def cell_details():
         "cell_details.html",
         cell_names_or_id=cell_names_or_id or nd["name"],
         cell_id=root_id,
+        cell_coordinates=nd["position"][0] if nd["position"] else "",
         cell_attributes=cell_attributes,
         cell_extra_data=cell_extra_data,
         related_cells=related_cells,
         charts=charts,
-        load_connections=1 if connectivity and len(connectivity) > 1 else 0,
+        load_connections=1 if connectivity_table and len(connectivity_table) > 1 else 0,
     )
 
 
@@ -967,9 +971,9 @@ def path_length():
     download = request.args.get("download", 0, type=int)
     log_activity(f"Generating path lengths table for '{cell_names_or_ids}' {download=}")
     message = None
+    neuron_db = neuron_data_factory.get()
 
     if cell_names_or_ids:
-        neuron_db = neuron_data_factory.get()
         root_ids = neuron_db.search(search_query=cell_names_or_ids)
         if not root_ids:
             return render_error(
@@ -1009,6 +1013,27 @@ def path_length():
             headers={"Content-disposition": f"attachment; filename={fname}"},
         )
     else:
+        if matrix:
+            # format matrix with cell info/hyperlinks and pathway hyperlinks
+            for i, r in enumerate(matrix[1:]):
+                from_root_id = int(r[0])
+                for j, val in enumerate(r):
+                    if j == 0:
+                        r[
+                            j
+                        ] = f'<a href="{url_for("app.search", filter_string="id == " + str(from_root_id))}">{neuron_db.get_neuron_data(from_root_id)["name"]}</a><br><small>{from_root_id}</small>'
+                    elif val > 0:
+                        to_root_id = int(matrix[0][j])
+                        q = f"{from_root_id} {OP_PATHWAYS} {to_root_id}"
+                        r[
+                            j
+                        ] = f'<a href="{url_for("app.search", filter_string=q)}">{val} hops</a>'
+            for j, val in enumerate(matrix[0]):
+                if j > 0:
+                    matrix[0][
+                        j
+                    ] = f'<a href="{url_for("app.search", filter_string="id == " + str(val))}">{neuron_db.get_neuron_data(int(val))["name"]}</a><br><small>{val}</small>'
+
         paths_doc = FAQ_QA_KB["paths"]
         return render_template(
             "distance_table.html",

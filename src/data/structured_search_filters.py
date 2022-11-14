@@ -1,7 +1,89 @@
-from src.data.brain_regions import match_to_neuropil, lookup_neuropil_set
+from src.data.brain_regions import (
+    match_to_neuropil,
+    lookup_neuropil_set,
+    REGIONS,
+    HEMISPHERES,
+    neuropil_hemisphere,
+)
 from src.data.gcs_data_loader import load_connections_for_root_id
-from src.data.neurotransmitters import lookup_nt_type
+from src.data.neurotransmitters import lookup_nt_type, NEURO_TRANSMITTER_NAMES
 from src.utils.graph_algos import pathways
+
+STRUCTURED_SEARCH_ATTRIBUTES = {
+    # user facing attr: (neuron attr getter, conversion - optional, description, restricted_values)
+    "label": (
+        lambda nd: nd["tag"],
+        None,
+        "Human readable label assigned during cell identification process. Each cell can have zero or more labels.",
+        None,
+    ),
+    "nt": (
+        lambda nd: nd["nt_type"],
+        lambda x: lookup_nt_type(x),
+        "Neuro-transmitter type",
+        NEURO_TRANSMITTER_NAMES,
+    ),
+    "input_neuropil": (
+        lambda nd: nd["input_neuropils"],
+        lambda x: match_to_neuropil(x),
+        "Brain region / neuropil with upstream synaptic connections.",
+        list(REGIONS.keys()),
+    ),
+    "output_neuropil": (
+        lambda nd: nd["output_neuropils"],
+        lambda x: match_to_neuropil(x),
+        "Brain region / neuropil with downstream synaptic connections.",
+        list(REGIONS.keys()),
+    ),
+    "input_hemisphere": (
+        lambda nd: [neuropil_hemisphere(p) for p in nd["input_neuropils"]],
+        None,
+        "Brain hemisphere / side with upstream synaptic connections.",
+        HEMISPHERES,
+    ),
+    "output_hemisphere": (
+        lambda nd: [neuropil_hemisphere(p) for p in nd["output_neuropils"]],
+        None,
+        "Brain hemisphere / side with downstream synaptic connections.",
+        HEMISPHERES,
+    ),
+    "class": (
+        lambda nd: nd["classes"],
+        None,
+        "Cell typing attribute. Indicates function or other property of the cell. Each cell can "
+        "belong to zero or more classes.",
+        None,
+    ),
+    "group": (
+        lambda nd: nd["group"],
+        None,
+        "Automatically assigned group name (based on properties of the cell).",
+        None,
+    ),
+    "name": (
+        lambda nd: nd["name"],
+        None,
+        "Automatically assigned name (based on properties of the cell). Unique across data "
+        "versions, but might get replaced if affected by proofreading.",
+        None,
+    ),
+    "id": (
+        lambda nd: nd["root_id"],
+        lambda x: int(x),
+        "ID of the cell. Unique across data versions, "
+        "but might get replaced if affected by proofreading.",
+        None,
+    ),
+}
+
+
+# Operator types
+TYPE_BINARY_ATTRIBUTE = "binary_attribute"
+TYPE_BINARY_REGION = "binary_region"
+TYPE_BINARY_TWOIDS = "binary_twoids"
+TYPE_UNARY_ATTRIBUTE = "unary_attribute"
+TYPE_UNARY_STREAM = "unary_stream"
+TYPE_NARY = "nary"
 
 # Structured search operators
 OP_EQUAL = "{equal}"
@@ -20,44 +102,95 @@ OP_AND = "{and}"
 OP_OR = "{or}"
 
 OPERATOR_METADATA = {
-    # user facing op: (alternative shorthand, description)
-    OP_EQUAL: ("==", "Binary, LHS attribute of the cell and RHS value are equal"),
+    # user facing op: (alternative shorthand, description, type, lhs_restricted_values, rhs_testricted_values)
+    OP_EQUAL: (
+        "==",
+        "Binary, LHS attribute of the cell and RHS value are equal",
+        TYPE_BINARY_ATTRIBUTE,
+        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
+        None,
+    ),
     OP_NOT_EQUAL: (
         "!=",
         "Binary, LHS attribute of the cell and RHS value are not equal",
+        TYPE_BINARY_ATTRIBUTE,
+        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
+        None,
     ),
     OP_STARTS_WITH: (
         "^*",
         "Binary, LHS attribute of the cell starts with RHS value (e.g., label {starts_with} LC",
+        TYPE_BINARY_ATTRIBUTE,
+        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
+        None,
     ),
     OP_IN: (
         "<<",
         "Binary, LHS attribute of the cell equals one of the comma-separated values on RHS",
+        TYPE_BINARY_ATTRIBUTE,
+        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
+        None,
     ),
     OP_NOT_IN: (
         "!<",
         "Binary, LHS attribute of the cell is not equal to any of the comma-separated values on RHS",
+        TYPE_BINARY_ATTRIBUTE,
+        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
+        None,
     ),
-    OP_HAS: ("$$", "Unary, attribute of the cell has value (not empty)"),
-    OP_NOT: ("!$", "Unary, attribute of the cell has no value (empty)"),
-    OP_UPSTREAM: ("^^", "Unary, matches cells upstream of specified Cell ID)"),
-    OP_DOWNSTREAM: ("!^", "Unary, matches cells downstream of specified Cell ID)"),
+    OP_HAS: (
+        "$$",
+        "Unary, attribute of the cell has value (not empty)",
+        TYPE_UNARY_ATTRIBUTE,
+        lambda x: x is None or len(x) == 0,
+        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
+    ),
+    OP_NOT: (
+        "!$",
+        "Unary, attribute of the cell has no value (empty)",
+        TYPE_UNARY_ATTRIBUTE,
+        lambda x: x is None or len(x) == 0,
+        list(STRUCTURED_SEARCH_ATTRIBUTES.keys()),
+    ),
+    OP_UPSTREAM: (
+        "^^",
+        "Unary, matches cells upstream of specified Cell ID)",
+        TYPE_UNARY_STREAM,
+        lambda x: x is None or len(x) == 0,
+        None,
+    ),
+    OP_DOWNSTREAM: (
+        "!^",
+        "Unary, matches cells downstream of specified Cell ID)",
+        TYPE_UNARY_STREAM,
+        lambda x: x is None or len(x) == 0,
+        None,
+    ),
     OP_UPSTREAM_REGION: (
         "^R",
         "Binary, matches cells upstream of RHS, with synapses in LHS region, where region "
         "is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
+        TYPE_BINARY_REGION,
+        HEMISPHERES + list(REGIONS.keys()),
+        None,
     ),
     OP_DOWNSTREAM_REGION: (
         "!R",
         "Binary, matches cells downstream of RHS, with synapses in LHS region, where region "
         "is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
+        TYPE_BINARY_REGION,
+        HEMISPHERES + list(REGIONS.keys()),
+        None,
     ),
     OP_PATHWAYS: (
         "->",
         "Binary, match all cells along shortest-path pathways from LHS to RHS",
+        TYPE_BINARY_TWOIDS,
+        None,
+        None,
     ),
-    OP_AND: ("&&", "N-ary, all terms are true"),
-    OP_OR: ("||", "N-ary, at least one of the terms is true"),
+    OP_AND: ("&&", "N-ary, all terms are true", TYPE_NARY, None, None),
+    OP_OR: ("||", "N-ary, at least one of the terms is true", TYPE_NARY, None, None),
 }
 
 SEARCH_TERM_BINARY_OPERATORS = [
@@ -80,54 +213,6 @@ SEARCH_CHAINING_OPERATORS = [
     OP_AND,  # and / conjunction
     OP_OR,  # or / disjunction
 ]
-STRUCTURED_SEARCH_ATTRIBUTES = {
-    # user facing attr: (internal attr, conversion - optional, description)
-    "id": (
-        "root_id",
-        lambda x: int(x),
-        "ID of the cell. Unique across data versions, "
-        "but might get replaced if affected by proofreading.",
-    ),
-    "name": (
-        "name",
-        None,
-        "Automatically assigned name (based on properties of the cell). Unique across data "
-        "versions, but might get replaced if affected by proofreading.",
-    ),
-    "group": (
-        "group",
-        None,
-        "Automatically assigned group name (based on properties of the cell).",
-    ),
-    "class": (
-        "classes",
-        None,
-        "Cell typing attribute. Indicates function or other property of the cell. Each cell can "
-        "belong to zero or more classes.",
-    ),
-    "label": (
-        "tag",
-        None,
-        "Human readable label assigned during cell identification process. Each cell can have zero "
-        "or more labels.",
-    ),
-    "nt": (
-        "nt_type",
-        lambda x: lookup_nt_type(x),
-        "Neuro-transmitter type. One of ACH, GABA, GLUT, SER, OCT, DA.",
-    ),
-    "input_neuropil": (
-        "input_neuropils",
-        lambda x: match_to_neuropil(x),
-        "Brain region / neuropil with upstream synaptic connections.",
-    ),
-    "output_neuropil": (
-        "output_neuropils",
-        lambda x: match_to_neuropil(x),
-        "Brain region / neuropil with downstream synaptic connections.",
-    ),
-    "io_hemisphere": ("hemisphere_fingerprint", None, "Input / Output Hemispheres"),
-}
 
 
 def _make_comparison_predicate(lhs, rhs, op):
@@ -135,17 +220,17 @@ def _make_comparison_predicate(lhs, rhs, op):
     if lhs not in STRUCTURED_SEARCH_ATTRIBUTES:
         _raise_unsupported_attr_for_structured_search(lhs)
 
-    attr_key = STRUCTURED_SEARCH_ATTRIBUTES[lhs][0]
-    # if conversion fails, default to false predicate
+    # attempt conversion
     try:
         conversion_func = STRUCTURED_SEARCH_ATTRIBUTES[lhs][1]
         if conversion_func:
             rhs = conversion_func(rhs)
     except:
-        return lambda x: False
+        _raise_invalid_value_for_structured_search(
+            attr_name=lhs, value=rhs, valid_values=STRUCTURED_SEARCH_ATTRIBUTES[lhs][3]
+        )
 
-    def op_checker(x):
-        val = x.get(attr_key)
+    def op_checker(val):
         if isinstance(val, list):
             if op == OP_EQUAL:
                 return rhs in val
@@ -163,26 +248,39 @@ def _make_comparison_predicate(lhs, rhs, op):
 
         raise ValueError(f"Unsupported comparison operand: {op}")
 
-    return lambda nd: op_checker(nd)
+    return lambda nd: op_checker(STRUCTURED_SEARCH_ATTRIBUTES[lhs][0](nd))
 
 
 def _make_has_predicate(rhs):
     rhs = rhs.lower()
     if rhs not in STRUCTURED_SEARCH_ATTRIBUTES:
         _raise_unsupported_attr_for_structured_search(rhs)
-
-    attr_key = STRUCTURED_SEARCH_ATTRIBUTES[rhs][0]
-    return lambda nd: nd.get(attr_key)
+    return lambda nd: STRUCTURED_SEARCH_ATTRIBUTES[rhs][0](nd)
 
 
 def _raise_unsupported_attr_for_structured_search(attr_name):
-    raise ValueError(
+    raise_malformed_structured_search_query(
         f"Structured query by attribute <b>{attr_name}</b> is not supported. Possible solutions:"
         f"<br>- look for typos in <b>{attr_name}</b>, or try searching by one of the supported "
-        f"attribute: {', '.join(STRUCTURED_SEARCH_ATTRIBUTES.keys())} (read more about advanced "
-        f"search on the FAQ page)."
-        f"<br>- if this was not meant to be a structured query, wrap it in double quotes to force "
-        f"free form search"
+        f"attribute: {', '.join(STRUCTURED_SEARCH_ATTRIBUTES.keys())}"
+    )
+
+
+def _raise_invalid_value_for_structured_search(attr_name, value, valid_values):
+    msg = f"'{value}' is not a valid value for  <b>{attr_name}</b>."
+    if valid_values:
+        msg += (
+            " Valid values are:<ul>"
+            + "".join([f"<li>{v}</li>" for v in valid_values])
+            + "</ul>"
+        )
+    raise_malformed_structured_search_query(msg)
+
+
+def raise_malformed_structured_search_query(msg="Malformed structured search query"):
+    raise ValueError(
+        f"{msg}<br>See info about structured search on the FAQ page, "
+        f"or wrap your query in double quotes to run a free form search."
     )
 
 
@@ -238,6 +336,10 @@ def _make_predicate(structured_term, input_sets, output_sets):
         )
         pathway_distance_map = pathway_distance_map or {}
         return lambda x: x["root_id"] in pathway_distance_map
+    elif structured_term["op"] == OP_AND:
+        return structured_term["lhs"] and structured_term["rhs"]
+    elif structured_term["op"] == OP_OR:
+        return structured_term["lhs"] or structured_term["rhs"]
     else:
         raise ValueError(f"Unsupported query operator {structured_term['op']}")
 
@@ -293,7 +395,10 @@ def _parse_search_terms(terms):
     structured = []
     for term in terms:
         search_operators = _extract_search_operators(term)
-        if len(search_operators) == 1:
+        if not search_operators:
+            free_form.append(term)
+            continue
+        elif len(search_operators) == 1:
             op = search_operators[0]
             parts = _extract_operands(text=term, op=op)
             if len(parts) == 2:
@@ -305,8 +410,8 @@ def _parse_search_terms(terms):
                     if not parts[0] and parts[1]:
                         structured.append({"op": op, "rhs": parts[1]})
                         continue
+        raise_malformed_structured_search_query()
 
-        free_form.append(term)
     return free_form, structured
 
 
@@ -321,6 +426,14 @@ def _parse_chained_search_query(search_query):
             parts = _extract_operands(text=search_query, op=search_operators[0])
             if len(parts) >= 2 and all(parts):
                 return search_operators[0], parts
+            else:
+                raise_malformed_structured_search_query(
+                    f"Malformed {search_operators[0]} query"
+                )
+        elif len(search_operators) > 1:
+            raise_malformed_structured_search_query(
+                f"Mixing operators {search_operators} not supported"
+            )
     return None, [search_query]
 
 
@@ -336,3 +449,18 @@ def parse_search_query(search_query):
     chaining_rule, terms = _parse_chained_search_query(search_query)
     free_form, structured = _parse_search_terms(terms)
     return chaining_rule, free_form, structured
+
+
+def get_advanced_search_data():
+    operators = SEARCH_TERM_BINARY_OPERATORS + SEARCH_TERM_UNARY_OPERATORS
+    operator_types = {}
+    for op in operators:
+        operator_types[op] = OPERATOR_METADATA[op][2]
+    return {
+        "operators": operators,
+        "operator_types": operator_types,
+        "operator_metadata": OPERATOR_METADATA,
+        "attributes": STRUCTURED_SEARCH_ATTRIBUTES,
+        "hemispheres": HEMISPHERES,
+        "regions": list(REGIONS.keys()),
+    }

@@ -1,8 +1,21 @@
 from collections import defaultdict
 
-from flask import render_template
+from flask import render_template, url_for
 
 from src.data.brain_regions import neuropil_description
+
+MAX_NODES = 30
+
+NEUROPIL_COLOR = "#97c2fc"
+NT_COLORS = {
+    "ach": "#ff9999",
+    "gaba": "#99ff99",
+    "glut": "#9999ff",
+    "oct": "#ffff99",
+    "ser": "#ff99ff",
+    "da": "#99ffff",
+}
+UNSPECIFIED_COLOR = "#fafafa"
 
 
 def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
@@ -11,38 +24,45 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
     neuron_data_fetcher is a lambda that returns neuron metadata given it's id
     center_ids is the ids of the neurons that are being inspected
     """
-    edge_physics = True
-    node_physics = True
     center_ids = center_ids or []
 
     def node_size(ndata):
-        return 10
+        return 20 if ndata["root_id"] in center_ids else 10
 
     def node_shape(ndata):
+        return "elipse" if ndata["root_id"] in center_ids else "dot"
+
+    def node_position(ndata):
         if ndata["root_id"] in center_ids:
-            return "circle"
-        return "dot"
+            idx = center_ids.index(ndata["root_id"])
+            return 0, 50 * idx
+        return None, None
 
     def node_color(ndata):
-        return {
-            "ach": "#ff9999",
-            "gaba": "#99ff99",
-            "glut": "#9999ff",
-            "oct": "#ffff99",
-            "ser": "#ff99ff",
-            "da": "#99ffff",
-        }.get(ndata["nt_type"].lower(), "#fafafa")
+        return nt_color(ndata["nt_type"])
 
     def node_title(nd):
         rid = nd["root_id"]
         name = nd["name"]
-        return f"<a href='cell_details?root_id={rid}' target='_parent'>{name}</a><br><small>{rid}</small>"
+        class_and_annotations = nd["class"]
+        if nd["annotations"]:
+            class_and_annotations += f'<br>{nd["annotations"]}'
 
-    def edge_title(row):
-        return f"{row[2]}"
+        prefix = "selected cell" if rid in center_ids else "connected cell"
+        cell_detail_url = url_for("app.cell_details", root_id=rid)
+        thumbnail_url = url_for("base.skeleton_thumbnail_url", root_id=rid)
+        return (
+            f'<a href="{cell_detail_url}" target="_parent">{name}</a><br>({prefix})<br><small>{rid}'
+            f"</small><br><small>{class_and_annotations}</small><br>"
+            f'<a href="{cell_detail_url}" target="_parent">'
+            f'<img src="{thumbnail_url}" width="200px" height="150px;" border="0px;"></a>'
+        )
 
-    def edge_size(row):
-        return pow(row[3], 1 / 2)
+    def edge_title(num):
+        return f"{num} synapses"
+
+    def nt_color(nt_type):
+        return NT_COLORS.get(nt_type.lower(), UNSPECIFIED_COLOR)
 
     net = Network()
 
@@ -60,55 +80,59 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
     def add_cell_node(nid):
         if nid not in added_cell_nodes:
             nd = neuron_data_fetcher(nid)
+            x, y = node_position(nd)
             net.add_node(
-                nd["root_id"],
+                name=nd["root_id"],
                 label=f"{nd['name']}",
                 title=node_title(nd),
-                physics=node_physics,
                 color=node_color(nd),
                 shape=node_shape(nd),
                 size=node_size(nd),
+                x=x,
+                y=y,
             )
-            added_cell_nodes.add(k[0])
-            net.add_legend(nd["nt_type"].upper(), color=node_color(nd))
+            added_cell_nodes.add(nid)
+            net.add_legend(nd["nt_type"].upper(), color=nt_color(nd["nt_type"]))
 
     added_pil_nodes = set()
 
     def add_pil_node(pil, is_input):
         nid = f"{pil}_{'in' if is_input else 'out'}"
         if nid not in added_pil_nodes:
-            pil_desc = neuropil_description(pil)
+            title = f"Neuropil {pil}<br><small>{neuropil_description(pil)}</small>"
             net.add_node(
-                nid,
+                name=nid,
                 label=f"{pil} ({'in' if is_input else 'out'})",
-                title=pil_desc,
-                physics=node_physics,
+                title=title,
                 shape="box",
                 size=20,
+                color=NEUROPIL_COLOR,
             )
             added_pil_nodes.add(nid)
+            net.add_legend("Neuropil", color=NEUROPIL_COLOR)
         return nid
 
-    net.add_legend("Neuropil")
     # add the most significant connections first
-    max_nodes = 30
-    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:max_nodes]:
+    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:MAX_NODES]:
         add_cell_node(k[0])
         pnid = add_pil_node(k[1], is_input=k[0] not in center_ids)
-        net.add_edge(k[0], pnid, value=v, physics=edge_physics, label=str(v))
-    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[:max_nodes]:
+        net.add_edge(
+            source=k[0], target=pnid, value=v, label=str(v), title=edge_title(v)
+        )
+    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[:MAX_NODES]:
         add_cell_node(k[1])
         pnid = add_pil_node(k[0], is_input=k[1] in center_ids)
-        net.add_edge(pnid, k[1], value=v, physics=edge_physics, label=str(v))
+        net.add_edge(
+            source=pnid, target=k[1], value=v, label=str(v), title=edge_title(v)
+        )
 
     # bundle any remaining connections (to prevent too large graphs)
     def add_super_cell_node():
         scid = "other_cells"
         if scid not in added_cell_nodes:
             net.add_node(
-                scid,
+                name=scid,
                 label=f"Other Cells",
-                physics=node_physics,
                 color="#fafafa",
                 shape="database",
                 size=40,
@@ -120,9 +144,8 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
         spid = "other_neuropils"
         if spid not in added_pil_nodes:
             net.add_node(
-                spid,
+                name=spid,
                 label=f"Other Neuropils",
-                physics=node_physics,
                 color="#fafafa",
                 shape="database",
                 size="40",
@@ -135,11 +158,11 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
 
     def add_super_edge(f, t, v):
         if (f, t) not in added_super_edge_pairs:
-            net.add_edge(f, t, value=v, physics=edge_physics, label=str(v))
+            net.add_edge(source=f, target=t, value=v, label=str(v), title=edge_title(v))
             added_super_edge_pairs.add((f, t))
 
     for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[
-        max_nodes : 2 * max_nodes
+        MAX_NODES : 2 * MAX_NODES
     ]:
         if k[0] in added_cell_nodes:
             if k[1] in added_pil_nodes:
@@ -157,7 +180,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
                 add_super_edge(sc, sp, v)
 
     for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[
-        max_nodes : 2 * max_nodes
+        MAX_NODES : 2 * MAX_NODES
     ]:
         if k[1] in added_cell_nodes:
             if k[0] in added_pil_nodes:
@@ -178,71 +201,61 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
 
 
 class Network(object):
-    # based on https://pyvis.readthedocs.io/en/latest/_modules/pyvis/network.html
-    def __init__(self):
-        self.nodes = []
+    def __init__(self, edge_physics=True, node_physics=False):
         self.edges = []
-        self.node_ids = []
         self.node_map = {}
         self.legend = []
+        self.edge_physics = edge_physics
+        self.node_physics = node_physics
 
-    def add_node(self, n_id, label=None, shape="dot", color="#97c2fc", **options):
-        assert isinstance(n_id, str) or isinstance(n_id, int)
-        n_id = str(n_id)
-        if label:
-            node_label = label
-        else:
-            node_label = n_id
-        if n_id not in self.node_ids:
-            if "group" in options:
-                n = Node(n_id, shape, label=node_label, **options)
-            else:
-                n = Node(n_id, shape, label=node_label, color=color, **options)
-            self.nodes.append(n.options)
-            self.node_ids.append(n_id)
-            self.node_map[n_id] = n.options
+    def add_node(self, name, size, label, shape, color, title=None, x=None, y=None):
+        name = str(name)
+        if name not in self.node_map:
+            node = {
+                "id": name,
+                "label": label or name,
+                "shape": shape,
+                "physics": self.node_physics,
+                "size": size,
+                "color": color,
+                "title": title,
+            }
+            if x is not None:
+                node["x"] = x
+                node["fixed.x"] = True
+            if y is not None:
+                node["y"] = y
+                node["fixed.y"] = True
 
-    def add_edge(self, source, to, **options):
+            self.node_map[name] = node
+
+    def add_edge(self, source, target, value, label, title):
         source = str(source)
-        to = str(to)
-        # verify nodes exist
-        assert source in self.node_ids, "non existent node '" + str(source) + "'"
+        target = str(target)
+        assert source in self.node_map, f"non existent node '{str(source)}'"
+        assert target in self.node_map, f"non existent node '{str(target)}'"
 
-        assert to in self.node_ids, "non existent node '" + str(to) + "'"
+        self.edges.append(
+            {
+                "from": source,
+                "to": target,
+                "value": value,
+                "physics": self.edge_physics,
+                "label": label,
+                "title": title,
+                "arrows": "to",
+            }
+        )
 
-        e = Edge(source, to, True, **options)
-        self.edges.append(e.options)
-
-    def add_legend(self, label, color="#97c2fc"):
+    def add_legend(self, label, color):
         legend_entry = {"label": label, "color": color}
         if legend_entry not in self.legend:
             self.legend.append(legend_entry)
 
     def generate_html(self):
         return render_template(
-            "network_graph.html", nodes=self.nodes, edges=self.edges, legend=self.legend
+            "network_graph.html",
+            nodes=list(self.node_map.values()),
+            edges=self.edges,
+            legend=self.legend,
         )
-
-
-class Node(object):
-    # based on https://github.com/WestHealth/pyvis/blob/master/pyvis/node.py
-    def __init__(self, n_id, shape, label, font_color=False, **opts):
-        self.options = opts
-        self.options["id"] = n_id
-        self.options["label"] = label
-        self.options["shape"] = shape
-        if font_color:
-            self.options["font"] = dict(color=font_color)
-
-
-class Edge(object):
-    # based on https://github.com/WestHealth/pyvis/blob/master/pyvis/edge.py
-    def __init__(self, source, dest, directed=False, **options):
-        self.options = options
-        self.options["from"] = source
-        self.options["to"] = dest
-        if directed:
-            if "arrows" not in self.options:
-                self.options["arrows"] = "to"
-        if "label" in self.options:
-            self.options["title"] = self.options["label"]
