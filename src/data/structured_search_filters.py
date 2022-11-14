@@ -568,9 +568,6 @@ def get_advanced_search_data(current_query):
         "attributes": {
             sa.name: clean(sa.__dict__) for sa in STRUCTURED_SEARCH_ATTRIBUTES
         },
-        "current_query": {
-            "chaining": current_query[0],
-            "terms": current_query[2]
-        }
+        "current_query": {"chaining": current_query[0], "terms": current_query[2]},
     }
     return res
