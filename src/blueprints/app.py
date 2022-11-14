@@ -34,7 +34,11 @@ from src.data.sorting import sort_search_results
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
 from src.utils.cookies import fetch_flywire_user_id
-from src.utils.formatting import synapse_table_to_csv_string, synapse_table_to_json_dict
+from src.utils.formatting import (
+    synapse_table_to_csv_string,
+    synapse_table_to_json_dict,
+    highlight_annotations,
+)
 from src.utils.graph_algos import reachable_node_counts, distance_matrix
 from src.utils.graph_vis import make_graph_html
 from src.utils.logging import (
@@ -205,6 +209,8 @@ def render_neuron_list(
             skeleton_thumbnail_urls[nd["inherited_tag_root_id"]] = url_for_skeleton(
                 nd["inherited_tag_root_id"], data_version=data_version
             )
+
+        nd["colored_annotations"] = highlight_annotations(filter_string, nd["tag"])
 
     return render_template(
         template_name_or_list=template_name,
