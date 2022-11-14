@@ -385,7 +385,6 @@ def _make_has_predicate(rhs):
 
 
 def _make_predicate(structured_term, input_sets, output_sets):
-    print(f"+++ {structured_term}")
     if structured_term["op"] in [OP_EQUAL, OP_NOT_EQUAL, OP_STARTS_WITH]:
         return _make_comparison_predicate(
             lhs=structured_term["lhs"],
@@ -551,7 +550,7 @@ def parse_search_query(search_query):
     return chaining_rule, free_form, structured
 
 
-def get_advanced_search_data():
+def get_advanced_search_data(current_query):
     def clean(dct):
         clean_dict = {}
         for k, v in dct.items():
@@ -559,7 +558,8 @@ def get_advanced_search_data():
                 clean_dict[k] = v
         return clean_dict
 
-    return {
+    current_query = parse_search_query(current_query)
+    res = {
         "operators": {
             op.name: clean(op.__dict__)
             for op in STRUCTURED_SEARCH_BINARY_OPERATORS
@@ -568,4 +568,9 @@ def get_advanced_search_data():
         "attributes": {
             sa.name: clean(sa.__dict__) for sa in STRUCTURED_SEARCH_ATTRIBUTES
         },
+        "current_query": {
+            "chaining": current_query[0],
+            "terms": current_query[2]
+        }
     }
+    return res
