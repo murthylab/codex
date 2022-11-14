@@ -42,7 +42,7 @@ def highlight_annotations(free_form_search_terms, tags):
     search_tokens = []
     for free_from_search_term in free_form_search_terms:
         search_tokens.extend(tokenize(free_from_search_term))
-    folded_search_tokens = set([t.casefold() for t in search_tokens])
+    folded_search_tokens = set([t.lower() for t in search_tokens])
 
     parsed_tags = [
         (tag_string, tokenize_and_fold_for_highlight(tag_string)) for tag_string in tags

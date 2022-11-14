@@ -60,6 +60,12 @@ class TestHighlighting(TestCase):
                 ["Mushroom Body Kenyon cell KC"],
                 '<span style="padding:1px;border-radius:5px;background-color:lightgreen">Mushroom</span> <span style="padding:1px;border-radius:5px;background-color:lightgreen">Body</span> Kenyon cell KC',
             ),
+            # TODO: fix this case and enable the test
+            # (
+            #    "pMP",
+            #    ["pCd1(FW)/SMP487(HB) *", "SMPpv1; left", "pMP3a; put_PDM15gC; pCd1?*", "SMPpv1; right; acetylcholine*", "pCd1?", "putative fru*", "putative dsx"],
+            #    'pMP in third tag should be highlighted yellow',
+            # ),
             (
                 "shroo",
                 ["Mushroom Body Kenyon cell KC"],
@@ -79,4 +85,4 @@ class TestHighlighting(TestCase):
         for filter_string, tags, expected in input:
             free_form_search_terms = parse_search_query(filter_string)[1]
             actual = highlight_annotations(free_form_search_terms, tags)
-            self.assertEqual(actual, expected)
+            self.assertEqual(expected, actual)

@@ -49,7 +49,7 @@ def tokenize_and_fold_for_highlight(s):
         while i < length and s[i] != " ":
             i += 1
         end = i
-        token = s[start:end].casefold()
+        token = s[start:end].lower()
         if token:
             tokens.append((token, start, end))
 
