@@ -3,17 +3,23 @@ from unittest import TestCase
 
 from src.data.structured_search_filters import (
     _make_predicate,
-    OPERATOR_METADATA,
     parse_search_query,
-    SEARCH_TERM_UNARY_OPERATORS,
-    SEARCH_CHAINING_OPERATORS,
-    SEARCH_TERM_BINARY_OPERATORS,
+    STRUCTURED_SEARCH_UNARY_OPERATORS,
+    STRUCTURED_SEARCH_NARY_OPERATORS,
+    STRUCTURED_SEARCH_BINARY_OPERATORS,
+    STRUCTURED_SEARCH_OPERATORS,
+    TYPE_BINARY_OP,
+    TYPE_UNARY_OP,
+    TYPE_NARY_OP,
+    BinarySearchOperator,
+    UnarySearchOperator,
+    NarySearchOperator,
 )
 
 
 class Test(TestCase):
     def test_make_predicate(self):
-        for op, meta in OPERATOR_METADATA.items():
+        for op in STRUCTURED_SEARCH_OPERATORS:
 
             def some_value(restricted_values):
                 if restricted_values is None:
@@ -23,7 +29,21 @@ class Test(TestCase):
                 else:
                     return ""
 
-            st = {"lhs": some_value(meta[3]), "rhs": some_value(meta[4]), "op": op}
+            if op.op_type == TYPE_BINARY_OP:
+                self.assertTrue(type(op) == BinarySearchOperator)
+                st = {
+                    "lhs": some_value(op.lhs_range),
+                    "rhs": some_value(op.rhs_range),
+                    "op": op.name,
+                }
+            elif op.op_type == TYPE_UNARY_OP:
+                self.assertTrue(type(op) == UnarySearchOperator)
+                st = {"lhs": None, "rhs": some_value(op.rhs_range), "op": op.name}
+            elif op.op_type == TYPE_NARY_OP:
+                self.assertTrue(type(op) == NarySearchOperator)
+                st = {"lhs": some_value(None), "rhs": some_value(None), "op": op.name}
+            else:
+                self.fail(f"Unknown op type: {op}")
             self.assertIsNotNone(_make_predicate(st, {}, {}))
 
     def test_structured_query_parsing(self):
@@ -94,30 +114,30 @@ class Test(TestCase):
         )
 
     def test_structured_query_operators(self):
-        op_keys = set(OPERATOR_METADATA.keys())
-        self.assertTrue(all(op_keys))
-        self.assertEqual(len(op_keys), len(OPERATOR_METADATA))
+        op_names_set = set([op.name for op in STRUCTURED_SEARCH_OPERATORS])
+        self.assertTrue(all(op_names_set))
+        self.assertEqual(len(op_names_set), len(STRUCTURED_SEARCH_OPERATORS))
         self.assertEqual(
             len(
-                SEARCH_CHAINING_OPERATORS
-                + SEARCH_TERM_BINARY_OPERATORS
-                + SEARCH_TERM_UNARY_OPERATORS
+                STRUCTURED_SEARCH_NARY_OPERATORS
+                + STRUCTURED_SEARCH_BINARY_OPERATORS
+                + STRUCTURED_SEARCH_UNARY_OPERATORS
             ),
-            len(OPERATOR_METADATA),
+            len(STRUCTURED_SEARCH_OPERATORS),
         )
 
-        op_shorthands = set([p[0] for p in OPERATOR_METADATA.values()])
+        op_shorthands = set([op.shorthand for op in STRUCTURED_SEARCH_OPERATORS])
         self.assertTrue(all(op_shorthands))
-        self.assertEqual(len(op_shorthands), len(OPERATOR_METADATA))
-        self.assertTrue(op_keys.isdisjoint(op_shorthands))
+        self.assertEqual(len(op_shorthands), len(STRUCTURED_SEARCH_OPERATORS))
+        self.assertTrue(op_names_set.isdisjoint(op_shorthands))
 
         # Check descriptions are present and unique
-        descs = set([p[1] for p in OPERATOR_METADATA.values()])
-        self.assertTrue(all(descs))
-        self.assertEqual(len(descs), len(OPERATOR_METADATA))
+        op_descriptions = set([op.description for op in STRUCTURED_SEARCH_OPERATORS])
+        self.assertTrue(all(op_descriptions))
+        self.assertEqual(len(op_descriptions), len(STRUCTURED_SEARCH_OPERATORS))
 
         # check that operators or their shorthands are not substrings of each other
-        all_ops = op_shorthands.union(op_keys)
+        all_ops = op_shorthands.union(op_names_set)
         for op1 in all_ops:
             for op2 in all_ops:
                 self.assertTrue(op1 == op2 or op1 not in op2)
