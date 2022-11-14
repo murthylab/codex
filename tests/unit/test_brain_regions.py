@@ -1,9 +1,11 @@
+from collections import defaultdict
 from unittest import TestCase
 from src.data.brain_regions import (
     match_to_neuropil,
     lookup_neuropil_set,
     neuropil_description,
     REGIONS,
+    REGION_CATEGORIES,
 )
 
 
@@ -58,3 +60,13 @@ class RegionsTest(TestCase):
         descriptions = set([neuropil_description(k) for k in REGIONS.keys()])
         self.assertEqual(len(REGIONS), len(descriptions))
         self.assertTrue(all(descriptions))
+
+    def test_neuropil_categories(self):
+        dct = defaultdict(list)
+        for k, l in REGION_CATEGORIES.items():
+            for pil in l:
+                dct[pil].append(k)
+
+        for p in REGIONS.keys():
+            self.assertEqual(1, len(dct[p]), p)
+            self.assertGreater(len(dct[p][0]), 5)
