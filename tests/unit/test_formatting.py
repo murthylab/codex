@@ -60,12 +60,19 @@ class TestHighlighting(TestCase):
                 ["Mushroom Body Kenyon cell KC"],
                 '<span style="padding:1px;border-radius:5px;background-color:lightgreen">Mushroom</span> <span style="padding:1px;border-radius:5px;background-color:lightgreen">Body</span> Kenyon cell KC',
             ),
-            # TODO: fix this case and enable the test
-            # (
-            #    "pMP",
-            #    ["pCd1(FW)/SMP487(HB) *", "SMPpv1; left", "pMP3a; put_PDM15gC; pCd1?*", "SMPpv1; right; acetylcholine*", "pCd1?", "putative fru*", "putative dsx"],
-            #    'pMP in third tag should be highlighted yellow',
-            # ),
+            (
+                "pMP",
+                [
+                    "pCd1(FW)/SMP487(HB) *",
+                    "SMPpv1; left",
+                    "pMP3a; put_PDM15gC; pCd1?*",
+                    "SMPpv1; right; acetylcholine*",
+                    "pCd1?",
+                    "putative fru*",
+                    "putative dsx",
+                ],
+                'pCd1(FW)/SMP487(HB) * • SMPpv1; left • <span style="padding:1px;border-radius:5px;background-color:yellow">pMP</span>3a; put_PDM15gC; pCd1?* • SMPpv1; right; acetylcholine* • pCd1? • putative fru* • putative dsx',
+            ),
             (
                 "shroo",
                 ["Mushroom Body Kenyon cell KC"],

@@ -61,7 +61,7 @@ def highlight_annotations(free_form_search_terms, tags):
                 if not_intersecting(highlight_locations, start, end):
                     highlight_locations.append(("lightgreen", start, end))
             else:
-                for search_token in search_tokens:
+                for search_token in folded_search_tokens:
                     if search_token in token:
                         index = token.index(search_token)
                         # mark for yellow highlighting
