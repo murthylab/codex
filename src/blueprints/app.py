@@ -210,7 +210,7 @@ def render_neuron_list(
                 nd["inherited_tag_root_id"], data_version=data_version
             )
 
-        nd["colored_annotations"] = highlight_annotations(filter_string, nd)
+        nd["colored_annotations"] = highlight_annotations(filter_string, nd["tags"])
 
     return render_template(
         template_name_or_list=template_name,

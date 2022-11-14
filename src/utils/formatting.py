@@ -38,14 +38,14 @@ def percentage(part, whole):
     return f"{max(0, min(100, int(100 * float(part) / float(whole))))}%"
 
 
-def highlight_annotations(filter_string, nd):
+def highlight_annotations(filter_string, tags):
     search_tokens = tokenize(filter_string)
     folded_search_tokens = [t.casefold() for t in search_tokens]
-    tags = [
-        (tag_string, tokenize_for_highlight(tag_string)) for tag_string in nd["tag"]
+    parsed_tags = [
+        (tag_string, tokenize_for_highlight(tag_string)) for tag_string in tags
     ]
     highlighted_annotations = []
-    for tag_string, tag_tokens in tags:
+    for tag_string, tag_tokens in parsed_tags:
 
         # looks like this: [(color, start, end), (color, start, end), ...]
         highlight_locations = []
