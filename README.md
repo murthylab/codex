@@ -57,10 +57,13 @@ python3 -m src.etl.pickle_data
 
 ## Deploy
 ### Staging
+[codex-staging.flywire.ai](https://codex-staging.flywire.ai)
+#### Auto-deployed from the main branch
 ```
 ./deploy-staging.sh
 ```
 ### Prod
+[codex.flywire.ai](https://codex.flywire.ai)
 ```
 ./deploy.sh
 ```
