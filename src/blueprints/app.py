@@ -26,7 +26,7 @@ from src.blueprints.base import (
     warning_with_redirect,
 )
 from src.data import gcs_data_loader
-from src.data.brain_regions import neuropil_hemisphere
+from src.data.brain_regions import neuropil_hemisphere, HEMISPHERES, REGIONS, REGION_CATEGORIES, neuropil_description
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.structured_search_filters import (
     OP_DOWNSTREAM,
@@ -1110,6 +1110,34 @@ def connectivity():
             f"{con_doc['a']}",
             sample_input=sample_input,
             message=None,
+        )
+
+
+@app.route("/neuropils")
+@request_wrapper
+@require_data_access
+def neuropils():
+    chart_data = [
+        ["Region", "Parent"],
+        ["Hemispheres", ""],
+    ]
+    for hemisphere in HEMISPHERES:
+        chart_data.append(
+            [hemisphere, 'Hemispheres']
+        )
+        for category, regions in REGION_CATEGORIES.items():
+            chart_data.append(
+                [f"{hemisphere} {category}", hemisphere]
+            )
+            for region in regions:
+                if neuropil_hemisphere(region) == hemisphere:
+                    chart_data.append(
+                        [neuropil_description(region), f"{hemisphere} {category}"]
+                    )
+    print(chart_data)
+    return render_template(
+        "neuropils.html",
+        chart_data=chart_data,
         )
 
 
