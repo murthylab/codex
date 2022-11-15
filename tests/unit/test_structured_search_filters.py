@@ -1,4 +1,4 @@
-from collections import Iterable
+from typing import Iterable
 from unittest import TestCase
 
 from src.data.structured_search_filters import (
