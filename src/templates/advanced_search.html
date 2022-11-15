@@ -2,12 +2,13 @@
     const operators = {{advanced_search_data.operators|tojson}};
     const attributes = {{advanced_search_data.attributes|tojson}};
     const currentQuery = {{advanced_search_data.current_query|tojson}};
+    let chaining = "{and}";
 
     function selectDropdownOption(elem) {
         const dropdownBase = elem.parentElement.parentElement;
         const value = elem.getAttribute("value");
         dropdownBase.setAttribute("value", value);
-        dropdownBase.querySelector("button").innerHTML = value;
+        dropdownBase.querySelector("button").innerText = elem.childNodes[0].textContent.trim();
     }
 
     function populateDropdown(dropdownElem, values, isAttributes, shouldUpdateRHS = false) {
@@ -20,10 +21,10 @@
             node.href = "#";
             if (isAttributes) {
                 node.setAttribute("value", v[0]);
-                node.innerHTML = v[0];
+                node.innerText = v[0];
                 const description = document.createElement("div");
                 description.className = "dropdown-description";
-                description.innerHTML = v[1]["description"];
+                description.innerText = v[1]["description"];
                 node.appendChild(description);
                 if (shouldUpdateRHS) {
                     node.addEventListener("click", () => {
@@ -33,7 +34,7 @@
             }
             else {
                 node.setAttribute("value", v);
-                node.innerHTML = v;
+                node.innerText = v;
             }
             node.addEventListener("click", () => {
                 selectDropdownOption(node);
@@ -78,13 +79,13 @@
         rhsDropdownElem.setAttribute("hidden", true);
         rhsInputElem.setAttribute("hidden", true);
 
-        rhsDropdownElem.querySelector(".search-label").innerHTML = operator["rhs_description"];
-        rhsInputElem.querySelector(".search-label").innerHTML = operator["rhs_description"];
+        rhsDropdownElem.querySelector(".search-label").innerText = operator["rhs_description"];
+        rhsInputElem.querySelector(".search-label").innerText = operator["rhs_description"];
 
         if (operator["op_type"] === "binary_operator") {
             if ("lhs_range" in operator) {
                 lhsDropdownElem.removeAttribute("hidden");
-                lhsDropdownElem.querySelector(".search-label").innerHTML = operator["lhs_description"];
+                lhsDropdownElem.querySelector(".search-label").innerText = operator["lhs_description"];
                 if (operator["lhs_range"] === "attributes") {
                     populateDropdown(lhsDropdownElem, Object.entries(attributes), true, shouldUpdateRHS = true);
                 }
@@ -95,7 +96,7 @@
             }
             else {
                 lhsInputElem.removeAttribute("hidden");
-                lhsInputElem.querySelector(".search-label").innerHTML = operator["lhs_description"];
+                lhsInputElem.querySelector(".search-label").innerText = operator["lhs_description"];
                 updateRHS(operator["rhs_range"], searchTermElem);
             }
         }
@@ -107,6 +108,11 @@
             console.log("Unknown operator type", operator["op_type"]);
             return;
         }
+    }
+
+    function setChaining(c) {
+        chaining = c;
+        updateDividers();
     }
 
     function addSearchTerm() {
@@ -124,7 +130,7 @@
             }
         }
 
-        showHideDividers();
+        updateDividers();
 
         const firstOperator = newTerm.querySelector(".search-operator > .dropdown > .dropdown-menu > .dropdown-item");
         firstOperator.click();
@@ -139,14 +145,15 @@
         if (removeButtons.length === 1) {
             removeButtons[0].setAttribute("hidden", true);
         }
-        showHideDividers();
+        updateDividers();
     }
 
-    function showHideDividers() {
+    function updateDividers() {
         //show all search dividers but the last one
         const dividers = document.querySelectorAll(".search-divider");
         for (const divider of dividers) {
             divider.removeAttribute("hidden");
+            divider.querySelector(".search-divider-text").innerText = chaining === "{and}" ? "AND" : "OR";
         }
         dividers[dividers.length - 1].setAttribute("hidden", true);
     }
@@ -156,7 +163,7 @@
         const searchTerms = document.querySelectorAll(".search-term");
         for (const searchElem of searchTerms) {
             if (searchString !== "") {
-                searchString += " && "; //TODO chaining option
+                searchString += " " + chaining + " ";
             }
             
             const lhsDropdownElem = searchElem.querySelector(".search-dropdown-lhs");
@@ -196,8 +203,15 @@
     }
 
     function loadQuery() {
+        //delete all current search terms (from last time menu was opened)
+        const oldRemoveButtons = document.querySelectorAll(".search-term > .search-remove-term > div > button");
+        for (const removeButton of oldRemoveButtons) {
+            removeButton.click();
+        }
+
+        clickDropdownValue(document.querySelector(".search-chaining"), currentQuery["chaining"] || "{and}");
+
         if (currentQuery["terms"].length > 0) {
-            //TODO currentQuery["chaining"] //default to "{and}"
             for (const term of currentQuery["terms"]) {
                 const newTerm = addSearchTerm();
 
@@ -330,6 +344,18 @@
                 <div class="search-add-term d-flex justify-content-center">
                     <button type="button" class="btn btn-outline-success btn-sm" id="addTermButton"
                             onclick="addSearchTerm();" title="Add Term">+ Term</button>
+                </div>
+                <div class="search-chaining">Match
+                    <div class="dropdown">
+                        <button type="button" id="chainingDropdownButton" class="btn btn-light dropdown-toggle"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                        <div class="dropdown-menu search-dropdown-menu" aria-labelledby="chainingDropdownButton">
+                            <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); setChaining('{and}');" value="{and}">All
+                                <div class="dropdown-description">Match all search terms.</div></a>
+                            <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); setChaining('{or}');" value="{or}">Any
+                                <div class="dropdown-description">Match at least one of the search terms.</div></a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
