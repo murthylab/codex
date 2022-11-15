@@ -1,5 +1,4 @@
-import json
-from collections import Iterable
+from typing import Iterable
 
 from src.data.brain_regions import (
     match_to_neuropil,
