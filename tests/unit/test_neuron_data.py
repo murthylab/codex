@@ -156,6 +156,15 @@ class NeuronDataTest(TestCase):
             ),
         )
 
+        # case sensitive vs insensitive search
+        class_matches = self.neuron_db.search(
+            "class == descending", case_sensitive=True
+        )
+        self.assertEqual(len(class_matches), 0)
+        class_matches = self.neuron_db.search("class == descending")
+        self.assertGreater(len(class_matches), 1000)
+
+        # explicit searches
         hundred_root_ids = list(self.neuron_db.neuron_data.keys())[:100]
         root_id_search_explicit = self.neuron_db.search(
             " || ".join([f"id == {rid}" for rid in hundred_root_ids])

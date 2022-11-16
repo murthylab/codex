@@ -44,7 +44,8 @@ class Test(TestCase):
                 st = {"lhs": some_value(None), "rhs": some_value(None), "op": op.name}
             else:
                 self.fail(f"Unknown op type: {op}")
-            self.assertIsNotNone(_make_predicate(st, {}, {}))
+            self.assertIsNotNone(_make_predicate(st, {}, {}, case_sensitive=False))
+            self.assertIsNotNone(_make_predicate(st, {}, {}, case_sensitive=True))
 
     def test_structured_query_parsing(self):
         # free form

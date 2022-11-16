@@ -342,6 +342,7 @@ class NeuronDB(object):
                 structured_terms=structured_terms,
                 input_sets=self.adjacencies["input_sets"],
                 output_sets=self.adjacencies["output_sets"],
+                case_sensitive=case_sensitive,
             )
             term_search_results.append(
                 [k for k, v in self.neuron_data.items() if predicate(v)]
