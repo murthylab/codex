@@ -53,6 +53,9 @@ class RegionsTest(TestCase):
         pil_set = lookup_neuropil_set("Medulla")
         self.assertEqual({"ME_R", "AME_R", "ME_L", "AME_L"}, pil_set)
 
+        pil_set = lookup_neuropil_set("Medulla left")
+        self.assertEqual({"ME_L", "AME_L"}, pil_set)
+
         pil_set = lookup_neuropil_set("Lateral Horn")
         self.assertEqual({"LH_R", "LH_L"}, pil_set)
 
