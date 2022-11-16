@@ -103,6 +103,7 @@ SEARCH_ATTRIBUTE_NAMES = [a.name for a in STRUCTURED_SEARCH_ATTRIBUTES]
 OP_EQUAL = "{equal}"
 OP_NOT_EQUAL = "{not equal}"
 OP_STARTS_WITH = "{starts_with}"
+OP_CONTAINS = "{contains}"
 OP_IN = "{in}"
 OP_NOT_IN = "{not in}"
 OP_HAS = "{has}"
@@ -204,6 +205,15 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Prefix",
+        rhs_range=None,
+    ),
+    BinarySearchOperator(
+        name=OP_CONTAINS,
+        shorthand=">>",
+        description="Binary, LHS attribute of the cell contains RHS value (e.g., label {contains} dsx",
+        lhs_description="Attribute",
+        lhs_range=SEARCH_ATTRIBUTE_NAMES,
+        rhs_description="Substring",
         rhs_range=None,
     ),
     BinarySearchOperator(
@@ -364,6 +374,8 @@ def _make_comparison_predicate(lhs, rhs, op):
                 return rhs not in val
             elif op == OP_STARTS_WITH:
                 return any([str(v).startswith(str(rhs)) for v in val])
+            elif op == OP_CONTAINS:
+                return any([str(rhs) in str(v) for v in val])
         else:
             if op == OP_EQUAL:
                 return rhs == val
@@ -371,6 +383,8 @@ def _make_comparison_predicate(lhs, rhs, op):
                 return rhs != val
             elif op == OP_STARTS_WITH:
                 return str(val).startswith(str(rhs))
+            elif op == OP_CONTAINS:
+                return str(rhs) in str(val)
 
         raise ValueError(f"Unsupported comparison operand: {op}")
 
@@ -384,7 +398,7 @@ def _make_has_predicate(rhs):
 
 
 def _make_predicate(structured_term, input_sets, output_sets):
-    if structured_term["op"] in [OP_EQUAL, OP_NOT_EQUAL, OP_STARTS_WITH]:
+    if structured_term["op"] in [OP_EQUAL, OP_NOT_EQUAL, OP_STARTS_WITH, OP_CONTAINS]:
         return _make_comparison_predicate(
             lhs=structured_term["lhs"],
             rhs=structured_term["rhs"],
