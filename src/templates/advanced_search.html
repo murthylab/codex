@@ -1,59 +1,118 @@
 <script type="text/javascript">
-    const operator_types = {{advanced_search_data.operator_types|tojson}};
+    const operators = {{advanced_search_data.operators|tojson}};
+    const attributes = {{advanced_search_data.attributes|tojson}};
+    const currentQuery = {{advanced_search_data.current_query|tojson}};
+    let chaining = "{and}";
 
     function selectDropdownOption(elem) {
         const dropdownBase = elem.parentElement.parentElement;
         const value = elem.getAttribute("value");
         dropdownBase.setAttribute("value", value);
-        dropdownBase.querySelector("button").innerHTML = value;
+        dropdownBase.querySelector("button").innerText = elem.childNodes[0].textContent.trim();
+    }
+
+    function populateDropdown(dropdownElem, values, isAttributes, shouldUpdateRHS = false) {
+        const menuElem = dropdownElem.querySelector(".dropdown > .dropdown-menu");
+        menuElem.replaceChildren();
+        const searchTermElem = dropdownElem.parentElement;
+        for (const v of values) {
+            const node = document.createElement("a");
+            node.className = "dropdown-item";
+            node.href = "#";
+            if (isAttributes) {
+                node.setAttribute("value", v[0]);
+                node.innerText = v[0];
+                const description = document.createElement("div");
+                description.className = "dropdown-description";
+                description.innerText = v[1]["description"];
+                node.appendChild(description);
+                if (shouldUpdateRHS) {
+                    node.addEventListener("click", () => {
+                        updateRHS(v[1]["value_range"], searchTermElem);
+                    });
+                }
+            }
+            else {
+                node.setAttribute("value", v);
+                node.innerText = v;
+            }
+            node.addEventListener("click", () => {
+                selectDropdownOption(node);
+            });
+            menuElem.appendChild(node);
+        }
+
+        const firstElem = menuElem.children[0];
+        firstElem.click();
+    }
+
+    function updateRHS(values, searchTermElem) {
+        const rhsDropdownElem = searchTermElem.querySelector(".search-dropdown-rhs");
+        const rhsInputElem = searchTermElem.querySelector(".search-input-rhs");
+        rhsDropdownElem.setAttribute("hidden", true);
+        rhsInputElem.setAttribute("hidden", true);
+        if (values) {
+            rhsDropdownElem.removeAttribute("hidden");
+            if (values === "attributes") {
+                populateDropdown(rhsDropdownElem, Object.entries(attributes), true);
+            }
+            else {
+                populateDropdown(rhsDropdownElem, values, false);
+            }
+        }
+        else {
+            rhsInputElem.removeAttribute("hidden");
+        }
     }
 
     function chooseOperator(elem) {
-        const operator = elem.getAttribute("value");
+        const operator = operators[elem.getAttribute("value")];
         const searchTermElem = elem.parentElement.parentElement.parentElement.parentElement;
-        const attributeElem = searchTermElem.querySelector(".search-attribute");
-        const regionElem = searchTermElem.querySelector(".search-region");
-        const valueBeforeElem = searchTermElem.querySelector(".search-value-before");
-        const valueElem = searchTermElem.querySelector(".search-value");
+        const lhsDropdownElem = searchTermElem.querySelector(".search-dropdown-lhs");
+        const lhsInputElem = searchTermElem.querySelector(".search-input-lhs");
         const placeholderElem = searchTermElem.querySelector(".search-unary-placeholder");
-        const valueLabel = valueElem.querySelector(".search-label");
-        attributeElem.setAttribute("hidden", true);
-        regionElem.setAttribute("hidden", true);
-        valueBeforeElem.setAttribute("hidden", true);
-        valueElem.setAttribute("hidden", true);
+        const rhsDropdownElem = searchTermElem.querySelector(".search-dropdown-rhs");
+        const rhsInputElem = searchTermElem.querySelector(".search-input-rhs");
+        lhsDropdownElem.setAttribute("hidden", true);
+        lhsInputElem.setAttribute("hidden", true);
         placeholderElem.setAttribute("hidden", true);
-        const operator_type = operator_types[operator];
-        if (operator_type == "binary_attribute") {
-            //move attribute before operator
-            searchTermElem.insertBefore(attributeElem, regionElem);
-            attributeElem.removeAttribute("hidden");
-            valueLabel.innerHTML = "Value";
-            valueElem.removeAttribute("hidden");
+        rhsDropdownElem.setAttribute("hidden", true);
+        rhsInputElem.setAttribute("hidden", true);
+
+        rhsDropdownElem.querySelector(".search-label").innerText = operator["rhs_description"];
+        rhsInputElem.querySelector(".search-label").innerText = operator["rhs_description"];
+
+        if (operator["op_type"] === "binary_operator") {
+            if ("lhs_range" in operator) {
+                lhsDropdownElem.removeAttribute("hidden");
+                lhsDropdownElem.querySelector(".search-label").innerText = operator["lhs_description"];
+                if (operator["lhs_range"] === "attributes") {
+                    populateDropdown(lhsDropdownElem, Object.entries(attributes), true, shouldUpdateRHS = true);
+                }
+                else {
+                    populateDropdown(lhsDropdownElem, operator["lhs_range"], false);
+                    updateRHS(operator["rhs_range"], searchTermElem);
+                }
+            }
+            else {
+                lhsInputElem.removeAttribute("hidden");
+                lhsInputElem.querySelector(".search-label").innerText = operator["lhs_description"];
+                updateRHS(operator["rhs_range"], searchTermElem);
+            }
         }
-        else if (operator_type == "binary_region") {
-            regionElem.removeAttribute("hidden");
-            valueLabel.innerHTML = "Cell ID";
-            valueElem.removeAttribute("hidden");
-        }
-        else if (operator_type == "binary_twoids") {
-            valueBeforeElem.removeAttribute("hidden");
-            valueLabel.innerHTML = "Target ID";
-            valueElem.removeAttribute("hidden");
-        }
-        else if (operator_type == "unary_attribute") {
+        else if (operator["op_type"] === "unary_operator") {
             placeholderElem.removeAttribute("hidden");
-            //move attribute after operator
-            searchTermElem.insertBefore(attributeElem, valueElem);
-            attributeElem.removeAttribute("hidden");
-        }
-        else if (operator_type == "unary_stream") {
-            placeholderElem.removeAttribute("hidden");
-            valueLabel.innerHTML = "Cell ID";
-            valueElem.removeAttribute("hidden");
+            updateRHS(operator["rhs_range"], searchTermElem);
         }
         else {
-            console.log("Unknown operator type", operator_type);
+            console.log("Unknown operator type", operator["op_type"]);
+            return;
         }
+    }
+
+    function setChaining(c) {
+        chaining = c;
+        updateDividers();
     }
 
     function addSearchTerm() {
@@ -64,11 +123,17 @@
         newTerm.removeAttribute("hidden");
         searchTermTemplate.parentElement.appendChild(newTerm);
 
-        const dropdowns = newTerm.querySelectorAll(".dropdown > .dropdown-menu");
-        for (const dropdown of dropdowns) {
-            const firstItem = dropdown.querySelector(".dropdown-item");
-            selectDropdownOption(firstItem);
+        const submitFunc = function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                doAdvancedSearch();
+            }
+        };
+        const inputs = newTerm.querySelectorAll("input");
+        for (const input of inputs) {
+            input.addEventListener("keypress", submitFunc);
         }
+
 
         const removeButtons = document.querySelectorAll(".search-term > .search-remove-term");
         if (removeButtons.length > 1) {
@@ -77,9 +142,12 @@
             }
         }
 
-        showHideDividers();
+        updateDividers();
 
-        chooseOperator(newTerm.querySelector(".search-operator > .dropdown > .dropdown-menu > .dropdown-item"));
+        const firstOperator = newTerm.querySelector(".search-operator > .dropdown > .dropdown-menu > .dropdown-item");
+        firstOperator.click();
+
+        return newTerm;
     }
 
     function removeSearchTerm(buttonElem) {
@@ -89,49 +157,66 @@
         if (removeButtons.length === 1) {
             removeButtons[0].setAttribute("hidden", true);
         }
-        showHideDividers();
+        updateDividers();
     }
 
-    function showHideDividers() {
+    function updateDividers() {
         //show all search dividers but the last one
         const dividers = document.querySelectorAll(".search-divider");
         for (const divider of dividers) {
             divider.removeAttribute("hidden");
+            divider.querySelector(".search-divider-text").innerText = chaining === "{and}" ? "AND" : "OR";
         }
         dividers[dividers.length - 1].setAttribute("hidden", true);
+    }
+
+    function markInvalid(inputParent) {
+        const inputElem = inputParent.querySelector("input");
+        inputElem.classList.add("invalid");
+        inputElem.setAttribute("placeholder", "Required");
+        inputElem.oninput = (event) => {
+            inputElem.classList.remove("invalid");
+            inputElem.removeAttribute("placeholder");
+        };
+        inputElem.scrollIntoView();
     }
 
     function doAdvancedSearch() {
         let searchString = "";
         const searchTerms = document.querySelectorAll(".search-term");
         for (const searchElem of searchTerms) {
-            console.log(searchElem);
             if (searchString !== "") {
-                searchString += " && ";
+                searchString += " " + chaining + " ";
             }
-            const operator = searchElem.querySelector(".search-operator > .dropdown").getAttribute("value");
-            const attribute = searchElem.querySelector(".search-attribute > .dropdown").getAttribute("value");
-            const region = searchElem.querySelector(".search-region > .dropdown").getAttribute("value");
-            const valueBeforeText = searchElem.querySelector(".search-value-before > input").value;
-            const valueText = searchElem.querySelector(".search-value > input").value;
-            const operator_type = operator_types[operator];
-            if (operator_type == "binary_attribute") {
-                searchString += attribute + " " + operator + " " + valueText;
+            
+            const lhsDropdownElem = searchElem.querySelector(".search-dropdown-lhs");
+            const lhsInputElem = searchElem.querySelector(".search-input-lhs");
+            const operatorElem = searchElem.querySelector(".search-operator");
+            const rhsDropdownElem = searchElem.querySelector(".search-dropdown-rhs");
+            const rhsInputElem = searchElem.querySelector(".search-input-rhs");
+
+            if (!lhsDropdownElem.getAttribute("hidden")) {
+                searchString += lhsDropdownElem.querySelector(".dropdown").getAttribute("value") + " ";
             }
-            else if (operator_type == "binary_region") {
-                searchString += region + " " + operator + " " + valueText;
+            if (!lhsInputElem.getAttribute("hidden")) {
+                const val = lhsInputElem.querySelector("input").value;
+                if (val === "") {
+                    markInvalid(lhsInputElem);
+                    return;
+                }
+                searchString += val + " ";
             }
-            else if (operator_type == "binary_twoids") {
-                searchString += valueBeforeText + " " + operator + " " + valueText;
+            searchString += operatorElem.querySelector(".dropdown").getAttribute("value") + " ";
+            if (!rhsDropdownElem.getAttribute("hidden")) {
+                searchString += rhsDropdownElem.querySelector(".dropdown").getAttribute("value");
             }
-            else if (operator_type == "unary_attribute") {
-                searchString += operator + " " + attribute;
-            }
-            else if (operator_type == "unary_stream") {
-                searchString += operator + " " + valueText;
-            }
-            else {
-                console.log("Unknown operator type", operator_type);
+            if (!rhsInputElem.getAttribute("hidden")) {
+                const val = rhsInputElem.querySelector("input").value;
+                if (val === "") {
+                    markInvalid(rhsInputElem);
+                    return;
+                }
+                searchString += val;
             }
         }
         const filterBox = document.getElementById("filter_string");
@@ -139,10 +224,55 @@
         filterBox.form.submit();
     }
 
-    function addStarterTerm() {
-        const searchTerms = document.querySelectorAll(".search-term");
-        if (searchTerms.length === 0) {
-            addSearchTerm(document.querySelector("#addTermButton"));
+    function clickDropdownValue(dropdownElem, value) {
+        const entries = dropdownElem.querySelectorAll(".dropdown-item");
+        for (const entry of entries) {
+            if (entry.getAttribute("value") === value) {
+                entry.click();
+                return;
+            }
+        }
+        console.log("Did not find value", value, "in dropdown", dropdownElem);
+    }
+
+    function loadQuery() {
+        //delete all current search terms (from last time menu was opened)
+        const oldRemoveButtons = document.querySelectorAll(".search-term > .search-remove-term > div > button");
+        for (const removeButton of oldRemoveButtons) {
+            removeButton.click();
+        }
+
+        clickDropdownValue(document.querySelector(".search-chaining"), currentQuery["chaining"] || "{and}");
+
+        if (currentQuery["terms"].length > 0) {
+            for (const term of currentQuery["terms"]) {
+                const newTerm = addSearchTerm();
+
+                const lhsDropdownElem = newTerm.querySelector(".search-dropdown-lhs");
+                const lhsInputElem = newTerm.querySelector(".search-input-lhs");
+                const operatorElem = newTerm.querySelector(".search-operator");
+                const rhsDropdownElem = newTerm.querySelector(".search-dropdown-rhs");
+                const rhsInputElem = newTerm.querySelector(".search-input-rhs");
+
+                clickDropdownValue(operatorElem, term["op"]);
+                if ("lhs" in term) {
+                    if (!lhsDropdownElem.getAttribute("hidden")) {
+                        clickDropdownValue(lhsDropdownElem, term["lhs"]);
+                    }
+                    else {
+                        lhsInputElem.querySelector("input").value = term["lhs"];
+                    }
+                }
+                if (!rhsDropdownElem.getAttribute("hidden")) {
+                    clickDropdownValue(rhsDropdownElem, term["rhs"]);
+                }
+                else {
+                    rhsInputElem.querySelector("input").value = term["rhs"];
+                }
+            }
+        }
+        else {
+            addSearchTerm();
         }
     }
 </script>
@@ -173,9 +303,15 @@
     .search-add-term {
         margin-top: 2em;
     }
+    .search-component > input.invalid {
+        border-color: #dc3545;
+    }
+    .search-component > input.invalid::placeholder {
+        color: #dc3545;
+    }
 </style>
 <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Advanced Search"
-        data-toggle="modal" data-target="#advancedModal" onclick="addStarterTerm();">Advanced <i class="fa-solid fa-magnifying-glass-plus"></i></button>
+        data-toggle="modal" data-target="#advancedModal" onclick="loadQuery();">Advanced <i class="fa-solid fa-magnifying-glass-plus"></i></button>
 <div class="modal fade" id="advancedModal" tabindex="-1" role="dialog" aria-labelledby="advancedModalLabel"
      aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -190,38 +326,18 @@
                 <div class="search-terms">
                     <div class="search-term-template" hidden>
                         <div class="search-term-grid">
-                            <div class="search-component search-attribute" hidden>
-                                <div class="search-label">Attribute</div>
-                                <div class="dropdown">
-                                    <button type="button" id="attributeDropdownButton" class="btn btn-light dropdown-toggle"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="attributeDropdownButton">
-                                        {% for a in advanced_search_data.attributes %}
-                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this);" value="{{a}}">{{a}}
-                                            <div class="dropdown-description">{{advanced_search_data.attributes[a][2]}}</div></a>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="search-component search-region" hidden>
-                                <div class="search-label">Region</div>
-                                <div class="dropdown">
-                                    <button type="button" id="regionDropdownButton" class="btn btn-light dropdown-toggle"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="regionDropdownButton">
-                                        {% for h in advanced_search_data.hemispheres %}
-                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this);" value="{{h}}">{{h}}</a>
-                                        {% endfor %}
-                                        <div class="dropdown-divider"></div>
-                                        {% for r in advanced_search_data.regions %}
-                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this);" value="{{r}}">{{r}}</a>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="search-component search-value-before" hidden>
-                                <div class="search-label">Source ID</div>
+                            <div class="search-component search-input-lhs" hidden>
+                                <div class="search-label"></div>
                                 <input class="form-control" type="text" name="value">
+                            </div>
+                            <div class="search-component search-dropdown-lhs" hidden>
+                                <div class="search-label"></div>
+                                <div class="dropdown">
+                                    <button type="button" id="rhsDropdownButton" class="btn btn-light dropdown-toggle"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="rhsDropdownButton">
+                                    </div>
+                                </div>
                             </div>
                             <div class="search-unary-placeholder" hidden></div>
                             <div class="search-component search-operator">
@@ -230,22 +346,31 @@
                                     <button type="button" id="operatorDropdownButton" class="btn btn-light dropdown-toggle"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                                     <div class="dropdown-menu search-dropdown-menu" aria-labelledby="operatorDropdownButton">
-                                        {% for op in advanced_search_data.operators %}
-                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); chooseOperator(this);" value="{{op}}">{{op}}
-                                            <div class="dropdown-description">{{advanced_search_data.operator_metadata[op][1]}}</div></a>
+                                        {% for (k, v) in advanced_search_data.operators.items() %}
+                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); chooseOperator(this);" value="{{k}}">{{k}}
+                                            <div class="dropdown-description">{{v["description"]}}</div></a>
                                         {% endfor %}
                                     </div>
                                 </div>
                             </div>
-                            <div class="search-component search-value" hidden>
-                                <div class="search-label">Value</div>
+                            <div class="search-component search-input-rhs" hidden>
+                                <div class="search-label"></div>
                                 <input class="form-control" type="text" name="value">
+                            </div>
+                            <div class="search-component search-dropdown-rhs" hidden>
+                                <div class="search-label"></div>
+                                <div class="dropdown">
+                                    <button type="button" id="rhsDropdownButton" class="btn btn-light dropdown-toggle"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="rhsDropdownButton">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="search-remove-term" hidden>
                             <div class="d-flex justify-content-end">
                             <button type="button" class="btn btn-outline-danger btn-sm"
-                                    onclick="removeSearchTerm(this);">Delete Search Term</button>
+                                    onclick="removeSearchTerm(this);" title="Delete Term">X</button>
                             </div>
                         </div>
                         <div class="search-divider row" hidden>
@@ -256,7 +381,20 @@
                     </div>
                 </div>
                 <div class="search-add-term d-flex justify-content-center">
-                    <button type="button" class="btn btn-outline-success btn-sm" onclick="addSearchTerm();" id="addTermButton">Add Search Term</button>
+                    <button type="button" class="btn btn-outline-success btn-sm" id="addTermButton"
+                            onclick="addSearchTerm();" title="Add Term">+ Term</button>
+                </div>
+                <div class="search-chaining">Match
+                    <div class="dropdown">
+                        <button type="button" id="chainingDropdownButton" class="btn btn-light dropdown-toggle"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                        <div class="dropdown-menu search-dropdown-menu" aria-labelledby="chainingDropdownButton">
+                            <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); setChaining('{and}');" value="{and}">All
+                                <div class="dropdown-description">Match all search terms.</div></a>
+                            <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); setChaining('{or}');" value="{or}">Any
+                                <div class="dropdown-description">Match at least one of the search terms.</div></a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
