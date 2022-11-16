@@ -123,6 +123,18 @@
         newTerm.removeAttribute("hidden");
         searchTermTemplate.parentElement.appendChild(newTerm);
 
+        const submitFunc = function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                doAdvancedSearch();
+            }
+        };
+        const inputs = newTerm.querySelectorAll("input");
+        for (const input of inputs) {
+            input.addEventListener("keypress", submitFunc);
+        }
+
+
         const removeButtons = document.querySelectorAll(".search-term > .search-remove-term");
         if (removeButtons.length > 1) {
             for (const removeButton of removeButtons) {
@@ -158,6 +170,17 @@
         dividers[dividers.length - 1].setAttribute("hidden", true);
     }
 
+    function markInvalid(inputParent) {
+        const inputElem = inputParent.querySelector("input");
+        inputElem.classList.add("invalid");
+        inputElem.setAttribute("placeholder", "Required");
+        inputElem.oninput = (event) => {
+            inputElem.classList.remove("invalid");
+            inputElem.removeAttribute("placeholder");
+        };
+        inputElem.scrollIntoView();
+    }
+
     function doAdvancedSearch() {
         let searchString = "";
         const searchTerms = document.querySelectorAll(".search-term");
@@ -176,14 +199,24 @@
                 searchString += lhsDropdownElem.querySelector(".dropdown").getAttribute("value") + " ";
             }
             if (!lhsInputElem.getAttribute("hidden")) {
-                searchString += lhsInputElem.querySelector("input").value + " ";
+                const val = lhsInputElem.querySelector("input").value;
+                if (val === "") {
+                    markInvalid(lhsInputElem);
+                    return;
+                }
+                searchString += val + " ";
             }
             searchString += operatorElem.querySelector(".dropdown").getAttribute("value") + " ";
             if (!rhsDropdownElem.getAttribute("hidden")) {
                 searchString += rhsDropdownElem.querySelector(".dropdown").getAttribute("value");
             }
             if (!rhsInputElem.getAttribute("hidden")) {
-                searchString += rhsInputElem.querySelector("input").value;
+                const val = rhsInputElem.querySelector("input").value;
+                if (val === "") {
+                    markInvalid(rhsInputElem);
+                    return;
+                }
+                searchString += val;
             }
         }
         const filterBox = document.getElementById("filter_string");
@@ -269,6 +302,12 @@
     }
     .search-add-term {
         margin-top: 2em;
+    }
+    .search-component > input.invalid {
+        border-color: #dc3545;
+    }
+    .search-component > input.invalid::placeholder {
+        color: #dc3545;
     }
 </style>
 <button type="button" class="btn btn-outline-primary" style="margin-left: 5px;" title="Advanced Search"
