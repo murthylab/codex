@@ -109,6 +109,7 @@ class NeuronDataTest(TestCase):
         self.assertGreater(len(self.neuron_db.search("da")), 6000)
         self.assertEqual(len(self.neuron_db.search("dadadeadbeef")), 0)
 
+    def test_structured_search(self):
         # structured search
         gaba_rids = self.neuron_db.search("nt == gaba")
         self.assertGreater(len(gaba_rids), 1000)
@@ -156,6 +157,7 @@ class NeuronDataTest(TestCase):
             ),
         )
 
+    def test_structured_search_case(self):
         # case sensitive vs insensitive search
         class_matches = self.neuron_db.search(
             "class == descending", case_sensitive=True
@@ -164,6 +166,13 @@ class NeuronDataTest(TestCase):
         class_matches = self.neuron_db.search("class == descending")
         self.assertGreater(len(class_matches), 1000)
 
+        # starts with op
+        self.assertGreater(len(self.neuron_db.search("label {starts_with} LC")), 500)
+        self.assertGreater(len(self.neuron_db.search("label {starts_with} lc")), 500)
+        self.assertEqual(len(self.neuron_db.search("label {starts_with} lc", case_sensitive=True)), 0)
+        self.assertGreater(len(self.neuron_db.search("id {starts_with} 72")), 65000)
+
+    def test_structured_search_lists(self):
         # explicit searches
         hundred_root_ids = list(self.neuron_db.neuron_data.keys())[:100]
         root_id_search_explicit = self.neuron_db.search(
@@ -193,6 +202,7 @@ class NeuronDataTest(TestCase):
             ),
         )
 
+    def test_structured_search_misc(self):
         self.assertLess(len(self.neuron_db.search("gaba && nt != gaba")), 700)
 
         self.assertEqual(
@@ -204,10 +214,6 @@ class NeuronDataTest(TestCase):
         self.assertEqual(
             2, len(self.neuron_db.search("720575940624284903, 720575940625504714"))
         )
-
-        # starts with op
-        self.assertGreater(len(self.neuron_db.search("label {starts_with} LC")), 500)
-        self.assertGreater(len(self.neuron_db.search("id {starts_with} 72")), 65000)
 
     def test_downstream_upstream_queries(self):
         downstream = self.neuron_db.search("{downstream} 720575940629495808")
@@ -238,6 +244,11 @@ class NeuronDataTest(TestCase):
         self.assertEqual(3, len(upstream))
         upstream = self.neuron_db.search("center {upstream_region} 720575940629495808")
         self.assertEqual(10, len(upstream))
+
+    def test_neuropil_queries(self):
+        self.assertGreater(len(self.neuron_db.search("input_neuropil {equal} gng")), 5000)
+        self.assertGreater(len(self.neuron_db.search("input_neuropil {equal} medulla left")), 5000)
+        self.assertEqual(len(self.neuron_db.search("input_neuropil {in} medulla")), 0)
 
     def test_neuropils(self):
         expected_list = [
