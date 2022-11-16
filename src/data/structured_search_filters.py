@@ -367,26 +367,21 @@ def _make_comparison_predicate(lhs, rhs, op):
         )
 
     def op_checker(val):
-        if isinstance(val, list):
-            if op == OP_EQUAL:
-                return rhs in val
-            elif op == OP_NOT_EQUAL:
-                return rhs not in val
-            elif op == OP_STARTS_WITH:
-                return any([str(v).startswith(str(rhs)) for v in val])
-            elif op == OP_CONTAINS:
-                return any([str(rhs) in str(v) for v in val])
-        else:
-            if op == OP_EQUAL:
-                return rhs == val
-            elif op == OP_NOT_EQUAL:
-                return rhs != val
-            elif op == OP_STARTS_WITH:
-                return str(val).startswith(str(rhs))
-            elif op == OP_CONTAINS:
-                return str(rhs) in str(val)
+        str_rhs = str(rhs)
 
-        raise ValueError(f"Unsupported comparison operand: {op}")
+        def str_op_checker(str_val):
+            if op == OP_EQUAL:
+                return str_rhs == str_val
+            elif op == OP_STARTS_WITH:
+                return str_val.startswith(str_rhs)
+            elif op == OP_CONTAINS:
+                return str_rhs in str_val
+            raise ValueError(f"Unsupported comparison operand: {op}")
+
+        if isinstance(val, list):
+            return any([str_op_checker(str(v)) for v in val])
+        else:
+            return str_op_checker(str(val))
 
     return lambda nd: op_checker(search_attr.value_getter(nd))
 
@@ -398,12 +393,17 @@ def _make_has_predicate(rhs):
 
 
 def _make_predicate(structured_term, input_sets, output_sets):
-    if structured_term["op"] in [OP_EQUAL, OP_NOT_EQUAL, OP_STARTS_WITH, OP_CONTAINS]:
+    if structured_term["op"] in [OP_EQUAL, OP_STARTS_WITH, OP_CONTAINS]:
         return _make_comparison_predicate(
             lhs=structured_term["lhs"],
             rhs=structured_term["rhs"],
             op=structured_term["op"],
         )
+    elif structured_term["op"] == OP_NOT_EQUAL:
+        eq_p = _make_comparison_predicate(
+            lhs=structured_term["lhs"], rhs=structured_term["rhs"], op=OP_EQUAL
+        )
+        return lambda x: not eq_p(x)
     elif structured_term["op"] == OP_HAS:
         hp = _make_has_predicate(rhs=structured_term["rhs"])
         return lambda x: hp(x)
