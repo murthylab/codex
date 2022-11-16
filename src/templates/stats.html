@@ -74,28 +74,14 @@ Stats
         <button class="btn btn btn-primary my-2 my-sm-0" type="submit"><i class="fa-solid fa-magnifying-glass"></i>
         </button>
 
-        {% if filter_string and num_items %}
-        <a class="btn btn-success" style="margin-left: 5px;" title="Show Matching Items"
-           href="{{url_for('app.search', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}"><i
-                class="fa-solid fa-list"></i></a>
-        {% endif %}
-
         {% include "advanced_search.html" %}
         {% include "search_settings.html" %}
     </form>
 </nav>
 
-{% if filter_string %}
-<h6 style="margin-left: 15px; margin-top: 5px; color: grey; font-size: 11px;">{{caption}} ({{"{:,}".format(num_items)}}
-    matches)</h6>
-{% endif %}
+{% include "results_actions.html" %}
 
-{% if hint %}
-<button class="btn btn-btn-link" style="color: blue;" type="button"
-        onclick="searchbox = document.getElementById('filter_string'); searchbox.value = '{{hint}}'; searchbox.form.submit();">
-    Show results for '<b>{{hint}}</b>' instead?
-</button>
-{% else %}
+{% if num_items %}
 <div class="card border-primary mb-3" style="margin: 5px;">
     <div class="body">
         <div class="card-columns" id="data_container" style="padding: 5px;">
