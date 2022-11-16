@@ -18,5 +18,12 @@
    - 'us-east1'
    - '--min-instances'
    - '1'
+   - '--set-env-vars'
+   - 'APP_ENVIRONMENT=STAGING'
+   - '--set-env-vars'
+   - 'BUILD_GIT_SHA=$COMMIT_SHA'
+   - '--set-env-vars'
+   - 'BUILD_TIMESTAMP=$(date)'
+
  images:
    - 'gcr.io/$PROJECT_ID/codex:$COMMIT_SHA'
