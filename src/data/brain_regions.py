@@ -196,18 +196,18 @@ def lookup_neuropil_set(txt):
                 [rgn for rgn in REGIONS.keys() if neuropil_hemisphere(rgn) == hs]
             )
 
-    res = set()
+    set_list = []
     txt_lc_tokens = tokenize(txt_lc)
-    for rgn, attrs in REGIONS.items():
-        desc_lc = attrs[1].lower()
-        if (
-            rgn.startswith(txt_uc)
-            or txt_lc == desc_lc
-            or (
-                desc_lc in txt_lc_tokens
-                and neuropil_hemisphere(rgn).lower() in txt_lc_tokens
-            )
-            or any([txt_lc == t for t in tokenize(desc_lc)])
-        ):
-            res.add(rgn)
-    return res
+    for lc_token in txt_lc_tokens:
+        token_set = set()
+        for rgn, attrs in REGIONS.items():
+            desc_lc = attrs[1].lower()
+            if (
+                rgn.lower().startswith(lc_token)
+                or lc_token == desc_lc
+                or neuropil_hemisphere(rgn).lower() == lc_token
+                or any([lc_token == t for t in tokenize(desc_lc)])
+            ):
+                token_set.add(rgn)
+        set_list.append(token_set)
+    return set.intersection(*set_list)
