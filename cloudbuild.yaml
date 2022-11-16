@@ -23,7 +23,7 @@
    - '--set-env-vars'
    - 'BUILD_GIT_SHA=$COMMIT_SHA'
    - '--set-env-vars'
-   - 'BUILD_TIMESTAMP=$(date)'
+   - 'BUILD_TIMESTAMP=${date}'
 
  images:
    - 'gcr.io/$PROJECT_ID/codex:$COMMIT_SHA'
