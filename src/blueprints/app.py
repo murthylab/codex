@@ -71,7 +71,7 @@ def stats():
     whole_word = request.args.get("whole_word", 0, type=int)
 
     log_activity(f"Generating stats {activity_suffix(filter_string, data_version)}")
-    num_items, hint, caption, data_stats, data_charts = _stats_cached(
+    filtered_root_id_list, num_items, hint, data_stats, data_charts = _stats_cached(
         filter_string=filter_string,
         data_version=data_version,
         case_sensitive=case_sensitive,
@@ -88,10 +88,14 @@ def stats():
 
     return render_template(
         "stats.html",
-        caption=caption,
         data_stats=data_stats,
         data_charts=data_charts,
         num_items=num_items,
+        # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
+        # Otherwise it will be available as downloadable file.
+        root_ids_str=",".join([str(ddi) for ddi in filtered_root_id_list])
+        if len(filtered_root_id_list) <= MAX_NEURONS_FOR_DOWNLOAD
+        else [],
         filter_string=filter_string,
         hint=hint,
         data_versions=neuron_data_factory.available_versions(),
@@ -137,7 +141,13 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
         )
         if reachable_counts:
             data_stats["Upstream Reachable Cells (5+ syn)"] = reachable_counts
-    return len(filtered_root_id_list), hint, caption, data_stats, data_charts
+    return (
+        filtered_root_id_list,
+        len(filtered_root_id_list),
+        hint,
+        data_stats,
+        data_charts,
+    )
 
 
 @app.route("/explore")
