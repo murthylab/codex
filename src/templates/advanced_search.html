@@ -242,7 +242,7 @@
             removeButton.click();
         }
 
-        clickDropdownValue(document.querySelector(".search-chaining"), currentQuery["chaining"] || "{and}");
+        clickDropdownValue(document.querySelector(".chaining-dropdown"), currentQuery["chaining"] || "{and}");
 
         if (currentQuery["terms"].length > 0) {
             for (const term of currentQuery["terms"]) {
@@ -333,9 +333,9 @@
                             <div class="search-component search-dropdown-lhs" hidden>
                                 <div class="search-label"></div>
                                 <div class="dropdown">
-                                    <button type="button" id="rhsDropdownButton" class="btn btn-light dropdown-toggle"
+                                    <button type="button" id="lhsDropdownButton" class="btn btn-light dropdown-toggle"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="rhsDropdownButton">
+                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="lhsDropdownButton">
                                     </div>
                                 </div>
                             </div>
@@ -369,8 +369,8 @@
                         </div>
                         <div class="search-remove-term" hidden>
                             <div class="d-flex justify-content-end">
-                            <button type="button" class="btn btn-outline-danger btn-sm"
-                                    onclick="removeSearchTerm(this);" title="Delete Term">X</button>
+                            <button type="button" class="btn btn-link btn-sm" style="color: grey"
+                                    onclick="removeSearchTerm(this);" title="Delete Term"><i class="fa-solid fa-xmark"></i></button>
                             </div>
                         </div>
                         <div class="search-divider row" hidden>
@@ -381,24 +381,21 @@
                     </div>
                 </div>
                 <div class="search-add-term d-flex justify-content-center">
-                    <button type="button" class="btn btn-outline-success btn-sm" id="addTermButton"
-                            onclick="addSearchTerm();" title="Add Term">+ Term</button>
-                </div>
-                <div class="search-chaining">Match
-                    <div class="dropdown">
-                        <button type="button" id="chainingDropdownButton" class="btn btn-light dropdown-toggle"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                        <div class="dropdown-menu search-dropdown-menu" aria-labelledby="chainingDropdownButton">
-                            <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); setChaining('{and}');" value="{and}">All
-                                <div class="dropdown-description">Match all search terms.</div></a>
-                            <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); setChaining('{or}');" value="{or}">Any
-                                <div class="dropdown-description">Match at least one of the search terms.</div></a>
-                        </div>
-                    </div>
+                    <button type="button" class="btn btn-link" id="addTermButton"
+                            onclick="addSearchTerm();" title="Add Term"><i class="fa-solid fa-plus"></i> search term</button>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <div class="dropdown chaining-dropdown">
+                    <button type="button" id="chainingDropdownButton" class="btn btn-light dropdown-toggle"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="chainingDropdownButton">
+                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); setChaining('{and}');" value="{and}">Match All
+                            <div class="dropdown-description">Match all search terms.</div></a>
+                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); setChaining('{or}');" value="{or}">Match Any
+                            <div class="dropdown-description">Match at least one of the search terms.</div></a>
+                    </div>
+                </div>
                 <button type="button" class="btn btn-primary" onclick="doAdvancedSearch();">Search</button>
             </div>
         </div>
