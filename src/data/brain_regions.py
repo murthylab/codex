@@ -173,7 +173,10 @@ def neuropil_description(txt):
 # find a matching neuropil from free-form text. if no matches, return unchanged
 def match_to_neuropil(txt):
     nset = lookup_neuropil_set(txt)
-    return nset.pop() if len(nset) == 1 else txt
+    if len(nset) == 1:
+        return nset.pop()
+    else:
+        raise ValueError(f"Could not match a single neuropil to {txt}: got {nset}")
 
 
 # find a set of matching neuropils from free-form text
