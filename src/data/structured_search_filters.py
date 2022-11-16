@@ -352,7 +352,7 @@ def _search_operator_by_name(name):
     return matches[0]
 
 
-def _make_comparison_predicate(lhs, rhs, op):
+def _make_comparison_predicate(lhs, rhs, op, case_sensitive):
     lhs = lhs.lower()
     search_attr = _search_attribute_by_name(lhs)
 
@@ -368,8 +368,13 @@ def _make_comparison_predicate(lhs, rhs, op):
 
     def op_checker(val):
         str_rhs = str(rhs)
+        if not case_sensitive:
+            str_rhs = str_rhs.lower()
 
         def str_op_checker(str_val):
+            if not case_sensitive:
+                str_val = str_val.lower()
+
             if op == OP_EQUAL:
                 return str_rhs == str_val
             elif op == OP_STARTS_WITH:
@@ -392,16 +397,20 @@ def _make_has_predicate(rhs):
     return lambda nd: search_attr.value_getter(nd)
 
 
-def _make_predicate(structured_term, input_sets, output_sets):
+def _make_predicate(structured_term, input_sets, output_sets, case_sensitive):
     if structured_term["op"] in [OP_EQUAL, OP_STARTS_WITH, OP_CONTAINS]:
         return _make_comparison_predicate(
             lhs=structured_term["lhs"],
             rhs=structured_term["rhs"],
             op=structured_term["op"],
+            case_sensitive=case_sensitive,
         )
     elif structured_term["op"] == OP_NOT_EQUAL:
         eq_p = _make_comparison_predicate(
-            lhs=structured_term["lhs"], rhs=structured_term["rhs"], op=OP_EQUAL
+            lhs=structured_term["lhs"],
+            rhs=structured_term["rhs"],
+            op=OP_EQUAL,
+            case_sensitive=case_sensitive,
         )
         return lambda x: not eq_p(x)
     elif structured_term["op"] == OP_HAS:
@@ -413,7 +422,12 @@ def _make_predicate(structured_term, input_sets, output_sets):
     elif structured_term["op"] in [OP_IN, OP_NOT_IN]:
         rhs_items = [item.strip() for item in structured_term["rhs"].split(",")]
         predicates = [
-            _make_comparison_predicate(lhs=structured_term["lhs"], rhs=i, op=OP_EQUAL)
+            _make_comparison_predicate(
+                lhs=structured_term["lhs"],
+                rhs=i,
+                op=OP_EQUAL,
+                case_sensitive=case_sensitive,
+            )
             for i in rhs_items
         ]
         if structured_term["op"] == OP_IN:
@@ -458,11 +472,14 @@ def _make_predicate(structured_term, input_sets, output_sets):
 
 
 def make_structured_terms_predicate(
-    chaining_rule, structured_terms, input_sets, output_sets
+    chaining_rule, structured_terms, input_sets, output_sets, case_sensitive
 ):
     predicates = [
         _make_predicate(
-            structured_term=t, input_sets=input_sets, output_sets=output_sets
+            structured_term=t,
+            input_sets=input_sets,
+            output_sets=output_sets,
+            case_sensitive=case_sensitive,
         )
         for t in structured_terms
     ]
