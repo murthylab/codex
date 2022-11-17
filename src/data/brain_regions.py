@@ -190,24 +190,24 @@ def lookup_neuropil_set(txt):
     if txt_uc in REGIONS:
         return {txt_uc}
 
+    prefix_regions = set([k for k in REGIONS.keys() if k.startswith(txt_uc)])
+    if prefix_regions:
+        return prefix_regions
+
     for hs in HEMISPHERES:
         if hs.lower() == txt_lc:
             return set(
                 [rgn for rgn in REGIONS.keys() if neuropil_hemisphere(rgn) == hs]
             )
 
-    set_list = []
-    txt_lc_tokens = tokenize(txt_lc)
-    for lc_token in txt_lc_tokens:
-        token_set = set()
-        for rgn, attrs in REGIONS.items():
-            desc_lc = attrs[1].lower()
-            if (
-                rgn.lower().startswith(lc_token)
-                or lc_token == desc_lc
-                or neuropil_hemisphere(rgn).lower() == lc_token
-                or any([lc_token == t for t in tokenize(desc_lc)])
-            ):
-                token_set.add(rgn)
-        set_list.append(token_set)
-    return set.intersection(*set_list)
+    txt_lc_tokens = set(tokenize(txt_lc))
+    token_wise_matched_regions = set()
+    for r, v in REGIONS.items():
+        rgn_tokens = set(tokenize(v[1].lower()))
+        rgn_tokens.add(neuropil_hemisphere(r).lower())
+        if txt_lc_tokens.issubset(rgn_tokens):
+            token_wise_matched_regions.add(r)
+    if token_wise_matched_regions:
+        return token_wise_matched_regions
+
+    return set()

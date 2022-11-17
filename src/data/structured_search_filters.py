@@ -10,13 +10,24 @@ from src.data.brain_regions import (
 from src.data.gcs_data_loader import load_connections_for_root_id
 from src.data.neurotransmitters import lookup_nt_type, NEURO_TRANSMITTER_NAMES
 from src.utils.graph_algos import pathways
+from src.utils.logging import log_error
+from src.utils.parsing import tokenize
 
 
 class SearchAttribute(object):
-    def __init__(self, name, value_getter, convertor, description, value_range):
+    def __init__(
+        self,
+        name,
+        value_getter,
+        value_convertor,
+        list_convertor,
+        description,
+        value_range,
+    ):
         self.name = name
         self.value_getter = value_getter
-        self.convertor = convertor
+        self.value_convertor = value_convertor
+        self.list_convertor = list_convertor
         self.description = description
         self.value_range = list(value_range) if value_range is not None else None
 
@@ -25,35 +36,40 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
     SearchAttribute(
         name="label",
         value_getter=lambda nd: nd["tag"],
-        convertor=None,
+        value_convertor=None,
+        list_convertor=lambda x: tokenize(x),
         description="Human readable label assigned during cell identification process. Each cell can have zero or more labels.",
         value_range=None,
     ),
     SearchAttribute(
         name="nt",
         value_getter=lambda nd: nd["nt_type"],
-        convertor=lambda x: lookup_nt_type(x),
+        value_convertor=lambda x: lookup_nt_type(x),
+        list_convertor=lambda x: tokenize(x),
         description="Neuro-transmitter type",
         value_range=NEURO_TRANSMITTER_NAMES,
     ),
     SearchAttribute(
         name="input_neuropil",
         value_getter=lambda nd: nd["input_neuropils"],
-        convertor=lambda x: match_to_neuropil(x),
+        value_convertor=lambda x: match_to_neuropil(x),
+        list_convertor=lambda x: _match_list_of_neuropils(x),
         description="Brain region / neuropil with upstream synaptic connections.",
         value_range=REGIONS.keys(),
     ),
     SearchAttribute(
         name="output_neuropil",
         value_getter=lambda nd: nd["output_neuropils"],
-        convertor=lambda x: match_to_neuropil(x),
+        value_convertor=lambda x: match_to_neuropil(x),
+        list_convertor=lambda x: _match_list_of_neuropils(x),
         description="Brain region / neuropil with downstream synaptic connections.",
         value_range=REGIONS.keys(),
     ),
     SearchAttribute(
         name="input_hemisphere",
         value_getter=lambda nd: [neuropil_hemisphere(p) for p in nd["input_neuropils"]],
-        convertor=None,
+        value_convertor=None,
+        list_convertor=lambda x: tokenize(x),
         description="Brain hemisphere / side with upstream synaptic connections.",
         value_range=HEMISPHERES,
     ),
@@ -62,35 +78,40 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_getter=lambda nd: [
             neuropil_hemisphere(p) for p in nd["output_neuropils"]
         ],
-        convertor=None,
+        value_convertor=None,
+        list_convertor=lambda x: tokenize(x),
         description="Brain hemisphere / side with downstream synaptic connections.",
         value_range=HEMISPHERES,
     ),
     SearchAttribute(
         name="class",
         value_getter=lambda nd: nd["classes"],
-        convertor=None,
+        value_convertor=None,
+        list_convertor=lambda x: tokenize(x),
         description="Cell typing attribute. Indicates function or other property of the cell. Each cell can belong to zero or more classes.",
         value_range=None,
     ),
     SearchAttribute(
         name="group",
         value_getter=lambda nd: nd["group"],
-        convertor=None,
+        value_convertor=None,
+        list_convertor=lambda x: tokenize(x),
         description="Automatically assigned group name (based on properties of the cell).",
         value_range=None,
     ),
     SearchAttribute(
         name="name",
         value_getter=lambda nd: nd["name"],
-        convertor=None,
+        value_convertor=None,
+        list_convertor=lambda x: tokenize(x),
         description="Automatically assigned name (based on properties of the cell). Unique across data versions, but might get replaced if affected by proofreading.",
         value_range=None,
     ),
     SearchAttribute(
         name="id",
         value_getter=lambda nd: nd["root_id"],
-        convertor=lambda x: int(x),
+        value_convertor=lambda x: int(x),
+        list_convertor=lambda x: tokenize(x),
         description="ID of the cell. Unique across data versions, but might get replaced if affected by proofreading.",
         value_range=None,
     ),
@@ -310,6 +331,14 @@ STRUCTURED_SEARCH_NARY_OPERATORS = [
 ]
 
 
+def _match_list_of_neuropils(txt):
+    pil_set = lookup_neuropil_set(txt)
+    if pil_set:  # implicit, e.g. medulla -> map to matching pills
+        return pil_set
+    else:  # explicit, e.g. GNG, ME_L, ...
+        return set.union(*[lookup_neuropil_set(t) for t in tokenize(txt)])
+
+
 def _raise_unsupported_attr_for_structured_search(attr_name):
     raise_malformed_structured_search_query(
         f"Structured query by attribute <b>{attr_name}</b> is not supported. Possible solutions:"
@@ -358,10 +387,11 @@ def _make_comparison_predicate(lhs, rhs, op, case_sensitive):
 
     # attempt conversion
     try:
-        conversion_func = search_attr.convertor
+        conversion_func = search_attr.value_convertor
         if conversion_func:
             rhs = conversion_func(rhs)
-    except:
+    except Exception as e:
+        log_error(f"Conversion failed: {rhs=}, {e}")
         _raise_invalid_value_for_structured_search(
             attr_name=lhs, value=rhs, valid_values=search_attr.value_range
         )
@@ -398,77 +428,74 @@ def _make_has_predicate(rhs):
 
 
 def _make_predicate(structured_term, input_sets, output_sets, case_sensitive):
-    if structured_term["op"] in [OP_EQUAL, OP_STARTS_WITH, OP_CONTAINS]:
+    lhs = structured_term.get("lhs")  # lhs is optional e.g. for unary operators
+    op = structured_term["op"]
+    rhs = structured_term["rhs"]
+
+    if op in [OP_EQUAL, OP_STARTS_WITH, OP_CONTAINS]:
         return _make_comparison_predicate(
-            lhs=structured_term["lhs"],
-            rhs=structured_term["rhs"],
-            op=structured_term["op"],
+            lhs=lhs,
+            rhs=rhs,
+            op=op,
             case_sensitive=case_sensitive,
         )
-    elif structured_term["op"] == OP_NOT_EQUAL:
+    elif op == OP_NOT_EQUAL:
         eq_p = _make_comparison_predicate(
-            lhs=structured_term["lhs"],
-            rhs=structured_term["rhs"],
+            lhs=lhs,
+            rhs=rhs,
             op=OP_EQUAL,
             case_sensitive=case_sensitive,
         )
         return lambda x: not eq_p(x)
-    elif structured_term["op"] == OP_HAS:
-        hp = _make_has_predicate(rhs=structured_term["rhs"])
+    elif op == OP_HAS:
+        hp = _make_has_predicate(rhs=rhs)
         return lambda x: hp(x)
-    elif structured_term["op"] == OP_NOT:
-        hp = _make_has_predicate(rhs=structured_term["rhs"])
+    elif op == OP_NOT:
+        hp = _make_has_predicate(rhs=rhs)
         return lambda x: not hp(x)
-    elif structured_term["op"] in [OP_IN, OP_NOT_IN]:
-        rhs_items = [item.strip() for item in structured_term["rhs"].split(",")]
+    elif op in [OP_IN, OP_NOT_IN]:
+        search_attr = _search_attribute_by_name(lhs)
+        rhs_items = search_attr.list_convertor(rhs)
         predicates = [
             _make_comparison_predicate(
-                lhs=structured_term["lhs"],
+                lhs=lhs,
                 rhs=i,
                 op=OP_EQUAL,
                 case_sensitive=case_sensitive,
             )
             for i in rhs_items
         ]
-        if structured_term["op"] == OP_IN:
+        if op == OP_IN:
             return lambda x: any([p(x) for p in predicates])
         else:
             return lambda x: not any([p(x) for p in predicates])
-    elif structured_term["op"] in [OP_DOWNSTREAM, OP_UPSTREAM]:
-        downstream, upstream = load_connections_for_root_id(
-            structured_term["rhs"], by_neuropil=False
-        )
-        target_rid_set = (
-            set(downstream) if structured_term["op"] == OP_DOWNSTREAM else set(upstream)
-        )
+    elif op in [OP_DOWNSTREAM, OP_UPSTREAM]:
+        downstream, upstream = load_connections_for_root_id(rhs, by_neuropil=False)
+        target_rid_set = set(downstream) if op == OP_DOWNSTREAM else set(upstream)
         return lambda x: x["root_id"] in target_rid_set
-    elif structured_term["op"] in [OP_DOWNSTREAM_REGION, OP_UPSTREAM_REGION]:
-        downstream, upstream = load_connections_for_root_id(
-            structured_term["rhs"], by_neuropil=True
-        )
-        region_neuropil_set = lookup_neuropil_set(structured_term["lhs"])
+    elif op in [OP_DOWNSTREAM_REGION, OP_UPSTREAM_REGION]:
+        downstream, upstream = load_connections_for_root_id(rhs, by_neuropil=True)
+        region_neuropil_set = lookup_neuropil_set(lhs)
         target_rid_set = set()
-        for k, v in (
-            downstream if structured_term["op"] == OP_DOWNSTREAM_REGION else upstream
-        ).items():
+        for k, v in (downstream if op == OP_DOWNSTREAM_REGION else upstream).items():
             if k in region_neuropil_set:
                 target_rid_set |= set(v)
         return lambda x: x["root_id"] in target_rid_set
-    elif structured_term["op"] == OP_PATHWAYS:
+    elif op == OP_PATHWAYS:
         pathway_distance_map = pathways(
-            source=structured_term["lhs"],
-            target=structured_term["rhs"],
+            source=lhs,
+            target=rhs,
             input_sets=input_sets,
             output_sets=output_sets,
         )
         pathway_distance_map = pathway_distance_map or {}
         return lambda x: x["root_id"] in pathway_distance_map
-    elif structured_term["op"] == OP_AND:
-        return structured_term["lhs"] and structured_term["rhs"]
-    elif structured_term["op"] == OP_OR:
-        return structured_term["lhs"] or structured_term["rhs"]
+    elif op == OP_AND:
+        return lhs and rhs
+    elif op == OP_OR:
+        return lhs or rhs
     else:
-        raise ValueError(f"Unsupported query operator {structured_term['op']}")
+        raise ValueError(f"Unsupported query operator {op}")
 
 
 def make_structured_terms_predicate(

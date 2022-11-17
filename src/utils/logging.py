@@ -6,7 +6,7 @@ import uuid
 from multiprocessing import Process
 
 import requests
-from flask import session, request
+from flask import session, request, has_request_context
 from user_agents import parse as parse_ua
 
 from src.utils.cookies import fetch_user_name, fetch_user_email, is_granted_data_access
@@ -130,8 +130,11 @@ def _post_to_slk(username, access_granted, text, real_user_activity, extra_hk):
 
 def post_to_slk(text, hk=None):
     real_user_activity = APP_ENVIRONMENT != "DEV" and not _is_smoke_test_request()
-    username = fetch_user_name(session)
-    access_granted = is_granted_data_access(session)
+    if has_request_context():
+        username = fetch_user_name(session)
+        access_granted = is_granted_data_access(session)
+    else:
+        username = access_granted = None
     Process(
         target=_post_to_slk,
         args=(username, access_granted, text, real_user_activity, hk),
