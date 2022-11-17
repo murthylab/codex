@@ -64,12 +64,12 @@ class Test(TestCase):
         )
 
         self.assertEqual(
-            parse_search_query("foo {not equal} bar"),
-            (None, [], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
+            parse_search_query("foo {not_equal} bar"),
+            (None, [], [{"op": "{not_equal}", "lhs": "foo", "rhs": "bar"}]),
         )
         self.assertEqual(
             parse_search_query("foo != bar"),
-            (None, [], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
+            (None, [], [{"op": "{not_equal}", "lhs": "foo", "rhs": "bar"}]),
         )
         self.assertEqual(
             parse_search_query(" {has} bar"),
@@ -95,11 +95,11 @@ class Test(TestCase):
         # combos
         self.assertEqual(
             parse_search_query("foo != bar && other"),
-            ("{and}", ["other"], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
+            ("{and}", ["other"], [{"op": "{not_equal}", "lhs": "foo", "rhs": "bar"}]),
         )
         self.assertEqual(
-            parse_search_query("other || foo {not equal} bar"),
-            ("{or}", ["other"], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
+            parse_search_query("other || foo {not_equal} bar"),
+            ("{or}", ["other"], [{"op": "{not_equal}", "lhs": "foo", "rhs": "bar"}]),
         )
 
         # and/or mix not allowed
