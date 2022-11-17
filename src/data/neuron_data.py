@@ -191,7 +191,11 @@ class NeuronDB(object):
 
     def connections(self, ids, min_syn_count=5):
         idset = set(ids)
-        return [r for r in self.connection_rows if (r[0] in idset or r[1] in idset) and r[3] >= min_syn_count]
+        return [
+            r
+            for r in self.connection_rows
+            if (r[0] in idset or r[1] in idset) and r[3] >= min_syn_count
+        ]
 
     @lru_cache
     def neuropils(self):

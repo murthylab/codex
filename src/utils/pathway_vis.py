@@ -25,7 +25,9 @@ def pathway_chart_data_rows(source, target, neuron_db, min_syn_count=MIN_SYN_COU
                 path_edges.append((n1, n2))
 
     combined_edge_weights = defaultdict(int)
-    connection_rows = neuron_db.connections(ids=pathway_nodes.keys(), min_syn_count=min_syn_count)
+    connection_rows = neuron_db.connections(
+        ids=pathway_nodes.keys(), min_syn_count=min_syn_count
+    )
     for r in connection_rows:
         combined_edge_weights[(r[0], r[1])] += r[3]
 

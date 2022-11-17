@@ -855,7 +855,7 @@ def nblast():
                         bgd = "green"
                     style = f'style="color:{bgd};"' if bgd else empty
                     return (
-                        f'<strong><span {style}>{score}</span><br></strong><small>'
+                        f"<strong><span {style}>{score}</span><br></strong><small>"
                         f'<a target="_blank" href="search_results_flywire_url?filter_string=id << {rid},{root_ids[idx]}"><i class="fa-solid fa-cube"></i></a> &nbsp;'
                         f'<a target="_blank" href="search?filter_string=id << {rid},{root_ids[idx]}"><i class="fa-solid fa-list"></i></a></small>'
                     )
@@ -919,8 +919,11 @@ def pathways():
         source=source, target=target, neuron_db=neuron_db, min_syn_count=min_syn_count
     )
     if not data_rows:
-        return render_error(title="No pathways found", message=f"There are no pathways from {source} to {target} with "
-                                                               f"minimum synapse threshold of {min_syn_count}.")
+        return render_error(
+            title="No pathways found",
+            message=f"There are no pathways from {source} to {target} with "
+            f"minimum synapse threshold of {min_syn_count}.",
+        )
     return render_template(
         "pathways.html",
         data_rows=data_rows,
@@ -939,8 +942,10 @@ def path_length():
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
     if min_syn_count < 5:
-        return render_error(title="Synapse threshold too low", message="Minimum synapse threshold for connections "
-                                                                       "must be 5 or higher.")
+        return render_error(
+            title="Synapse threshold too low",
+            message="Minimum synapse threshold for connections " "must be 5 or higher.",
+        )
     if (
         request.args.get("with_sample_input", type=int, default=0)
         and not cell_names_or_ids
@@ -1006,11 +1011,11 @@ def path_length():
                             q = f"{from_root_id} {OP_PATHWAYS} {to_root_id}"
                             slink = f'<a href="{url_for("app.search", filter_string=q)}"><i class="fa-solid fa-list"></i></a>'
                         else:
-                            slink = ''  # search by pathways is only available for default threshold
+                            slink = ""  # search by pathways is only available for default threshold
                         plink = f'<a href="{url_for("app.pathways", source_cell_id=from_root_id, target_cell_id=to_root_id, min_syn_count=min_syn_count)}"><i class="fa-solid fa-route"></i></a>'
                         r[j] = f"{val} hops <br> <small>{plink} &nbsp; {slink}</small>"
                     elif val == 0:
-                        r[j] = ''
+                        r[j] = ""
                     elif val == -1:
                         r[j] = '<span style="color:grey">no path</span>'
 
