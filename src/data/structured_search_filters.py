@@ -122,11 +122,11 @@ SEARCH_ATTRIBUTE_NAMES = [a.name for a in STRUCTURED_SEARCH_ATTRIBUTES]
 
 # Structured search operators
 OP_EQUAL = "{equal}"
-OP_NOT_EQUAL = "{not equal}"
+OP_NOT_EQUAL = "{not_equal}"
 OP_STARTS_WITH = "{starts_with}"
 OP_CONTAINS = "{contains}"
 OP_IN = "{in}"
-OP_NOT_IN = "{not in}"
+OP_NOT_IN = "{not_in}"
 OP_HAS = "{has}"
 OP_NOT = "{not}"
 OP_UPSTREAM = "{upstream}"
