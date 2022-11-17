@@ -177,7 +177,8 @@ def match_to_neuropil(txt):
     if len(nset) == 1:
         return nset.pop()
     else:
-        log_error(f"Could not match a single neuropil to {txt}: got {nset}")
+        if txt != 'NA':
+            log_error(f"Could not match a single neuropil to {txt}: got {nset}")
         return txt
 
 
