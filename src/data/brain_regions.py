@@ -1,3 +1,4 @@
+from src.utils.logging import log_error
 from src.utils.parsing import tokenize
 
 LEFT = "Left"
@@ -176,7 +177,8 @@ def match_to_neuropil(txt):
     if len(nset) == 1:
         return nset.pop()
     else:
-        raise ValueError(f"Could not match a single neuropil to {txt}: got {nset}")
+        log_error(f"Could not match a single neuropil to {txt}: got {nset}")
+        return txt
 
 
 # find a set of matching neuropils from free-form text
