@@ -7,7 +7,10 @@
 <script type="text/javascript">
 	google.charts.load('current', {'packages':['treemap']});
 	google.charts.setOnLoadCallback(drawChart);
-	chart_data = {{ chart_data | safe}}
+	chart_data = {{ chart_data |tojson}}
+	regions = {{ regions | tojson}}
+	console.log('regions', regions)
+	console.log('chart_data', chart_data)
 
 	function drawChart() {
 		var data = google.visualization.arrayToDataTable(chart_data);
@@ -16,7 +19,16 @@
 		function selectHandler() {
 			const selectedItem = tree.getSelection();
 			if (selectedItem) {
-				document.getElementById("selected").innerHTML = chart_data[selectedItem[0].row];
+				console.log('selectedItem', selectedItem);
+				const region = chart_data[selectedItem[0].row + 1][0];
+				const segment_id = regions[region];
+				if (segment_id) {
+					description = `${region} - ${segment_id[0]}`;
+				}
+				else {
+					description = `${region}`;
+				}
+				document.getElementById("selected").innerHTML = description;
 			}
 		}
 	google.visualization.events.addListener(tree, 'select', selectHandler);
@@ -54,7 +66,6 @@
     </div>
 </div>
 <p>Currently selected: <span id='selected'></span></p>
-
-
+<p>Searched: {{search}}</p>
 
 {% endblock content %}

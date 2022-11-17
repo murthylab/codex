@@ -1132,12 +1132,14 @@ def neuropils():
             for region in regions:
                 if neuropil_hemisphere(region) == hemisphere:
                     chart_data.append(
-                        [neuropil_description(region), f"{hemisphere} {category}"]
-                    )
-    print(chart_data)
+                        [region, f"{hemisphere} {category}"]
+                    )  
+    search = request.args.get('search','')
     return render_template(
         "neuropils.html",
         chart_data=chart_data,
+        regions=REGIONS,
+        search=search,
         )
 
 
