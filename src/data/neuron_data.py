@@ -2,14 +2,16 @@ from collections import defaultdict
 from functools import lru_cache
 from random import choice
 
-from src.data.brain_regions import neuropil_hemisphere
+from src.data.brain_regions import neuropil_hemisphere, REGIONS
 from src.data.neuron_collections import NEURON_COLLECTIONS
+from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.search_index import SearchIndex
 from src.data.structured_search_filters import (
     make_structured_terms_predicate,
     apply_chaining_rule,
     parse_search_query,
 )
+from src.configuration import MIN_SYN_COUNT
 from src.utils.logging import log
 
 # Expected column in static FlyWire data CSV file
@@ -155,15 +157,37 @@ class NeuronDB(object):
             ]
         )
 
-        output_sets = defaultdict(set)
-        input_sets = defaultdict(set)
+        self.connection_rows = []
         if connection_rows:
             for r in connection_rows:
-                from_node, to_node = int(r[0]), int(r[1])
+                from_node, to_node, neuropil, syn_count, nt_type = (
+                    int(r[0]),
+                    int(r[1]),
+                    r[2].upper(),
+                    int(r[3]),
+                    r[4].upper(),
+                )
                 assert from_node in self.neuron_data and to_node in self.neuron_data
-                output_sets[from_node].add(to_node)
-                input_sets[to_node].add(from_node)
-        self.adjacencies = {"input_sets": input_sets, "output_sets": output_sets}
+                assert syn_count >= MIN_SYN_COUNT
+                assert nt_type in NEURO_TRANSMITTER_NAMES
+                assert neuropil == "NONE" or neuropil in REGIONS.keys()
+                self.connection_rows.append([from_node, to_node, neuropil, syn_count])
+
+    @lru_cache
+    def input_sets(self, min_syn_count=5):
+        res = defaultdict(set)
+        for r in self.connection_rows:
+            if r[3] >= min_syn_count:
+                res[r[1]].add(r[0])
+        return res
+
+    @lru_cache
+    def output_sets(self, min_syn_count=5):
+        res = defaultdict(set)
+        for r in self.connection_rows:
+            if r[3] >= min_syn_count:
+                res[r[0]].add(r[1])
+        return res
 
     @lru_cache
     def neuropils(self):
@@ -339,8 +363,8 @@ class NeuronDB(object):
             predicate = make_structured_terms_predicate(
                 chaining_rule=chaining_rule,
                 structured_terms=structured_terms,
-                input_sets=self.adjacencies["input_sets"],
-                output_sets=self.adjacencies["output_sets"],
+                input_sets=self.input_sets(),
+                output_sets=self.output_sets(),
                 case_sensitive=case_sensitive,
             )
             term_search_results.append(

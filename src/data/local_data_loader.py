@@ -9,7 +9,7 @@ from src.utils.logging import log, log_error
 
 DATA_ROOT_PATH = "static/data"
 NEURON_DATA_FILE_NAME = "neuron_data.csv.gz"
-CONNECTIONS_FILE_NAME = "connections_lite.csv.gz"
+CONNECTIONS_FILE_NAME = "connections_5syn.csv.gz"
 NEURON_DB_PICKLE_FILE_NAME = "neuron_db.pickle.gz"
 
 
