@@ -42,7 +42,6 @@ def reachable_node_counts(sources, neighbor_sets, total_count):
         aggregated[
             f"{i} hop{'s' if i > 1 else ''}"
         ] = f"{'{:,}'.format(agg_val)} ({percentage(agg_val, total_count)})"
-    print(f"{res} -> {aggregated}")
     return aggregated
 
 
