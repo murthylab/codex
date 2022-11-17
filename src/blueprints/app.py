@@ -25,6 +25,7 @@ from src.blueprints.base import (
     render_info,
     warning_with_redirect,
 )
+from src.configuration import MIN_SYN_COUNT
 from src.data import gcs_data_loader
 from src.data.brain_regions import neuropil_hemisphere
 from src.data.faq_qa_kb import FAQ_QA_KB
@@ -54,6 +55,7 @@ from src.utils.logging import (
     log,
     log_user_help,
 )
+from src.utils.pathway_vis import pathway_chart_data_rows
 from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
 from src.data.structured_search_filters import get_advanced_search_data
@@ -129,14 +131,14 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
     if neuron_db.adjacencies:
         reachable_counts = reachable_node_counts(
             sources=filtered_root_id_list,
-            neighbor_sets=neuron_db.adjacencies["output_sets"],
+            neighbor_sets=neuron_db.output_sets(),
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
             data_stats["Downstream Reachable Cells (5+ syn)"] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources=filtered_root_id_list,
-            neighbor_sets=neuron_db.adjacencies["input_sets"],
+            neighbor_sets=neuron_db.input_sets(),
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
@@ -277,7 +279,7 @@ def search():
         filtered_root_id_list, extra_data = sort_search_results(
             query=filter_string,
             ids=filtered_root_id_list,
-            output_sets=neuron_db.adjacencies["output_sets"],
+            output_sets=neuron_db.output_sets(),
         )
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
@@ -746,14 +748,14 @@ def cell_details():
     if neuron_db.adjacencies:
         reachable_counts = reachable_node_counts(
             sources={root_id},
-            neighbor_sets=neuron_db.adjacencies["output_sets"],
+            neighbor_sets=neuron_db.output_sets(),
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
             cell_extra_data["Downstream Reachable Cells (5+ syn)"] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources={root_id},
-            neighbor_sets=neuron_db.adjacencies["input_sets"],
+            neighbor_sets=neuron_db.input_sets(),
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
@@ -853,8 +855,9 @@ def nblast():
                         bgd = "green"
                     style = f'style="color:{bgd};"' if bgd else empty
                     return (
-                        f'<a target="_blank" {style} href="search?filter_string=id << {rid},{root_ids[idx]}">{score}</a> '
-                        f'<a target="_blank" href="search_results_flywire_url?filter_string=id << {rid},{root_ids[idx]}"><i class="fa-solid fa-cube"></i></a>'
+                        f'<strong><span {style}>{score}</span><br></strong><small>'
+                        f'<a target="_blank" href="search_results_flywire_url?filter_string=id << {rid},{root_ids[idx]}"><i class="fa-solid fa-cube"></i></a> &nbsp;'
+                        f'<a target="_blank" href="search?filter_string=id << {rid},{root_ids[idx]}"><i class="fa-solid fa-list"></i></a></small>'
                     )
 
                 scores_row = (
@@ -903,6 +906,29 @@ def nblast():
         )
 
 
+@app.route("/pathways")
+@request_wrapper
+@require_data_access
+def pathways():
+    source = request.args.get("source_cell_id", type=int)
+    target = request.args.get("target_cell_id", type=int)
+    min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
+    log_activity(f"Rendering pathways from {source} to {target} with {min_syn_count=}")
+    neuron_db = neuron_data_factory.get()
+    path_length, data_rows = pathway_chart_data_rows(
+        source=source, target=target, neuron_db=neuron_db, min_syn_count=min_syn_count
+    )
+    if not data_rows:
+        return render_error(title="No pathways found", message=f"There are no pathways from {source} to {target} with "
+                                                               f"minimum synapse threshold of {min_syn_count}.")
+    return render_template(
+        "pathways.html",
+        data_rows=data_rows,
+        path_length=path_length,
+        min_syn_count=min_syn_count,
+    )
+
+
 @app.route("/path_length")
 @request_wrapper
 @require_data_access
@@ -911,6 +937,10 @@ def path_length():
         "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
     )
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
+    min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
+    if min_syn_count < 5:
+        return render_error(title="Synapse threshold too low", message="Minimum synapse threshold for connections "
+                                                                       "must be 5 or higher.")
     if (
         request.args.get("with_sample_input", type=int, default=0)
         and not cell_names_or_ids
@@ -943,7 +973,7 @@ def path_length():
         matrix = distance_matrix(
             sources=root_ids,
             targets=root_ids,
-            neighbor_sets=neuron_db.adjacencies.get("output_sets"),
+            neighbor_sets=neuron_db.output_sets(min_syn_count=min_syn_count),
         )
         if len(matrix) <= 1:
             return render_error(
@@ -972,10 +1002,18 @@ def path_length():
                         ] = f'<a href="{url_for("app.search", filter_string="id == " + str(from_root_id))}">{neuron_db.get_neuron_data(from_root_id)["name"]}</a><br><small>{from_root_id}</small>'
                     elif val > 0:
                         to_root_id = int(matrix[0][j])
-                        q = f"{from_root_id} {OP_PATHWAYS} {to_root_id}"
-                        r[
-                            j
-                        ] = f'<a href="{url_for("app.search", filter_string=q)}">{val} hops</a>'
+                        if min_syn_count == MIN_SYN_COUNT:
+                            q = f"{from_root_id} {OP_PATHWAYS} {to_root_id}"
+                            slink = f'<a href="{url_for("app.search", filter_string=q)}"><i class="fa-solid fa-list"></i></a>'
+                        else:
+                            slink = ''  # search by pathways is only available for default threshold
+                        plink = f'<a href="{url_for("app.pathways", source_cell_id=from_root_id, target_cell_id=to_root_id, min_syn_count=min_syn_count)}"><i class="fa-solid fa-route"></i></a>'
+                        r[j] = f"{val} hops <br> <small>{plink} &nbsp; {slink}</small>"
+                    elif val == 0:
+                        r[j] = ''
+                    elif val == -1:
+                        r[j] = '<span style="color:grey">no path</span>'
+
             for j, val in enumerate(matrix[0]):
                 if j > 0:
                     matrix[0][
@@ -986,6 +1024,8 @@ def path_length():
         return render_template(
             "distance_table.html",
             cell_names_or_ids=cell_names_or_ids,
+            collect_min_syn_count=True,
+            min_syn_count=min_syn_count,
             distance_table=matrix,
             download_url=url_for(
                 "app.path_length", download=1, cell_names_or_ids=cell_names_or_ids
