@@ -220,8 +220,7 @@ class NeuronDB(object):
             for c in nd.get("output_neuropils", []):
                 output_neuropils[c] = output_neuropils.get(c, 0) + 1
 
-        # For now limit to most common categories.
-        # TODO: find a better way to resolve page loading slowness for huge lists
+        # Limit to most common categories.
         CATEGORY_LIMIT = 100
 
         def _caption(name, length):
