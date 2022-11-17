@@ -169,7 +169,9 @@ class NeuronDataTest(TestCase):
         # starts with op
         self.assertGreater(len(self.neuron_db.search("label {starts_with} LC")), 500)
         self.assertGreater(len(self.neuron_db.search("label {starts_with} lc")), 500)
-        self.assertEqual(len(self.neuron_db.search("label {starts_with} lc", case_sensitive=True)), 0)
+        self.assertEqual(
+            len(self.neuron_db.search("label {starts_with} lc", case_sensitive=True)), 0
+        )
         self.assertGreater(len(self.neuron_db.search("id {starts_with} 72")), 65000)
 
     def test_structured_search_lists(self):
@@ -246,9 +248,16 @@ class NeuronDataTest(TestCase):
         self.assertEqual(10, len(upstream))
 
     def test_neuropil_queries(self):
-        self.assertGreater(len(self.neuron_db.search("input_neuropil {equal} gng")), 5000)
-        self.assertGreater(len(self.neuron_db.search("input_neuropil {equal} medulla left")), 5000)
-        self.assertEqual(len(self.neuron_db.search("input_neuropil {in} medulla")), 0)
+        self.assertGreater(
+            len(self.neuron_db.search("input_neuropil {equal} gng")), 5000
+        )
+        self.assertGreater(
+            len(self.neuron_db.search("input_neuropil {equal} accessory medulla left")),
+            50,
+        )
+        self.assertGreater(
+            len(self.neuron_db.search("input_neuropil {in} medulla")), 10000
+        )
 
     def test_neuropils(self):
         expected_list = [

@@ -14,6 +14,7 @@ from src.data.structured_search_filters import (
     BinarySearchOperator,
     UnarySearchOperator,
     NarySearchOperator,
+    _match_list_of_neuropils,
 )
 
 
@@ -142,3 +143,8 @@ class Test(TestCase):
         for op1 in all_ops:
             for op2 in all_ops:
                 self.assertTrue(op1 == op2 or op1 not in op2)
+
+    def test_match_list_of_neuropils(self):
+        self.assertEqual(
+            {"AME_L", "ME_L", "ME_R", "AME_R"}, _match_list_of_neuropils("medulla")
+        )
