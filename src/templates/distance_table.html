@@ -9,6 +9,11 @@
         <input class="form-control mr-sm-2" style="width: 35vw; margin-left: 5px;" autocomplete="off" autofocus
                type="search" id="target_cell_names_or_ids" name="target_cell_names_or_ids" placeholder="Target cell(s)"
                aria-label="Cell Names or IDs" value="{{target_cell_names_or_ids}}">
+        {% if collect_min_syn_count %}
+        <input class="form-control mr-sm-2" style="width: 15vw; margin-left: 5px;" autocomplete="off" autofocus
+               type="number" id="min_syn_count" name="min_syn_count" placeholder="min #syn"
+               aria-label="Min synapse threshold for connection" value="{{min_syn_count}}">
+        {% endif %}
         <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();"><i
                 class="fa-solid fa-arrow-down-short-wide"></i></button>
     </form>
