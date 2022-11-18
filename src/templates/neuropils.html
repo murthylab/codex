@@ -5,44 +5,44 @@
   src="https://www.gstatic.com/charts/loader.js"
 ></script>
 <script type="text/javascript">
-  chart_data = {{ chart_data |tojson}}
-  regions = {{ regions | tojson}}
-  console.log({{region_map | tojson}})
+   chart_data = {{ chart_data |tojson}}
+   regions = {{ regions | tojson}}
+   console.log({{region_map | tojson}})
 
-  google.charts.load('current', {'packages':['treemap']});
-  google.charts.setOnLoadCallback(drawChart);
-  function selectHandler() {
-  		const selectedItem = tree.getSelection();
-  		if (selectedItem) {
-  			console.log('selectedItem', selectedItem);
-  			const region = chart_data[selectedItem[0].row + 1][0];
-  			const segment_id = regions[region];
-  			if (segment_id) {
-  				description = `${region} - ${segment_id[0]}`;
-  			}
-  			else {
-  				description = `${region}`;
-  			}
-  			document.getElementById("selected").innerHTML = description;
-  		}
-  	}
-  function drawChart() {
-  	var data = google.visualization.arrayToDataTable(chart_data);
-  	tree = new google.visualization.TreeMap(document.getElementById('treemap'));
-  	tree.draw(data);
+   google.charts.load('current', {'packages':['treemap']});
+   google.charts.setOnLoadCallback(drawChart);
+   function selectHandler() {
+   		const selectedItem = tree.getSelection();
+   		if (selectedItem) {
+   			console.log('selectedItem', selectedItem);
+   			const region = chart_data[selectedItem[0].row + 1][0];
+   			const segment_id = regions[region];
+   			if (segment_id) {
+   				description = `${region} - ${segment_id[0]}`;
+   			}
+   			else {
+   				description = `${region}`;
+   			}
+   			document.getElementById("selected").innerHTML = description;
+   		}
+   	}
+   function drawChart() {
+   	var data = google.visualization.arrayToDataTable(chart_data);
+   	tree = new google.visualization.TreeMap(document.getElementById('treemap'));
+   	tree.draw(data);
 
-	google.visualization.events.addListener(tree, 'select', selectHandler);
-	window.onresize = drawChart;
-  }
-  function selectRegion(region) {
-    for (var i = 0; i < chart_data.length; i++) {
-      if (chart_data[i][0] == region) {
-        tree.setSelection([{row: i - 1, column: null}]);
-        selectHandler();
-        break;
-      }
-    }
-  }
+  google.visualization.events.addListener(tree, 'select', selectHandler);
+  window.onresize = drawChart;
+   }
+   function selectRegion(region) {
+     for (var i = 0; i < chart_data.length; i++) {
+       if (chart_data[i][0] == region) {
+         tree.setSelection([{row: i - 1, column: null}]);
+         selectHandler();
+         break;
+       }
+     }
+   }
 </script>
 <!-- Search Bar -->
 <nav class="navbar navbar-light bg-light">
@@ -69,30 +69,33 @@
   </form>
 </nav>
 
-
-<div class='card-columns'>
-
-<div class="card" style="min-height:500px">
-<details>
-  <summary>Brain Regions</summary>
-    {% for hemisphere in region_map %}
-    <details style="padding-left:10px">
-      <summary>{{hemisphere}}</summary>
-      {% for category in region_map[hemisphere] %}
-      <details style="padding-left:20px">
-        <summary>{{category}}</summary>
-        <div class='btn-group-vertical'>
-        {% for region in region_map[hemisphere][category] %}
-          <button class='btn btn-primary btn-sm' onclick="selectRegion('{{region}}')">{{region_map[hemisphere][category][region].description}}</button>
+<div class="card-columns">
+  <div class="card" style="min-height: 500px">
+    <details>
+      <summary>Hemispheres</summary>
+      {% for hemisphere in region_map %}
+      <details style="padding-left: 10px">
+        <summary>{{hemisphere}}</summary>
+        {% for category in region_map[hemisphere] %}
+        <details style="padding-left: 20px">
+          <summary>{{category}}</summary>
+          <div>
+            {% for region in region_map[hemisphere][category] %}
+            <button
+              style="margin:1px"  
+              class="btn btn-primary btn-sm"
+              onclick="selectRegion('{{region}}')"
+            >
+              {{region_map[hemisphere][category][region].description}}
+            </button>
+            {% endfor %}
+          </div>
+        </details>
         {% endfor %}
-        </div>
       </details>
       {% endfor %}
     </details>
-    {% endfor %}
-</details>
-</div>
-
+  </div>
 
   <!-- Tree Map -->
   <div class="card" style="height: 500px">
@@ -120,7 +123,5 @@
 </div>
 <p>Currently selected: <span id="selected"></span></p>
 <p>Searched: {{search}}</p>
-
-
 
 {% endblock content %}
