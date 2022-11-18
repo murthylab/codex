@@ -10,19 +10,22 @@ from tests import TEST_DATA_ROOT_PATH
 
 
 class NeuronDataTest(TestCase):
-    def setUp(self):
-        versions = DATA_SNAPSHOT_VERSIONS
-        self.neuron_dbs = unpickle_all_neuron_db_versions(
+    @classmethod
+    def setUpClass(cls):
+        cls.neuron_dbs = unpickle_all_neuron_db_versions(
             data_root_path=TEST_DATA_ROOT_PATH
         )
+        cls.neuron_db = cls.neuron_dbs[LATEST_DATA_SNAPSHOT_VERSION]
+
+    def test_loading(self):
         # check that all versions loaded
+        versions = DATA_SNAPSHOT_VERSIONS
         for v in versions:
             self.assertIsNotNone(self.neuron_dbs[v])
             self.assertEqual(
                 set(self.neuron_dbs[v].neuron_data.keys()),
                 set(self.neuron_dbs[v].search_index.all_doc_ids()),
             )
-        self.neuron_db = self.neuron_dbs[LATEST_DATA_SNAPSHOT_VERSION]
 
     def test_index_data(self):
         assert 60000 < len(self.neuron_db.neuron_data)
