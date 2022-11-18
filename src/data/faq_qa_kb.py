@@ -89,7 +89,7 @@ FAQ_QA_KB = {
         "and they cover the central brain cells (which is around 50k of the neurons in the dataset). ",
     },
     "paths": {
-        "q": "What is a path length?",
+        "q": "What is a pathway length?",
         "a": "Shortest path length is equivalent to the minimum number of 'hops' "
         "required to reach from the source cell to the target via synaptic connections "
         "in the connectome network.<br><b>NOTE</b> Only connections with 5+ synapses are "
