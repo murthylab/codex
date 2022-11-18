@@ -128,7 +128,7 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
         match_words=whole_word,
         data_version=data_version,
     )
-    if neuron_db.adjacencies:
+    if neuron_db.connection_rows:
         reachable_counts = reachable_node_counts(
             sources=filtered_root_id_list,
             neighbor_sets=neuron_db.output_sets(),
@@ -745,7 +745,7 @@ def cell_details():
     related_cells = {k: v for k, v in related_cells.items() if v}
 
     cell_extra_data = {}
-    if neuron_db.adjacencies:
+    if neuron_db.connection_rows:
         reachable_counts = reachable_node_counts(
             sources={root_id},
             neighbor_sets=neuron_db.output_sets(),
@@ -1057,8 +1057,10 @@ def path_length():
                 target_cell_names_or_ids=target_cell_names_or_ids,
             ),
             info_text="With this tool you can specify one "
-            "or more source cells + one or more target cells, and get a matrix with shortest path lengths "
-            "for all source/target pairs.<br>"
+            "or more source cells + one or more target cells, set a minimum synapse threshold per connection,"
+            " and get a matrix with shortest path lengths for all source/target pairs. From there, you can inspect / "
+            "visualize "
+            "the pathways between any pair of cells in detail.<br>"
             f"{paths_doc['a']}",
             sample_input=sample_input,
             message=message,
