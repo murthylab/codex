@@ -782,12 +782,16 @@ def cell_details():
 @require_data_access
 def nblast():
     sample_input = "720575940628063479, 720575940645542276, 720575940626822533, 720575940609037432, 720575940628445399"
-    cell_names_or_ids = request.args.get("cell_names_or_ids", "")
-    if (
-        request.args.get("with_sample_input", type=int, default=0)
-        and not cell_names_or_ids
-    ):
-        cell_names_or_ids = sample_input
+    source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
+    target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
+    if not source_cell_names_or_ids and not target_cell_names_or_ids:
+        if request.args.get("with_sample_input", type=int, default=0):
+            cell_names_or_ids = sample_input
+        else:
+            cell_names_or_ids = None
+    else:
+        cell_names_or_ids = ' '.join([q for q in [source_cell_names_or_ids, target_cell_names_or_ids] if q])
+
     download = request.args.get("download", 0, type=int)
     log_activity(f"Generating NBLAST table for '{cell_names_or_ids}' {download=}")
     message = None
@@ -806,9 +810,9 @@ def nblast():
                 f"Fetching NBLAST scores for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
             )
             root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
-        elif len(cell_names_or_ids) == 1:
+        elif len(root_ids) == 1:
             return render_error(
-                message=f"Only one cell matches the input. Need 2 or more cells for pairwise NBLAST score(s).",
+                message=f"Only one match found in the data: {root_ids}. Need 2 or more cells for pairwise NBLAST score(s).",
                 title="Cell list is too short",
             )
 
@@ -892,10 +896,11 @@ def nblast():
         nblast_doc = FAQ_QA_KB["nblast"]
         return render_template(
             "distance_table.html",
-            cell_names_or_ids=cell_names_or_ids,
+            source_cell_names_or_ids=source_cell_names_or_ids,
+            target_cell_names_or_ids=target_cell_names_or_ids,
             distance_table=nblast_scores,
             download_url=url_for(
-                "app.nblast", download=1, cell_names_or_ids=cell_names_or_ids
+                "app.nblast", download=1, source_cell_names_or_ids=source_cell_names_or_ids, target_cell_names_or_ids=target_cell_names_or_ids
             ),
             info_text="With this tool you can specify one "
             "or more source cells + one or more target cells, and get a matrix of NBLAST scores for all "
@@ -1014,10 +1019,10 @@ def path_length():
                         to_root_id = int(matrix[0][j])
                         if min_syn_count == MIN_SYN_COUNT:
                             q = f"{from_root_id} {OP_PATHWAYS} {to_root_id}"
-                            slink = f'<a href="{url_for("app.search", filter_string=q)}"><i class="fa-solid fa-list"></i></a>'
+                            slink = f'<a href="{url_for("app.search", filter_string=q)}" target="_blank" ><i class="fa-solid fa-list"></i></a>'
                         else:
                             slink = ""  # search by pathways is only available for default threshold
-                        plink = f'<a href="{url_for("app.pathways", source_cell_id=from_root_id, target_cell_id=to_root_id, min_syn_count=min_syn_count)}"><i class="fa-solid fa-route"></i></a>'
+                        plink = f'<a href="{url_for("app.pathways", source_cell_id=from_root_id, target_cell_id=to_root_id, min_syn_count=min_syn_count)}" target="_blank" ><i class="fa-solid fa-route"></i></a>'
                         r[j] = f"{val} hops <br> <small>{plink} &nbsp; {slink}</small>"
                     elif val == 0:
                         r[j] = ""
@@ -1039,7 +1044,7 @@ def path_length():
             min_syn_count=min_syn_count,
             distance_table=matrix,
             download_url=url_for(
-                "app.path_length", download=1, cell_names_or_ids=cell_names_or_ids
+                "app.path_length", download=1, source_cell_names_or_ids=source_cell_names_or_ids, target_cell_names_or_ids=target_cell_names_or_ids
             ),
             info_text="With this tool you can specify one "
             "or more source cells + one or more target cells, and get a matrix with shortest path lengths "
