@@ -939,6 +939,7 @@ def pathways():
         data_rows=data_rows,
         path_length=path_length,
         min_syn_count=min_syn_count,
+        list_url=url_for('app.search', filter_string=f"{source} {OP_PATHWAYS} {target}") if min_syn_count == MIN_SYN_COUNT else ''
     )
 
 
