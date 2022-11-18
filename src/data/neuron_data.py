@@ -177,8 +177,8 @@ class NeuronDB(object):
         in_sets = self.input_sets()
         out_sets = self.output_sets()
         for rid, nd in self.neuron_data.items():
-            nd["input_cells"] = len(in_sets[rid]) or '-'
-            nd["output_cells"] = len(out_sets[rid]) or '-'
+            nd["input_cells"] = len(in_sets[rid]) or "-"
+            nd["output_cells"] = len(out_sets[rid]) or "-"
 
     @lru_cache
     def input_sets(self, min_syn_count=5):
