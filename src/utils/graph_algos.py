@@ -49,7 +49,7 @@ def reachable_node_counts(sources, neighbor_sets, total_count):
 
 # given set of sources and target nodes, calculates the pairwise distance matrix from any source to any target
 def distance_matrix(sources, targets, neighbor_sets):
-    matrix = [["from \ to"] + targets]
+    matrix = [["from \\ to"] + targets]
     for s in sources:
         reached = reachable_nodes(sources=[s], neighbor_sets=neighbor_sets)
         matrix.append([s] + [reached.get(t, -1) for t in targets])
