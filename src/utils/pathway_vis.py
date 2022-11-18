@@ -1,9 +1,10 @@
 from collections import defaultdict
+from functools import lru_cache
 
 from src.configuration import MIN_SYN_COUNT
 from src.utils.graph_algos import pathways
 
-
+@lru_cache
 def pathway_chart_data_rows(source, target, neuron_db, min_syn_count=MIN_SYN_COUNT):
     input_sets = neuron_db.input_sets(min_syn_count=min_syn_count)
     output_sets = neuron_db.output_sets(min_syn_count=min_syn_count)

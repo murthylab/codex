@@ -923,33 +923,31 @@ def pathways():
     source = request.args.get("source_cell_id", type=int)
     target = request.args.get("target_cell_id", type=int)
     min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
-    if min_syn_count < MIN_SYN_COUNT:
-        data_rows = None
-        caption = f"The minimum synapse threshold can't be less than 5, update: "
+    min_syn_count = max(min_syn_count, MIN_SYN_COUNT)
+    log_activity(
+        f"Rendering pathways from {source} to {target} with {min_syn_count=}"
+    )
+    neuron_db = neuron_data_factory.get()
+    plen, data_rows = pathway_chart_data_rows(
+        source=source,
+        target=target,
+        neuron_db=neuron_db,
+        min_syn_count=min_syn_count,
+    )
+
+    def cell_link(rid):
+        cell_details_url = url_for("app.cell_details", root_id=rid)
+        cell_name = neuron_db.get_neuron_data(rid)["name"]
+        return f'<a href="{cell_details_url}">{cell_name}</a>'
+
+    if not data_rows:
+        caption = f"There are no pathways from {cell_link(source)} to {cell_link(target)} with minimum synapse threshold "
     else:
-        log_activity(
-            f"Rendering pathways from {source} to {target} with {min_syn_count=}"
+        caption = (
+            f"Shortest paths from {cell_link(source)} to "
+            f"{cell_link(target)} have length {plen} for minimum synapse threshold "
         )
-        neuron_db = neuron_data_factory.get()
-        plen, data_rows = pathway_chart_data_rows(
-            source=source,
-            target=target,
-            neuron_db=neuron_db,
-            min_syn_count=min_syn_count,
-        )
-        if not data_rows:
-            caption = f"There are no pathways from {source} to {target} with minimum synapse threshold "
-        else:
 
-            def cell_link(rid):
-                cell_details_url = url_for("app.cell_details", root_id=rid)
-                cell_name = neuron_db.get_neuron_data(rid)["name"]
-                return f'<a href="{cell_details_url}">{cell_name}</a>'
-
-            caption = (
-                f"Shortest paths from {cell_link(source)} to "
-                f"{cell_link(target)} have length {plen} for minimum synapse threshold "
-            )
     return render_template(
         "pathways.html",
         data_rows=data_rows,
