@@ -13,7 +13,11 @@
    <body>
       <div id = "container" style = "width: 100%; height: 90%;">
       </div>
-      <h4 style="color: purple; text-align:center;">Pathways of length {{path_length}} (shortest with minimum synapse threshold {{min_syn_count}})</h4>
+      <h4 style="color: purple; text-align:center;">Pathways of length {{path_length}} (shortest with minimum synapse threshold {{min_syn_count}})
+      {% if list_url %}
+      <br><span style="text-align:center;"> <a href="{{list_url}}"> See all cells along these pathways as a list</a></span>
+      {% endif %}
+      </h4>
 
       <script language = "JavaScript">
          function drawChart() {
