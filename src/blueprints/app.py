@@ -927,20 +927,29 @@ def pathways():
         data_rows = None
         caption = f"The minimum synapse threshold can't be less than 5, update: "
     else:
-        log_activity(f"Rendering pathways from {source} to {target} with {min_syn_count=}")
+        log_activity(
+            f"Rendering pathways from {source} to {target} with {min_syn_count=}"
+        )
         neuron_db = neuron_data_factory.get()
         plen, data_rows = pathway_chart_data_rows(
-            source=source, target=target, neuron_db=neuron_db, min_syn_count=min_syn_count
+            source=source,
+            target=target,
+            neuron_db=neuron_db,
+            min_syn_count=min_syn_count,
         )
         if not data_rows:
             caption = f"There are no pathways from {source} to {target} with minimum synapse threshold "
         else:
+
             def cell_link(rid):
-                cell_details_url = url_for('app.cell_details', root_id=rid)
-                cell_name = neuron_db.get_neuron_data(rid)['name']
+                cell_details_url = url_for("app.cell_details", root_id=rid)
+                cell_name = neuron_db.get_neuron_data(rid)["name"]
                 return f'<a href="{cell_details_url}">{cell_name}</a>'
-            caption = f"Shortest paths from {cell_link(source)} to " \
-                      f"{cell_link(target)} have length {plen} for minimum synapse threshold "
+
+            caption = (
+                f"Shortest paths from {cell_link(source)} to "
+                f"{cell_link(target)} have length {plen} for minimum synapse threshold "
+            )
     return render_template(
         "pathways.html",
         data_rows=data_rows,
@@ -948,7 +957,9 @@ def pathways():
         min_syn_count=min_syn_count,
         source_cell_id=source,
         target_cell_id=target,
-        list_url=url_for('app.search', filter_string=f"{source} {OP_PATHWAYS} {target}") if min_syn_count == MIN_SYN_COUNT else ''
+        list_url=url_for("app.search", filter_string=f"{source} {OP_PATHWAYS} {target}")
+        if min_syn_count == MIN_SYN_COUNT
+        else "",
     )
 
 
