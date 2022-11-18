@@ -14,11 +14,13 @@ def neighbors(sources, neighbor_sets):
 
 
 # given set of sources, calculates the distance to all other reachable nodes into a dict (rid -> distance)
-def reachable_nodes(sources, neighbor_sets):
+def reachable_nodes(sources, neighbor_sets, stop_target=None):
     depth = 0
     reached = {s: 0 for s in sources}
     frontier = set(sources)
     while frontier:
+        if stop_target is not None and stop_target in frontier:
+            break
         depth += 1
         ngh = neighbors(sources=frontier, neighbor_sets=neighbor_sets)
         frontier = ngh - reached.keys()
@@ -68,18 +70,24 @@ def pathways(source, target, input_sets, output_sets):
     if source == target or source not in output_sets or target not in input_sets:
         return None
 
-    fwd = reachable_nodes(sources=[source], neighbor_sets=output_sets)
+    fwd = reachable_nodes(
+        sources=[source], neighbor_sets=output_sets, stop_target=target
+    )
     if target not in fwd:
         return None
     distance = fwd[target]
     assert distance > 0
 
-    bwd = reachable_nodes(sources=[target], neighbor_sets=input_sets)
+    bwd = reachable_nodes(
+        sources=[target], neighbor_sets=input_sets, stop_target=source
+    )
     assert source in bwd and distance == bwd[source]
 
     path_nodes = defaultdict(int)
+    path_nodes[source] = 0
+    path_nodes[target] = distance
     for n, df in fwd.items():
-        if n in bwd:
+        if 0 < df < distance and n in bwd:
             db = bwd[n]
 
             if df + db == distance:
