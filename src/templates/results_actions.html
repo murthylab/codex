@@ -19,11 +19,11 @@
     {% endif %}
     {% if root_ids_str %}
     <a class="btn btn-link" onclick="loading();"
-       href="{{url_for('app.nblast', cell_names_or_ids=root_ids_str)}}">
+       href="{{url_for('app.nblast', source_cell_names_or_ids=root_ids_str)}}">
         <i class="fa-solid fa-table-cells"></i> &nbsp; NBLAST
     </a>
     <a class="btn btn-link" onclick="loading();"
-       href="{{url_for('app.path_length', cell_names_or_ids=root_ids_str)}}">
+       href="{{url_for('app.path_length', source_cell_names_or_ids=root_ids_str)}}">
         <i class="fa-solid fa-route"></i> &nbsp; Path lengths
     </a>
     <a class="btn btn-link" onclick="copyRootIdsToClipboard();">
