@@ -924,9 +924,7 @@ def pathways():
     target = request.args.get("target_cell_id", type=int)
     min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
     min_syn_count = max(min_syn_count, MIN_SYN_COUNT)
-    log_activity(
-        f"Rendering pathways from {source} to {target} with {min_syn_count=}"
-    )
+    log_activity(f"Rendering pathways from {source} to {target} with {min_syn_count=}")
     neuron_db = neuron_data_factory.get()
     plen, data_rows = pathway_chart_data_rows(
         source=source,
