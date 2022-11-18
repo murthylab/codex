@@ -4,6 +4,7 @@ import re
 from collections import defaultdict
 from datetime import datetime
 from functools import lru_cache
+from pprint import pprint
 
 from flask import (
     render_template,
@@ -26,7 +27,13 @@ from src.blueprints.base import (
     warning_with_redirect,
 )
 from src.data import gcs_data_loader
-from src.data.brain_regions import neuropil_hemisphere, HEMISPHERES, REGIONS, REGION_CATEGORIES, neuropil_description
+from src.data.brain_regions import (
+    neuropil_hemisphere,
+    HEMISPHERES,
+    REGIONS,
+    REGION_CATEGORIES,
+    neuropil_description,
+)
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.structured_search_filters import (
     OP_DOWNSTREAM,
@@ -1113,6 +1120,17 @@ def connectivity():
         )
 
 
+@app.route("/activity_log")
+@request_wrapper
+def activity_log():
+    log_activity(f"Rendering Activity Log")
+    return render_error(
+        message=f"Activity log feature coming soon. It will list a history of recent searches / queries with "
+        f"links to results.",
+        title="Coming soon",
+    )
+
+
 @app.route("/neuropils")
 @request_wrapper
 @require_data_access
@@ -1122,33 +1140,28 @@ def neuropils():
         ["Hemispheres", ""],
     ]
     for hemisphere in HEMISPHERES:
-        chart_data.append(
-            [hemisphere, 'Hemispheres']
-        )
+        chart_data.append([hemisphere, "Hemispheres"])
         for category, regions in REGION_CATEGORIES.items():
-            chart_data.append(
-                [f"{hemisphere} {category}", hemisphere]
-            )
+            chart_data.append([f"{hemisphere} {category}", hemisphere])
             for region in regions:
                 if neuropil_hemisphere(region) == hemisphere:
-                    chart_data.append(
-                        [region, f"{hemisphere} {category}"]
-                    )  
-    search = request.args.get('search','')
+                    chart_data.append([region, f"{hemisphere} {category}"])
+    search = request.args.get("search", "")
+
+    region_map={}
+    for hemisphere in HEMISPHERES:
+        region_map[hemisphere] = {}
+        for category, regions in REGION_CATEGORIES.items():
+            for region in regions:
+                if neuropil_hemisphere(region) == hemisphere:
+                    if category not in region_map[hemisphere]:
+                        region_map[hemisphere][category] =  {}
+                    region_map[hemisphere][category][region] = {'segment_id': REGIONS[region][0], 'description': REGIONS[region][1]}
+    pprint(region_map)
     return render_template(
         "neuropils.html",
         chart_data=chart_data,
         regions=REGIONS,
         search=search,
-        )
-
-
-@app.route("/activity_log")
-@request_wrapper
-def activity_log():
-    log_activity(f"Rendering Activity Log")
-    return render_error(
-        message=f"Activity log feature coming soon. It will list a history of recent searches / queries with "
-        f"links to results.",
-        title="Coming soon",
+        region_map=region_map,
     )
