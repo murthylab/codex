@@ -13,11 +13,16 @@
    <body>
       <div id = "container" style = "width: 100%; height: 90%;">
       </div>
-      <h4 style="color: purple; text-align:center;">Pathways of length {{path_length}} (shortest with minimum synapse threshold {{min_syn_count}})
-      {% if list_url %}
-      <br><span style="text-align:center;"> <a href="{{list_url}}"> See all cells along these pathways as a list</a></span>
-      {% endif %}
-      </h4>
+      <form>
+         <input type="hidden" id="source_cell_id" name="source_cell_id" value="{{source_cell_id}}"/>
+         <input type="hidden" id="target_cell_id" name="target_cell_id" value="{{target_cell_id}}"/>
+         <h4 style="text-align:center;">{{caption|safe}}
+            <input type="number" style="width: 50px;" id="min_syn_count" name="min_syn_count" value="{{min_syn_count}}" onchange="this.form.submit();">
+         {% if list_url %}
+         <br><span style="text-align:center;"> <a href="{{list_url}}"> See all cells along these pathways as a list</a></span>
+         {% endif %}
+         </h4>
+      </form>
 
       <script language = "JavaScript">
          function drawChart() {
@@ -28,7 +33,7 @@
             data.addColumn('number', 'Weight');
 
             data.addRows([
-               {% for dr in data_rows %}
+               {% for dr in data_rows or [] %}
                   ['{{dr[0]}}', '{{dr[1]}}', {{dr[2]}}],
                {% endfor %}
             ]);
