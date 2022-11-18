@@ -790,7 +790,9 @@ def nblast():
         else:
             cell_names_or_ids = None
     else:
-        cell_names_or_ids = ' '.join([q for q in [source_cell_names_or_ids, target_cell_names_or_ids] if q])
+        cell_names_or_ids = " ".join(
+            [q for q in [source_cell_names_or_ids, target_cell_names_or_ids] if q]
+        )
 
     download = request.args.get("download", 0, type=int)
     log_activity(f"Generating NBLAST table for '{cell_names_or_ids}' {download=}")
@@ -900,7 +902,10 @@ def nblast():
             target_cell_names_or_ids=target_cell_names_or_ids,
             distance_table=nblast_scores,
             download_url=url_for(
-                "app.nblast", download=1, source_cell_names_or_ids=source_cell_names_or_ids, target_cell_names_or_ids=target_cell_names_or_ids
+                "app.nblast",
+                download=1,
+                source_cell_names_or_ids=source_cell_names_or_ids,
+                target_cell_names_or_ids=target_cell_names_or_ids,
             ),
             info_text="With this tool you can specify one "
             "or more source cells + one or more target cells, and get a matrix of NBLAST scores for all "
@@ -959,7 +964,9 @@ def path_length():
         else:
             cell_names_or_ids = None
     else:
-        cell_names_or_ids = ' '.join([q for q in [source_cell_names_or_ids, target_cell_names_or_ids] if q])
+        cell_names_or_ids = " ".join(
+            [q for q in [source_cell_names_or_ids, target_cell_names_or_ids] if q]
+        )
 
     download = request.args.get("download", 0, type=int)
     log_activity(f"Generating path lengths table for '{cell_names_or_ids}' {download=}")
@@ -1044,7 +1051,10 @@ def path_length():
             min_syn_count=min_syn_count,
             distance_table=matrix,
             download_url=url_for(
-                "app.path_length", download=1, source_cell_names_or_ids=source_cell_names_or_ids, target_cell_names_or_ids=target_cell_names_or_ids
+                "app.path_length",
+                download=1,
+                source_cell_names_or_ids=source_cell_names_or_ids,
+                target_cell_names_or_ids=target_cell_names_or_ids,
             ),
             info_text="With this tool you can specify one "
             "or more source cells + one or more target cells, and get a matrix with shortest path lengths "
