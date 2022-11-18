@@ -939,18 +939,23 @@ def path_length():
     sample_input = (
         "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
     )
-    cell_names_or_ids = request.args.get("cell_names_or_ids", "")
+    source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
+    target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
     min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
     if min_syn_count < 5:
         return render_error(
             title="Synapse threshold too low",
             message="Minimum synapse threshold for connections " "must be 5 or higher.",
         )
-    if (
-        request.args.get("with_sample_input", type=int, default=0)
-        and not cell_names_or_ids
-    ):
-        cell_names_or_ids = sample_input
+
+    if not source_cell_names_or_ids and not target_cell_names_or_ids:
+        if request.args.get("with_sample_input", type=int, default=0):
+            cell_names_or_ids = sample_input
+        else:
+            cell_names_or_ids = None
+    else:
+        cell_names_or_ids = ' '.join([q for q in [source_cell_names_or_ids, target_cell_names_or_ids] if q])
+
     download = request.args.get("download", 0, type=int)
     log_activity(f"Generating path lengths table for '{cell_names_or_ids}' {download=}")
     message = None
@@ -969,9 +974,9 @@ def path_length():
                 f"Fetching path lengths for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
             )
             root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
-        elif len(cell_names_or_ids) == 1:
+        elif len(root_ids) == 1:
             return render_error(
-                message=f"Only one cell matches the input. Need 2 or more cells for pairwise path length(s).",
+                message=f"Only one match found in the data: {root_ids}. Need 2 or more cells for pairwise pathway(s).",
                 title="Cell list is too short",
             )
 
@@ -1028,7 +1033,8 @@ def path_length():
         paths_doc = FAQ_QA_KB["paths"]
         return render_template(
             "distance_table.html",
-            cell_names_or_ids=cell_names_or_ids,
+            source_cell_names_or_ids=source_cell_names_or_ids,
+            target_cell_names_or_ids=target_cell_names_or_ids,
             collect_min_syn_count=True,
             min_syn_count=min_syn_count,
             distance_table=matrix,
