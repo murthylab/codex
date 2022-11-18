@@ -157,6 +157,7 @@ class NeuronDB(object):
             ]
         )
 
+        log(f"App initialization loading connections..")
         self.connection_rows = []
         if connection_rows:
             for r in connection_rows:
@@ -172,6 +173,12 @@ class NeuronDB(object):
                 assert nt_type in NEURO_TRANSMITTER_NAMES
                 assert neuropil == "NONE" or neuropil in REGIONS.keys()
                 self.connection_rows.append([from_node, to_node, neuropil, syn_count])
+        # augment ndata with in/out partner counts
+        in_sets = self.input_sets()
+        out_sets = self.output_sets()
+        for rid, nd in self.neuron_data.items():
+            nd["input_cells"] = len(in_sets[rid]) or '-'
+            nd["output_cells"] = len(out_sets[rid]) or '-'
 
     @lru_cache
     def input_sets(self, min_syn_count=5):
