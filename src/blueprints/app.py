@@ -971,11 +971,7 @@ def path_length():
     source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
     min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
-    if min_syn_count < 5:
-        return render_error(
-            title="Synapse threshold too low",
-            message="Minimum synapse threshold for connections " "must be 5 or higher.",
-        )
+    min_syn_count = max(min_syn_count, MIN_SYN_COUNT)
 
     if not source_cell_names_or_ids and not target_cell_names_or_ids:
         if request.args.get("with_sample_input", type=int, default=0):
