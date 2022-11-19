@@ -113,7 +113,7 @@ def _make_data_charts(data_list):
             item_list=classes,
         )
     if input_neuropils:
-        result["Top inputs regions"] = make_chart_from_list(
+        result["Top input regions"] = make_chart_from_list(
             chart_type="bar",
             key_title="Input neuropils",
             val_title="Num Cells",
@@ -123,7 +123,7 @@ def _make_data_charts(data_list):
             sort_by_freq=True,
         )
     if output_neuropils:
-        result["Top outputs regions"] = make_chart_from_list(
+        result["Top output regions"] = make_chart_from_list(
             chart_type="bar",
             key_title="Output neuropils",
             val_title="Num Cells",

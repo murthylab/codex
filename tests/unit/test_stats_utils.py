@@ -71,10 +71,10 @@ class Test(TestCase):
         )
         self.assertEqual(
             [
-                "Num cells with inputs in region",
                 "Num cells with inputs/outputs in hemispheres",
                 "Num cells with neurotransmitter types",
-                "Num cells with outputs in region",
+                "Top input regions",
+                "Top output regions",
             ],
             sorted(data_charts.keys()),
         )
