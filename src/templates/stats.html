@@ -15,7 +15,8 @@ Stats
     const data = google.visualization.arrayToDataTable(json["data"]);
     const options = {
         title: title,
-        legend: {position: 'bottom'}
+        legend: {position: 'bottom'},
+        tooltip: {isHtml: true},
     };
     var chart;
     if (json["type"] === "donut") {
@@ -64,6 +65,9 @@ Stats
   }
 
 </script>
+<style>
+div.google-visualization-tooltip { width:250px; }
+</style>
 
 <nav class="navbar navbar-light bg-light">
     <form class="form-inline">
