@@ -165,10 +165,10 @@ def neuropil_hemisphere(pil):
 def neuropil_description(txt):
     pil = match_to_neuropil(txt)
     if pil not in REGIONS:
-        return pil or "Unspecified Region"
+        return pil or "Unknown brain region"
     val = REGIONS[pil]
     hs = neuropil_hemisphere(pil)
-    return val[1] if hs == CENTER else f"{val[1]} / {hs}"
+    return val[1] if hs == CENTER else f"{hs.lower()} {val[1]}"
 
 
 # find a matching neuropil from free-form text. if no matches, return unchanged
@@ -214,3 +214,6 @@ def lookup_neuropil_set(txt):
         return token_wise_matched_regions
 
     return set()
+
+
+NEUROPIL_DESCRIPTIONS = {k: neuropil_description(k) for k in REGIONS.keys()}

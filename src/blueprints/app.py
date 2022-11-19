@@ -27,7 +27,7 @@ from src.blueprints.base import (
 )
 from src.configuration import MIN_SYN_COUNT
 from src.data import gcs_data_loader
-from src.data.brain_regions import neuropil_hemisphere
+from src.data.brain_regions import neuropil_hemisphere, NEUROPIL_DESCRIPTIONS
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.structured_search_filters import (
     OP_DOWNSTREAM,
@@ -668,6 +668,7 @@ def cell_details():
                 key_title="Neuropil",
                 val_title="Synapse count",
                 counts_dict=input_neuropil_synapse_count,
+                descriptions_dict=NEUROPIL_DESCRIPTIONS,
                 sort_by_freq=True,
                 search_filter="input_neuropils",
             )
@@ -696,6 +697,7 @@ def cell_details():
                 key_title="Neuropil",
                 val_title="Synapse count",
                 counts_dict=output_neuropil_synapse_count,
+                descriptions_dict=NEUROPIL_DESCRIPTIONS,
                 sort_by_freq=True,
                 search_filter="output_neuropils",
             )

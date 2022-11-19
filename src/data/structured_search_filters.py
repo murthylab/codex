@@ -29,7 +29,7 @@ class SearchAttribute(object):
         self.value_convertor = value_convertor
         self.list_convertor = list_convertor
         self.description = description
-        self.value_range = list(value_range) if value_range is not None else None
+        self.value_range = sorted(value_range) if value_range is not None else None
 
 
 STRUCTURED_SEARCH_ATTRIBUTES = [
@@ -288,7 +288,7 @@ STRUCTURED_SEARCH_OPERATORS = [
         shorthand="^R",
         description="Binary, matches cells upstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
         lhs_description="Region or Side",
-        lhs_range=HEMISPHERES + list(REGIONS.keys()),
+        lhs_range=HEMISPHERES + sorted(REGIONS.keys()),
         rhs_description="Cell ID",
         rhs_range=None,
     ),
@@ -297,7 +297,7 @@ STRUCTURED_SEARCH_OPERATORS = [
         shorthand="!R",
         description="Binary, matches cells downstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
         lhs_description="Region or Side",
-        lhs_range=HEMISPHERES + list(REGIONS.keys()),
+        lhs_range=HEMISPHERES + sorted(REGIONS.keys()),
         rhs_description="Cell ID",
         rhs_range=None,
     ),
