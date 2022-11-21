@@ -1,0 +1,83 @@
+{% if filter_string %}
+<div class="card bg-light mb-3">
+<span style="margin-left: 15px; margin-top: 5px; color: black; font-size: 12px;">{{"{:,}".format(num_items) + (" matches, further analysis:" if num_items else " matches")}}</span>
+{% if num_items %}
+<div class="row flex-row flex-nowrap" style="overflow-x: auto; padding-left: 20px;">
+    <a class="btn btn-link"
+       href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}"
+       target="_blank"><i class="fa-solid fa-cube"></i> &nbsp; 3D view</a>
+    {% if request.endpoint == 'app.stats' %}
+    <a class="btn btn-link"
+       href="{{url_for('app.search', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
+        <i class="fa-solid fa-list"></i> &nbsp; List
+    </a>
+    {% else %}
+    <a class="btn btn-link"
+       href="{{url_for('app.stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
+        <i class="fa-solid fa-chart-pie"></i> &nbsp; Stats
+    </a>
+    {% endif %}
+    {% if root_ids_str %}
+    <a class="btn btn-link" onclick="loading();"
+       href="{{url_for('app.nblast', source_cell_names_or_ids=root_ids_str)}}">
+        <i class="fa-solid fa-table-cells"></i> &nbsp; NBLAST
+    </a>
+    <a class="btn btn-link" onclick="loading();"
+       href="{{url_for('app.path_length', source_cell_names_or_ids=root_ids_str)}}">
+        <i class="fa-solid fa-route"></i> &nbsp; Pathways
+    </a>
+    <a class="btn btn-link" onclick="copyRootIdsToClipboard();">
+        <i class="fa-regular fa-clipboard"></i> &nbsp; Copy IDs
+    </a>
+    <script type="text/javascript">
+      function copyRootIdsToClipboard() {
+        navigator.clipboard.writeText("{{root_ids_str}}");
+        alert("{{num_items}} IDs copied to clipboard");
+      }
+    </script>
+    <a class="btn btn-link" onclick="loading();"
+       href="{{url_for('app.connectivity', cell_names_or_ids=root_ids_str)}}" >
+        <i class="fa-solid fa-circle-nodes"></i> &nbsp; Connectivity
+    </a>
+
+    <a class="btn btn-link"
+       href="{{url_for('app.connectivity', download=1, cell_names_or_ids=root_ids_str)}}" target="_blank">
+        <i class="fa-solid fa-download"></i> &nbsp; Synapse table
+    </a>
+    <a class="btn btn-link"
+       href="{{url_for('app.download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
+        <i class="fa-solid fa-download"></i> &nbsp; CSV </a>
+    {% else %}
+    <a class="btn btn-link"
+       href="{{url_for('app.root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
+        <i class="fa-solid fa-download"></i> &nbsp; Cell IDs </a>
+    {% endif %}
+</div>
+{% endif %}
+</div>
+{% endif %}
+
+{% if hint %}
+<button class="btn btn-btn-link" style="color: blue;" type="button"
+        onclick="searchbox = document.getElementById('filter_string'); searchbox.value = '{{hint}}'; searchbox.form.submit();">
+    Show results for '<b>{{hint}}</b>' instead?
+</button>
+{% endif %}
+
+{% if not num_items %}
+<div class="card" style="margin: 15px;">
+    <div class="card-header" style="color: purple;">
+        Tips for working with Codex
+    </div>
+    <div class="card-body">
+        <ul>
+            <li>Cell IDs or annotations that were created/modified after the current data snapshot creation will not be
+                searchable until the next snapshot is released in Codex (more info on data snapshots in the <a href="{{url_for('base.faq')}}">FAQ</a> page).</li>
+            <li>If you are searching by brain regions/neuropils, neurotransmitter types or other attributes of cells you might
+            want to use advanced search or structured search queries (refer to the <a href="{{url_for('base.faq')}}">FAQ</a> page).</li>
+            <li>If you have suggestions on how to improve search, or index additional data, please leave a note in the
+                Feedback section of the <a href="{{url_for('base.about')}}">About</a> page.</li>
+        </ul>
+    </div>
+</div>
+{% endif %}

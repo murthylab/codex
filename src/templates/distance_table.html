@@ -4,11 +4,19 @@
 <nav class="navbar navbar-light bg-light">
     <form class="form-inline">
         <input class="form-control mr-sm-2" style="width: 35vw;" autocomplete="off" autofocus type="search"
-               id="cell_names_or_ids" name="cell_names_or_ids" placeholder="Source cell(s)"
-               aria-label="Cell Names or IDs" value="{{cell_names_or_ids}}">
+               id="source_cell_names_or_ids" name="source_cell_names_or_ids" placeholder="Source cell(s)"
+               aria-label="Cell Names or IDs" value="{{source_cell_names_or_ids}}">
         <input class="form-control mr-sm-2" style="width: 35vw; margin-left: 5px;" autocomplete="off" autofocus
                type="search" id="target_cell_names_or_ids" name="target_cell_names_or_ids" placeholder="Target cell(s)"
                aria-label="Cell Names or IDs" value="{{target_cell_names_or_ids}}">
+        {% if collect_min_syn_count %}
+        <label>Min #syn</label>
+        <input class="form-control mr-sm-2" style="width: 60px; margin-left: 5px;" autocomplete="off" autofocus
+               type="number" id="min_syn_count" name="min_syn_count" placeholder="min #syn"
+               aria-label="Min synapse threshold for connection" value="{{min_syn_count}}"
+               onchange="loading(); this.form.submit();"
+        >
+        {% endif %}
         <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();"><i
                 class="fa-solid fa-arrow-down-short-wide"></i></button>
     </form>
@@ -60,7 +68,7 @@
         {{info_text|safe}}
         <br><br>
         <button class="btn btn btn-success" type="button"
-                onclick="loading(); document.getElementById('cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('cell_names_or_ids').form.submit();">
+                onclick="loading(); document.getElementById('source_cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('target_cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('source_cell_names_or_ids').form.submit();">
             Try with sample cells
         </button>
     </div>

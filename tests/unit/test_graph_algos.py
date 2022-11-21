@@ -9,8 +9,9 @@ class TestGraphAlgos(TestCase):
     def test_pathways(self):
         neuronDB = NeuronDataFactory(data_root_path=TEST_DATA_ROOT_PATH).get()
         s = t = 0
-        isets = neuronDB.adjacencies["input_sets"]
-        osets = neuronDB.adjacencies["output_sets"]
+        isets = neuronDB.input_sets()
+        osets = neuronDB.output_sets()
+
         self.assertEqual(None, pathways(s, t, isets, osets))
 
         s = 720575940615460364
