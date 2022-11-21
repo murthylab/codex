@@ -26,6 +26,7 @@ from src.blueprints.base import (
     render_info,
     warning_with_redirect,
 )
+from src.configuration import MIN_SYN_COUNT
 from src.data import gcs_data_loader
 from src.data.brain_regions import (
     neuropil_hemisphere,
@@ -33,6 +34,7 @@ from src.data.brain_regions import (
     REGIONS,
     REGION_CATEGORIES,
     neuropil_description,
+    NEUROPIL_DESCRIPTIONS
 )
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.structured_search_filters import (
@@ -61,6 +63,7 @@ from src.utils.logging import (
     log,
     log_user_help,
 )
+from src.utils.pathway_vis import pathway_chart_data_rows
 from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
 from src.data.structured_search_filters import get_advanced_search_data
@@ -78,7 +81,7 @@ def stats():
     whole_word = request.args.get("whole_word", 0, type=int)
 
     log_activity(f"Generating stats {activity_suffix(filter_string, data_version)}")
-    num_items, hint, caption, data_stats, data_charts = _stats_cached(
+    filtered_root_id_list, num_items, hint, data_stats, data_charts = _stats_cached(
         filter_string=filter_string,
         data_version=data_version,
         case_sensitive=case_sensitive,
@@ -95,10 +98,14 @@ def stats():
 
     return render_template(
         "stats.html",
-        caption=caption,
         data_stats=data_stats,
         data_charts=data_charts,
         num_items=num_items,
+        # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
+        # Otherwise it will be available as downloadable file.
+        root_ids_str=",".join([str(ddi) for ddi in filtered_root_id_list])
+        if len(filtered_root_id_list) <= MAX_NEURONS_FOR_DOWNLOAD
+        else [],
         filter_string=filter_string,
         hint=hint,
         data_versions=neuron_data_factory.available_versions(),
@@ -129,22 +136,28 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
         match_words=whole_word,
         data_version=data_version,
     )
-    if neuron_db.adjacencies:
+    if neuron_db.connection_rows:
         reachable_counts = reachable_node_counts(
             sources=filtered_root_id_list,
-            neighbor_sets=neuron_db.adjacencies["output_sets"],
+            neighbor_sets=neuron_db.output_sets(),
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
             data_stats["Downstream Reachable Cells (5+ syn)"] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources=filtered_root_id_list,
-            neighbor_sets=neuron_db.adjacencies["input_sets"],
+            neighbor_sets=neuron_db.input_sets(),
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
             data_stats["Upstream Reachable Cells (5+ syn)"] = reachable_counts
-    return len(filtered_root_id_list), hint, caption, data_stats, data_charts
+    return (
+        filtered_root_id_list,
+        len(filtered_root_id_list),
+        hint,
+        data_stats,
+        data_charts,
+    )
 
 
 @app.route("/explore")
@@ -274,7 +287,7 @@ def search():
         filtered_root_id_list, extra_data = sort_search_results(
             query=filter_string,
             ids=filtered_root_id_list,
-            output_sets=neuron_db.adjacencies["output_sets"],
+            output_sets=neuron_db.output_sets(),
         )
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
@@ -663,6 +676,7 @@ def cell_details():
                 key_title="Neuropil",
                 val_title="Synapse count",
                 counts_dict=input_neuropil_synapse_count,
+                descriptions_dict=NEUROPIL_DESCRIPTIONS,
                 sort_by_freq=True,
                 search_filter="input_neuropils",
             )
@@ -691,6 +705,7 @@ def cell_details():
                 key_title="Neuropil",
                 val_title="Synapse count",
                 counts_dict=output_neuropil_synapse_count,
+                descriptions_dict=NEUROPIL_DESCRIPTIONS,
                 sort_by_freq=True,
                 search_filter="output_neuropils",
             )
@@ -740,17 +755,17 @@ def cell_details():
     related_cells = {k: v for k, v in related_cells.items() if v}
 
     cell_extra_data = {}
-    if neuron_db.adjacencies:
+    if neuron_db.connection_rows:
         reachable_counts = reachable_node_counts(
             sources={root_id},
-            neighbor_sets=neuron_db.adjacencies["output_sets"],
+            neighbor_sets=neuron_db.output_sets(),
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
             cell_extra_data["Downstream Reachable Cells (5+ syn)"] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources={root_id},
-            neighbor_sets=neuron_db.adjacencies["input_sets"],
+            neighbor_sets=neuron_db.input_sets(),
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
@@ -777,12 +792,18 @@ def cell_details():
 @require_data_access
 def nblast():
     sample_input = "720575940628063479, 720575940645542276, 720575940626822533, 720575940609037432, 720575940628445399"
-    cell_names_or_ids = request.args.get("cell_names_or_ids", "")
-    if (
-        request.args.get("with_sample_input", type=int, default=0)
-        and not cell_names_or_ids
-    ):
-        cell_names_or_ids = sample_input
+    source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
+    target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
+    if not source_cell_names_or_ids and not target_cell_names_or_ids:
+        if request.args.get("with_sample_input", type=int, default=0):
+            cell_names_or_ids = sample_input
+        else:
+            cell_names_or_ids = None
+    else:
+        cell_names_or_ids = " ".join(
+            [q for q in [source_cell_names_or_ids, target_cell_names_or_ids] if q]
+        )
+
     download = request.args.get("download", 0, type=int)
     log_activity(f"Generating NBLAST table for '{cell_names_or_ids}' {download=}")
     message = None
@@ -801,9 +822,9 @@ def nblast():
                 f"Fetching NBLAST scores for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
             )
             root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
-        elif len(cell_names_or_ids) == 1:
+        elif len(root_ids) == 1:
             return render_error(
-                message=f"Only one cell matches the input. Need 2 or more cells for pairwise NBLAST score(s).",
+                message=f"Only one match found in the data: {root_ids}. Need 2 or more cells for pairwise NBLAST score(s).",
                 title="Cell list is too short",
             )
 
@@ -850,8 +871,9 @@ def nblast():
                         bgd = "green"
                     style = f'style="color:{bgd};"' if bgd else empty
                     return (
-                        f'<a target="_blank" {style} href="search?filter_string=id << {rid},{root_ids[idx]}">{score}</a> '
-                        f'<a target="_blank" href="search_results_flywire_url?filter_string=id << {rid},{root_ids[idx]}"><i class="fa-solid fa-cube"></i></a>'
+                        f"<strong><span {style}>{score}</span><br></strong><small>"
+                        f'<a target="_blank" href="search_results_flywire_url?filter_string=id << {rid},{root_ids[idx]}"><i class="fa-solid fa-cube"></i></a> &nbsp;'
+                        f'<a target="_blank" href="search?filter_string=id << {rid},{root_ids[idx]}"><i class="fa-solid fa-list"></i></a></small>'
                     )
 
                 scores_row = (
@@ -886,10 +908,14 @@ def nblast():
         nblast_doc = FAQ_QA_KB["nblast"]
         return render_template(
             "distance_table.html",
-            cell_names_or_ids=cell_names_or_ids,
+            source_cell_names_or_ids=source_cell_names_or_ids,
+            target_cell_names_or_ids=target_cell_names_or_ids,
             distance_table=nblast_scores,
             download_url=url_for(
-                "app.nblast", download=1, cell_names_or_ids=cell_names_or_ids
+                "app.nblast",
+                download=1,
+                source_cell_names_or_ids=source_cell_names_or_ids,
+                target_cell_names_or_ids=target_cell_names_or_ids,
             ),
             info_text="With this tool you can specify one "
             "or more source cells + one or more target cells, and get a matrix of NBLAST scores for all "
@@ -900,6 +926,49 @@ def nblast():
         )
 
 
+@app.route("/pathways")
+@request_wrapper
+@require_data_access
+def pathways():
+    source = request.args.get("source_cell_id", type=int)
+    target = request.args.get("target_cell_id", type=int)
+    min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
+    min_syn_count = max(min_syn_count, MIN_SYN_COUNT)
+    log_activity(f"Rendering pathways from {source} to {target} with {min_syn_count=}")
+    neuron_db = neuron_data_factory.get()
+    plen, data_rows = pathway_chart_data_rows(
+        source=source,
+        target=target,
+        neuron_db=neuron_db,
+        min_syn_count=min_syn_count,
+    )
+
+    def cell_link(rid):
+        cell_details_url = url_for("app.cell_details", root_id=rid)
+        cell_name = neuron_db.get_neuron_data(rid)["name"]
+        return f'<a href="{cell_details_url}">{cell_name}</a>'
+
+    if not data_rows:
+        caption = f"There are no pathways from {cell_link(source)} to {cell_link(target)} with minimum synapse threshold "
+    else:
+        caption = (
+            f"Shortest paths from {cell_link(source)} to "
+            f"{cell_link(target)} have length {plen} for minimum synapse threshold "
+        )
+
+    return render_template(
+        "pathways.html",
+        data_rows=data_rows,
+        caption=caption,
+        min_syn_count=min_syn_count,
+        source_cell_id=source,
+        target_cell_id=target,
+        list_url=url_for("app.search", filter_string=f"{source} {OP_PATHWAYS} {target}")
+        if min_syn_count == MIN_SYN_COUNT
+        else "",
+    )
+
+
 @app.route("/path_length")
 @request_wrapper
 @require_data_access
@@ -907,12 +976,21 @@ def path_length():
     sample_input = (
         "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
     )
-    cell_names_or_ids = request.args.get("cell_names_or_ids", "")
-    if (
-        request.args.get("with_sample_input", type=int, default=0)
-        and not cell_names_or_ids
-    ):
-        cell_names_or_ids = sample_input
+    source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
+    target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
+    min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
+    min_syn_count = max(min_syn_count, MIN_SYN_COUNT)
+
+    if not source_cell_names_or_ids and not target_cell_names_or_ids:
+        if request.args.get("with_sample_input", type=int, default=0):
+            cell_names_or_ids = sample_input
+        else:
+            cell_names_or_ids = None
+    else:
+        cell_names_or_ids = " ".join(
+            [q for q in [source_cell_names_or_ids, target_cell_names_or_ids] if q]
+        )
+
     download = request.args.get("download", 0, type=int)
     log_activity(f"Generating path lengths table for '{cell_names_or_ids}' {download=}")
     message = None
@@ -931,16 +1009,16 @@ def path_length():
                 f"Fetching path lengths for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
             )
             root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
-        elif len(cell_names_or_ids) == 1:
+        elif len(root_ids) == 1:
             return render_error(
-                message=f"Only one cell matches the input. Need 2 or more cells for pairwise path length(s).",
+                message=f"Only one match found in the data: {root_ids}. Need 2 or more cells for pairwise pathway(s).",
                 title="Cell list is too short",
             )
 
         matrix = distance_matrix(
             sources=root_ids,
             targets=root_ids,
-            neighbor_sets=neuron_db.adjacencies.get("output_sets"),
+            neighbor_sets=neuron_db.output_sets(min_syn_count=min_syn_count),
         )
         if len(matrix) <= 1:
             return render_error(
@@ -969,10 +1047,18 @@ def path_length():
                         ] = f'<a href="{url_for("app.search", filter_string="id == " + str(from_root_id))}">{neuron_db.get_neuron_data(from_root_id)["name"]}</a><br><small>{from_root_id}</small>'
                     elif val > 0:
                         to_root_id = int(matrix[0][j])
-                        q = f"{from_root_id} {OP_PATHWAYS} {to_root_id}"
-                        r[
-                            j
-                        ] = f'<a href="{url_for("app.search", filter_string=q)}">{val} hops</a>'
+                        if min_syn_count == MIN_SYN_COUNT:
+                            q = f"{from_root_id} {OP_PATHWAYS} {to_root_id}"
+                            slink = f'<a href="{url_for("app.search", filter_string=q)}" target="_blank" ><i class="fa-solid fa-list"></i></a>'
+                        else:
+                            slink = ""  # search by pathways is only available for default threshold
+                        plink = f'<a href="{url_for("app.pathways", source_cell_id=from_root_id, target_cell_id=to_root_id, min_syn_count=min_syn_count)}" target="_blank" ><i class="fa-solid fa-route"></i></a>'
+                        r[j] = f"{val} hops <br> <small>{plink} &nbsp; {slink}</small>"
+                    elif val == 0:
+                        r[j] = ""
+                    elif val == -1:
+                        r[j] = '<span style="color:grey">no path</span>'
+
             for j, val in enumerate(matrix[0]):
                 if j > 0:
                     matrix[0][
@@ -982,14 +1068,22 @@ def path_length():
         paths_doc = FAQ_QA_KB["paths"]
         return render_template(
             "distance_table.html",
-            cell_names_or_ids=cell_names_or_ids,
+            source_cell_names_or_ids=source_cell_names_or_ids,
+            target_cell_names_or_ids=target_cell_names_or_ids,
+            collect_min_syn_count=True,
+            min_syn_count=min_syn_count,
             distance_table=matrix,
             download_url=url_for(
-                "app.path_length", download=1, cell_names_or_ids=cell_names_or_ids
+                "app.path_length",
+                download=1,
+                source_cell_names_or_ids=source_cell_names_or_ids,
+                target_cell_names_or_ids=target_cell_names_or_ids,
             ),
             info_text="With this tool you can specify one "
-            "or more source cells + one or more target cells, and get a matrix with shortest path lengths "
-            "for all source/target pairs.<br>"
+            "or more source cells + one or more target cells, set a minimum synapse threshold per connection,"
+            " and get a matrix with shortest path lengths for all source/target pairs. From there, you can inspect / "
+            "visualize "
+            "the pathways between any pair of cells in detail.<br>"
             f"{paths_doc['a']}",
             sample_input=sample_input,
             message=message,

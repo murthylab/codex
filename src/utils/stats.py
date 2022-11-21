@@ -1,11 +1,22 @@
 from collections import defaultdict
 
+from src.data.brain_regions import NEUROPIL_DESCRIPTIONS
+from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
+
+
+def group_counts(count_pairs):
+    key = f"{len(count_pairs)} others"
+    val = sum([p[1] for p in count_pairs])
+    return key, val
+
 
 def make_chart_from_counts(
     chart_type,
     key_title,
     val_title,
     counts_dict,
+    colors_dict=None,  # keyed by count_dict keys
+    descriptions_dict=None,  # keyed by count_dict keys, used in tooltips
     search_filter="",
     sort_by_freq=False,
 ):
@@ -14,13 +25,36 @@ def make_chart_from_counts(
         if sort_by_freq
         else sorted(counts_dict.items(), key=lambda p: p[0])
     )
-    height_px = 800 if chart_type == "bar" and len(counts_dict) > 5 else 400
+
+    if sort_by_freq and len(sorted_counts) > 10:
+        sorted_counts = sorted_counts[:10]
+
+    height_px = max(300, 150 + 4 * len(counts_dict)) if chart_type == "bar" else 400
+
+    def _color(key):
+        return colors_dict.get(key) if colors_dict else None
+
+    def _tooltip(key):
+        return (
+            f"<b>{key}</b><br>{descriptions_dict.get(key)}<br><b>{counts_dict[key]}</b>"
+            if descriptions_dict
+            else None
+        )
+
     return {
         "type": chart_type,
         "searchable": bool(search_filter),
         "search_filter": search_filter,
         "height_px": height_px,
-        "data": [[key_title, val_title]] + [[t, c] for t, c in sorted_counts],
+        "data": [
+            [
+                key_title,
+                val_title,
+                {"role": "style"},
+                {"type": "string", "role": "tooltip", "p": {"html": "true"}},
+            ]
+        ]
+        + [[k, c, _color(k), _tooltip(k)] for k, c in sorted_counts],
     }
 
 
@@ -29,6 +63,7 @@ def make_chart_from_list(
     key_title,
     val_title,
     item_list,
+    descriptions_dict=None,
     search_filter="",
     sort_by_freq=False,
 ):
@@ -40,6 +75,7 @@ def make_chart_from_list(
         key_title=key_title,
         val_title=val_title,
         counts_dict=counts,
+        descriptions_dict=descriptions_dict,
         search_filter=search_filter,
         sort_by_freq=sort_by_freq,
     )
@@ -66,6 +102,7 @@ def _make_data_charts(data_list):
             key_title="Type",
             val_title="Num Cells",
             item_list=nt_types,
+            descriptions_dict=NEURO_TRANSMITTER_NAMES,
             search_filter="nt",
         )
     if classes and len(set(classes)) > 1:
@@ -76,20 +113,22 @@ def _make_data_charts(data_list):
             item_list=classes,
         )
     if input_neuropils:
-        result["Num cells with inputs in region"] = make_chart_from_list(
+        result["Top input regions"] = make_chart_from_list(
             chart_type="bar",
             key_title="Input neuropils",
             val_title="Num Cells",
             item_list=input_neuropils,
+            descriptions_dict=NEUROPIL_DESCRIPTIONS,
             search_filter="input_neuropil",
             sort_by_freq=True,
         )
     if output_neuropils:
-        result["Num cells with outputs in region"] = make_chart_from_list(
+        result["Top output regions"] = make_chart_from_list(
             chart_type="bar",
             key_title="Output neuropils",
             val_title="Num Cells",
             item_list=output_neuropils,
+            descriptions_dict=NEUROPIL_DESCRIPTIONS,
             search_filter="output_neuropil",
             sort_by_freq=True,
         )
@@ -99,7 +138,6 @@ def _make_data_charts(data_list):
             key_title="Output regions",
             val_title="Num Cells",
             item_list=input_output_regions,
-            search_filter="io_hemisphere",
         )
 
     return result

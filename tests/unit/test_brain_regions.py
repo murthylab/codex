@@ -16,8 +16,8 @@ class RegionsTest(TestCase):
             self.assertEqual(k, match_to_neuropil(k.lower()))
             if not v[1]:
                 self.assertEqual(k, match_to_neuropil(v[2]))
-        self.assertEqual("ME_L", match_to_neuropil("medulla/left"))
-        self.assertEqual("ME_R", match_to_neuropil("right side medulla"))
+        self.assertEqual("AME_L", match_to_neuropil("accessory medulla/left"))
+        self.assertEqual({"ME_R", "AME_R"}, lookup_neuropil_set("right medulla"))
 
     def test_lookup_neuropil_set_by_side(self):
         pil_set = lookup_neuropil_set("left")
@@ -52,6 +52,9 @@ class RegionsTest(TestCase):
 
         pil_set = lookup_neuropil_set("Medulla")
         self.assertEqual({"ME_R", "AME_R", "ME_L", "AME_L"}, pil_set)
+
+        pil_set = lookup_neuropil_set("Medulla left")
+        self.assertEqual({"ME_L", "AME_L"}, pil_set)
 
         pil_set = lookup_neuropil_set("Lateral Horn")
         self.assertEqual({"LH_R", "LH_L"}, pil_set)

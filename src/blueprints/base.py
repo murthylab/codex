@@ -335,7 +335,7 @@ def index(path):
             {
                 "header": "Pathways",
                 "body": "Analyse shortest-paths between pairs of neurons",
-                "asset_filename": "card-pathlength.jpg",
+                "asset_filename": "card-pathways.png",
                 "url": "app.path_length",
             },
             {

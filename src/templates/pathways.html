@@ -1,0 +1,50 @@
+{% extends "base_barebones.html" %}
+
+{% block base_barebones_content %}
+
+<script type = "text/javascript" src = "https://www.gstatic.com/charts/loader.js">
+</script>
+<script type = "text/javascript" src = "https://www.google.com/jsapi">
+</script>
+<script type = "text/javascript">
+   google.charts.load('current', {packages: ['sankey']});
+</script>
+
+<div id = "container" style="padding: 10px; width: 100%; height: 90vh;">
+</div>
+<form>
+   <input type="hidden" id="source_cell_id" name="source_cell_id" value="{{source_cell_id}}"/>
+   <input type="hidden" id="target_cell_id" name="target_cell_id" value="{{target_cell_id}}"/>
+   <h6 style="text-align:center;">{{caption|safe}}
+      <input type="number" style="width: 50px;" id="min_syn_count" name="min_syn_count" value="{{min_syn_count}}" onchange="loading(); this.form.submit();">
+   {% if list_url %}
+   <br><button type="button" class="btn btn-outline-primary" style="text-align:center;"> <a href="{{list_url}}"> See all cells along these pathways as a list</a></button>
+   {% endif %}
+   </h6>
+</form>
+
+<script language = "JavaScript">
+   function drawChart() {
+      // Define the chart to be drawn.
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'From');
+      data.addColumn('string', 'To');
+      data.addColumn('number', 'Weight');
+
+      data.addRows([
+         {% for dr in data_rows or [] %}
+            ['{{dr[0]}}', '{{dr[1]}}', {{dr[2]}}],
+         {% endfor %}
+      ]);
+
+      // Set chart options
+      var options = {width: '95%', height: '95%'};
+
+      // Instantiate and draw the chart.
+      var chart = new google.visualization.Sankey(document.getElementById('container'));
+      chart.draw(data, options);
+   }
+   google.charts.setOnLoadCallback(drawChart);
+</script>
+
+{% endblock base_barebones_content %}

@@ -5,6 +5,7 @@ from random import sample
 import pandas
 from caveclient import CAVEclient
 
+from src.configuration import MIN_SYN_COUNT
 from src.data.local_data_loader import read_csv, write_csv
 
 # FlyWire data snapshots are exported periodically in 2 Google Drive folders (within them snapshot sub-folders are
@@ -21,8 +22,6 @@ from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 
 CAVE_AUTH_TOKEN_FILE_NAME = f"static/secrets/cave_auth_token.txt"
 CAVE_DATASTACK_NAME = "flywire_fafb_production"
-
-MIN_SYN_COUNT = 5
 
 COMPILED_DATA_ROOT_FOLDER = f"static/data/{LATEST_DATA_SNAPSHOT_VERSION}"
 COMPILED_RAW_DATA_FILE_NAME = "flywire_data.csv.gz"

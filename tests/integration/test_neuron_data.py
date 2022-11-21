@@ -46,10 +46,10 @@ class NeuronDataTest(TestCase):
                             diff_keys[f"{k}: {val} vs {ndp[k]}"] += 1
             self.assertEqual(0, len(diff_keys), f"Diff keys not empty: {diff_keys}")
             # compare optional output sets (adjacency)
-            self.assertEqual(tested.adjacencies, golden.adjacencies)
-            if tested.adjacencies["input_sets"]:
-                connected_cells = set(tested.adjacencies["input_sets"].keys()).union(
-                    set(tested.adjacencies["output_sets"].keys())
+            self.assertEqual(tested.connection_rows, golden.connection_rows)
+            if tested.input_sets():
+                connected_cells = set(tested.input_sets().keys()).union(
+                    set(tested.output_sets().keys())
                 )
                 not_connected_cells = set(tested.neuron_data.keys()) - connected_cells
                 self.assertGreater(2000, len(not_connected_cells))

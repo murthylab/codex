@@ -80,7 +80,7 @@ def highlight_annotations(free_form_search_terms, tags):
 
         # now highlight the tag string
         highlighted_tag_string = ""
-        if highlight_locations == []:
+        if not highlight_locations:
             highlighted_tag_string = tag_string
 
         else:

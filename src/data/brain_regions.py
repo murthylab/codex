@@ -1,3 +1,4 @@
+from src.utils.logging import log_error
 from src.utils.parsing import tokenize
 
 LEFT = "Left"
@@ -164,16 +165,21 @@ def neuropil_hemisphere(pil):
 def neuropil_description(txt):
     pil = match_to_neuropil(txt)
     if pil not in REGIONS:
-        return pil or "Unspecified Region"
+        return pil or "Unknown brain region"
     val = REGIONS[pil]
     hs = neuropil_hemisphere(pil)
-    return val[1] if hs == CENTER else f"{val[1]} / {hs}"
+    return val[1] if hs == CENTER else f"{hs.lower()} {val[1]}"
 
 
 # find a matching neuropil from free-form text. if no matches, return unchanged
 def match_to_neuropil(txt):
     nset = lookup_neuropil_set(txt)
-    return nset.pop() if len(nset) == 1 else txt
+    if len(nset) == 1:
+        return nset.pop()
+    else:
+        if txt != "Neuropil NA":
+            log_error(f"Could not match a single neuropil to {txt}: got {nset}")
+        return txt
 
 
 # find a set of matching neuropils from free-form text
@@ -187,24 +193,27 @@ def lookup_neuropil_set(txt):
     if txt_uc in REGIONS:
         return {txt_uc}
 
+    prefix_regions = set([k for k in REGIONS.keys() if k.startswith(txt_uc)])
+    if prefix_regions:
+        return prefix_regions
+
     for hs in HEMISPHERES:
         if hs.lower() == txt_lc:
             return set(
                 [rgn for rgn in REGIONS.keys() if neuropil_hemisphere(rgn) == hs]
             )
 
-    res = set()
-    txt_lc_tokens = tokenize(txt_lc)
-    for rgn, attrs in REGIONS.items():
-        desc_lc = attrs[1].lower()
-        if (
-            rgn.startswith(txt_uc)
-            or txt_lc == desc_lc
-            or (
-                desc_lc in txt_lc_tokens
-                and neuropil_hemisphere(rgn).lower() in txt_lc_tokens
-            )
-            or any([txt_lc == t for t in tokenize(desc_lc)])
-        ):
-            res.add(rgn)
-    return res
+    txt_lc_tokens = set(tokenize(txt_lc))
+    token_wise_matched_regions = set()
+    for r, v in REGIONS.items():
+        rgn_tokens = set(tokenize(v[1].lower()))
+        rgn_tokens.add(neuropil_hemisphere(r).lower())
+        if txt_lc_tokens.issubset(rgn_tokens):
+            token_wise_matched_regions.add(r)
+    if token_wise_matched_regions:
+        return token_wise_matched_regions
+
+    return set()
+
+
+NEUROPIL_DESCRIPTIONS = {k: neuropil_description(k) for k in REGIONS.keys()}

@@ -1,4 +1,4 @@
-from collections import Iterable
+from typing import Iterable
 from unittest import TestCase
 
 from src.data.structured_search_filters import (
@@ -14,6 +14,7 @@ from src.data.structured_search_filters import (
     BinarySearchOperator,
     UnarySearchOperator,
     NarySearchOperator,
+    _match_list_of_neuropils,
 )
 
 
@@ -44,7 +45,8 @@ class Test(TestCase):
                 st = {"lhs": some_value(None), "rhs": some_value(None), "op": op.name}
             else:
                 self.fail(f"Unknown op type: {op}")
-            self.assertIsNotNone(_make_predicate(st, {}, {}))
+            self.assertIsNotNone(_make_predicate(st, {}, {}, case_sensitive=False))
+            self.assertIsNotNone(_make_predicate(st, {}, {}, case_sensitive=True))
 
     def test_structured_query_parsing(self):
         # free form
@@ -62,12 +64,12 @@ class Test(TestCase):
         )
 
         self.assertEqual(
-            parse_search_query("foo {not equal} bar"),
-            (None, [], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
+            parse_search_query("foo {not_equal} bar"),
+            (None, [], [{"op": "{not_equal}", "lhs": "foo", "rhs": "bar"}]),
         )
         self.assertEqual(
             parse_search_query("foo != bar"),
-            (None, [], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
+            (None, [], [{"op": "{not_equal}", "lhs": "foo", "rhs": "bar"}]),
         )
         self.assertEqual(
             parse_search_query(" {has} bar"),
@@ -93,11 +95,11 @@ class Test(TestCase):
         # combos
         self.assertEqual(
             parse_search_query("foo != bar && other"),
-            ("{and}", ["other"], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
+            ("{and}", ["other"], [{"op": "{not_equal}", "lhs": "foo", "rhs": "bar"}]),
         )
         self.assertEqual(
-            parse_search_query("other || foo {not equal} bar"),
-            ("{or}", ["other"], [{"op": "{not equal}", "lhs": "foo", "rhs": "bar"}]),
+            parse_search_query("other || foo {not_equal} bar"),
+            ("{or}", ["other"], [{"op": "{not_equal}", "lhs": "foo", "rhs": "bar"}]),
         )
 
         # and/or mix not allowed
@@ -141,3 +143,8 @@ class Test(TestCase):
         for op1 in all_ops:
             for op2 in all_ops:
                 self.assertTrue(op1 == op2 or op1 not in op2)
+
+    def test_match_list_of_neuropils(self):
+        self.assertEqual(
+            {"AME_L", "ME_L", "ME_R", "AME_R"}, _match_list_of_neuropils("medulla")
+        )
