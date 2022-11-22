@@ -605,9 +605,7 @@ def cell_details():
             )
             related_cells[search_link] = nglui_link
 
-    connectivity_table = gcs_data_loader.load_connection_table_for_root_id(
-        root_id, min_syn_count=min_syn_cnt
-    )
+    connectivity_table = neuron_db.connections(ids=[root_id], min_syn_count=min_syn_cnt)
     if connectivity_table:
         input_neuropil_synapse_count = defaultdict(int)
         output_neuropil_synapse_count = defaultdict(int)
@@ -1125,12 +1123,9 @@ def connectivity():
             )
             root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
 
-        contable = gcs_data_loader.load_connection_table_for_root_ids(root_ids)
-        nt_type = nt_type.upper()
-        if nt_type and nt_type != "ALL":
-            contable = [r for r in contable if r[4].upper() == nt_type]
-        if min_syn_cnt:
-            contable = [r for r in contable if r[3] >= min_syn_cnt]
+        contable = neuron_db.connections(
+            ids=root_ids, nt_type=nt_type, min_syn_count=min_syn_cnt
+        )
         if len(contable) <= 1:
             return render_error(
                 f"Connections for {min_syn_cnt=}, {nt_type=} and Cell IDs {root_ids} are unavailable."

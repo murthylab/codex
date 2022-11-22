@@ -3,6 +3,7 @@ from functools import lru_cache
 from random import choice
 
 from src.data.brain_regions import neuropil_hemisphere, REGIONS
+from src.data.gcs_data_loader import load_connection_table_for_root_ids
 from src.data.neuron_collections import NEURON_COLLECTIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.search_index import SearchIndex
@@ -172,7 +173,9 @@ class NeuronDB(object):
                 assert syn_count >= MIN_SYN_COUNT
                 assert nt_type in NEURO_TRANSMITTER_NAMES
                 assert neuropil == "NONE" or neuropil in REGIONS.keys()
-                self.connection_rows.append([from_node, to_node, neuropil, syn_count])
+                self.connection_rows.append(
+                    [from_node, to_node, neuropil, syn_count, nt_type]
+                )
         # augment ndata with in/out partner counts
         in_sets = self.input_sets()
         out_sets = self.output_sets()
@@ -196,13 +199,19 @@ class NeuronDB(object):
                 res[r[0]].add(r[1])
         return res
 
-    def connections(self, ids, min_syn_count=5):
+    def connections(self, ids, min_syn_count=5, nt_type=None):
         idset = set(ids)
-        return [
-            r
-            for r in self.connection_rows
-            if (r[0] in idset or r[1] in idset) and r[3] >= min_syn_count
-        ]
+        if self.connection_rows:  # avail in mem cache
+            cons = [r for r in self.connection_rows if (r[0] in idset or r[1] in idset)]
+        else:  # fetch from cloud
+            cons = load_connection_table_for_root_ids(ids)
+        if min_syn_count:
+            cons = [r for r in cons if r[3] >= min_syn_count]
+        if nt_type:
+            nt_type = nt_type.upper()
+            if nt_type != "ALL":
+                cons = [r for r in cons if r[2] == nt_type]
+        return cons
 
     @lru_cache
     def neuropils(self):
