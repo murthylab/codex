@@ -183,21 +183,21 @@ class NeuronDB(object):
             nd["input_cells"] = len(in_sets[rid]) or "-"
             nd["output_cells"] = len(out_sets[rid]) or "-"
 
-    @lru_cache
     def input_sets(self, min_syn_count=5):
-        res = defaultdict(set)
-        for r in self.connection_rows:
-            if r[3] >= min_syn_count:
-                res[r[1]].add(r[0])
-        return res
+        return self.input_output_sets(min_syn_count)[0]
+
+    def output_sets(self, min_syn_count=5):
+        return self.input_output_sets(min_syn_count)[1]
 
     @lru_cache
-    def output_sets(self, min_syn_count=5):
-        res = defaultdict(set)
+    def input_output_sets(self, min_syn_count=5):
+        ins = defaultdict(set)
+        outs = defaultdict(set)
         for r in self.connection_rows:
             if r[3] >= min_syn_count:
-                res[r[0]].add(r[1])
-        return res
+                ins[r[1]].add(r[0])
+                outs[r[0]].add(r[1])
+        return ins, outs
 
     def connections(self, ids, min_syn_count=5, nt_type=None):
         idset = set(ids)
