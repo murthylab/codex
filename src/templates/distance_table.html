@@ -17,8 +17,7 @@
                onchange="loading(); this.form.submit();"
         >
         {% endif %}
-        <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();"><i
-                class="fa-solid fa-arrow-down-short-wide"></i></button>
+        <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();"><i class="fa-solid fa-magnifying-glass-chart"></i></i></button>
     </form>
 </nav>
 
@@ -67,7 +66,7 @@
     <div class="card-body">
         {{info_text|safe}}
         <br><br>
-        <button class="btn btn btn-success" type="button"
+        <button class="btn btn btn-outline-success" type="button"
                 onclick="loading(); document.getElementById('source_cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('target_cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('source_cell_names_or_ids').form.submit();">
             Try with sample cells
         </button>
