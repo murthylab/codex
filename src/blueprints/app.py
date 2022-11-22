@@ -515,6 +515,11 @@ def ngl_redirect_with_browser_check(ngl_url):
 @request_wrapper
 @require_data_access
 def cell_details():
+    start_time = datetime.now()
+
+    def timeit(action):
+        log(f"+++ {datetime.now() - start_time}: {action}")
+
     if request.method == "POST":
         annotation_text = request.form.get("annotation_text")
         annotation_coordinates = request.form.get("annotation_coordinates")
@@ -567,6 +572,8 @@ def cell_details():
         log_activity(f"Generated empty cell detail page")
         return render_template("cell_details.html")
 
+    timeit("search done")
+
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     neuron_db = neuron_data_factory.get(data_version)
@@ -606,6 +613,8 @@ def cell_details():
             related_cells[search_link] = nglui_link
 
     connectivity_table = neuron_db.connections(ids=[root_id], min_syn_count=min_syn_cnt)
+
+    timeit("con fetched")
     if connectivity_table:
         input_neuropil_synapse_count = defaultdict(int)
         output_neuropil_synapse_count = defaultdict(int)
@@ -723,6 +732,8 @@ def cell_details():
         "cells with similar morphology (NBLAST based)", top_nblast_matches
     )
 
+    timeit("nlblast_fetched")
+
     similar_root_ids = [
         i[0]
         for i in zip(nd["similar_root_ids"], nd["similar_root_id_scores"])
@@ -743,19 +754,21 @@ def cell_details():
     # remove empty items
     cell_attributes = {k: v for k, v in cell_attributes.items() if v}
     related_cells = {k: v for k, v in related_cells.items() if v}
-
+    timeit("starting reachability")
     cell_extra_data = {}
     if neuron_db.connection_rows:
+        ins, outs = neuron_db.input_output_sets()
+        timeit("ins/outs fetched")
         reachable_counts = reachable_node_counts(
             sources={root_id},
-            neighbor_sets=neuron_db.output_sets(),
+            neighbor_sets=outs,
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
             cell_extra_data["Downstream Reachable Cells (5+ syn)"] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources={root_id},
-            neighbor_sets=neuron_db.input_sets(),
+            neighbor_sets=ins,
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
@@ -764,6 +777,8 @@ def cell_details():
     log_activity(
         f"Generated neuron info for {root_id} with {len(cell_attributes) + len(related_cells)} items"
     )
+
+    timeit("fin")
     return render_template(
         "cell_details.html",
         cell_names_or_id=cell_names_or_id or nd["name"],
