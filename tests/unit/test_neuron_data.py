@@ -1,11 +1,14 @@
+import json
 from unittest import TestCase
 
+from src.data.brain_regions import neuropil_description
 from src.data.neuron_data import *
 from src.data.structured_search_filters import *
 from src.data.local_data_loader import unpickle_all_neuron_db_versions
 
 # for IDE test
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSION
+from src.utils.graph_algos import neighbors
 from tests import TEST_DATA_ROOT_PATH
 
 
@@ -385,3 +388,104 @@ class NeuronDataTest(TestCase):
         self.assertGreater(
             len(self.neuron_db.search_in_neurons_with_inherited_labels("da")), 500
         )
+
+    def test_cell_lines(self):
+        cell_lines = {
+            "SS16374": [
+                20575940630957779,
+                720575940625450312,
+                720575940615424546,
+                720575940618654017,
+                720575940625952074,
+                720575940625430856,
+                720575940602224096,
+                720575940602245088,
+                720575940626442139,
+                720575940622314995,
+                720575940630043729,
+                720575940632927736,
+                720575940625481032,
+                720575940619709609,
+                720575940602629548,
+                720575940603683505,
+                720575940608425336,
+                720575940621713672,
+                720575940610457458,
+            ],
+            "SS27885": [
+                720575940644319796,
+                720575940619583749,
+                720575940620171478,
+                720575940633065720,
+                720575940627354368,
+                720575940617390027,
+            ],
+            "SS23281": [
+                720575940618477806,
+                720575940627513079,
+                720575940615798045,
+                720575940617193009,
+                720575940625839345,
+                720575940615348770,
+                720575940623748298,
+                720575940620191453,
+                720575940603331686,
+                720575940617943205,
+                720575940624172290,
+                720575940615530580,
+                720575940629414201,
+                720575940632722527,
+                720575940624150168,
+                720575940611667251,
+                720575940614662027,
+                720575940641565600,
+                720575940612965791,
+                720575940619587422,
+                720575940615729179,
+                720575940639821965,
+                720575940627775292,
+                720575940606202891,
+                720575940617842196,
+            ],
+            "SS29378": [],
+            "SS40354": [],
+        }
+
+        def analyze_set(rid_set):
+            def class_breakdown(rids):
+                res = defaultdict(int)
+                for rid in rids:
+                    res[self.neuron_db.get_neuron_data(rid)["class"]] += 1
+                return json.dumps(res, indent=4)
+
+            def pil_breakdown(rids):
+                rids = set(rids)
+                in_pils = defaultdict(int)
+                out_pils = defaultdict(int)
+                for r in self.neuron_db.connection_rows:
+                    if r[0] in rids:
+                        out_pils[f"{r[2]} {neuropil_description(r[2])}"] += r[3]
+                    if r[1] in rids:
+                        in_pils[f"{r[2]} {neuropil_description(r[2])}"] += r[3]
+                return json.dumps(in_pils, indent=4), json.dumps(out_pils, indent=4)
+
+            found_rids = [i for i in rid_set if i in self.neuron_db.neuron_data]
+            print(
+                f"### Num seg ids: {len(rid_set)}, found in 447 dataset: {len(found_rids)}"
+            )
+            ustream = neighbors(found_rids, self.neuron_db.input_sets())
+            dstream = neighbors(found_rids, self.neuron_db.output_sets())
+            print(
+                f"### Upstream partners (# cells): {len(ustream)}, downstream partners: {len(dstream)}"
+            )
+            print(f"### Upstream partners breakdown: {class_breakdown(ustream)}")
+            print(f"### Downstream partners breakdown: {class_breakdown(dstream)}")
+            in_pils, out_pils = pil_breakdown(rid_set)
+            print(f"### Input brain regions breakdown (# synapses): {in_pils}")
+            print(f"### Output brain regions breakdown (# synapses): {out_pils}")
+
+        for k, v in cell_lines.items():
+            print(f"\n\n## Cell line {k}")
+            analyze_set(v)
+
+        # TODO: remove this: self.fail()

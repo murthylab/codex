@@ -29,6 +29,14 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
     def node_size(ndata):
         return 20 if ndata["root_id"] in center_ids else 10
 
+    def node_mass(node_id):
+        if node_id == 'neuropil':
+            return 5
+        elif node_id == 'supernode':
+            return 10
+        else:
+            return 200 if node_id in center_ids else 1
+
     def node_shape(ndata):
         return "elipse" if ndata["root_id"] in center_ids else "dot"
 
@@ -88,6 +96,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
                 color=node_color(nd),
                 shape=node_shape(nd),
                 size=node_size(nd),
+                mass=node_mass(nd["root_id"]),
                 x=x,
                 y=y,
             )
@@ -106,6 +115,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
                 title=title,
                 shape="box",
                 size=20,
+                mass=node_mass("neuropil"),
                 color=NEUROPIL_COLOR,
             )
             added_pil_nodes.add(nid)
@@ -136,6 +146,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
                 color="#fafafa",
                 shape="database",
                 size=40,
+                mass=node_mass("supernode"),
             )
             added_cell_nodes.add(scid)
         return scid
@@ -149,6 +160,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
                 color="#fafafa",
                 shape="database",
                 size="40",
+                mass=node_mass("supernode"),
             )
             added_pil_nodes.add(spid)
         return spid
@@ -208,7 +220,7 @@ class Network(object):
         self.edge_physics = edge_physics
         self.node_physics = node_physics
 
-    def add_node(self, name, size, label, shape, color, title=None, x=None, y=None):
+    def add_node(self, name, size, mass, label, shape, color, title=None, x=None, y=None):
         name = str(name)
         if name not in self.node_map:
             node = {
@@ -217,6 +229,7 @@ class Network(object):
                 "shape": shape,
                 "physics": self.node_physics,
                 "size": size,
+                "mass": mass,
                 "color": color,
                 "title": title,
             }

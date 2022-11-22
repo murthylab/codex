@@ -783,7 +783,7 @@ def cell_details():
 @request_wrapper
 @require_data_access
 def nblast():
-    sample_input = "720575940628063479, 720575940645542276, 720575940626822533, 720575940609037432, 720575940628445399"
+    sample_input = "720575940645542276,720575940626822533,720575940609037432,720575940624535554,720575940626158598"
     source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
     if not source_cell_names_or_ids and not target_cell_names_or_ids:
