@@ -30,9 +30,9 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
         return 20 if ndata["root_id"] in center_ids else 10
 
     def node_mass(node_id):
-        if node_id == 'neuropil':
+        if node_id == "neuropil":
             return 5
-        elif node_id == 'supernode':
+        elif node_id == "supernode":
             return 10
         else:
             return 200 if node_id in center_ids else 1
@@ -220,7 +220,9 @@ class Network(object):
         self.edge_physics = edge_physics
         self.node_physics = node_physics
 
-    def add_node(self, name, size, mass, label, shape, color, title=None, x=None, y=None):
+    def add_node(
+        self, name, size, mass, label, shape, color, title=None, x=None, y=None
+    ):
         name = str(name)
         if name not in self.node_map:
             node = {
