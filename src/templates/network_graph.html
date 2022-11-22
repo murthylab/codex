@@ -75,6 +75,10 @@
 <body>
 <div id="mynetwork"></div>
 <div id="legend">
+    {% if warning_msg %}
+    <div class="legend-circle" style="background-color: orange;"></div>
+    <div class="legend-label" style="color: orange;">{{warning_msg}}</div>
+    {% endif %}
     {% for entry in legend %}
     <div class="legend-circle" style="background-color: {{entry['color']}};"></div>
     <div class="legend-label">{{entry['label']}}</div>

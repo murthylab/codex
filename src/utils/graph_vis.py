@@ -209,7 +209,11 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
                 sp = add_super_pil_node()
                 add_super_edge(sp, sc, v)
 
-    return net.generate_html()
+    if len(cell_to_pil_counts) > MAX_NODES:
+        warning_msg = f"Showing top {MAX_NODES} cells out of {len(cell_to_pil_counts)}"
+    else:
+        warning_msg = None
+    return net.generate_html(warning_msg=warning_msg)
 
 
 class Network(object):
@@ -267,10 +271,11 @@ class Network(object):
         if legend_entry not in self.legend:
             self.legend.append(legend_entry)
 
-    def generate_html(self):
+    def generate_html(self, warning_msg):
         return render_template(
             "network_graph.html",
             nodes=list(self.node_map.values()),
             edges=self.edges,
             legend=self.legend,
+            warning_msg=warning_msg,
         )
