@@ -8,7 +8,7 @@
                aria-label="Cell Names or IDs" value="{{cell_names_or_ids}}">
         <input type="hidden" id="download_type" name="download" value=""/>
         <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();">
-            <i class="fa-solid fa-circle-nodes"></i></button>
+            <i class="fa-solid fa-magnifying-glass-chart"></i></i></button>
         {% if network_html %}
             <script type="text/javascript">
                 function download_data(val) {
@@ -46,7 +46,7 @@
     <div class="card-body">
         {{info_text|safe}}
         <br><br>
-        <button class="btn btn btn-success" type="button"
+        <button class="btn btn btn-outline-success" type="button"
                 onclick="loading(); document.getElementById('cell_names_or_ids').value = '{{sample_input}}'; document.getElementById('cell_names_or_ids').form.submit();">
             Try with sample cells
         </button>
