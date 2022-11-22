@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from src.data.gcs_data_loader import load_connection_table_for_root_id
 from src.data.structured_search_filters import (
     OP_DOWNSTREAM,
@@ -51,16 +53,18 @@ def sort_search_results(query, ids, output_sets, sort_by=None):
                     extra_data_title = (
                         f"Number of input synapses from {sort_by_target_cell_rid}"
                     )
-                    dct = {
-                        r[1]: r[3] for r in con_table if r[0] == sort_by_target_cell_rid
-                    }
+                    dct = defaultdict(int)
+                    for r in con_table:
+                        if r[0] == sort_by_target_cell_rid:
+                            dct[r[1]] += r[3]
                 else:
                     extra_data_title = (
                         f"Number of output synapses to {sort_by_target_cell_rid}"
                     )
-                    dct = {
-                        r[0]: r[3] for r in con_table if r[1] == sort_by_target_cell_rid
-                    }
+                    dct = defaultdict(int)
+                    for r in con_table:
+                        if r[1] == sort_by_target_cell_rid:
+                            dct[r[0]] += r[3]
                 extra_data = {
                     "title": extra_data_title,
                     "column_name": "Syn",
