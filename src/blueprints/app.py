@@ -55,6 +55,7 @@ from src.utils.logging import (
     log,
     log_user_help,
 )
+from src.utils.nglui import can_be_flywire_root_id
 from src.utils.pathway_vis import pathway_chart_data_rows
 from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
@@ -93,6 +94,7 @@ def stats():
         data_stats=data_stats,
         data_charts=data_charts,
         num_items=num_items,
+        searched_for_root_id=can_be_flywire_root_id(filter_string),
         # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
         # Otherwise it will be available as downloadable file.
         root_ids_str=",".join([str(ddi) for ddi in filtered_root_id_list])
@@ -242,6 +244,7 @@ def render_neuron_list(
         if len(filtered_root_id_list) <= MAX_NEURONS_FOR_DOWNLOAD
         else [],
         num_items=num_items,
+        searched_for_root_id=can_be_flywire_root_id(filter_string),
         pagination_info=pagination_info,
         filter_string=filter_string,
         hint=hint,
@@ -492,9 +495,10 @@ def reject_label_suggestion():
 def flywire_url():
     root_ids = [int(rid) for rid in request.args.getlist("root_ids")]
     log_request = request.args.get("log_request", default=1, type=int)
-    url = nglui.url_for_root_ids(root_ids)
+    proofreading_url = request.args.get("proofreading_url", default=0, type=int)
+    url = nglui.url_for_root_ids(root_ids, point_to_proofreading_flywire=proofreading_url)
     if log_request:
-        log_activity(f"Redirecting for {root_ids} to FlyWire {format_link(url)}")
+        log_activity(f"Redirecting for {root_ids} to FlyWire {format_link(url)}, {proofreading_url=}")
     return ngl_redirect_with_browser_check(ngl_url=url)
 
 
