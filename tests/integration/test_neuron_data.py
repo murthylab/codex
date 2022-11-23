@@ -34,6 +34,7 @@ class NeuronDataTest(TestCase):
             )
 
             diff_keys = defaultdict(int)
+            diff_vals = defaultdict(int)
             for rid, nd in tested.neuron_data.items():
                 ndp = golden.get_neuron_data(rid)
                 self.assertEqual(set(nd.keys()), set(ndp.keys()))
@@ -43,8 +44,13 @@ class NeuronDataTest(TestCase):
                             diff_keys[k] += 1
                     else:
                         if val != ndp[k]:
-                            diff_keys[f"{k}: {val} vs {ndp[k]}"] += 1
-            self.assertEqual(0, len(diff_keys), f"Diff keys not empty: {diff_keys}")
+                            diff_keys[k] += 1
+                            diff_vals[f"{k}: {val} vs {ndp[k]}"] += 1
+            self.assertEqual(
+                0,
+                len(diff_keys),
+                f"Diff keys not empty: {diff_keys}\n\n {len(diff_vals)}\n\n {diff_vals=}",
+            )
             # compare optional output sets (adjacency)
             self.assertEqual(tested.connection_rows, golden.connection_rows)
             if tested.input_sets():
