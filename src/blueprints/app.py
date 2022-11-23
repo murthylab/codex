@@ -496,9 +496,13 @@ def flywire_url():
     root_ids = [int(rid) for rid in request.args.getlist("root_ids")]
     log_request = request.args.get("log_request", default=1, type=int)
     proofreading_url = request.args.get("proofreading_url", default=0, type=int)
-    url = nglui.url_for_root_ids(root_ids, point_to_proofreading_flywire=proofreading_url)
+    url = nglui.url_for_root_ids(
+        root_ids, point_to_proofreading_flywire=proofreading_url
+    )
     if log_request:
-        log_activity(f"Redirecting for {root_ids} to FlyWire {format_link(url)}, {proofreading_url=}")
+        log_activity(
+            f"Redirecting for {root_ids} to FlyWire {format_link(url)}, {proofreading_url=}"
+        )
     return ngl_redirect_with_browser_check(ngl_url=url)
 
 
