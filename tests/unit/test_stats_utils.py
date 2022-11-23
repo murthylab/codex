@@ -48,9 +48,16 @@ class Test(TestCase):
         self.assertEqual(
             {
                 "": {
+                    "- Annotated": "28,936",
                     "- Classified": "68,375",
-                    "- Annotated": "33,624",
                     "Cells": "68,375",
+                },
+                "Top Annotations": {
+                    "Kenyon_Cell_L": "2,586",
+                    "Putative AN": "2,227",
+                    "antennal lobe olfactory and thermo/hygrosensory receptor neuron (ALRN)": "1,922",
+                    "putative fru": "1,130",
+                    "sensory": "925",
                 },
                 "Top Classes": {
                     "Ascending": "2,224",
@@ -58,13 +65,6 @@ class Test(TestCase):
                     "Optic Lobe": "19,815",
                     "Sensory": "4,752",
                     "Visual Projection": "7,456",
-                },
-                "Top Annotations": {
-                    "Kenyon_Cell_L": "2,586",
-                    "Kenyon_Cell_L*": "1,242",
-                    "Putative AN": "2,227",
-                    "antennal lobe olfactory and thermo/hygrosensory receptor neuron (ALRN)": "1,916",
-                    "putative fru": "1,130",
                 },
             },
             data_stats,
