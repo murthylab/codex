@@ -49,7 +49,7 @@ class Test(TestCase):
             {
                 "": {
                     "- Classified": "68,375",
-                    "- Annotated": "33,009",
+                    "- Annotated": "33,624",
                     "Cells": "68,375",
                 },
                 "Top Classes": {
