@@ -72,6 +72,20 @@
 {% endif %}
 
 {% if not num_items %}
+{% if searched_for_root_id %}
+<div class="card" style="margin: 15px;">
+    <div class="card-header" style="color: red;">
+        {{filter_string}} is not included in this data snapshot
+    </div>
+    <div class="card-body">
+        The Flywire Root ID you searched for is not part of the data snapshot loaded in Codex (see more details below).
+        You can still try to load it in Flywire viewer and map to one of the cells in this dataset manually.
+        <p><br><a class="btn btn-outline-primary" onclick="loading();"
+       href="{{url_for('app.flywire_url', root_ids=filter_string, proofreading_url=1)}}"
+       ><i class="fa-solid fa-cube"></i> &nbsp; Open in Flywire</a></p>
+    </div>
+</div>
+{% endif %}
 <div class="card" style="margin: 15px;">
     <div class="card-header" style="color: purple;">
         Tips for working with Codex
