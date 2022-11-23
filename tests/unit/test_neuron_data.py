@@ -50,7 +50,7 @@ class NeuronDataTest(TestCase):
         check_min_values_present("input_neuropils", 63308)
         check_min_values_present("output_neuropils", 64302)
         check_min_values_present("supervoxel_id", 22155)
-        check_min_values_present("tag", 30026)
+        check_min_values_present("tag", 28000)
         check_min_values_present("inherited_tag_root_id", 2871)
         check_min_values_present("inherited_tag_score", 2871)
         check_min_values_present("user_id", 23155)
@@ -64,11 +64,6 @@ class NeuronDataTest(TestCase):
             n for n in self.neuron_db.neuron_data.values() if n["annotations"]
         ]
         self.assertEqual(len(neurons_with_tags), len(neurons_with_annotations))
-
-        neurons_with_inherited_labels = [
-            n for n in neurons_with_annotations if "*" in n["annotations"]
-        ]
-        self.assertGreater(len(neurons_with_inherited_labels), 2800)
 
         for n in self.neuron_db.neuron_data.values():
             for col in [
@@ -173,8 +168,8 @@ class NeuronDataTest(TestCase):
         self.assertGreater(len(class_matches), 1000)
 
         # starts with op
-        self.assertGreater(len(self.neuron_db.search("label {starts_with} LC")), 500)
-        self.assertGreater(len(self.neuron_db.search("label {starts_with} lc")), 500)
+        self.assertGreater(len(self.neuron_db.search("label {starts_with} LC")), 350)
+        self.assertGreater(len(self.neuron_db.search("label {starts_with} lc")), 350)
         self.assertEqual(
             len(self.neuron_db.search("label {starts_with} lc", case_sensitive=True)), 0
         )
