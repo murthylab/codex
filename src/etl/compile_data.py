@@ -511,13 +511,16 @@ def fill_new_annotations(version=LATEST_DATA_SNAPSHOT_VERSION):
 
         if not new_tags and old_tags:
             print(f"Not found: {old_tags}")
+            r[tag_col_idx] = ",".join(old_tags)
             not_found += 1
         elif not old_tags and new_tags:
             r[tag_col_idx] = ",".join(new_tags)
             filled += 1
         elif new_tags == old_tags:
+            r[tag_col_idx] = ",".join(new_tags)
             match += 1
         elif all([t in new_tags for t in old_tags]):
+            r[tag_col_idx] = ",".join(new_tags)
             contained += 1
         else:
             print(f"Mismatch: {old_tags} -> {new_tags}")
