@@ -44,6 +44,17 @@
         display: none;
     }
 
+    #warning-msg {
+      position: fixed;
+      background-color: #ffffff77;
+      text-align: center;
+      border-radius: 2px;
+      z-index: 1;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 10px;
+    }
+
     #legend {
         position: absolute;
         left: 20px;
@@ -74,11 +85,11 @@
 
 <body>
 <div id="mynetwork"></div>
+
+{% if warning_msg %}
+<div id="warning-msg">{{warning_msg}}</div><br>
+{% endif %}
 <div id="legend">
-    {% if warning_msg %}
-    <div class="legend-circle" style="background-color: orange;"></div>
-    <div class="legend-label" style="color: orange;">{{warning_msg}}</div>
-    {% endif %}
     {% for entry in legend %}
     <div class="legend-circle" style="background-color: {{entry['color']}};"></div>
     <div class="legend-label">{{entry['label']}}</div>
