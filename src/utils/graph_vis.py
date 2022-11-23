@@ -210,7 +210,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
                 add_super_edge(sp, sc, v)
 
     if len(cell_to_pil_counts) > MAX_NODES:
-        warning_msg = f"Showing top {MAX_NODES} cells out of {len(cell_to_pil_counts)}"
+        warning_msg = f"Top {MAX_NODES} cells out of {len(cell_to_pil_counts)}"
     else:
         warning_msg = None
     return net.generate_html(warning_msg=warning_msg)
