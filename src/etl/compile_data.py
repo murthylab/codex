@@ -1,6 +1,8 @@
 import os.path
 from collections import defaultdict
+from datetime import datetime
 from random import sample
+import numpy as np
 
 import pandas
 from caveclient import CAVEclient
@@ -119,12 +121,18 @@ def init_cave_client():
     return CAVEclient(CAVE_DATASTACK_NAME, auth_token=auth_token)
 
 
-def load_neuron_info_from_cave(client):
+def load_neuron_info_from_cave(client, map_to_version=LATEST_DATA_SNAPSHOT_VERSION):
     print("Downloading 'neuron_information_v2' with CAVE client..")
-    df = client.materialize.query_table(
-        "neuron_information_v2", materialization_version=LATEST_DATA_SNAPSHOT_VERSION
-    )
+    df = client.materialize.query_table("neuron_information_v2")
     print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
+    supervoxel_ids = df["pt_supervoxel_id"].astype(np.uint64)
+    mat_timestamp = client.materialize.get_version_metadata(map_to_version)[
+        "time_stamp"
+    ]
+    df["pt_root_id"] = client.chunkedgraph.get_roots(
+        supervoxel_ids, timestamp=mat_timestamp
+    )
+    print(f"Mapped to version {map_to_version}")
     neuron_info_table = [["root_id", "tag", "user_id", "position", "supervoxel_id"]]
     for index, d in df.iterrows():
         neuron_info_table.append(
@@ -475,10 +483,55 @@ def fill_missing_positions(version=LATEST_DATA_SNAPSHOT_VERSION):
     write_csv(filename=fname_out, rows=content, compress=True)
 
 
+def fill_new_annotations(version=LATEST_DATA_SNAPSHOT_VERSION):
+    fname_in = f"static/data/{version}/neuron_data.csv.gz"
+    fname_out = (
+        f"static/data/{version}/neuron_data_with_annotations_{datetime.now()}.csv.gz"
+    )
+
+    content = read_csv(fname_in)
+    print(content[0])
+    tag_col_idx = content[0].index("tag")
+
+    annotations = load_neuron_info_from_cave(
+        client=init_cave_client(), map_to_version=version
+    )
+    print(annotations[0])
+    rid_to_tags = defaultdict(list)
+    for r in annotations:
+        rid_to_tags[r[0]].append(r[1])
+
+    mismatch = match = not_found = filled = contained = 0
+    for r in content[1:]:
+        new_tags = rid_to_tags.get(int(r[0]))
+        new_tags = set([t.replace(",", ";") for t in new_tags or []])
+        old_tags = set(
+            [t for t in r[tag_col_idx].split(",") if t and not t.endswith("*")]
+        )
+
+        if not new_tags and old_tags:
+            print(f"Not found: {old_tags}")
+            not_found += 1
+        elif not old_tags and new_tags:
+            r[tag_col_idx] = ",".join(new_tags)
+            filled += 1
+        elif new_tags == old_tags:
+            match += 1
+        elif all([t in new_tags for t in old_tags]):
+            contained += 1
+        else:
+            print(f"Mismatch: {old_tags} -> {new_tags}")
+            r[tag_col_idx] = ",".join(old_tags.union(new_tags))
+            mismatch += 1
+    print(f"{not_found=} {filled=} {match=} {mismatch=} {contained=}")
+    write_csv(filename=fname_out, rows=content, compress=True)
+
+
 if __name__ == "__main__":
     # compile_data()
     # augment_existing_data()
     # replace_classes_in_existing_data()
     # augment_with_nt_scores()
     # correct_nt_scores()
-    fill_missing_positions()
+    # fill_missing_positions()
+    fill_new_annotations()
