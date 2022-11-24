@@ -577,7 +577,13 @@ def cell_details():
         log_activity(f"Generated empty cell detail page")
         return render_template("cell_details.html")
     log(f"Generating neuron info {activity_suffix(root_id, data_version)}")
-    return _cached_cell_details(cell_names_or_id=cell_names_or_id, root_id=root_id, neuron_db=neuron_db, min_syn_cnt=min_syn_cnt)
+    return _cached_cell_details(
+        cell_names_or_id=cell_names_or_id,
+        root_id=root_id,
+        neuron_db=neuron_db,
+        min_syn_cnt=min_syn_cnt,
+    )
+
 
 @lru_cache()
 def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
