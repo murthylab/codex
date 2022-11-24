@@ -144,13 +144,13 @@ def _make_data_charts(data_list):
 
 
 def _make_data_stats(data_list):
-    annotated_neurons = 0
+    labeled_neurons = 0
     classified_neurons = 0
     anno_counts = defaultdict(int)
     class_counts = defaultdict(int)
     for d in data_list:
         if d["tag"]:
-            annotated_neurons += 1
+            labeled_neurons += 1
             for t in d["tag"]:
                 anno_counts[t] += 1
         if d["classes"]:
@@ -161,7 +161,7 @@ def _make_data_stats(data_list):
     result = {
         "": {
             "Cells": len(data_list),
-            "- Annotated": annotated_neurons,
+            "- Labeled": labeled_neurons,
             "- Classified": classified_neurons,
         }
     }
@@ -171,7 +171,7 @@ def _make_data_stats(data_list):
             for k in sorted(class_counts, key=class_counts.get, reverse=True)[:5]
         }
     if anno_counts:
-        result["Top Annotations"] = {
+        result["Top Labels"] = {
             k: anno_counts[k]
             for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:5]
         }

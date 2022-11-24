@@ -296,7 +296,7 @@ class NeuronDB(object):
                 "counts": [(k, len(v)) for k, v in NEURON_COLLECTIONS.items()],
             },
             {
-                "caption": _caption("Annotations", len(labels)),
+                "caption": _caption("Labels", len(labels)),
                 "key": "label",
                 "counts": _sorted_counts(labels),
             },

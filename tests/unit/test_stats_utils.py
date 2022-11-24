@@ -28,7 +28,7 @@ class Test(TestCase):
             caption,
         )
         self.assertEqual(
-            {"": {"- Classified": "0", "- Annotated": "0", "Cells": "0"}}, data_stats
+            {"": {"- Classified": "0", "- Labeled": "0", "Cells": "0"}}, data_stats
         )
         self.assertEqual({}, data_charts)
 
@@ -48,11 +48,11 @@ class Test(TestCase):
         self.assertEqual(
             {
                 "": {
-                    "- Annotated": "28,936",
+                    "- Labeled": "28,936",
                     "- Classified": "68,375",
                     "Cells": "68,375",
                 },
-                "Top Annotations": {
+                "Top Labels": {
                     "Kenyon_Cell_L": "2,586",
                     "Putative AN": "2,227",
                     "antennal lobe olfactory and thermo/hygrosensory receptor neuron (ALRN)": "1,922",
