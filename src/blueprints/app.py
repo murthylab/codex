@@ -590,7 +590,7 @@ def cell_details():
     cell_attributes = {
         "Name": nd["name"],
         "FlyWire Root ID": root_id,
-        "Annotations": "&nbsp; <b>&#x2022;</b> &nbsp;".join(nd["tag"]),
+        "Labels": "&nbsp; <b>&#x2022;</b> &nbsp;".join(nd["tag"]),
         "NT Type": nd["nt_type"]
         + f' ({lookup_nt_type_name(nd["nt_type"])})'
         + "<br><small>predictions "
