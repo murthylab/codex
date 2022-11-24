@@ -1,16 +1,37 @@
 from unittest import TestCase
 
 from src.data.neuron_data_factory import NeuronDataFactory
-from src.utils.graph_algos import pathways
+from src.utils.graph_algos import pathways, reachable_node_counts
 from tests import TEST_DATA_ROOT_PATH
 
 
 class TestGraphAlgos(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.neuron_db = NeuronDataFactory(data_root_path=TEST_DATA_ROOT_PATH).get()
+
+    def test_reachable_node_counts(self):
+        num_cells = len(self.neuron_db.neuron_data)
+        isets = self.neuron_db.input_sets()
+        for n in sorted(self.neuron_db.neuron_data.keys())[1000:1001]:
+            self.assertEqual(
+                {
+                    "1 hop": "36 (0%)",
+                    "2 hops": "1,920 (2%)",
+                    "3 hops": "16,245 (23%)",
+                    "4 hops": "48,856 (71%)",
+                    "5 hops": "62,466 (91%)",
+                    "6 hops": "64,207 (93%)",
+                    "7 hops": "64,397 (94%)",
+                    "8 hops": "64,408 (94%)",
+                },
+                reachable_node_counts({n}, isets, num_cells),
+            )
+
     def test_pathways(self):
-        neuronDB = NeuronDataFactory(data_root_path=TEST_DATA_ROOT_PATH).get()
         s = t = 0
-        isets = neuronDB.input_sets()
-        osets = neuronDB.output_sets()
+        isets = self.neuron_db.input_sets()
+        osets = self.neuron_db.output_sets()
 
         self.assertEqual(None, pathways(s, t, isets, osets))
 

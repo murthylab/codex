@@ -523,17 +523,15 @@ def ngl_redirect_with_browser_check(ngl_url):
 @request_wrapper
 @require_data_access
 def cell_details():
-    start_time = datetime.now()
-
-    def timeit(action):
-        log(f"+++ {datetime.now() - start_time}: {action}")
+    min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
+    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    neuron_db = neuron_data_factory.get(data_version)
 
     if request.method == "POST":
         annotation_text = request.form.get("annotation_text")
         annotation_coordinates = request.form.get("annotation_coordinates")
         annotation_cell_id = request.form.get("annotation_cell_id")
         if not annotation_coordinates:
-            neuron_db = neuron_data_factory.get()
             ndata = neuron_db.get_neuron_data(annotation_cell_id)
             annotation_coordinates = ndata["position"][0] if ndata["position"] else None
         fw_user_id = fetch_flywire_user_id(session)
@@ -557,7 +555,6 @@ def cell_details():
     else:
         cell_names_or_id = request.args.get("cell_names_or_id")
         if cell_names_or_id:
-            neuron_db = neuron_data_factory.get()
             if cell_names_or_id == "{random_cell}":
                 log_activity(f"Generated random cell detail page")
                 root_id = neuron_db.random_cell_id()
@@ -579,13 +576,11 @@ def cell_details():
     if root_id is None:
         log_activity(f"Generated empty cell detail page")
         return render_template("cell_details.html")
-
-    timeit("search done")
-
-    min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
-    neuron_db = neuron_data_factory.get(data_version)
     log(f"Generating neuron info {activity_suffix(root_id, data_version)}")
+    return _cached_cell_details(cell_names_or_id=cell_names_or_id, root_id=root_id, neuron_db=neuron_db, min_syn_cnt=min_syn_cnt)
+
+@lru_cache()
+def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
     nd = neuron_db.get_neuron_data(root_id=root_id)
     cell_attributes = {
         "Name": nd["name"],
@@ -622,7 +617,6 @@ def cell_details():
 
     connectivity_table = neuron_db.connections(ids=[root_id], min_syn_count=min_syn_cnt)
 
-    timeit("con fetched")
     if connectivity_table:
         input_neuropil_synapse_count = defaultdict(int)
         output_neuropil_synapse_count = defaultdict(int)
@@ -740,8 +734,6 @@ def cell_details():
         "cells with similar morphology (NBLAST based)", top_nblast_matches
     )
 
-    timeit("nlblast_fetched")
-
     similar_root_ids = [
         i[0]
         for i in zip(nd["similar_root_ids"], nd["similar_root_id_scores"])
@@ -762,11 +754,11 @@ def cell_details():
     # remove empty items
     cell_attributes = {k: v for k, v in cell_attributes.items() if v}
     related_cells = {k: v for k, v in related_cells.items() if v}
-    timeit("starting reachability")
+
     cell_extra_data = {}
     if neuron_db.connection_rows:
         ins, outs = neuron_db.input_output_sets()
-        timeit("ins/outs fetched")
+
         reachable_counts = reachable_node_counts(
             sources={root_id},
             neighbor_sets=outs,
@@ -786,7 +778,6 @@ def cell_details():
         f"Generated neuron info for {root_id} with {len(cell_attributes) + len(related_cells)} items"
     )
 
-    timeit("fin")
     return render_template(
         "cell_details.html",
         cell_names_or_id=cell_names_or_id or nd["name"],
