@@ -61,7 +61,7 @@ class NeuronDataTest(TestCase):
         self.assertGreater(len(neurons_with_tags), 25000)
 
         neurons_with_annotations = [
-            n for n in self.neuron_db.neuron_data.values() if n["annotations"]
+            n for n in self.neuron_db.neuron_data.values() if n["tag"]
         ]
         self.assertEqual(len(neurons_with_tags), len(neurons_with_annotations))
 

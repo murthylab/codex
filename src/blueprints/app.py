@@ -43,7 +43,7 @@ from src.utils.cookies import fetch_flywire_user_id
 from src.utils.formatting import (
     synapse_table_to_csv_string,
     synapse_table_to_json_dict,
-    highlight_annotations,
+    highlight_annotations, shorten_and_concat_labels,
 )
 from src.utils.graph_algos import reachable_node_counts, distance_matrix
 from src.utils.graph_vis import make_graph_html
@@ -324,7 +324,7 @@ def download_search_results():
 
     cols = [
         "root_id",
-        "annotations",
+        "labels",
         "name",
         "nt_type",
         "class",
@@ -463,7 +463,7 @@ def accept_label_suggestion():
         )
 
     return render_info(
-        f"Label(s) <b> {from_neuron['annotations']} </b> assigned to Cell ID <b> {to_root_id} </b>"
+        f"Label(s) <b> {from_neuron['tag']} </b> assigned to Cell ID <b> {to_root_id} </b>"
     )
 
 
@@ -592,7 +592,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
     cell_attributes = {
         "Name": nd["name"],
         "FlyWire Root ID": root_id,
-        "Labels": "&nbsp; <b>&#x2022;</b> &nbsp;".join(nd["tag"]),
+        "Labels": shorten_and_concat_labels(nd["tag"]),
         "NT Type": nd["nt_type"]
         + f' ({lookup_nt_type_name(nd["nt_type"])})'
         + "<br><small>predictions "

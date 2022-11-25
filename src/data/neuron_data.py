@@ -127,9 +127,6 @@ class NeuronDB(object):
             if nd["inherited_tag_root_id"]:
                 assert nd["tag"] or nd["classes"]
                 self.rids_of_neurons_with_inherited_tags.append(nd["root_id"])
-            nd["annotations"] = "&nbsp; <b>&#x2022;</b> &nbsp;".join(
-                [self._trim_long_tokens(t) for t in nd["tag"]]
-            )
             nd["hemisphere_fingerprint"] = NeuronDB.hemisphere_fingerprint(
                 nd["input_neuropils"], nd["output_neuropils"]
             )
@@ -469,14 +466,3 @@ class NeuronDB(object):
             return [convert_type(v) for v in val.split(",")] if val else []
         else:
             return convert_type(val) if val else ""
-
-    @staticmethod
-    def _trim_long_tokens(text, limit=50):
-        def trim(token):
-            if len(token) > limit:
-                token = token[: limit - 5] + "..."
-            return token
-
-        if text and len(text) > limit:
-            return " ".join([trim(t) for t in text.split()])
-        return text

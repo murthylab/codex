@@ -34,7 +34,7 @@
         <thead>
         <tr>
             <th scope="col">From Cell &#10132</th>
-            <th scope="col">Annotations</th>
+            <th scope="col">Labels</th>
             <th scope="col">Classes</th>
             <th scope="col">&#10132 To Cell</th>
             <th scope="col"></th>
@@ -48,7 +48,7 @@
             <td><a href="{{url_for('app.cell_details', root_id=neuron.inherited_tag_root_id)}}"><img
                     src="{{skeleton_thumbnail_urls.get(neuron.inherited_tag_root_id)}}"
                     width="100px" height="75px;" border="1px;"></a></td>
-            <td>{{neuron.annotations|safe}}</td>
+            <td>{{neuron.tag|safe}}</td>
             <td>{{'&nbsp; <b>&#x2022;</b> &nbsp;'.join(neuron.classes)|safe}}</td>
             <td><a href="{{url_for('app.cell_details', root_id=neuron.root_id)}}"><img
                     src="{{skeleton_thumbnail_urls.get(neuron.root_id)}}"

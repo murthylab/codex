@@ -3,6 +3,7 @@ from collections import defaultdict
 from flask import render_template, url_for
 
 from src.data.brain_regions import neuropil_description
+from src.utils.formatting import shorten_and_concat_labels
 
 MAX_NODES = 30
 
@@ -53,8 +54,9 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
         rid = nd["root_id"]
         name = nd["name"]
         class_and_annotations = nd["class"]
-        if nd["annotations"]:
-            class_and_annotations += f'<br>{nd["annotations"]}'
+        if nd["tag"]:
+            tags_str = shorten_and_concat_labels(nd["tag"])
+            class_and_annotations += f'<br>{tags_str}'
 
         prefix = "selected cell" if rid in center_ids else "connected cell"
         cell_detail_url = url_for("app.cell_details", root_id=rid)
