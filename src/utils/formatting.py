@@ -117,5 +117,8 @@ def trim_long_tokens(text, limit=50):
     return text
 
 
-def shorten_and_concat_labels(labels):
+def concat_labels(labels):
     return "&nbsp; <b>&#x2022;</b> &nbsp;".join([trim_long_tokens(t) for t in labels])
+
+def shorten_and_concat_labels(labels):
+    return concat_labels([trim_long_tokens(t) for t in labels])

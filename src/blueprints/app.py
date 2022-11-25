@@ -44,7 +44,7 @@ from src.utils.formatting import (
     synapse_table_to_csv_string,
     synapse_table_to_json_dict,
     highlight_annotations,
-    shorten_and_concat_labels,
+    concat_labels, trim_long_tokens,
 )
 from src.utils.graph_algos import reachable_node_counts, distance_matrix
 from src.utils.graph_vis import make_graph_html
@@ -234,7 +234,7 @@ def render_neuron_list(
         psq = parse_search_query(filter_string)
         search_terms = psq[1] + [stq["rhs"] for stq in psq[2] or []]
         nd["highlighted_tags"] = highlight_annotations(
-            search_terms, nd["tag"]
+            search_terms, [trim_long_tokens(t) for t in nd["tag"]]
         )
 
     return render_template(
@@ -595,7 +595,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
     cell_attributes = {
         "Name": nd["name"],
         "FlyWire Root ID": root_id,
-        "Labels": shorten_and_concat_labels(nd["tag"]),
+        "Labels": concat_labels(nd["tag"]),
         "NT Type": nd["nt_type"]
         + f' ({lookup_nt_type_name(nd["nt_type"])})'
         + "<br><small>predictions "
