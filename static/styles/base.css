@@ -16,6 +16,15 @@ th, td {
   padding: 8px;
 }
 
+.td_filter_buttons {
+  opacity: 0.25;
+  font-size: 9px;
+}
+
+td:hover .td_filter_buttons {
+  opacity: 1;
+}
+
 tr:nth-child(even){background-color: #fafafa}
 
 #snackbar {
