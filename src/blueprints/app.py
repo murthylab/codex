@@ -231,8 +231,10 @@ def render_neuron_list(
             )
 
         # Only highlight free-form search tokens (and not structured search attributes)
-        nd["colored_annotations"] = highlight_annotations(
-            parse_search_query(filter_string)[1], nd["tag"]
+        psq = parse_search_query(filter_string)
+        search_terms = psq[1] + [stq["rhs"] for stq in psq[2] or []]
+        nd["highlighted_tags"] = highlight_annotations(
+            search_terms, nd["tag"]
         )
 
     return render_template(
