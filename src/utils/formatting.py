@@ -106,3 +106,16 @@ def not_intersecting(list_of_ranges, start, end):
         if r[1] <= start <= r[2] or r[1] <= end <= r[2]:
             return False
     return True
+
+def trim_long_tokens(text, limit=50):
+    def trim(token):
+        if len(token) > limit:
+            token = token[: limit - 5] + "..."
+        return token
+
+    if text and len(text) > limit:
+        return " ".join([trim(t) for t in text.split()])
+    return text
+
+def shorten_and_concat_labels(labels):
+    return "&nbsp; <b>&#x2022;</b> &nbsp;".join([trim_long_tokens(t) for t in labels])
