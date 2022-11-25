@@ -16,14 +16,14 @@ class TestGraphAlgos(TestCase):
         for n in sorted(self.neuron_db.neuron_data.keys())[1000:1001]:
             self.assertEqual(
                 {
-                    "1 hop": "36 (0%)",
-                    "2 hops": "1,920 (2%)",
-                    "3 hops": "16,245 (23%)",
-                    "4 hops": "48,856 (71%)",
-                    "5 hops": "62,466 (91%)",
-                    "6 hops": "64,207 (93%)",
-                    "7 hops": "64,397 (94%)",
-                    "8 hops": "64,408 (94%)",
+                    "1 hop": "35 (0%)",
+                    "2 hops": "1,919 (2%)",
+                    "3 hops": "16,244 (23%)",
+                    "4 hops": "48,855 (71%)",
+                    "5 hops": "62,465 (91%)",
+                    "6 hops": "64,206 (93%)",
+                    "7 hops": "64,396 (94%)",
+                    "8 hops": "64,407 (94%)",
                 },
                 reachable_node_counts({n}, isets, num_cells),
             )
