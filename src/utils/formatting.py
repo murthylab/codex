@@ -93,10 +93,8 @@ def highlight_annotations(free_form_search_terms, tags):
                     ]
                 highlighted_tag_string += f'<span style="padding:1px;border-radius:5px;background-color:{color}">{tag_string[start:end]}</span>'
             highlighted_tag_string += tag_string[end:]
-
         highlighted_annotations.append(highlighted_tag_string)
-
-    return " • ".join(highlighted_annotations)
+    return highlighted_annotations
 
 
 def not_intersecting(list_of_ranges, start, end):
