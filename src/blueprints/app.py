@@ -587,7 +587,7 @@ def cell_details():
     )
 
 
-@lru_cache()
+@lru_cache
 def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
     nd = neuron_db.get_neuron_data(root_id=root_id)
     cell_attributes = {
