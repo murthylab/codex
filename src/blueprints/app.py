@@ -43,7 +43,8 @@ from src.utils.cookies import fetch_flywire_user_id
 from src.utils.formatting import (
     synapse_table_to_csv_string,
     synapse_table_to_json_dict,
-    highlight_annotations, shorten_and_concat_labels,
+    highlight_annotations,
+    shorten_and_concat_labels,
 )
 from src.utils.graph_algos import reachable_node_counts, distance_matrix
 from src.utils.graph_vis import make_graph_html
