@@ -56,7 +56,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
         class_and_annotations = nd["class"]
         if nd["tag"]:
             tags_str = shorten_and_concat_labels(nd["tag"])
-            class_and_annotations += f'<br>{tags_str}'
+            class_and_annotations += f"<br>{tags_str}"
 
         prefix = "selected cell" if rid in center_ids else "connected cell"
         cell_detail_url = url_for("app.cell_details", root_id=rid)
