@@ -437,6 +437,26 @@ class NeuronDB(object):
             limited_ids_set=set(self.rids_of_neurons_with_inherited_tags),
         )
 
+    def multi_val_attrs(self, ids):
+        # Given list of cell ids, returns the attrs for which the set of values in these cells is >1
+        # This is used for deciding when to allow "include / exclude" filters.
+
+        attr_vals = defaultdict(set)
+        candidate_attr_names = {"class", "nt_type"}
+        multi_val_attr_names = set()
+
+        for cell_id in ids:
+            nd = self.neuron_data[cell_id]
+            for attr_name in candidate_attr_names:
+                attr_vals[attr_name].add(nd[attr_name])
+                if len(attr_vals[attr_name]) > 1:
+                    multi_val_attr_names.add(attr_name)
+            candidate_attr_names -= multi_val_attr_names
+            if not candidate_attr_names:
+                break
+
+        return multi_val_attr_names
+
     # Private helpers
 
     @staticmethod

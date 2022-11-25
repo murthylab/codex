@@ -254,6 +254,7 @@ def render_neuron_list(
         whole_word=whole_word,
         extra_data=extra_data,
         advanced_search_data=get_advanced_search_data(current_query=filter_string),
+        multi_val_attrs=neuron_db.multi_val_attrs(filtered_root_id_list),
     )
 
 
