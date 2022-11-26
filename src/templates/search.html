@@ -64,12 +64,22 @@
                 {% if neuron.class and 'class' in multi_val_attrs %}
                 <br>
                 <div class="td_filter_buttons">
-                    <button title="Filter out" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class != {{neuron.class}}');" style="padding: 0px; font-size: 8px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
-                    <button title="Filter in" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class == {{neuron.class}}');" style="padding: 0px; font-size: 8px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                    <button title="Filter out {{neuron.class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class != {{neuron.class}}');" style="padding: 0px; font-size: 8px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                    <button title="Show only {{neuron.class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class == {{neuron.class}}');" style="padding: 0px; font-size: 8px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
                 </div>
                 {% endif %}
             </td>
-            <td style="color:#3A3A3A;">{{" • ".join(neuron.highlighted_tags)|safe}}</td>
+            <td style="color:#3A3A3A;">
+                {% for tg in neuron.tag %}
+                <div>
+                    <b>&#x2022;</b> &nbsp;{{highlighted_tags[tg]|safe}}
+                    <span class="td_filter_buttons">
+                        <button title="Exclude {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label != {{tg}}');" style="padding: 0px; font-size: 8px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label == {{tg}}');" style="padding: 0px; font-size: 8px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                    </span>
+                </div>
+                {% endfor %}
+            </td>
             {% if extra_data %}
                 <td style="color:black;">{{extra_data.values_dict.get(neuron.root_id)}}</td>
             {% endif %}
@@ -80,8 +90,8 @@
                 {% if neuron.nt_type and 'nt_type' in multi_val_attrs %}
                 <br>
                 <div class="td_filter_buttons">
-                    <button title="Filter out" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt != {{neuron.nt_type}}');" style="padding: 0px; font-size: 8px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
-                    <button title="Filter in" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt == {{neuron.nt_type}}');" style="padding: 0px; font-size: 8px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                    <button title="Exclude {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt != {{neuron.nt_type}}');" style="padding: 0px; font-size: 8px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                    <button title="Show only {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt == {{neuron.nt_type}}');" style="padding: 0px; font-size: 8px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
                 </div>
                 {% endif %}
             </td>
