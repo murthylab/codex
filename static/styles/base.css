@@ -17,8 +17,7 @@ th, td {
 }
 
 .td_filter_buttons {
-  opacity: 0.25;
-  font-size: 9px;
+  opacity: 0.2;
 }
 
 td:hover .td_filter_buttons {

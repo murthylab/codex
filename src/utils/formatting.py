@@ -59,7 +59,7 @@ def highlight_annotations(free_form_search_terms, tags):
 
                 # only add if not overlapping
                 if not_intersecting(highlight_locations, start, end):
-                    highlight_locations.append(("lightgreen", start, end))
+                    highlight_locations.append(("#C5FCB8", start, end))  # green
             else:
                 for search_token in folded_search_tokens:
                     if search_token in token:
@@ -72,7 +72,7 @@ def highlight_annotations(free_form_search_terms, tags):
                         ):
                             highlight_locations.append(
                                 (
-                                    "yellow",
+                                    "#F7FCB8",
                                     start + index,
                                     start + index + len(search_token),
                                 )
@@ -119,6 +119,7 @@ def trim_long_tokens(text, limit=50):
 
 def concat_labels(labels):
     return "&nbsp; <b>&#x2022;</b> &nbsp;".join([trim_long_tokens(t) for t in labels])
+
 
 def shorten_and_concat_labels(labels):
     return concat_labels([trim_long_tokens(t) for t in labels])

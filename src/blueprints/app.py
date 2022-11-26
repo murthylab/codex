@@ -44,7 +44,8 @@ from src.utils.formatting import (
     synapse_table_to_csv_string,
     synapse_table_to_json_dict,
     highlight_annotations,
-    concat_labels, trim_long_tokens,
+    concat_labels,
+    trim_long_tokens,
 )
 from src.utils.graph_algos import reachable_node_counts, distance_matrix
 from src.utils.graph_vis import make_graph_html
@@ -224,6 +225,7 @@ def render_neuron_list(
         nd["root_id"]: url_for_skeleton(nd["root_id"], data_version=data_version)
         for nd in display_data
     }
+    highlighted_tags = {}
     for nd in display_data:
         if nd["inherited_tag_root_id"]:
             skeleton_thumbnail_urls[nd["inherited_tag_root_id"]] = url_for_skeleton(
@@ -233,13 +235,16 @@ def render_neuron_list(
         # Only highlight free-form search tokens (and not structured search attributes)
         psq = parse_search_query(filter_string)
         search_terms = psq[1] + [stq["rhs"] for stq in psq[2] or []]
-        nd["highlighted_tags"] = highlight_annotations(
+        highlighted_tag_list = highlight_annotations(
             search_terms, [trim_long_tokens(t) for t in nd["tag"]]
         )
+        for t, highlighted_tag in enumerate(highlighted_tag_list):
+            highlighted_tags[nd["tag"][t]] = highlighted_tag
 
     return render_template(
         template_name_or_list=template_name,
         display_data=display_data,
+        highlighted_tags=highlighted_tags,
         skeleton_thumbnail_urls=skeleton_thumbnail_urls,
         # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
         # Otherwise it will be available as downloadable file.
