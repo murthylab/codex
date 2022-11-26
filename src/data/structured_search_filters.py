@@ -566,6 +566,7 @@ def _parse_search_terms(terms):
                     if not parts[0] and parts[1]:
                         structured.append({"op": op.name, "rhs": parts[1]})
                         continue
+        log_error(f"Too many search operators in : {term}")
         raise_malformed_structured_search_query()
 
     return free_form, structured

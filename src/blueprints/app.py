@@ -815,29 +815,29 @@ def nblast():
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
     if not source_cell_names_or_ids and not target_cell_names_or_ids:
         if request.args.get("with_sample_input", type=int, default=0):
-            cell_names_or_ids = sample_input
+            source_cell_names_or_ids = target_cell_names_or_ids = sample_input
         else:
-            cell_names_or_ids = None
-    else:
-        cell_names_or_ids = " ".join(
-            [q for q in [source_cell_names_or_ids, target_cell_names_or_ids] if q]
-        )
+            source_cell_names_or_ids = target_cell_names_or_ids = ''
 
     download = request.args.get("download", 0, type=int)
-    log_activity(f"Generating NBLAST table for '{cell_names_or_ids}' {download=}")
+    log_activity(f"Generating NBLAST table for '{source_cell_names_or_ids}' -> '{target_cell_names_or_ids}' {download=}")
     message = None
 
-    if cell_names_or_ids:
+    if source_cell_names_or_ids or target_cell_names_or_ids:
         neuron_db = neuron_data_factory.get()
-        root_ids = neuron_db.search(search_query=cell_names_or_ids)
+        root_ids = []
+        if source_cell_names_or_ids:
+            root_ids = neuron_db.search(search_query=source_cell_names_or_ids)
+        if target_cell_names_or_ids and target_cell_names_or_ids != source_cell_names_or_ids:
+            root_ids += neuron_db.search(search_query=target_cell_names_or_ids)
         if not root_ids:
             return render_error(
                 title="No matching cells found",
-                message=f"Could not find any cells matching '{cell_names_or_ids}'",
+                message=f"Could not find any cells matching '{source_cell_names_or_ids} -> {target_cell_names_or_ids}'",
             )
         elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
             message = (
-                f"{len(root_ids)} cells match '{cell_names_or_ids}'. "
+                f"{len(root_ids)} cells match your query. "
                 f"Fetching NBLAST scores for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
             )
             root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
@@ -1002,30 +1002,30 @@ def path_length():
 
     if not source_cell_names_or_ids and not target_cell_names_or_ids:
         if request.args.get("with_sample_input", type=int, default=0):
-            cell_names_or_ids = sample_input
+            source_cell_names_or_ids = target_cell_names_or_ids = sample_input
         else:
-            cell_names_or_ids = None
-    else:
-        cell_names_or_ids = " ".join(
-            [q for q in [source_cell_names_or_ids, target_cell_names_or_ids] if q]
-        )
+            source_cell_names_or_ids = target_cell_names_or_ids = ''
 
     download = request.args.get("download", 0, type=int)
-    log_activity(f"Generating path lengths table for '{cell_names_or_ids}' {download=}")
+    log_activity(f"Generating path lengths table for '{source_cell_names_or_ids}' -> '{target_cell_names_or_ids}' {download=}")
     message = None
-    neuron_db = neuron_data_factory.get()
 
-    if cell_names_or_ids:
-        root_ids = neuron_db.search(search_query=cell_names_or_ids)
+    if source_cell_names_or_ids or target_cell_names_or_ids:
+        neuron_db = neuron_data_factory.get()
+        root_ids = []
+        if source_cell_names_or_ids:
+            root_ids = neuron_db.search(search_query=source_cell_names_or_ids)
+        if target_cell_names_or_ids and target_cell_names_or_ids != source_cell_names_or_ids:
+            root_ids += neuron_db.search(search_query=target_cell_names_or_ids)
         if not root_ids:
             return render_error(
                 title="No matching cells found",
-                message=f"Could not find any cells matching '{cell_names_or_ids}'",
+                message=f"Could not find any cells matching '{source_cell_names_or_ids} -> {target_cell_names_or_ids}'",
             )
         elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
             message = (
-                f"{len(root_ids)} cells match '{cell_names_or_ids}'. "
-                f"Fetching path lengths for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
+                f"{len(root_ids)} cells match your query. "
+                f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
             )
             root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
         elif len(root_ids) == 1:
