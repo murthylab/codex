@@ -817,10 +817,12 @@ def nblast():
         if request.args.get("with_sample_input", type=int, default=0):
             source_cell_names_or_ids = target_cell_names_or_ids = sample_input
         else:
-            source_cell_names_or_ids = target_cell_names_or_ids = ''
+            source_cell_names_or_ids = target_cell_names_or_ids = ""
 
     download = request.args.get("download", 0, type=int)
-    log_activity(f"Generating NBLAST table for '{source_cell_names_or_ids}' -> '{target_cell_names_or_ids}' {download=}")
+    log_activity(
+        f"Generating NBLAST table for '{source_cell_names_or_ids}' -> '{target_cell_names_or_ids}' {download=}"
+    )
     message = None
 
     if source_cell_names_or_ids or target_cell_names_or_ids:
@@ -828,7 +830,10 @@ def nblast():
         root_ids = []
         if source_cell_names_or_ids:
             root_ids = neuron_db.search(search_query=source_cell_names_or_ids)
-        if target_cell_names_or_ids and target_cell_names_or_ids != source_cell_names_or_ids:
+        if (
+            target_cell_names_or_ids
+            and target_cell_names_or_ids != source_cell_names_or_ids
+        ):
             root_ids += neuron_db.search(search_query=target_cell_names_or_ids)
         if not root_ids:
             return render_error(
@@ -1004,10 +1009,12 @@ def path_length():
         if request.args.get("with_sample_input", type=int, default=0):
             source_cell_names_or_ids = target_cell_names_or_ids = sample_input
         else:
-            source_cell_names_or_ids = target_cell_names_or_ids = ''
+            source_cell_names_or_ids = target_cell_names_or_ids = ""
 
     download = request.args.get("download", 0, type=int)
-    log_activity(f"Generating path lengths table for '{source_cell_names_or_ids}' -> '{target_cell_names_or_ids}' {download=}")
+    log_activity(
+        f"Generating path lengths table for '{source_cell_names_or_ids}' -> '{target_cell_names_or_ids}' {download=}"
+    )
     message = None
 
     if source_cell_names_or_ids or target_cell_names_or_ids:
@@ -1015,7 +1022,10 @@ def path_length():
         root_ids = []
         if source_cell_names_or_ids:
             root_ids = neuron_db.search(search_query=source_cell_names_or_ids)
-        if target_cell_names_or_ids and target_cell_names_or_ids != source_cell_names_or_ids:
+        if (
+            target_cell_names_or_ids
+            and target_cell_names_or_ids != source_cell_names_or_ids
+        ):
             root_ids += neuron_db.search(search_query=target_cell_names_or_ids)
         if not root_ids:
             return render_error(
