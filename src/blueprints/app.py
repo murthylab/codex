@@ -609,7 +609,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
         )
         + "</small>",
         "Classification": nd["class"],
-        "Position": "<br>".join(nd["position"]),
+        "Marked coordinates": "<br>".join(nd["position"]),
     }
 
     related_cells = {}
