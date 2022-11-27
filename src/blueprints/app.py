@@ -332,7 +332,7 @@ def download_search_results():
 
     cols = [
         "root_id",
-        "labels",
+        "tag",
         "name",
         "nt_type",
         "class",
@@ -827,14 +827,15 @@ def nblast():
 
     if source_cell_names_or_ids or target_cell_names_or_ids:
         neuron_db = neuron_data_factory.get()
-        root_ids = []
+        root_ids = set()
         if source_cell_names_or_ids:
-            root_ids = neuron_db.search(search_query=source_cell_names_or_ids)
+            root_ids |= set(neuron_db.search(search_query=source_cell_names_or_ids))
         if (
             target_cell_names_or_ids
             and target_cell_names_or_ids != source_cell_names_or_ids
         ):
-            root_ids += neuron_db.search(search_query=target_cell_names_or_ids)
+            root_ids |= set(neuron_db.search(search_query=target_cell_names_or_ids))
+        root_ids = sorted(root_ids)
         if not root_ids:
             return render_error(
                 title="No matching cells found",
@@ -1019,14 +1020,15 @@ def path_length():
 
     if source_cell_names_or_ids or target_cell_names_or_ids:
         neuron_db = neuron_data_factory.get()
-        root_ids = []
+        root_ids = set()
         if source_cell_names_or_ids:
-            root_ids = neuron_db.search(search_query=source_cell_names_or_ids)
+            root_ids |= set(neuron_db.search(search_query=source_cell_names_or_ids))
         if (
             target_cell_names_or_ids
             and target_cell_names_or_ids != source_cell_names_or_ids
         ):
-            root_ids += neuron_db.search(search_query=target_cell_names_or_ids)
+            root_ids |= set(neuron_db.search(search_query=target_cell_names_or_ids))
+        root_ids = sorted(root_ids)
         if not root_ids:
             return render_error(
                 title="No matching cells found",
