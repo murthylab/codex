@@ -600,7 +600,9 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
     cell_attributes = {
         "Name": nd["name"],
         "FlyWire Root ID": root_id,
-        f'Labels<br><span style="font-size: 9px; color: purple;">Updated {LABEL_INGESTION_DATE}</span>': concat_labels(nd["tag"]),
+        f'Labels<br><span style="font-size: 9px; color: purple;">Updated {LABEL_INGESTION_DATE}</span>': concat_labels(
+            nd["tag"]
+        ),
         "NT Type": nd["nt_type"]
         + f' ({lookup_nt_type_name(nd["nt_type"])})'
         + "<br><small>predictions "
