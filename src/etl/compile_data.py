@@ -134,16 +134,32 @@ def load_neuron_info_from_cave(client, map_to_version=LATEST_DATA_SNAPSHOT_VERSI
     )
     print(f"Mapped to version {map_to_version}")
     neuron_info_table = [["root_id", "tag", "user_id", "position", "supervoxel_id"]]
+    user_ids = set()
     for index, d in df.iterrows():
+        user_ids.add(d["user_id"])
         neuron_info_table.append(
             [
                 int(d["pt_root_id"]),
                 str(d["tag"]),
-                str(d["user_id"]),
+                int(d["user_id"]),
                 str(d["pt_position"]),
                 int(d["pt_supervoxel_id"]),
             ]
         )
+
+    user_infos = client.auth.get_user_information(user_ids)
+    user_id_to_info = {u["id"]: (u['name'], u['pi']) for u in user_infos}
+    print(f"Fetched user infos: {len(user_infos)}, not found: {len(user_ids - set(user_id_to_info.keys()))}")
+    uinfo_not_found = 0
+    neuron_info_table[0].extend(["user_name", "user_affiliation"])
+    for r in neuron_info_table[1:]:
+        uinfo = user_id_to_info.get(r[2])
+        if uinfo:
+            r.extend([uinfo[0], uinfo[1]])
+        else:
+            r.extend(["", ""])
+            uinfo_not_found += 1
+    print(f"Annos without uinfo: {uinfo_not_found}")
     return neuron_info_table
 
 
