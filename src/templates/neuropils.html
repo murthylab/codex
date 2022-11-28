@@ -62,6 +62,8 @@ function App() {
   }
 
 
+
+
   return html`
     <div class="app">
       <!-- Search Bar -->
@@ -133,7 +135,8 @@ function App() {
           </div>
           <iframe
             style="width: 98%; height: 100%"
-            src="{{url_for('app.flywire_neuropil_url', segment_id=selected_segment_id)}}"
+            id="neuroglancer"
+            src="/app/flywire_neuropil_url?segment_id="${regions[selection][0]}
             title="neuroglancer"
             loading="lazy"
           ></iframe>
