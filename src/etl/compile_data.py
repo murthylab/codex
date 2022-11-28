@@ -148,8 +148,10 @@ def load_neuron_info_from_cave(client, map_to_version=LATEST_DATA_SNAPSHOT_VERSI
         )
 
     user_infos = client.auth.get_user_information(user_ids)
-    user_id_to_info = {u["id"]: (u['name'], u['pi']) for u in user_infos}
-    print(f"Fetched user infos: {len(user_infos)}, not found: {len(user_ids - set(user_id_to_info.keys()))}")
+    user_id_to_info = {u["id"]: (u["name"], u["pi"]) for u in user_infos}
+    print(
+        f"Fetched user infos: {len(user_infos)}, not found: {len(user_ids - set(user_id_to_info.keys()))}"
+    )
     uinfo_not_found = 0
     neuron_info_table[0].extend(["user_name", "user_affiliation"])
     for r in neuron_info_table[1:]:
