@@ -1,6 +1,7 @@
 import json
 import math
 import re
+import random
 from collections import defaultdict
 from datetime import datetime
 from functools import lru_cache
@@ -34,7 +35,7 @@ from src.data.brain_regions import (
     REGIONS,
     REGION_CATEGORIES,
     neuropil_description,
-    NEUROPIL_DESCRIPTIONS
+    NEUROPIL_DESCRIPTIONS,
 )
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.structured_search_filters import (
@@ -1224,17 +1225,26 @@ def activity_log():
         title="Coming soon",
     )
 
+@app.route("/flywire_neuropil_url")
+@request_wrapper
+def flywire_neuropil_url():
+    segment_id = request.args.get("segment_id")
+    url = nglui.url_for_neuropil([segment_id])
+    return ngl_redirect_with_browser_check(ngl_url=url)
+
+
 
 @app.route("/neuropils")
 @request_wrapper
 @require_data_access
 def neuropils():
+
     treemap_data = [
         ["Region", "Parent"],
         ["Hemispheres", ""],
     ]
-    region_name_to_id={}
-    region_details={"": {"name": "", "category": "", "hemisphere": ""}}
+    region_name_to_id = {}
+    region_details = {"": {"name": "", "category": "", "hemisphere": ""}}
     for hemisphere in HEMISPHERES:
         treemap_data.append([hemisphere, "Hemispheres"])
         for category, regions in REGION_CATEGORIES.items():
@@ -1243,20 +1253,30 @@ def neuropils():
                 if neuropil_hemisphere(region) == hemisphere:
                     name = f"{hemisphere} {category} {REGIONS[region][1]}"
                     region_name_to_id[name] = region
-                    region_details[region] = {'name': name, 'category': category, 'hemisphere': hemisphere}
+                    region_details[region] = {
+                        "name": name,
+                        "category": category,
+                        "hemisphere": hemisphere,
+                    }
                     treemap_data.append([name, f"{hemisphere} {category}"])
     search = request.args.get("search", "")
     region_id_to_name = {v: k for k, v in region_name_to_id.items()}
 
-    region_map={}
+    region_map = {}
     for hemisphere in HEMISPHERES:
         region_map[hemisphere] = {}
         for category, regions in REGION_CATEGORIES.items():
             for region in regions:
                 if neuropil_hemisphere(region) == hemisphere:
                     if category not in region_map[hemisphere]:
-                        region_map[hemisphere][category] =  {}
-                    region_map[hemisphere][category][region] = {'segment_id': REGIONS[region][0], 'description': REGIONS[region][1]}
+                        region_map[hemisphere][category] = {}
+                    region_map[hemisphere][category][region] = {
+                        "segment_id": REGIONS[region][0],
+                        "description": REGIONS[region][1],
+                    }
+    selected = random.choice(list(REGIONS.keys()))
+    selected_segment_id = REGIONS[selected][0]
+    print(f'{selected=}, {selected_segment_id=}')
     return render_template(
         "neuropils.html",
         treemap_data=treemap_data,
@@ -1266,4 +1286,6 @@ def neuropils():
         region_name_to_id=region_name_to_id,
         region_id_to_name=region_id_to_name,
         region_details=region_details,
+        selected=selected,
+        selected_segment_id=selected_segment_id,
     )

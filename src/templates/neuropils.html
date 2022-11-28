@@ -22,7 +22,7 @@ const region_map = {{ region_map | tojson}};
 const region_details = {{ region_details | tojson}};
 console.log(region_map);
 function App() {
-  const [selection, setSelection] = useState(null);
+  const [selection, setSelection] = useState('{{selected}}');
 
   google.charts.load("current", { packages: ["treemap"] });
   google.charts.setOnLoadCallback(drawChart);
@@ -123,7 +123,7 @@ function App() {
         <!-- neuroglancer -->
         <div class="card" style="height:500px">
           <div class="card-header" style="color: purple">
-            <a href="{{url_for('app.flywire_url')}}" target="_blank"
+            <a href="" target="_blank"
               >3D Rendering
               <i
                 style="margin-left: 3px"
@@ -133,7 +133,7 @@ function App() {
           </div>
           <iframe
             style="width: 98%; height: 100%"
-            src="{{url_for('app.flywire_url')}}"
+            src="{{url_for('app.flywire_neuropil_url', segment_id=selected_segment_id)}}"
             title="neuroglancer"
             loading="lazy"
           ></iframe>
