@@ -446,12 +446,22 @@ class NeuronDataTest(TestCase):
             "SS40354": [],
         }
 
+        raw_data = {}
+
         def analyze_set(rid_set):
             def class_breakdown(rids):
-                res = defaultdict(int)
+                counts = defaultdict(int)
+                lists = defaultdict(list)
                 for rid in rids:
-                    res[self.neuron_db.get_neuron_data(rid)["class"]] += 1
-                return json.dumps(res, indent=4)
+                    counts[self.neuron_db.get_neuron_data(rid)["class"]] += 1
+                    lists[self.neuron_db.get_neuron_data(rid)["class"]].append(rid)
+                res = {
+                    cl: f"{cnt} {codex_link(lists[cl])}" for cl, cnt in counts.items()
+                }
+                str_res = "\n"
+                for k, v in res.items():
+                    str_res += f"{k}: {v}\n"
+                return str_res
 
             def pil_breakdown(rids):
                 rids = set(rids)
@@ -464,23 +474,45 @@ class NeuronDataTest(TestCase):
                         in_pils[f"{r[2]} {neuropil_description(r[2])}"] += r[3]
                 return json.dumps(in_pils, indent=4), json.dumps(out_pils, indent=4)
 
+            def codex_link(rids):
+                return (
+                    f"[(see in codex)](https://codex.flywire.ai/app/search?filter_string="
+                    f"id<<{','.join([str(rid) for rid in rids])})"
+                )
+
             found_rids = [i for i in rid_set if i in self.neuron_db.neuron_data]
             print(
-                f"### Num seg ids: {len(rid_set)}, found in 447 dataset: {len(found_rids)}"
+                f"### Num seg ids: {len(rid_set)}, found in 447 dataset: {len(found_rids)} {codex_link(found_rids)}"
             )
             ustream = neighbors(found_rids, self.neuron_db.input_sets())
             dstream = neighbors(found_rids, self.neuron_db.output_sets())
+
             print(
-                f"### Upstream partners (# cells): {len(ustream)}, downstream partners: {len(dstream)}"
+                f"#### Upstream partners: {len(ustream)} {codex_link(ustream)}, downstream partners: {len(dstream)} {codex_link(dstream)}"
             )
-            print(f"### Upstream partners breakdown: {class_breakdown(ustream)}")
-            print(f"### Downstream partners breakdown: {class_breakdown(dstream)}")
+            print(f"#### Upstream partners breakdown:{class_breakdown(ustream)}")
+            print(f"#### Downstream partners breakdown:{class_breakdown(dstream)}")
             in_pils, out_pils = pil_breakdown(rid_set)
-            print(f"### Input brain regions breakdown (# synapses): {in_pils}")
-            print(f"### Output brain regions breakdown (# synapses): {out_pils}")
+            print(f"#### Input brain regions breakdown (# synapses): {in_pils}")
+            print(f"#### Output brain regions breakdown (# synapses): {out_pils}")
+            return {
+                "Root IDs": rid_set,
+                "Found Root IDs": found_rids,
+                "Upstream": {
+                    int(rid): self.neuron_db.get_neuron_data(rid)["class"]
+                    for rid in ustream
+                },
+                "Downstream": {
+                    int(rid): self.neuron_db.get_neuron_data(rid)["class"]
+                    for rid in dstream
+                },
+            }
 
         for k, v in cell_lines.items():
             print(f"\n\n## Cell line {k}")
-            analyze_set(v)
+            rawd = analyze_set(v)
+            raw_data[k] = rawd
+
+        print(f"## Raw data: {json.dumps(raw_data, indent=4)}")
 
         # TODO: remove this: self.fail()
