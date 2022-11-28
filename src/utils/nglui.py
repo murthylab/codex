@@ -66,12 +66,12 @@ def url_for_random_sample(root_ids, sample_size=50):
 def url_for_neuropil(segment_ids=[]):
 
     seg_ids = "[" + ",".join([f'"{rid}"' for rid in segment_ids]) + "]"
-    print(f"{seg_ids=}")
 
-    prefix = '{"layers":[{"type":"segmentation","mesh":"precomputed://gs://neuroglancer-fafb-data/elmr-data/FAFBNP.surf/mesh","objectAlpha":0.90,"segments":' 
+    prefix = '{"layers":[{"type":"segmentation","mesh":"precomputed://gs://neuroglancer-fafb-data/elmr-data/FAFBNP.surf/mesh","objectAlpha":0.90,"tab":"source","segments":' 
 
     
-    suffix = ',"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":"neuropil-regions-surface"}],"navigation":{"pose":{"position":{"voxelSize":[4,4,40],"voxelCoordinates":[144710,55390,512]}},"zoomFactor":4.875984234132744},"showAxisLines":false,"perspectiveOrientation":[0.07100929319858551,0.055814243853092194,0.024916872382164,0.9956011176109314],"perspectiveZoom":7804.061655381219,"showSlices":false,"gpuMemoryLimit":2000000000,"selectedLayer":{"layer":"neuropil-regions-surface","visible":true},"layout":"3d"}'
+    suffix = ',"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":"neuropil-regions-surface"}],"navigation":{"pose":{"position":{"voxelSize":[4,4,40],"voxelCoordinates":[144710,55390,512]}},"zoomFactor":4.875984234132744},"showAxisLines":false,"perspectiveZoom":7804.061655381219,"showSlices":false,"gpuMemoryLimit":2000000000,"selectedLayer":{"layer":"neuropil-regions-surface","visible":false},"layout":"3d"}'
+
 
 
     return "https://neuromancer-seung-import.appspot.com/#!" + urllib.parse.quote(prefix + seg_ids + suffix)
