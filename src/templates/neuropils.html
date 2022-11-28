@@ -66,30 +66,7 @@ function App() {
 
   return html`
     <div class="app">
-      <!-- Search Bar -->
-      <nav class="navbar navbar-light bg-light">
-        <form class="form-inline">
-          <input
-            class="form-control mr-sm-2"
-            style="width: 50vw"
-            autocomplete="off"
-            autofocus
-            type="search"
-            id="search"
-            name="search"
-            placeholder="search for brain regions"
-            aria-label="Neuropil"
-            value="{{search}}"
-          />
-          <button
-            class="btn btn btn-primary my-2 my-sm-0"
-            type="submit"
-            onclick="loading();"
-          >
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </button>
-        </form>
-      </nav>
+
 
       <div class="card-columns">
         <div class="card" style="min-height: 500px">
@@ -142,7 +119,18 @@ function App() {
           ></iframe>
         </div>
       </div>
-      <p>Currently selected: ${selection}</p>
+
+      <div class="card">
+      <div class="card-header">Search for Neurons</div>
+      <br></br>
+      <p>
+      <a href="/app/search?filter_string=output_neuropil+%3D%3D+"${selection} class="btn btn-primary">With this region as output</a>
+      </p>
+      <p>
+      <a href="/app/search?filter_string=input_neuropil+%3D%3D+"${selection} class="btn btn-primary">With this region as input</a>
+      </p>
+      </div>
+
     </div>
   `;
 }
