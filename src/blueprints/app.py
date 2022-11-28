@@ -1229,18 +1229,24 @@ def activity_log():
 @request_wrapper
 @require_data_access
 def neuropils():
-    chart_data = [
+    treemap_data = [
         ["Region", "Parent"],
         ["Hemispheres", ""],
     ]
+    region_name_to_id={}
+    region_details={"": {"name": "", "category": "", "hemisphere": ""}}
     for hemisphere in HEMISPHERES:
-        chart_data.append([hemisphere, "Hemispheres"])
+        treemap_data.append([hemisphere, "Hemispheres"])
         for category, regions in REGION_CATEGORIES.items():
-            chart_data.append([f"{hemisphere} {category}", hemisphere])
+            treemap_data.append([f"{hemisphere} {category}", hemisphere])
             for region in regions:
                 if neuropil_hemisphere(region) == hemisphere:
-                    chart_data.append([region, f"{hemisphere} {category}"])
+                    name = f"{hemisphere} {category} {REGIONS[region][1]}"
+                    region_name_to_id[name] = region
+                    region_details[region] = {'name': name, 'category': category, 'hemisphere': hemisphere}
+                    treemap_data.append([name, f"{hemisphere} {category}"])
     search = request.args.get("search", "")
+    region_id_to_name = {v: k for k, v in region_name_to_id.items()}
 
     region_map={}
     for hemisphere in HEMISPHERES:
@@ -1251,11 +1257,13 @@ def neuropils():
                     if category not in region_map[hemisphere]:
                         region_map[hemisphere][category] =  {}
                     region_map[hemisphere][category][region] = {'segment_id': REGIONS[region][0], 'description': REGIONS[region][1]}
-    pprint(region_map)
     return render_template(
         "neuropils.html",
-        chart_data=chart_data,
+        treemap_data=treemap_data,
         regions=REGIONS,
         search=search,
         region_map=region_map,
+        region_name_to_id=region_name_to_id,
+        region_id_to_name=region_id_to_name,
+        region_details=region_details,
     )

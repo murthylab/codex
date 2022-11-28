@@ -13,8 +13,14 @@ import {
   render,
   useState,
 } from "https://unpkg.com/htm/preact/standalone.module.js";
-    const chart_data = {{ chart_data | tojson}};
-    const regions = {{ regions | tojson}};
+
+const treemap_data = {{ treemap_data | tojson}};
+const regions = {{ regions | tojson}};
+const region_name_to_id = {{ region_name_to_id | tojson}};
+const region_id_to_name = {{ region_id_to_name | tojson}};
+const region_map = {{ region_map | tojson}};
+const region_details = {{ region_details | tojson}};
+console.log(region_map);
 function App() {
   const [selection, setSelection] = useState(null);
 
@@ -23,8 +29,8 @@ function App() {
   var tree, description;
 
   function selectRegion(region) {
-    for (var i = 0; i < chart_data.length; i++) {
-      if (chart_data[i][0] == region) {
+    for (var i = 0; i < treemap_data.length; i++) {
+      if (treemap_data[i][0] == region) {
         tree.setSelection([{ row: i - 1, column: null }]);
         selectHandler();
         break;
@@ -32,28 +38,29 @@ function App() {
     }
   }
 
+
   function drawChart() {
-    var data = google.visualization.arrayToDataTable(chart_data);
+    var data = google.visualization.arrayToDataTable(treemap_data);
     tree = new google.visualization.TreeMap(document.getElementById("treemap"));
     tree.draw(data);
-
     google.visualization.events.addListener(tree, "select", selectHandler);
     window.onresize = drawChart;
+    if (selection) {
+      selectRegion(region_id_to_name[selection]);
+    }
   }
   function selectHandler() {
     const selectedItem = tree.getSelection();
     if (selectedItem) {
-      console.log("selectedItem", selectedItem);
-      const region = chart_data[selectedItem[0].row + 1][0];
-      const segment_id = regions[region];
+      const region = treemap_data[selectedItem[0].row + 1][0];
+      const region_id = region_name_to_id[region];
+      const segment_id = regions[region_id];
       if (segment_id) {
-        description = `${region} - ${segment_id[0]}`;
-      } else {
-        description = `${region}`;
+        setSelection(region_id);
       }
-      setSelection(region);
     }
   }
+
 
   return html`
     <div class="app">
@@ -84,17 +91,18 @@ function App() {
 
       <div class="card-columns">
         <div class="card" style="min-height: 500px">
-          <details>
+        <div class="card-header">Brain Regions</div>
+          <details open>
             <summary>Hemispheres</summary>
             {% for hemisphere in region_map %}
-            <details style="padding-left: 10px">
+            <details style="padding-left: 10px" open=${selection && region_details[selection].hemisphere == "{{hemisphere}}"}>
               <summary>{{hemisphere}}</summary>
               {% for category in region_map[hemisphere] %}
-              <details style="padding-left: 20px">
+              <details style="padding-left: 20px" open=${selection && region_details[selection].category == "{{category}}"}>
                 <summary>{{category}}</summary>
                 <div>
                   {% for region in region_map[hemisphere][category] %}
-                  <button onclick=${() => setSelection("{{region}}")} style="margin:1px" class="btn btn-primary btn-sm">
+                  <button onclick=${() => setSelection("{{region}}")} style="margin:1px" class="btn btn-sm ${selection == '{{region}}' ? 'btn-success' : 'btn-primary'}">
                     {{region_map[hemisphere][category][region].description}}
                   </button>
                   {% endfor %}
@@ -108,10 +116,11 @@ function App() {
 
         <!-- Tree Map -->
         <div class="card" style="height: 500px">
-          <div class="card-header">Explore Regions</div>
+          <div class="card-header">Explore Region Map</div>
           <div id="treemap" style="width: 100%; height: 450px"></div>
         </div>
-
+        
+        <!-- neuroglancer -->
         <div class="card" style="height:500px">
           <div class="card-header" style="color: purple">
             <a href="{{url_for('app.flywire_url')}}" target="_blank"
@@ -134,7 +143,6 @@ function App() {
     </div>
   `;
 }
-
 render(html`<${App} />`, document.getElementById("root"));
 
 </script>
