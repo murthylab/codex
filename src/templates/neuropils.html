@@ -6,136 +6,141 @@
 ></script>
 
 <script type="module">
- 
-import {
-  html,
-  Component,
-  render,
-  useState,
-} from "https://unpkg.com/htm/preact/standalone.module.js";
 
-const treemap_data = {{ treemap_data | tojson}};
-const regions = {{ regions | tojson}};
-const region_name_to_id = {{ region_name_to_id | tojson}};
-const region_id_to_name = {{ region_id_to_name | tojson}};
-const region_map = {{ region_map | tojson}};
-const region_details = {{ region_details | tojson}};
-console.log(region_map);
-function App() {
-  const [selection, setSelection] = useState('{{selected}}');
+  import {
+    html,
+    Component,
+    render,
+    useState,
+  } from "https://unpkg.com/htm/preact/standalone.module.js";
 
-  google.charts.load("current", { packages: ["treemap"] });
-  google.charts.setOnLoadCallback(drawChart);
-  var tree, description;
+  const treemap_data = {{ treemap_data | tojson}};
+  const regions = {{ regions | tojson}};
+  const region_name_to_id = {{ region_name_to_id | tojson}};
+  const region_id_to_name = {{ region_id_to_name | tojson}};
+  const region_map = {{ region_map | tojson}};
+  const region_details = {{ region_details | tojson}};
+  console.log(region_map);
+  function App() {
+    const [selection, setSelection] = useState('{{selected}}');
 
-  function selectRegion(region) {
-    for (var i = 0; i < treemap_data.length; i++) {
-      if (treemap_data[i][0] == region) {
-        tree.setSelection([{ row: i - 1, column: null }]);
-        selectHandler();
-        break;
+    google.charts.load("current", { packages: ["treemap"] });
+    google.charts.setOnLoadCallback(drawChart);
+    var tree, description;
+
+    function selectRegion(region) {
+      for (var i = 0; i < treemap_data.length; i++) {
+        if (treemap_data[i][0] == region) {
+          tree.setSelection([{ row: i - 1, column: null }]);
+          selectHandler();
+          break;
+        }
       }
     }
-  }
 
 
-  function drawChart() {
-    var data = google.visualization.arrayToDataTable(treemap_data);
-    tree = new google.visualization.TreeMap(document.getElementById("treemap"));
-    tree.draw(data);
-    google.visualization.events.addListener(tree, "select", selectHandler);
-    window.onresize = drawChart;
-    if (selection) {
-      selectRegion(region_id_to_name[selection]);
-    }
-  }
-  function selectHandler() {
-    const selectedItem = tree.getSelection();
-    if (selectedItem) {
-      const region = treemap_data[selectedItem[0].row + 1][0];
-      const region_id = region_name_to_id[region];
-      const segment_id = regions[region_id];
-      if (segment_id) {
-        setSelection(region_id);
+    function drawChart() {
+      var data = google.visualization.arrayToDataTable(treemap_data);
+      tree = new google.visualization.TreeMap(document.getElementById("treemap"));
+      tree.draw(data);
+      google.visualization.events.addListener(tree, "select", selectHandler);
+      window.onresize = drawChart;
+      if (selection) {
+        selectRegion(region_id_to_name[selection]);
       }
     }
-  }
+    function selectHandler() {
+      const selectedItem = tree.getSelection();
+      if (selectedItem) {
+        const region = treemap_data[selectedItem[0].row + 1][0];
+        const region_id = region_name_to_id[region];
+        const segment_id = regions[region_id];
+        if (segment_id) {
+          setSelection(region_id);
+        }
+      }
+    }
 
 
 
 
-  return html`
-    <div class="app">
+    return html`
+      <div class="app">
 
 
-      <div class="card-columns">
-        <div class="card" style="min-height: 500px">
-        <div class="card-header">Brain Regions</div>
-          <details open>
-            <summary>Hemispheres</summary>
-            {% for hemisphere in region_map %}
-            <details style="padding-left: 10px" open=${selection && region_details[selection].hemisphere == "{{hemisphere}}"}>
-              <summary>{{hemisphere}}</summary>
-              {% for category in region_map[hemisphere] %}
-              <details style="padding-left: 20px" open=${selection && region_details[selection].category == "{{category}}"}>
-                <summary>{{category}}</summary>
-                <div>
-                  {% for region in region_map[hemisphere][category] %}
-                  <button onclick=${() => setSelection("{{region}}")} style="margin:1px" class="btn btn-sm ${selection == '{{region}}' ? 'btn-success' : 'btn-primary'}">
-                    {{region_map[hemisphere][category][region].description}}
-                  </button>
-                  {% endfor %}
-                </div>
+        <div class="card-columns">
+          <div class="card" style="min-height: 500px">
+          <div class="card-header">Brain Regions</div>
+            <details open>
+              <summary>Hemispheres</summary>
+              {% for hemisphere in region_map %}
+              <details style="padding-left: 10px" open=${selection && region_details[selection].hemisphere == "{{hemisphere}}"}>
+                <summary>{{hemisphere}}</summary>
+                {% for category in region_map[hemisphere] %}
+                <details style="padding-left: 20px" open=${selection && region_details[selection].category == "{{category}}"}>
+                  <summary>{{category}}</summary>
+                  <div>
+                    {% for region in region_map[hemisphere][category] %}
+                    <button onclick=${() => setSelection("{{region}}")} style="margin:1px" class="btn btn-sm ${selection == '{{region}}' ? 'btn-success' : 'btn-primary'}">
+                      {{region_map[hemisphere][category][region].description}}
+                    </button>
+                    {% endfor %}
+                  </div>
+                </details>
+                {% endfor %}
               </details>
               {% endfor %}
             </details>
-            {% endfor %}
-          </details>
-        </div>
-
-        <!-- Tree Map -->
-        <div class="card" style="height: 500px">
-          <div class="card-header">Explore Region Map</div>
-          <div id="treemap" style="width: 100%; height: 450px"></div>
-        </div>
-        
-        <!-- neuroglancer -->
-        <div class="card" style="height:500px">
-          <div class="card-header" style="color: purple">
-            <a href="/app/flywire_neuropil_url?segment_id="${regions[selection][0]} target="_blank"
-              >3D Rendering
-              <i
-                style="margin-left: 3px"
-                class="fa-sharp fa-solid fa-up-right-from-square"
-              ></i
-            ></a>
           </div>
-          <iframe
-            style="width: 98%; height: 100%"
-            id="neuroglancer"
-            src="/app/flywire_neuropil_url?segment_id="${regions[selection][0]}
-            title="neuroglancer"
-            loading="lazy"
-          ></iframe>
+
+          <!-- Tree Map -->
+          <div class="card" style="height: 500px">
+            <div class="card-header">Explore Region Map</div>
+            <div id="treemap" style="width: 100%; height: 450px"></div>
+          </div>
+
+          <!-- neuroglancer -->
+          <div class="card" style="height:500px">
+            <div class="card-header" style="color: purple">
+              <a href="/app/flywire_neuropil_url?segment_id="${regions[selection][0]} target="_blank"
+                >3D Rendering
+                <i
+                  style="margin-left: 3px"
+                  class="fa-sharp fa-solid fa-up-right-from-square"
+                ></i
+              ></a>
+            </div>
+            <iframe
+              style="width: 98%; height: 100%"
+              id="neuroglancer"
+              src="/app/flywire_neuropil_url?segment_id="${regions[selection][0]}
+              title="neuroglancer"
+              loading="lazy"
+            ></iframe>
+          </div>
         </div>
+
+        <div class="card">
+        <p>Search For Neurons:</p>
+        <p>
+        <a href="/app/search?filter_string=output_neuropil+%3D%3D+"${selection} class="btn btn-primary">With this region as output</a>
+        </p>
+        <p>
+        <a href="/app/search?filter_string=input_neuropil+%3D%3D+"${selection} class="btn btn-primary">With this region as input</a>
+        </p>
+        <p>See Neuron Stats</p>
+        <p>
+        <a href="/app/stats?filter_string=output_neuropil+%3D%3D+"${selection} class="btn btn-primary">With this region as output</a>
+        </p>
+        <p>
+        <a href="/app/stats?filter_string=input_neuropil+%3D%3D+"${selection} class="btn btn-primary">With this region as input</a>
+        </p>
+        </div>
+
       </div>
-
-      <div class="card">
-      <div class="card-header">Search for Neurons</div>
-      <br></br>
-      <p>
-      <a href="/app/search?filter_string=output_neuropil+%3D%3D+"${selection} class="btn btn-primary">With this region as output</a>
-      </p>
-      <p>
-      <a href="/app/search?filter_string=input_neuropil+%3D%3D+"${selection} class="btn btn-primary">With this region as input</a>
-      </p>
-      </div>
-
-    </div>
-  `;
-}
-render(html`<${App} />`, document.getElementById("root"));
-
+    `;
+  }
+  render(html`<${App} />`, document.getElementById("root"));
 </script>
 <script type="text/javascript"></script>
 <div id="root"></div>
