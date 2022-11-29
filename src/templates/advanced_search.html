@@ -66,6 +66,11 @@
     }
 
     function chooseOperator(elem) {
+        const oldLHSLabel = lhsDropdownElem.querySelector(".search-label").innerText;
+        const oldRHSLabel = rhsDropdownElem.querySelector(".search-label").innerText;
+        const oldLHSVal = lhsDropdownElem.querySelector(".dropdown").getAttribute("value");
+        const oldRHSVal = rhsDropdownElem.querySelector(".dropdown").getAttribute("value");
+
         const operator = operators[elem.getAttribute("value")];
         const searchTermElem = elem.parentElement.parentElement.parentElement.parentElement;
         const lhsDropdownElem = searchTermElem.querySelector(".search-dropdown-lhs");
@@ -107,6 +112,29 @@
         else {
             console.log("Unknown operator type", operator["op_type"]);
             return;
+        }
+
+        const newLHSLabel = operator["lhs_description"];
+        const newRHSLabel = operator["rhs_description"];
+        if (newLHSLabel === oldLHSLabel) {
+            if (!lhsDropdownElem.getAttribute("hidden")) {
+                clickDropdownValue(lhsDropdownElem, oldLHSVal);
+            }
+            if (newRHSLabel === oldRHSLabel) {
+                if (!rhsDropdownElem.getAttribute("hidden")) {
+                    clickDropdownValue(rhsDropdownElem, oldRHSVal);
+                }
+            }
+        }
+        else if (newLHSLabel === oldRHSLabel) {
+            if (!lhsDropdownElem.getAttribute("hidden")) {
+                clickDropdownValue(lhsDropdownElem, oldRHSVal);
+            }
+        }
+        else if (newRHSLabel === oldLHSLabel) {
+            if (!rhsDropdownElem.getAttribute("hidden")) {
+                clickDropdownValue(rhsDropdownElem, oldLHSVal);
+            }
         }
     }
 
