@@ -66,11 +66,6 @@
     }
 
     function chooseOperator(elem) {
-        const oldLHSLabel = lhsDropdownElem.querySelector(".search-label").innerText;
-        const oldRHSLabel = rhsDropdownElem.querySelector(".search-label").innerText;
-        const oldLHSVal = lhsDropdownElem.querySelector(".dropdown").getAttribute("value");
-        const oldRHSVal = rhsDropdownElem.querySelector(".dropdown").getAttribute("value");
-
         const operator = operators[elem.getAttribute("value")];
         const searchTermElem = elem.parentElement.parentElement.parentElement.parentElement;
         const lhsDropdownElem = searchTermElem.querySelector(".search-dropdown-lhs");
@@ -83,6 +78,11 @@
         placeholderElem.setAttribute("hidden", true);
         rhsDropdownElem.setAttribute("hidden", true);
         rhsInputElem.setAttribute("hidden", true);
+
+        const oldLHSLabel = lhsDropdownElem.querySelector(".search-label").innerText;
+        const oldRHSLabel = rhsDropdownElem.querySelector(".search-label").innerText;
+        const oldLHSVal = lhsDropdownElem.querySelector(".dropdown").getAttribute("value");
+        const oldRHSVal = rhsDropdownElem.querySelector(".dropdown").getAttribute("value");
 
         rhsDropdownElem.querySelector(".search-label").innerText = operator["rhs_description"];
         rhsInputElem.querySelector(".search-label").innerText = operator["rhs_description"];
