@@ -516,3 +516,51 @@ class NeuronDataTest(TestCase):
         print(f"## Raw data: {json.dumps(raw_data, indent=4)}")
 
         # TODO: remove this: self.fail()
+
+    def test_motifs(self):
+        roots = {
+            "pC1a": [720575940618558379, 720575940618558379],
+            "pC1b": [720575940617856320],
+            "pC1c": [720575940629430978],
+            "pC1d": [720575940618771952, 720575940634370411],
+            "pC1e": [720575940636374128, 720575940624024812],
+        }
+
+        osets = self.neuron_db.output_sets()
+        nt_set = {"GABA"}
+
+        def find_motifs(rid):
+            res = []
+            dstream = neighbors([rid], neighbor_sets=osets)
+            dstream = [
+                d
+                for d in dstream
+                if self.neuron_db.get_neuron_data(d)["nt_type"] in nt_set
+            ]
+            for d in dstream:
+                dstream2 = [
+                    d2
+                    for d2 in osets[d]
+                    if self.neuron_db.get_neuron_data(d2)["nt_type"] in nt_set
+                ]
+                for d2 in dstream2:
+                    res.append((d, d2))
+            return res
+
+        def codex_link(rids):
+            return (
+                f"[(see in codex)](https://codex.flywire.ai/app/search?filter_string="
+                f"id<<{','.join([str(rid) for rid in rids])})"
+            )
+
+        for k, v in roots.items():
+            for rid in v:
+                motifs = find_motifs(rid)
+                for mtf in motifs:
+                    print(
+                        f"{k}: {rid} {self.neuron_db.get_neuron_data(rid)['nt_type']}"
+                        f" -> {mtf[0]} {self.neuron_db.get_neuron_data(mtf[0])['nt_type']}"
+                        f" -> {mtf[1]} {self.neuron_db.get_neuron_data(mtf[1])['nt_type']}"
+                    )
+
+        # self.fail()
