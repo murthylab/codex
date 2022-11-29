@@ -222,7 +222,7 @@ STRUCTURED_SEARCH_OPERATORS = [
     BinarySearchOperator(
         name=OP_STARTS_WITH,
         shorthand="^*",
-        description="Binary, LHS attribute of the cell starts with RHS value (e.g., label {starts_with} LC",
+        description="Binary, LHS attribute of the cell starts with RHS value (e.g., label {starts_with} LC)",
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Prefix",
@@ -231,7 +231,7 @@ STRUCTURED_SEARCH_OPERATORS = [
     BinarySearchOperator(
         name=OP_CONTAINS,
         shorthand=">>",
-        description="Binary, LHS attribute of the cell contains RHS value (e.g., label {contains} dsx",
+        description="Binary, LHS attribute of the cell contains RHS value (e.g., label {contains} dsx)",
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Substring",
@@ -272,21 +272,21 @@ STRUCTURED_SEARCH_OPERATORS = [
     UnarySearchOperator(
         name=OP_UPSTREAM,
         shorthand="^^",
-        description="Unary, matches cells upstream of specified Cell ID)",
+        description="Unary, matches cells upstream of specified Cell ID",
         rhs_description="Cell ID",
         rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_DOWNSTREAM,
         shorthand="!^",
-        description="Unary, matches cells downstream of specified Cell ID)",
+        description="Unary, matches cells downstream of specified Cell ID",
         rhs_description="Cell ID",
         rhs_range=None,
     ),
     BinarySearchOperator(
         name=OP_UPSTREAM_REGION,
         shorthand="^R",
-        description="Binary, matches cells upstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
+        description="Binary, matches cells upstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG)",
         lhs_description="Region or Side",
         lhs_range=HEMISPHERES + sorted(REGIONS.keys()),
         rhs_description="Cell ID",
@@ -295,7 +295,7 @@ STRUCTURED_SEARCH_OPERATORS = [
     BinarySearchOperator(
         name=OP_DOWNSTREAM_REGION,
         shorthand="!R",
-        description="Binary, matches cells downstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
+        description="Binary, matches cells downstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG)",
         lhs_description="Region or Side",
         lhs_range=HEMISPHERES + sorted(REGIONS.keys()),
         rhs_description="Cell ID",
