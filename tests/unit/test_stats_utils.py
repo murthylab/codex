@@ -51,7 +51,7 @@ class Test(TestCase):
             {
                 "": {
                     "- Classified": "68,375",
-                    "- Labeled": "28,936",
+                    "- Labeled": "29,255",
                     "Cells": "68,375",
                 },
                 "Top Classes": {
@@ -75,14 +75,14 @@ class Test(TestCase):
                     "Yijie Yin<br><small>Greg Jefferis Lab</small>": "2,348",
                 },
                 "Top Labels": {
-                    "AL local neuron;ALLN": "420",
+                    "AL local neuron,ALLN": "420",
                     "DM4_medial; left": "235",
                     "DNg_L": "401",
                     "DNg_R": "403",
                     "Kenyon_Cell_L": "2,586",
-                    "Putative AN": "2,227",
-                    "Sensory Neuron (ALRN)": "192",
-                    "antennal lobe olfactory and thermo/hygrosensory receptor neuron (ALRN)": "1,922",
+                    "Putative AN": "2,214",
+                    "Sensory Neuron (ALRN)": "191",
+                    "antennal lobe olfactory and thermo/hygrosensory receptor neuron (ALRN)": "1,920",
                     "putative fru": "1,130",
                     "sensory": "925",
                 },

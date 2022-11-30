@@ -130,7 +130,7 @@ def shorten_and_concat_labels(labels):
 def compact_tag(anno_tag):
     # TODO: get rid of this
     return anno_tag.replace(
-        "; Part of comprehensive neck connective tracing; contact Connectomics Group Cambridge "
-        "for more detailed information on descending/ascending neurons",
+        "; Part of comprehensive neck connective tracing, contact Connectomics Group Cambridge for more detailed "
+        "information on descending/ascending neurons",
         "",
     )
