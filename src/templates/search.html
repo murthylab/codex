@@ -63,10 +63,13 @@
             <td style="color:#3A3AAA;">{{neuron.class}}
                 {% if neuron.class and 'class' in multi_val_attrs %}
                 <br>
-                <div class="td_filter_buttons">
-                    <button title="Filter out {{neuron.class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class != {{neuron.class}}');" style="padding: 0px; font-size: 8px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
-                    <button title="Show only {{neuron.class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class == {{neuron.class}}');" style="padding: 0px; font-size: 8px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
-                </div>
+                <span class="td_filter_buttons">
+                    <button title="Filter out {{neuron.class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class != {{neuron.class}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                    <button title="Show only {{neuron.class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class == {{neuron.class}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                </span>
+                <span class="td_filter_buttons_caption">
+                    filter out/in
+                </span>
                 {% endif %}
             </td>
             <td style="color:#3A3A3A;">
@@ -74,8 +77,11 @@
                 <div>
                     <b>&#x2022;</b> &nbsp;{{highlighted_tags[tg]|safe}}
                     <span class="td_filter_buttons">
-                        <button title="Exclude {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label != {{tg}}');" style="padding: 0px; font-size: 8px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
-                        <button title="Show only {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label == {{tg}}');" style="padding: 0px; font-size: 8px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                        <button title="Exclude {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label != {{tg}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label == {{tg}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                    </span>
+                    <span class="td_filter_buttons_caption">
+                        filter out/in
                     </span>
                 </div>
                 {% endfor %}
@@ -89,10 +95,13 @@
                 {% endif %}
                 {% if neuron.nt_type and 'nt_type' in multi_val_attrs %}
                 <br>
-                <div class="td_filter_buttons">
-                    <button title="Exclude {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt != {{neuron.nt_type}}');" style="padding: 0px; font-size: 8px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
-                    <button title="Show only {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt == {{neuron.nt_type}}');" style="padding: 0px; font-size: 8px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
-                </div>
+                <span class="td_filter_buttons">
+                    <button title="Exclude {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt != {{neuron.nt_type}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                    <button title="Show only {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt == {{neuron.nt_type}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                </span>
+                <span class="td_filter_buttons_caption">
+                    filter out/in
+                </span>
                 {% endif %}
             </td>
             <td style="color:purple;"><small>{{neuron.input_cells}}:{{neuron.output_cells}}<br>{{neuron.hemisphere_fingerprint|safe}}</small></td>
