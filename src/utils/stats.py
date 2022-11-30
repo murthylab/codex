@@ -93,24 +93,25 @@ def _make_data_charts(data_list):
         input_output_regions.append(d["hemisphere_fingerprint"] or unknown_key)
         input_neuropils.extend(d["input_neuropils"] or [unknown_key])
         output_neuropils.extend(d["output_neuropils"] or [unknown_key])
-        classes.append(str(len(d["classes"]) if d["classes"] else 0))
+        classes.extend(d["classes"])
 
     result = {}
+    if classes:
+        result["Classes"] = make_chart_from_list(
+            chart_type="donut",
+            key_title="Cell Classes",
+            val_title="Count",
+            item_list=classes,
+            search_filter="class",
+        )
     if nt_types:
-        result["Num cells with neurotransmitter types"] = make_chart_from_list(
+        result["Neurotransmitter types"] = make_chart_from_list(
             chart_type="donut",
             key_title="Type",
             val_title="Num Cells",
             item_list=nt_types,
             descriptions_dict=NEURO_TRANSMITTER_NAMES,
             search_filter="nt",
-        )
-    if classes and len(set(classes)) > 1:
-        result["Num. Assigned Neuron Classes"] = make_chart_from_list(
-            chart_type="donut",
-            key_title="Num Classes",
-            val_title="Count",
-            item_list=classes,
         )
     if input_neuropils:
         result["Top input regions"] = make_chart_from_list(
@@ -147,7 +148,6 @@ def _make_data_stats(neuron_data, label_data):
     labeled_neurons = 0
     classified_neurons = 0
     anno_counts = defaultdict(int)
-    class_counts = defaultdict(int)
     user_credit_counts = defaultdict(int)
     for nd in neuron_data:
         if nd["tag"]:
@@ -156,8 +156,6 @@ def _make_data_stats(neuron_data, label_data):
                 anno_counts[t] += 1
         if nd["classes"]:
             classified_neurons += 1
-            for t in nd["classes"]:
-                class_counts[t] += 1
 
     for ld in label_data:
         for ld_item in ld or []:
@@ -174,11 +172,6 @@ def _make_data_stats(neuron_data, label_data):
             "- Classified": classified_neurons,
         }
     }
-    if class_counts:
-        result["Top Classes"] = {
-            k: class_counts[k]
-            for k in sorted(class_counts, key=class_counts.get, reverse=True)[:10]
-        }
     if anno_counts:
         result["Top Labels"] = {
             k: anno_counts[k]
