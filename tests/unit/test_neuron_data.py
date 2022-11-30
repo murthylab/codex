@@ -8,6 +8,7 @@ from src.data.local_data_loader import unpickle_all_neuron_db_versions
 
 # for IDE test
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSION
+from src.utils.formatting import compact_tag
 from src.utils.graph_algos import neighbors
 from tests import TEST_DATA_ROOT_PATH
 
@@ -383,6 +384,17 @@ class NeuronDataTest(TestCase):
         self.assertGreater(
             len(self.neuron_db.search_in_neurons_with_inherited_labels("da")), 500
         )
+
+    def test_label_data_consistency(self):
+        label_data = self.neuron_db.label_data
+        neuron_data = self.neuron_db.neuron_data
+        mismatch = 0
+        for rid, nd in neuron_data.items():
+            ld = [compact_tag(l["tag"]) for l in label_data.get(rid, [])]
+            if sorted(set(nd["tag"])) != sorted(set(ld)):
+                print(f'{sorted(set(nd["tag"]))} -> {sorted(set(ld))}')
+                mismatch += 1
+        self.assertLess(mismatch, 10)
 
     def test_cell_lines(self):
         cell_lines = {
