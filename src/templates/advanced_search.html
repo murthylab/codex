@@ -49,7 +49,7 @@
     function updateRHS(values, searchTermElem) {
         const rhsDropdownElem = searchTermElem.querySelector(".search-dropdown-rhs");
         const rhsInputElem = searchTermElem.querySelector(".search-input-rhs");
-        const oldRHSVal = rhsDropdownElem.getAttribute("hidden") ? null : rhsDropdownElem.querySelector(".search-label").innerText;
+        const oldRHSVal = rhsDropdownElem.getAttribute("hidden") ? null : rhsDropdownElem.querySelector(".dropdown").getAttribute("value");
         rhsDropdownElem.setAttribute("hidden", true);
         rhsInputElem.setAttribute("hidden", true);
         if (values) {
@@ -265,7 +265,6 @@
                 return;
             }
         }
-        console.log("Did not find value", value, "in dropdown", dropdownElem);
     }
 
     function loadQuery() {
