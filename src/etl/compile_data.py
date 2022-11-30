@@ -1,4 +1,5 @@
 import os.path
+import shutil
 from collections import defaultdict
 from datetime import datetime
 from random import sample
@@ -514,6 +515,8 @@ def fill_new_annotations(version=LATEST_DATA_SNAPSHOT_VERSION):
     annotations = load_neuron_info_from_cave(
         client=init_cave_client(), map_to_version=version
     )
+    print(f"Writing labels file with {len(annotations)} lines")
+    write_csv(f"static/data/{version}/labels.csv.gz", rows=annotations, compress=True)
     print(annotations[0])
     rid_to_tags = defaultdict(list)
     for r in annotations:
@@ -548,6 +551,53 @@ def fill_new_annotations(version=LATEST_DATA_SNAPSHOT_VERSION):
     write_csv(filename=fname_out, rows=content, compress=True)
 
 
+# CLEAN
+def val_counts(table):
+    unique_counts = {}
+    missing_counts = {}
+    for i, c in enumerate(table[0]):
+        unique_counts[c] = len(set([r[i] for r in table[1:] if r[i]]))
+        missing_counts[c] = len([r[i] for r in table[1:] if not r[i]])
+    return unique_counts, missing_counts
+
+def summarize_csv(content):
+    print(f"- header: {content[0]}")
+    uniq_counts, miss_counts = val_counts(content)
+    print(f"- unique val counts: {uniq_counts}")
+    print(f"- missing val counts: {miss_counts}")
+    return content
+
+def compare_csvs(old_table, new_table):
+    old_row_set = set([','.join([str(d) for d in r]) for r in old_table])
+    new_row_set = set([','.join([str(d) for d in r]) for r in new_table])
+    print(f"Rows in old but not new: {old_row_set - new_row_set}")
+    print(f"Rows in new but not old: {new_row_set - old_row_set}")
+
+def update_labels_file(version=LATEST_DATA_SNAPSHOT_VERSION):
+    fname = f"static/data/{version}/labels.csv.gz"
+    backup_fname = f"static/data/{version}/labels_bkp.csv.gz"
+    old_content = None
+    if os.path.isfile(fname):
+        print(f"Reading {fname}...")
+        old_content = read_csv(fname)
+        summarize_csv(old_content)
+        print(f"Copying to {backup_fname}..")
+        shutil.copy2(fname, backup_fname)
+    else:
+        print(f"File {fname} not found.")
+
+    print("Loading labels from DB..")
+    new_content = load_neuron_info_from_cave(
+        client=init_cave_client(), map_to_version=version
+    )
+    summarize_csv(new_content)
+    if old_content:
+        compare_csvs(old_content, new_content)
+    print(f"Writing labels file with {len(new_content)} lines to {fname}")
+    write_csv(fname, rows=new_content, compress=True)
+
+
+
 if __name__ == "__main__":
     # compile_data()
     # augment_existing_data()
@@ -555,4 +605,5 @@ if __name__ == "__main__":
     # augment_with_nt_scores()
     # correct_nt_scores()
     # fill_missing_positions()
-    fill_new_annotations()
+    #fill_new_annotations()
+    update_labels_file(version=LATEST_DATA_SNAPSHOT_VERSION)
