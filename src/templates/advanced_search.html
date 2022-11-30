@@ -49,6 +49,7 @@
     function updateRHS(values, searchTermElem) {
         const rhsDropdownElem = searchTermElem.querySelector(".search-dropdown-rhs");
         const rhsInputElem = searchTermElem.querySelector(".search-input-rhs");
+        const oldRHSVal = rhsDropdownElem.getAttribute("hidden") ? null : rhsDropdownElem.querySelector(".search-label").innerText;
         rhsDropdownElem.setAttribute("hidden", true);
         rhsInputElem.setAttribute("hidden", true);
         if (values) {
@@ -58,6 +59,9 @@
             }
             else {
                 populateDropdown(rhsDropdownElem, values, false);
+            }
+            if (oldRHSVal) {
+                clickDropdownValue(rhsDropdownElem, oldRHSVal); //will do nothing if not applicable
             }
         }
         else {
@@ -73,16 +77,17 @@
         const placeholderElem = searchTermElem.querySelector(".search-unary-placeholder");
         const rhsDropdownElem = searchTermElem.querySelector(".search-dropdown-rhs");
         const rhsInputElem = searchTermElem.querySelector(".search-input-rhs");
+
+        const oldLHSLabel = lhsDropdownElem.getAttribute("hidden") ? null : lhsDropdownElem.querySelector(".search-label").innerText;
+        const oldRHSLabel = rhsDropdownElem.getAttribute("hidden") ? null : rhsDropdownElem.querySelector(".search-label").innerText;
+        const oldLHSVal = lhsDropdownElem.querySelector(".dropdown").getAttribute("value");
+        const oldRHSVal = rhsDropdownElem.querySelector(".dropdown").getAttribute("value");
+
         lhsDropdownElem.setAttribute("hidden", true);
         lhsInputElem.setAttribute("hidden", true);
         placeholderElem.setAttribute("hidden", true);
         rhsDropdownElem.setAttribute("hidden", true);
         rhsInputElem.setAttribute("hidden", true);
-
-        const oldLHSLabel = lhsDropdownElem.querySelector(".search-label").innerText;
-        const oldRHSLabel = rhsDropdownElem.querySelector(".search-label").innerText;
-        const oldLHSVal = lhsDropdownElem.querySelector(".dropdown").getAttribute("value");
-        const oldRHSVal = rhsDropdownElem.querySelector(".dropdown").getAttribute("value");
 
         rhsDropdownElem.querySelector(".search-label").innerText = operator["rhs_description"];
         rhsInputElem.querySelector(".search-label").innerText = operator["rhs_description"];
@@ -120,11 +125,6 @@
             if (!lhsDropdownElem.getAttribute("hidden")) {
                 clickDropdownValue(lhsDropdownElem, oldLHSVal);
             }
-            if (newRHSLabel === oldRHSLabel) {
-                if (!rhsDropdownElem.getAttribute("hidden")) {
-                    clickDropdownValue(rhsDropdownElem, oldRHSVal);
-                }
-            }
         }
         else if (newLHSLabel === oldRHSLabel) {
             if (!lhsDropdownElem.getAttribute("hidden")) {
@@ -134,6 +134,11 @@
         else if (newRHSLabel === oldLHSLabel) {
             if (!rhsDropdownElem.getAttribute("hidden")) {
                 clickDropdownValue(rhsDropdownElem, oldLHSVal);
+            }
+        }
+        else if (newRHSLabel === oldRHSLabel) {
+            if (!rhsDropdownElem.getAttribute("hidden")) {
+                clickDropdownValue(rhsDropdownElem, oldRHSVal);
             }
         }
     }
