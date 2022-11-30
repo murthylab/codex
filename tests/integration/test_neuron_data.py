@@ -60,6 +60,9 @@ class NeuronDataTest(TestCase):
                 not_connected_cells = set(tested.neuron_data.keys()) - connected_cells
                 self.assertGreater(2000, len(not_connected_cells))
 
+            # compare optional label data
+            self.assertEqual(tested.label_data, golden.label_data)
+
         # check that all versions loaded
         for v in versions:
             compare_neuron_dbs(tested=loaded_neuron_dbs[v], golden=self.neuron_dbs[v])

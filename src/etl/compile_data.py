@@ -560,6 +560,7 @@ def val_counts(table):
         missing_counts[c] = len([r[i] for r in table[1:] if not r[i]])
     return unique_counts, missing_counts
 
+
 def summarize_csv(content):
     print(f"- header: {content[0]}")
     uniq_counts, miss_counts = val_counts(content)
@@ -567,11 +568,13 @@ def summarize_csv(content):
     print(f"- missing val counts: {miss_counts}")
     return content
 
+
 def compare_csvs(old_table, new_table):
-    old_row_set = set([','.join([str(d) for d in r]) for r in old_table])
-    new_row_set = set([','.join([str(d) for d in r]) for r in new_table])
+    old_row_set = set([",".join([str(d) for d in r]) for r in old_table])
+    new_row_set = set([",".join([str(d) for d in r]) for r in new_table])
     print(f"Rows in old but not new: {old_row_set - new_row_set}")
     print(f"Rows in new but not old: {new_row_set - old_row_set}")
+
 
 def update_labels_file(version=LATEST_DATA_SNAPSHOT_VERSION):
     fname = f"static/data/{version}/labels.csv.gz"
@@ -597,7 +600,6 @@ def update_labels_file(version=LATEST_DATA_SNAPSHOT_VERSION):
     write_csv(fname, rows=new_content, compress=True)
 
 
-
 if __name__ == "__main__":
     # compile_data()
     # augment_existing_data()
@@ -605,5 +607,5 @@ if __name__ == "__main__":
     # augment_with_nt_scores()
     # correct_nt_scores()
     # fill_missing_positions()
-    #fill_new_annotations()
+    # fill_new_annotations()
     update_labels_file(version=LATEST_DATA_SNAPSHOT_VERSION)

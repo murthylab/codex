@@ -101,8 +101,8 @@ div.google-visualization-tooltip { width:250px; }
                         <tbody>
                         {% for k_l3, v_l3 in d_l2.items() %}
                         <tr>
-                            <td><b>{{k_l3}}</b></td>
-                            <td style="text-align: end;">{{v_l3}}</td>
+                            <td><b>{{k_l3|safe}}</b></td>
+                            <td style="text-align: end;">{{v_l3|safe}}</td>
                         </tr>
                         {% endfor %}
                         </tbody>

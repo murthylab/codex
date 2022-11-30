@@ -15,7 +15,7 @@ from src.data.structured_search_filters import (
 from src.configuration import MIN_SYN_COUNT
 from src.utils.logging import log
 
-# Expected column in static FlyWire data CSV file
+# Expected columns in static FlyWire data CSV file
 DATA_FILE_COLUMNS = [
     "root_id",
     "name",
@@ -45,6 +45,17 @@ DATA_FILE_COLUMNS = [
     "da_avg",
 ]
 
+# Expected columns in static labels data CSV file
+LABEL_FILE_COLUMNS = [
+    "root_id",
+    "tag",
+    "user_id",
+    "position",
+    "supervoxel_id",
+    "user_name",
+    "user_affiliation",
+]
+
 # Keywords will be matched against these attributes
 NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "root_id",
@@ -58,13 +69,22 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
 COLUMN_INDEX = {c: i for i, c in enumerate(DATA_FILE_COLUMNS)}
 
 
+def _row_to_dict(columns, row, exclude):
+    res = {}
+    for i, c in enumerate(columns):
+        if not exclude or c not in exclude:
+            res[c] = row[i]
+    return res
+
+
 class NeuronDB(object):
-    def __init__(self, data_file_rows, connection_rows):
+    def __init__(self, data_file_rows, connection_rows, label_rows):
         self.neuron_data = {}
         self.rids_of_neurons_with_inherited_tags = []
+        self.label_data = {}
 
         for i, r in enumerate(data_file_rows):
-            if not i:
+            if i == 0:
                 # check header
                 assert r == DATA_FILE_COLUMNS
                 continue
@@ -121,6 +141,37 @@ class NeuronDB(object):
                 "da_avg": self._get_value(r, "da_avg", to_type=float),
             }
 
+        log(f"App initialization processing label data..")
+        rid_col_idx = LABEL_FILE_COLUMNS.index("root_id")
+        tag_col_idx = LABEL_FILE_COLUMNS.index("tag")
+        not_found_rids = set()
+        not_found_tags = defaultdict(int)
+        for i, r in enumerate(label_rows or []):
+            if i == 0:
+                # check header
+                assert r == LABEL_FILE_COLUMNS
+                continue
+            rid = int(r[rid_col_idx])
+            if rid not in self.neuron_data:
+                not_found_rids.add(rid)
+                not_found_tags[r[tag_col_idx]] += 1
+                continue
+            label_data_list = self.label_data.get(rid)
+            if not label_data_list:
+                label_data_list = []
+                self.label_data[rid] = label_data_list
+            label_data_list.append(
+                _row_to_dict(columns=LABEL_FILE_COLUMNS, row=r, exclude={"root_id"})
+            )
+        log(
+            f"App initialization labels loaded for {len(self.label_data)} root ids, "
+            f"not found rids: {len(not_found_rids)}"
+        )
+        if not_found_tags:
+            log("Top 10 not found tags:")
+            for p in sorted(not_found_tags.items(), key=lambda x: -x[1])[:10]:
+                log(f"  {p}")
+
         log(f"App initialization augmenting..")
         # augment
         for nd in self.neuron_data.values():
@@ -157,22 +208,22 @@ class NeuronDB(object):
 
         log(f"App initialization loading connections..")
         self.connection_rows = []
-        if connection_rows:
-            for r in connection_rows:
-                from_node, to_node, neuropil, syn_count, nt_type = (
-                    int(r[0]),
-                    int(r[1]),
-                    r[2].upper(),
-                    int(r[3]),
-                    r[4].upper(),
-                )
-                assert from_node in self.neuron_data and to_node in self.neuron_data
-                assert syn_count >= MIN_SYN_COUNT
-                assert nt_type in NEURO_TRANSMITTER_NAMES
-                assert neuropil == "NONE" or neuropil in REGIONS.keys()
-                self.connection_rows.append(
-                    [from_node, to_node, neuropil, syn_count, nt_type]
-                )
+        for r in connection_rows or []:
+            from_node, to_node, neuropil, syn_count, nt_type = (
+                int(r[0]),
+                int(r[1]),
+                r[2].upper(),
+                int(r[3]),
+                r[4].upper(),
+            )
+            assert from_node in self.neuron_data and to_node in self.neuron_data
+            assert syn_count >= MIN_SYN_COUNT
+            assert nt_type in NEURO_TRANSMITTER_NAMES
+            assert neuropil == "NONE" or neuropil in REGIONS.keys()
+            self.connection_rows.append(
+                [from_node, to_node, neuropil, syn_count, nt_type]
+            )
+
         # augment ndata with in/out partner counts
         in_sets = self.input_sets()
         out_sets = self.output_sets()
@@ -321,6 +372,10 @@ class NeuronDB(object):
             log(f"No data exists for {root_id} in {len(self.neuron_data)} records")
             nd = {}
         return nd
+
+    def get_label_data(self, root_id):
+        root_id = int(root_id)
+        return self.label_data.get(root_id)
 
     @staticmethod
     def hemisphere_fingerprint(input_pils, output_pils):

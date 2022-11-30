@@ -143,24 +143,33 @@ def _make_data_charts(data_list):
     return result
 
 
-def _make_data_stats(data_list):
+def _make_data_stats(neuron_data, label_data):
     labeled_neurons = 0
     classified_neurons = 0
     anno_counts = defaultdict(int)
     class_counts = defaultdict(int)
-    for d in data_list:
-        if d["tag"]:
+    user_credit_counts = defaultdict(int)
+    for nd in neuron_data:
+        if nd["tag"]:
             labeled_neurons += 1
-            for t in d["tag"]:
+            for t in nd["tag"]:
                 anno_counts[t] += 1
-        if d["classes"]:
+        if nd["classes"]:
             classified_neurons += 1
-            for t in d["classes"]:
+            for t in nd["classes"]:
                 class_counts[t] += 1
+
+    for ld in label_data:
+        for ld_item in ld or []:
+            if ld_item["user_name"]:
+                caption = ld_item["user_name"]
+                if ld_item["user_affiliation"]:
+                    caption += "<br><small>" + ld_item["user_affiliation"] + "</small>"
+                user_credit_counts[caption] += 1
 
     result = {
         "": {
-            "Cells": len(data_list),
+            "Cells": len(neuron_data),
             "- Labeled": labeled_neurons,
             "- Classified": classified_neurons,
         }
@@ -168,12 +177,19 @@ def _make_data_stats(data_list):
     if class_counts:
         result["Top Classes"] = {
             k: class_counts[k]
-            for k in sorted(class_counts, key=class_counts.get, reverse=True)[:5]
+            for k in sorted(class_counts, key=class_counts.get, reverse=True)[:10]
         }
     if anno_counts:
         result["Top Labels"] = {
             k: anno_counts[k]
-            for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:5]
+            for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:10]
+        }
+    if user_credit_counts:
+        result["Top Label Contributors"] = {
+            k: user_credit_counts[k]
+            for k in sorted(
+                user_credit_counts, key=user_credit_counts.get, reverse=True
+            )[:10]
         }
 
     return result
@@ -190,7 +206,9 @@ def _format_for_display(dict_of_dicts):
     return {k: _format_dict(d) for k, d in dict_of_dicts.items()}
 
 
-def compile_data(data, search_query, case_sensitive, match_words, data_version):
+def compile_data(
+    neuron_data, label_data, search_query, case_sensitive, match_words, data_version
+):
     stats_caption = []
     if search_query:
         stats_caption.append(f"search query: '{search_query}'")
@@ -201,9 +219,9 @@ def compile_data(data, search_query, case_sensitive, match_words, data_version):
     stats_caption.append(f"data version: {data_version}")
     caption = "Stats for " + ", ".join(stats_caption)
 
-    data_stats = _make_data_stats(data)
+    data_stats = _make_data_stats(neuron_data, label_data)
     data_stats = _format_for_display(data_stats)
 
-    data_charts = _make_data_charts(data)
+    data_charts = _make_data_charts(neuron_data)
 
     return caption, data_stats, data_charts
