@@ -124,9 +124,11 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
         log_error(f"No stats results for {filter_string}. Sending hint '{hint}'")
 
-    data = [neuron_db.get_neuron_data(i) for i in filtered_root_id_list]
+    neuron_data = [neuron_db.get_neuron_data(i) for i in filtered_root_id_list]
+    label_data = [neuron_db.get_label_data(i) for i in filtered_root_id_list]
     caption, data_stats, data_charts = stats_utils.compile_data(
-        data,
+        neuron_data=neuron_data,
+        label_data=label_data,
         search_query=filter_string,
         case_sensitive=case_sensitive,
         match_words=whole_word,
