@@ -294,6 +294,7 @@ def search():
             query=filter_string,
             ids=filtered_root_id_list,
             output_sets=neuron_db.output_sets(),
+            label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["tag"]),
         )
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
