@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 
 export FLASK_APP=src.main && \
-export FLASK_ENV=development && \
 export FLASK_SECRET_KEY=dev_dummy_key && \
 export SMOKE_TEST_KEY=dev_smoke_test_key && \
 export APP_ENVIRONMENT=DEV && \

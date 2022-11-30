@@ -12,7 +12,7 @@ FlyWire community (see flywire.ai). See [demo clip](https://codex.flywire.ai/dem
 conda create -n codex python=3.9
 conda activate codex
 pip install -r requirements.txt
-./run_dev.sh
+./run_local.sh
 ```
 Navigate to [localhost:5000](http://localhost:5000)
 

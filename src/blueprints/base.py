@@ -58,9 +58,7 @@ BUILD_TIMESTAMP = os.environ.get("BUILD_TIMESTAMP", "na")
 MAX_NEURONS_FOR_DOWNLOAD = 50
 
 num_requests_processed = 0
-neuron_data_factory = NeuronDataFactory(
-    preload_latest=os.environ.get("SKIP_NEURON_DB_LOAD") != "true"
-)
+neuron_data_factory = NeuronDataFactory()
 
 
 def request_wrapper(func):
