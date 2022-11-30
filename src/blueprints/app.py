@@ -603,7 +603,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
     tags = sorted(set([ld["tag"] for ld in labels_data or []]))
     unames = sorted(
         set(
-            [f'{ld["user_name"]}, {ld["user_affiliation"]}' for ld in labels_data or []]
+            [f'<small>{ld["user_name"]}, {ld["user_affiliation"]}</small>' for ld in labels_data or []]
         )
     )
     cell_attributes = {
@@ -612,7 +612,6 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
         f'Labels<br><span style="font-size: 9px; color: purple;">Updated {LABEL_INGESTION_DATE}</span>': concat_labels(
             tags
         ),
-        f"Contributors": concat_labels(unames),
         "NT Type": nd["nt_type"]
         + f' ({lookup_nt_type_name(nd["nt_type"])})'
         + "<br><small>predictions "
@@ -622,6 +621,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
         + "</small>",
         "Classification": nd["class"],
         "Marked coordinates": "<br>".join(nd["position"]),
+        f"Label contributors": concat_labels(unames),
     }
 
     related_cells = {}
