@@ -54,14 +54,6 @@ class Test(TestCase):
                     "- Labeled": "29,255",
                     "Cells": "68,375",
                 },
-                "Top Classes": {
-                    "Ascending": "2,224",
-                    "Central Brain": "32,797",
-                    "Descending": "1,331",
-                    "Optic Lobe": "19,815",
-                    "Sensory": "4,752",
-                    "Visual Projection": "7,456",
-                },
                 "Top Label Contributors": {
                     "Alexander Bates<br><small>Greg Jefferis Lab, Rachel Wilson Lab</small>": "11,242",
                     "Claire McKellar<br><small>Mala Murthy Lab, Sebastian Seung Lab</small>": "643",
@@ -91,13 +83,14 @@ class Test(TestCase):
         )
         self.assertEqual(
             [
+                "Classes",
+                "Neurotransmitter types",
                 "Num cells with inputs/outputs in hemispheres",
-                "Num cells with neurotransmitter types",
                 "Top input regions",
                 "Top output regions",
             ],
             sorted(data_charts.keys()),
         )
         self.assertEqual(
-            [5, 5, 5, 5], [len(data_charts[k]) for k in sorted(data_charts.keys())]
+            [5, 5, 5, 5, 5], [len(data_charts[k]) for k in sorted(data_charts.keys())]
         )
