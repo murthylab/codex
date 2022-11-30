@@ -13,6 +13,7 @@ from src.data.structured_search_filters import (
     parse_search_query,
 )
 from src.configuration import MIN_SYN_COUNT
+from src.utils.formatting import compact_tag
 from src.utils.logging import log
 
 # Expected columns in static FlyWire data CSV file
@@ -90,14 +91,6 @@ class NeuronDB(object):
                 continue
             root_id = self._get_value(r, "root_id", to_type=int)
 
-            def _compact_tag(anno_tag):
-                # TODO: get rid of this
-                return anno_tag.replace(
-                    "; Part of comprehensive neck connective tracing; contact Connectomics Group Cambridge "
-                    "for more detailed information on descending/ascending neurons",
-                    "",
-                )
-
             self.neuron_data[root_id] = {
                 "root_id": root_id,
                 "name": self._get_value(r, "name"),
@@ -121,7 +114,6 @@ class NeuronDB(object):
                 "supervoxel_id": self._get_value(
                     r, "supervoxel_id", split=True, to_type=int
                 ),
-                "tag": [_compact_tag(t) for t in self._get_value(r, "tag", split=True)],
                 "inherited_tag_root_id": self._get_value(
                     r, "inherited_tag_root_id", to_type=int
                 ),
@@ -139,6 +131,7 @@ class NeuronDB(object):
                 "oct_avg": self._get_value(r, "oct_avg", to_type=float),
                 "ser_avg": self._get_value(r, "ser_avg", to_type=float),
                 "da_avg": self._get_value(r, "da_avg", to_type=float),
+                "tag": [],
             }
 
         log(f"App initialization processing label data..")
@@ -160,9 +153,13 @@ class NeuronDB(object):
             if not label_data_list:
                 label_data_list = []
                 self.label_data[rid] = label_data_list
-            label_data_list.append(
-                _row_to_dict(columns=LABEL_FILE_COLUMNS, row=r, exclude={"root_id"})
+            label_dict = _row_to_dict(
+                columns=LABEL_FILE_COLUMNS, row=r, exclude={"root_id"}
             )
+            label_data_list.append(label_dict)
+            ctag = compact_tag(label_dict["tag"])
+            if ctag and ctag not in self.neuron_data[rid]["tag"]:
+                self.neuron_data[rid]["tag"].append(compact_tag(ctag))
         log(
             f"App initialization labels loaded for {len(self.label_data)} root ids, "
             f"not found rids: {len(not_found_rids)}"
@@ -176,7 +173,6 @@ class NeuronDB(object):
         # augment
         for nd in self.neuron_data.values():
             if nd["inherited_tag_root_id"]:
-                assert nd["tag"] or nd["classes"]
                 self.rids_of_neurons_with_inherited_tags.append(nd["root_id"])
             nd["hemisphere_fingerprint"] = NeuronDB.hemisphere_fingerprint(
                 nd["input_neuropils"], nd["output_neuropils"]

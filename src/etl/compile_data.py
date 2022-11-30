@@ -21,7 +21,7 @@ from src.data.local_data_loader import read_csv, write_csv
 #  - download it into RAW_DATA_ROOT_FOLDER and name it as NEURON_NT_TYPES_FILE_NAME below
 # Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
 # and store it in this file (no quotes)
-from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
+from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS
 
 CAVE_AUTH_TOKEN_FILE_NAME = f"static/secrets/cave_auth_token.txt"
 CAVE_DATASTACK_NAME = "flywire_fafb_production"
@@ -608,4 +608,5 @@ if __name__ == "__main__":
     # correct_nt_scores()
     # fill_missing_positions()
     # fill_new_annotations()
-    update_labels_file(version=LATEST_DATA_SNAPSHOT_VERSION)
+    for v in DATA_SNAPSHOT_VERSIONS:
+        update_labels_file(version=v)
