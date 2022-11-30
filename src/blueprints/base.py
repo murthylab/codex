@@ -63,8 +63,10 @@ num_request_errors = 0
 total_request_serving_time_millis = 0.0
 neuron_data_factory = NeuronDataFactory()
 
+
 def current_milli_time():
     return round(time.time() * 1000)
+
 
 def request_wrapper(func):
     @wraps(func)
@@ -109,7 +111,7 @@ def request_wrapper(func):
         # if we got here, this could be authenticated or non-authenticated request
         try:
             exec_res = func(*args, **kwargs)
-            total_request_serving_time_millis += (current_milli_time() - start_millis)
+            total_request_serving_time_millis += current_milli_time() - start_millis
             return exec_res
         except Exception as e:
             traceback.print_exc()
@@ -248,7 +250,10 @@ def about():
         instance_uptime=uptime(millis=False),
         instance_num_requests=num_requests_processed,
         instance_error_rate=f'{float(f"{num_request_errors / max(1, num_requests_processed):.1g}"):g}',
-        instance_mean_response_time=round(total_request_serving_time_millis / max(1, num_requests_processed)) / 1000,
+        instance_mean_response_time=round(
+            total_request_serving_time_millis / max(1, num_requests_processed)
+        )
+        / 1000,
     )
 
 
