@@ -158,6 +158,28 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
     )
 
 
+@app.route("/leaderboard")
+@request_wrapper
+@require_data_access
+def leaderboard():
+    log_activity(f"Loading Leaderboard")
+    return render_template(
+        "leaderboard.html",
+        data_stats=_leaderboard_cached()
+    )
+
+@lru_cache
+def _leaderboard_cached():
+    res = {}
+    stats_utils.fill_in_leaderboard_data(
+        label_data=neuron_data_factory.get().all_label_data(),
+        top_n=20,
+        include_lab_leaderboard=True,
+        destination=res
+    )
+    return stats_utils.format_for_display(res)
+
+
 @app.route("/explore")
 @request_wrapper
 @require_data_access

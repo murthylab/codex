@@ -372,6 +372,9 @@ class NeuronDB(object):
         root_id = int(root_id)
         return self.label_data.get(root_id)
 
+    def all_label_data(self):
+        return list(self.label_data.values())
+
     def labels_ingestion_timestamp(self):
         return self.labels_file_timestamp
 
