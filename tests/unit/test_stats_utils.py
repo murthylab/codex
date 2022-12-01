@@ -50,8 +50,9 @@ class Test(TestCase):
         self.assertEqual(
             {
                 "": 3,
-                "Top Label Contributors": 10,
-                "Top Labels": 10,
+                "Tagathon leaders (all time)": 5,
+                "Tagathon leaders (recent)": 5,
+                "Top Labels": 5,
             },
             {k: len(v) for k, v in data_stats.items()},
         )
