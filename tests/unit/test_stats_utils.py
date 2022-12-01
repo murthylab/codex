@@ -49,37 +49,11 @@ class Test(TestCase):
         )
         self.assertEqual(
             {
-                "": {
-                    "- Classified": "68,375",
-                    "- Labeled": "29,255",
-                    "Cells": "68,375",
-                },
-                "Top Label Contributors": {
-                    "Alexander Bates<br><small>Greg Jefferis Lab, Rachel Wilson Lab</small>": "11,242",
-                    "Claire McKellar<br><small>Mala Murthy Lab, Sebastian Seung Lab</small>": "643",
-                    "Dudi Deutsch<br><small>Mala Murthy Lab</small>": "2,543",
-                    "Dustin Garner<br><small>Sung Soo Kim Lab</small>": "1,715",
-                    "Kaiyu Wang<br><small>Barry Dickson Lab</small>": "2,437",
-                    "Katharina Eichler<br><small>Greg Jefferis Lab (since 10/20), Seeds, Andrew (before 10/20)</small>": "6,296",
-                    "Lab Members<br><small>Volker Hartenstein Lab</small>": "13,739",
-                    "Philipp Schlegel<br><small>Greg Jefferis Lab</small>": "3,714",
-                    "Stefanie Hampel<br><small>Seeds Hampel Lab</small>": "2,123",
-                    "Yijie Yin<br><small>Greg Jefferis Lab</small>": "2,348",
-                },
-                "Top Labels": {
-                    "AL local neuron,ALLN": "420",
-                    "DM4_medial; left": "235",
-                    "DNg_L": "401",
-                    "DNg_R": "403",
-                    "Kenyon_Cell_L": "2,586",
-                    "Putative AN": "2,214",
-                    "Sensory Neuron (ALRN)": "191",
-                    "antennal lobe olfactory and thermo/hygrosensory receptor neuron (ALRN)": "1,920",
-                    "putative fru": "1,130",
-                    "sensory": "925",
-                },
+                "": 3,
+                "Top Label Contributors": 10,
+                "Top Labels": 10,
             },
-            data_stats,
+            {k: len(v) for k, v in data_stats.items()},
         )
         self.assertEqual(
             [

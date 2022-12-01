@@ -71,7 +71,9 @@ COLUMN_INDEX = {c: i for i, c in enumerate(DATA_FILE_COLUMNS)}
 
 
 class NeuronDB(object):
-    def __init__(self, data_file_rows, connection_rows, label_rows, labels_file_timestamp):
+    def __init__(
+        self, data_file_rows, connection_rows, label_rows, labels_file_timestamp
+    ):
         self.neuron_data = {}
         self.rids_of_neurons_with_inherited_tags = []
         self.label_data = {}
