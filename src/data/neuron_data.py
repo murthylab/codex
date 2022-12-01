@@ -150,7 +150,7 @@ class NeuronDB(object):
                 label_data_list = []
                 self.label_data[rid] = label_data_list
             label_dict = NeuronDB._row_to_dict(
-                columns=LABEL_FILE_COLUMNS, row=r, exclude={"root_id"}
+                columns=LABEL_FILE_COLUMNS, row=r, exclude={"root_id"}, to_int={"user_id", "supervoxel_id", "tag_id"}
             )
             label_data_list.append(label_dict)
             ctag = compact_tag(label_dict["tag"])
@@ -506,11 +506,14 @@ class NeuronDB(object):
 
     # Private helpers
     @staticmethod
-    def _row_to_dict(columns, row, exclude):
+    def _row_to_dict(columns, row, exclude, to_int):
         res = {}
         for i, c in enumerate(columns):
             if not exclude or c not in exclude:
-                res[c] = row[i]
+                if not to_int or c not in to_int:
+                    res[c] = row[i]
+                else:
+                    res[c] = int(row[i])
         return res
 
     @staticmethod
