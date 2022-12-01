@@ -134,7 +134,7 @@ def load_neuron_info_from_cave(client, map_to_version=LATEST_DATA_SNAPSHOT_VERSI
         supervoxel_ids, timestamp=mat_timestamp
     )
     print(f"Mapped to version {map_to_version}")
-    neuron_info_table = [["root_id", "tag", "user_id", "position", "supervoxel_id"]]
+    neuron_info_table = [["root_id", "tag", "user_id", "position", "supervoxel_id", "tag_id"]]
     user_ids = set()
     for index, d in df.iterrows():
         user_ids.add(d["user_id"])
@@ -145,6 +145,7 @@ def load_neuron_info_from_cave(client, map_to_version=LATEST_DATA_SNAPSHOT_VERSI
                 int(d["user_id"]),
                 str(d["pt_position"]),
                 int(d["pt_supervoxel_id"]),
+                int(d["id"]),
             ]
         )
 
@@ -572,8 +573,8 @@ def summarize_csv(content):
 def compare_csvs(old_table, new_table):
     old_row_set = set([",".join([str(d) for d in r]) for r in old_table])
     new_row_set = set([",".join([str(d) for d in r]) for r in new_table])
-    print(f"Rows in old but not new: {old_row_set - new_row_set}")
-    print(f"Rows in new but not old: {new_row_set - old_row_set}")
+    print(f"Rows in old but not new: {len(old_row_set - new_row_set)}")
+    print(f"Rows in new but not old: {len(new_row_set - old_row_set)}")
 
 
 def update_labels_file(version=LATEST_DATA_SNAPSHOT_VERSION):

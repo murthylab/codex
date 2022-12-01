@@ -53,6 +53,7 @@ LABEL_FILE_COLUMNS = [
     "user_id",
     "position",
     "supervoxel_id",
+    "tag_id",
     "user_name",
     "user_affiliation",
 ]
