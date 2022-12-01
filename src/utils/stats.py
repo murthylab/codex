@@ -148,7 +148,6 @@ def _make_data_stats(neuron_data, label_data):
     labeled_neurons = 0
     classified_neurons = 0
     anno_counts = defaultdict(int)
-    user_credit_counts = defaultdict(int)
     for nd in neuron_data:
         if nd["tag"]:
             labeled_neurons += 1
@@ -156,14 +155,6 @@ def _make_data_stats(neuron_data, label_data):
                 anno_counts[t] += 1
         if nd["classes"]:
             classified_neurons += 1
-
-    for ld in label_data:
-        for ld_item in ld or []:
-            if ld_item["user_name"]:
-                caption = ld_item["user_name"]
-                if ld_item["user_affiliation"]:
-                    caption += "<br><small>" + ld_item["user_affiliation"] + "</small>"
-                user_credit_counts[caption] += 1
 
     result = {
         "": {
@@ -175,14 +166,43 @@ def _make_data_stats(neuron_data, label_data):
     if anno_counts:
         result["Top Labels"] = {
             k: anno_counts[k]
-            for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:10]
+            for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:5]
         }
-    if user_credit_counts:
-        result["Top Label Contributors"] = {
-            k: user_credit_counts[k]
+
+    all_tags = []
+    for ld in label_data:
+        if ld:
+            all_tags.extend(ld)
+    recent_tags = sorted(all_tags, key=lambda t: t["tag_id"])[-500:]
+
+    def user_cred_counts(tags_list):
+        res = defaultdict(int)
+        for ld_item in tags_list:
+            if ld_item["user_name"]:
+                caption = ld_item["user_name"]
+                if ld_item["user_affiliation"]:
+                    caption += "<br><small>" + ld_item["user_affiliation"] + "</small>"
+                res[caption] += 1
+        return res
+
+    user_credit_counts_all = user_cred_counts(all_tags)
+    if user_credit_counts_all:
+        result["Tagathon leaders (all time)"] = {
+            k: user_credit_counts_all[k]
             for k in sorted(
-                user_credit_counts, key=user_credit_counts.get, reverse=True
-            )[:10]
+                user_credit_counts_all, key=user_credit_counts_all.get, reverse=True
+            )[:5]
+        }
+
+    user_credit_counts_recent = user_cred_counts(recent_tags)
+    if user_credit_counts_recent:
+        result["Tagathon leaders (recent)"] = {
+            k: user_credit_counts_recent[k]
+            for k in sorted(
+                user_credit_counts_recent,
+                key=user_credit_counts_recent.get,
+                reverse=True,
+            )[:5]
         }
 
     return result
