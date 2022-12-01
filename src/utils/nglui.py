@@ -67,11 +67,10 @@ def url_for_neuropil(segment_ids=[]):
 
     seg_ids = "[" + ",".join([f'"{rid}"' for rid in segment_ids]) + "]"
 
-    prefix = '{"layers":[{"type":"segmentation","source":"precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf","tab":"source","selectedAlpha":0,"saturation":0,"objectAlpha":0.1,"segments":["1"],"segmentColors":{"1":"#b5b5b5"},"name":"tissue"},{"type":"segmentation","mesh":"precomputed://gs://neuroglancer-fafb-data/elmr-data/FAFBNP.surf/mesh","objectAlpha":0.90,"tab":"source","segments":' 
+    prefix = '{"layers":[{"type":"segmentation","source":"precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf","tab":"source","selectedAlpha":0,"saturation":0,"objectAlpha":0.1,"segments":["1"],"segmentColors":{"1":"#b5b5b5"},"name":"tissue"},{"type":"segmentation","mesh":"precomputed://gs://neuroglancer-fafb-data/elmr-data/FAFBNP.surf/mesh","objectAlpha":0.90,"tab":"source","segments":'
 
-    
     suffix = ',"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":"neuropil-regions-surface"}],"navigation":{"pose":{"position":{"voxelSize":[4,4,40],"voxelCoordinates":[144710,55390,512]}},"zoomFactor":4.875984234132744},"showAxisLines":false,"perspectiveViewBackgroundColor":"#ffffff","perspectiveZoom":7804.061655381219,"showSlices":false,"gpuMemoryLimit":2000000000,"selectedLayer":{"layer":"neuropil-regions-surface","visible":false},"layout":"3d"}'
 
-
-
-    return "https://neuroglancer-demo.appspot.com/#!" + urllib.parse.quote(prefix + seg_ids + suffix)
+    return "https://neuroglancer-demo.appspot.com/#!" + urllib.parse.quote(
+        prefix + seg_ids + suffix
+    )

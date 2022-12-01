@@ -217,3 +217,19 @@ def lookup_neuropil_set(txt):
 
 
 NEUROPIL_DESCRIPTIONS = {k: neuropil_description(k) for k in REGIONS.keys()}
+
+def make_region_map(): # todo: cache this
+    region_map = {}
+    for hemisphere in HEMISPHERES:
+        region_map[hemisphere] = {}
+        for category, regions in REGION_CATEGORIES.items():
+            for region in regions:
+                if neuropil_hemisphere(region) == hemisphere:
+                    if category not in region_map[hemisphere]:
+                        region_map[hemisphere][category] = {}
+                    region_map[hemisphere][category][region] = {
+                        "segment_id": REGIONS[region][0],
+                        "description": REGIONS[region][1],
+                    }
+                    
+    return region_map
