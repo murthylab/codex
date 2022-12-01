@@ -169,41 +169,7 @@ def _make_data_stats(neuron_data, label_data):
             for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:5]
         }
 
-    all_tags = []
-    for ld in label_data:
-        if ld:
-            all_tags.extend(ld)
-    recent_tags = sorted(all_tags, key=lambda t: t["tag_id"])[-500:]
-
-    def user_cred_counts(tags_list):
-        res = defaultdict(int)
-        for ld_item in tags_list:
-            if ld_item["user_name"]:
-                caption = ld_item["user_name"]
-                if ld_item["user_affiliation"]:
-                    caption += "<br><small>" + ld_item["user_affiliation"] + "</small>"
-                res[caption] += 1
-        return res
-
-    user_credit_counts_all = user_cred_counts(all_tags)
-    if user_credit_counts_all:
-        result["Top Labelers (all time)"] = {
-            k: user_credit_counts_all[k]
-            for k in sorted(
-                user_credit_counts_all, key=user_credit_counts_all.get, reverse=True
-            )[:5]
-        }
-
-    user_credit_counts_recent = user_cred_counts(recent_tags)
-    if user_credit_counts_recent:
-        result["Top Labelers (recent)"] = {
-            k: user_credit_counts_recent[k]
-            for k in sorted(
-                user_credit_counts_recent,
-                key=user_credit_counts_recent.get,
-                reverse=True,
-            )[:5]
-        }
+    fill_in_leaderboard_data(label_data=label_data, top_n=5, include_lab_leaderboard=False, destination=result)
 
     return result
 
@@ -212,7 +178,7 @@ def _format_val(val):
     return "{:,}".format(val) if isinstance(val, int) else val
 
 
-def _format_for_display(dict_of_dicts):
+def format_for_display(dict_of_dicts):
     def _format_dict(dct):
         return {k: _format_val(v) for k, v in dct.items()}
 
@@ -233,8 +199,67 @@ def compile_data(
     caption = "Stats for " + ", ".join(stats_caption)
 
     data_stats = _make_data_stats(neuron_data, label_data)
-    data_stats = _format_for_display(data_stats)
+    data_stats = format_for_display(data_stats)
 
     data_charts = _make_data_charts(neuron_data)
 
     return caption, data_stats, data_charts
+
+
+def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destination):
+    all_tags = []
+    for ld in label_data:
+        if ld:
+            all_tags.extend(ld)
+    recent_tags = sorted(all_tags, key=lambda t: t["tag_id"])[-500:]
+
+
+    if include_lab_leaderboard:
+        contributors_by_lab = defaultdict(set)
+        for t in all_tags:
+            contributors_by_lab[t["user_affiliation"]].add(t["user_name"])
+        lab_lb = defaultdict(int)
+        for ld_item in all_tags:
+            lab_name = ld_item["user_affiliation"]
+            if lab_name:
+                caption = f"{lab_name}<br><small>{len(contributors_by_lab[lab_name])} contributors</small>"
+                lab_lb[caption] += 1
+
+        destination["Labs by label contributions"] = {
+            k: lab_lb[k]
+            for k in sorted(
+                lab_lb,
+                key=lab_lb.get,
+                reverse=True,
+            )[:top_n]
+        }
+
+    def user_cred_counts(tags_list):
+        res = defaultdict(int)
+        for ld_item in tags_list:
+            if ld_item["user_name"]:
+                caption = ld_item["user_name"]
+                if ld_item["user_affiliation"]:
+                    caption += "<br><small>" + ld_item["user_affiliation"] + "</small>"
+                res[caption] += 1
+        return res
+
+    user_credit_counts_all = user_cred_counts(all_tags)
+    if user_credit_counts_all:
+        destination["Top Labelers (all time)"] = {
+            k: user_credit_counts_all[k]
+            for k in sorted(
+                user_credit_counts_all, key=user_credit_counts_all.get, reverse=True
+            )[:top_n]
+        }
+
+    user_credit_counts_recent = user_cred_counts(recent_tags)
+    if user_credit_counts_recent:
+        destination["Top Labelers (recent)"] = {
+            k: user_credit_counts_recent[k]
+            for k in sorted(
+                user_credit_counts_recent,
+                key=user_credit_counts_recent.get,
+                reverse=True,
+            )[:top_n]
+        }
