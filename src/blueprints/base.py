@@ -343,8 +343,8 @@ def index(path):
                 "url": "app.nblast",
             },
             {
-                "header": "Connectivity",
-                "body": "Visualize network of neurons and their synaptic connections",
+                "header": "Network Graphs",
+                "body": "Visualize connectivity of neurons and their synaptic links",
                 "asset_filename": "card-network.jpg",
                 "url": "app.connectivity",
             },
