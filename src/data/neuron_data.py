@@ -70,19 +70,12 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
 COLUMN_INDEX = {c: i for i, c in enumerate(DATA_FILE_COLUMNS)}
 
 
-def _row_to_dict(columns, row, exclude):
-    res = {}
-    for i, c in enumerate(columns):
-        if not exclude or c not in exclude:
-            res[c] = row[i]
-    return res
-
-
 class NeuronDB(object):
-    def __init__(self, data_file_rows, connection_rows, label_rows):
+    def __init__(self, data_file_rows, connection_rows, label_rows, labels_file_timestamp):
         self.neuron_data = {}
         self.rids_of_neurons_with_inherited_tags = []
         self.label_data = {}
+        self.labels_file_timestamp = labels_file_timestamp
 
         for i, r in enumerate(data_file_rows):
             if i == 0:
@@ -153,7 +146,7 @@ class NeuronDB(object):
             if not label_data_list:
                 label_data_list = []
                 self.label_data[rid] = label_data_list
-            label_dict = _row_to_dict(
+            label_dict = NeuronDB._row_to_dict(
                 columns=LABEL_FILE_COLUMNS, row=r, exclude={"root_id"}
             )
             label_data_list.append(label_dict)
@@ -373,6 +366,9 @@ class NeuronDB(object):
         root_id = int(root_id)
         return self.label_data.get(root_id)
 
+    def labels_ingestion_timestamp(self):
+        return self.labels_file_timestamp
+
     @staticmethod
     def hemisphere_fingerprint(input_pils, output_pils):
         def fp(pils):
@@ -506,6 +502,13 @@ class NeuronDB(object):
         return multi_val_attr_names
 
     # Private helpers
+    @staticmethod
+    def _row_to_dict(columns, row, exclude):
+        res = {}
+        for i, c in enumerate(columns):
+            if not exclude or c not in exclude:
+                res[c] = row[i]
+        return res
 
     @staticmethod
     def _get_value(row, col, split=False, to_type=None):

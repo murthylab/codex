@@ -2,6 +2,7 @@ import csv
 import gzip
 import os
 import pickle
+from datetime import datetime
 
 from src.data.neuron_data import NeuronDB
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS
@@ -32,8 +33,12 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         connection_rows = []
     if os.path.exists(f"{data_file_path}/{LABELS_FILE_NAME}"):
         label_rows = read_csv(f"{data_file_path}/{LABELS_FILE_NAME}")
+        labels_file_timestamp = os.path.getmtime(f"{data_file_path}/{LABELS_FILE_NAME}")
+        labels_file_timestamp = datetime.utcfromtimestamp(labels_file_timestamp).strftime('%Y-%m-%d')
+        log(f"Labels file timestamp: {labels_file_timestamp}")
     else:
         label_rows = []
+        labels_file_timestamp = '?'
     log(
         f"App initialization loaded {len(neuron_data_rows)} items from {data_file_path}, "
         f"{len(connection_rows)} connection rows, "
@@ -43,6 +48,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         data_file_rows=neuron_data_rows,
         connection_rows=connection_rows,
         label_rows=label_rows,
+        labels_file_timestamp=labels_file_timestamp
     )
     # free mem
     del neuron_data_rows
