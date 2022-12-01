@@ -187,7 +187,7 @@ def _make_data_stats(neuron_data, label_data):
 
     user_credit_counts_all = user_cred_counts(all_tags)
     if user_credit_counts_all:
-        result["Tagathon leaders (all time)"] = {
+        result["Top Labelers (all time)"] = {
             k: user_credit_counts_all[k]
             for k in sorted(
                 user_credit_counts_all, key=user_credit_counts_all.get, reverse=True
@@ -196,7 +196,7 @@ def _make_data_stats(neuron_data, label_data):
 
     user_credit_counts_recent = user_cred_counts(recent_tags)
     if user_credit_counts_recent:
-        result["Tagathon leaders (recent)"] = {
+        result["Top Labelers (recent)"] = {
             k: user_credit_counts_recent[k]
             for k in sorted(
                 user_credit_counts_recent,

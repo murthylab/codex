@@ -472,9 +472,9 @@ def todo_list():
 
 @base.route("/demo_clip", methods=["GET"])
 def demo_clip():
-    log_activity("Loading demo clip")
+    log_activity("Loading demo clips")
     return redirect(
-        "https://www.youtube.com/watch?v=YQoXg_UA-ZY&ab_channel=FlyWirePrinceton"
+        "https://www.youtube.com/@flywireprinceton4189/search?query=codex"
     )
 
 
