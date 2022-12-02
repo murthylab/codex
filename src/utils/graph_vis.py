@@ -5,7 +5,6 @@ from flask import render_template, url_for
 from src.data.brain_regions import neuropil_description
 from src.utils.formatting import shorten_and_concat_labels
 
-MAX_NODES = 30
 
 NEUROPIL_COLOR = "#97c2fc"
 NT_COLORS = {
@@ -19,7 +18,7 @@ NT_COLORS = {
 UNSPECIFIED_COLOR = "#fafafa"
 
 
-def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
+def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_limit):
     """
     connection_table has 4 columns: pre root id, post root id, neuropil, syn count
     neuron_data_fetcher is a lambda that returns neuron metadata given it's id
@@ -42,9 +41,6 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
         return "elipse" if ndata["root_id"] in center_ids else "dot"
 
     def node_position(ndata):
-        if ndata["root_id"] in center_ids:
-            idx = center_ids.index(ndata["root_id"])
-            return 0, 50 * idx
         return None, None
 
     def node_color(ndata):
@@ -125,13 +121,13 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
         return nid
 
     # add the most significant connections first
-    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:MAX_NODES]:
+    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:nodes_limit]:
         add_cell_node(k[0])
         pnid = add_pil_node(k[1], is_input=k[0] not in center_ids)
         net.add_edge(
             source=k[0], target=pnid, value=v, label=str(v), title=edge_title(v)
         )
-    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[:MAX_NODES]:
+    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[:nodes_limit]:
         add_cell_node(k[1])
         pnid = add_pil_node(k[0], is_input=k[1] in center_ids)
         net.add_edge(
@@ -176,7 +172,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
             added_super_edge_pairs.add((f, t))
 
     for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[
-        MAX_NODES : 2 * MAX_NODES
+        nodes_limit : 2 * nodes_limit
     ]:
         if k[0] in added_cell_nodes:
             if k[1] in added_pil_nodes:
@@ -194,7 +190,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
                 add_super_edge(sc, sp, v)
 
     for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[
-        MAX_NODES : 2 * MAX_NODES
+        nodes_limit : 2 * nodes_limit
     ]:
         if k[1] in added_cell_nodes:
             if k[0] in added_pil_nodes:
@@ -211,8 +207,8 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids=None):
                 sp = add_super_pil_node()
                 add_super_edge(sp, sc, v)
 
-    if len(cell_to_pil_counts) > MAX_NODES:
-        warning_msg = f"Top {MAX_NODES} cells out of {len(cell_to_pil_counts)}"
+    if len(cell_to_pil_counts) > nodes_limit:
+        warning_msg = f"Top {nodes_limit} cells out of {len(cell_to_pil_counts)}"
     else:
         warning_msg = None
     return net.generate_html(warning_msg=warning_msg)
