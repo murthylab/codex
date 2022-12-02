@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from flask import render_template, url_for
 
-from src.data.brain_regions import neuropil_description
+from src.data.brain_regions import neuropil_description, REGIONS
 from src.utils.formatting import shorten_and_concat_labels
 
 
@@ -17,6 +17,16 @@ NT_COLORS = {
 }
 UNSPECIFIED_COLOR = "#fafafa"
 
+def cap(connection_table, center_ids, nodes_limit):
+    node_to_syn_count = {n: 0 for n in center_ids}
+    for r in connection_table:
+        if r[0] in node_to_syn_count:
+            node_to_syn_count[r[0]] += r[3]
+        if r[1] in node_to_syn_count:
+            node_to_syn_count[r[1]] += r[3]
+    center_ids = [t[0] for t in sorted(node_to_syn_count.items(), key=lambda p: -p[1])[:nodes_limit]]
+    connection_table = [r for r in connection_table if (r[0] in center_ids or r[1] in center_ids)]
+    return connection_table, center_ids
 
 def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_limit):
     """
@@ -25,17 +35,25 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
     center_ids is the ids of the neurons that are being inspected
     """
     center_ids = center_ids or []
+    connection_table = [r for r in connection_table if r[2] in REGIONS]  # exclude unknown region connections
+
+    if len(center_ids) > nodes_limit:
+        warning_msg = f"Top {nodes_limit} cells out of {len(center_ids)}"
+        connection_table, center_ids = cap(connection_table=connection_table, center_ids=center_ids, nodes_limit=nodes_limit)
+    else:
+        warning_msg = None
 
     def node_size(ndata):
-        return 20 if ndata["root_id"] in center_ids else 10
+        return 10 if ndata["root_id"] in center_ids else 5
+
+    def pil_size():
+        return 5
 
     def node_mass(node_id):
         if node_id == "neuropil":
             return 5
-        elif node_id == "supernode":
-            return 10
         else:
-            return 200 if node_id in center_ids else 1
+            return 3 if node_id in center_ids else 1
 
     def node_shape(ndata):
         return "elipse" if ndata["root_id"] in center_ids else "dot"
@@ -103,114 +121,36 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
 
     added_pil_nodes = set()
 
-    def add_pil_node(pil, is_input):
-        nid = f"{pil}_{'in' if is_input else 'out'}"
-        if nid not in added_pil_nodes:
+    def add_pil_node(pil):
+        if pil not in added_pil_nodes:
             title = f"Neuropil {pil}<br><small>{neuropil_description(pil)}</small>"
             net.add_node(
-                name=nid,
-                label=f"{pil} ({'in' if is_input else 'out'})",
+                name=pil,
+                label=pil,
                 title=title,
                 shape="box",
-                size=20,
+                size=pil_size(),
                 mass=node_mass("neuropil"),
                 color=NEUROPIL_COLOR,
             )
-            added_pil_nodes.add(nid)
+            added_pil_nodes.add(pil)
             net.add_legend("Neuropil", color=NEUROPIL_COLOR)
-        return nid
+        return pil
 
     # add the most significant connections first
-    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:nodes_limit]:
+    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:2 * nodes_limit]:
         add_cell_node(k[0])
-        pnid = add_pil_node(k[1], is_input=k[0] not in center_ids)
+        pnid = add_pil_node(k[1])
         net.add_edge(
-            source=k[0], target=pnid, value=v, label=str(v), title=edge_title(v)
+            source=k[0], target=pnid, weak=k[0] not in center_ids, label=str(v), title=edge_title(v)
         )
-    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[:nodes_limit]:
+    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[:2 * nodes_limit]:
         add_cell_node(k[1])
-        pnid = add_pil_node(k[0], is_input=k[1] in center_ids)
+        pnid = add_pil_node(k[0])
         net.add_edge(
-            source=pnid, target=k[1], value=v, label=str(v), title=edge_title(v)
+            source=pnid, target=k[1], weak=k[1] not in center_ids, label=str(v), title=edge_title(v)
         )
 
-    # bundle any remaining connections (to prevent too large graphs)
-    def add_super_cell_node():
-        scid = "other_cells"
-        if scid not in added_cell_nodes:
-            net.add_node(
-                name=scid,
-                label=f"Other Cells",
-                color="#fafafa",
-                shape="database",
-                size=40,
-                mass=node_mass("supernode"),
-            )
-            added_cell_nodes.add(scid)
-        return scid
-
-    def add_super_pil_node():
-        spid = "other_neuropils"
-        if spid not in added_pil_nodes:
-            net.add_node(
-                name=spid,
-                label=f"Other Neuropils",
-                color="#fafafa",
-                shape="database",
-                size="40",
-                mass=node_mass("supernode"),
-            )
-            added_pil_nodes.add(spid)
-        return spid
-
-    # also apply limit on bundled nodes/edges (scaling issues)
-    added_super_edge_pairs = set()
-
-    def add_super_edge(f, t, v):
-        if (f, t) not in added_super_edge_pairs:
-            net.add_edge(source=f, target=t, value=v, label=str(v), title=edge_title(v))
-            added_super_edge_pairs.add((f, t))
-
-    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[
-        nodes_limit : 2 * nodes_limit
-    ]:
-        if k[0] in added_cell_nodes:
-            if k[1] in added_pil_nodes:
-                add_super_edge(k[0], k[1], v)
-            else:
-                sp = add_super_pil_node()
-                add_super_edge(k[0], sp, v)
-        else:
-            if k[1] in added_pil_nodes:
-                sc = add_super_cell_node()
-                add_super_edge(sc, k[1], v)
-            else:
-                sc = add_super_cell_node()
-                sp = add_super_pil_node()
-                add_super_edge(sc, sp, v)
-
-    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[
-        nodes_limit : 2 * nodes_limit
-    ]:
-        if k[1] in added_cell_nodes:
-            if k[0] in added_pil_nodes:
-                add_super_edge(k[0], k[1], v)
-            else:
-                sp = add_super_pil_node()
-                add_super_edge(sp, k[1], v)
-        else:
-            if k[0] in added_pil_nodes:
-                sc = add_super_cell_node()
-                add_super_edge(k[0], sc, v)
-            else:
-                sc = add_super_cell_node()
-                sp = add_super_pil_node()
-                add_super_edge(sp, sc, v)
-
-    if len(cell_to_pil_counts) > nodes_limit:
-        warning_msg = f"Top {nodes_limit} cells out of {len(cell_to_pil_counts)}"
-    else:
-        warning_msg = None
     return net.generate_html(warning_msg=warning_msg)
 
 
@@ -246,7 +186,7 @@ class Network(object):
 
             self.node_map[name] = node
 
-    def add_edge(self, source, target, value, label, title):
+    def add_edge(self, source, target, weak, label, title):
         source = str(source)
         target = str(target)
         assert source in self.node_map, f"non existent node '{str(source)}'"
@@ -256,11 +196,12 @@ class Network(object):
             {
                 "from": source,
                 "to": target,
-                "value": value,
                 "physics": self.edge_physics,
                 "label": label,
                 "title": title,
                 "arrows": "to",
+                "width": 1 if weak else 2,
+                "dashes": False,
             }
         )
 

@@ -24,10 +24,13 @@
                     elem.form.submit();
                 }
             </script>
-            <a class="btn btn btn-outline-primary my-2 my-sm-0" style="margin: 15px;"
+            <a class="btn btn btn-outline-primary my-2 my-sm-0" style="margin: 5px;"
                onclick="download_data('csv');"><i class="fa-solid fa-download"></i> &nbsp;  CSV</a>
             <a class="btn btn btn-outline-primary my-2 my-sm-0"
                 onclick="download_data('json');"><i class="fa-solid fa-download"></i> &nbsp;  JSON</a>
+            <button class="btn btn btn-success my-2 my-sm-0" type="submit" onclick="loading();" title="Re-render" style="margin: 5px;">
+                <i class="fa-solid fa-repeat"></i></button>
+
         {% endif %}
     </form>
 </nav>
