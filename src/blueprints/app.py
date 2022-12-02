@@ -1194,12 +1194,6 @@ def connectivity():
                 title="No matching cells found",
                 message=f"Could not find any cells matching '{cell_names_or_ids}'",
             )
-        elif len(root_ids) > nodes_limit:
-            message = (
-                f"Too many ({len(root_ids)}) cells match '{cell_names_or_ids}'. "
-                f"Generating connectivity network for the first {nodes_limit} matches."
-            )
-            root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
 
         contable = neuron_db.connections(
             ids=root_ids, nt_type=nt_type, min_syn_count=min_syn_cnt
