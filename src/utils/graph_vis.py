@@ -17,6 +17,7 @@ NT_COLORS = {
 }
 UNSPECIFIED_COLOR = "#fafafa"
 
+
 def cap(connection_table, center_ids, nodes_limit):
     node_to_syn_count = {n: 0 for n in center_ids}
     for r in connection_table:
@@ -24,9 +25,15 @@ def cap(connection_table, center_ids, nodes_limit):
             node_to_syn_count[r[0]] += r[3]
         if r[1] in node_to_syn_count:
             node_to_syn_count[r[1]] += r[3]
-    center_ids = [t[0] for t in sorted(node_to_syn_count.items(), key=lambda p: -p[1])[:nodes_limit]]
-    connection_table = [r for r in connection_table if (r[0] in center_ids or r[1] in center_ids)]
+    center_ids = [
+        t[0]
+        for t in sorted(node_to_syn_count.items(), key=lambda p: -p[1])[:nodes_limit]
+    ]
+    connection_table = [
+        r for r in connection_table if (r[0] in center_ids or r[1] in center_ids)
+    ]
     return connection_table, center_ids
+
 
 def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_limit):
     """
@@ -35,11 +42,17 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
     center_ids is the ids of the neurons that are being inspected
     """
     center_ids = center_ids or []
-    connection_table = [r for r in connection_table if r[2] in REGIONS]  # exclude unknown region connections
+    connection_table = [
+        r for r in connection_table if r[2] in REGIONS
+    ]  # exclude unknown region connections
 
     if len(center_ids) > nodes_limit:
         warning_msg = f"Top {nodes_limit} cells out of {len(center_ids)}"
-        connection_table, center_ids = cap(connection_table=connection_table, center_ids=center_ids, nodes_limit=nodes_limit)
+        connection_table, center_ids = cap(
+            connection_table=connection_table,
+            center_ids=center_ids,
+            nodes_limit=nodes_limit,
+        )
     else:
         warning_msg = None
 
@@ -144,17 +157,29 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
         return pil
 
     # add the most significant connections first
-    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[:2 * nodes_limit]:
+    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[
+        : 2 * nodes_limit
+    ]:
         add_cell_node(k[0])
         pnid = add_pil_node(k[1])
         net.add_edge(
-            source=k[0], target=pnid, weak=k[0] not in center_ids, label=str(v), title=edge_title(v)
+            source=k[0],
+            target=pnid,
+            weak=k[0] not in center_ids,
+            label=str(v),
+            title=edge_title(v),
         )
-    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[:2 * nodes_limit]:
+    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[
+        : 2 * nodes_limit
+    ]:
         add_cell_node(k[1])
         pnid = add_pil_node(k[0])
         net.add_edge(
-            source=pnid, target=k[1], weak=k[1] not in center_ids, label=str(v), title=edge_title(v)
+            source=pnid,
+            target=k[1],
+            weak=k[1] not in center_ids,
+            label=str(v),
+            title=edge_title(v),
         )
 
     return net.generate_html(warning_msg=warning_msg)
