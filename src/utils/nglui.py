@@ -63,7 +63,7 @@ def url_for_random_sample(root_ids, sample_size=50):
     return url_for_root_ids(root_ids)
 
 
-def url_for_neuropil(segment_ids=[]):
+def url_for_neuropils(segment_ids=[]):
 
     seg_ids = "[" + ",".join([f'"{rid}"' for rid in segment_ids]) + "]"
 

@@ -1242,7 +1242,7 @@ def flywire_neuropil_url():
     segment_ids = [REGIONS[r][0] for r in selected.split(',') if r]
     print(f"segment_ids: {segment_ids}")
 
-    url = nglui.url_for_neuropil(segment_ids)
+    url = nglui.url_for_neuropils(segment_ids)
     return ngl_redirect_with_browser_check(ngl_url=url)
 
 
