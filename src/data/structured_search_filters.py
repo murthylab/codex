@@ -222,7 +222,7 @@ STRUCTURED_SEARCH_OPERATORS = [
     BinarySearchOperator(
         name=OP_STARTS_WITH,
         shorthand="^*",
-        description="Binary, LHS attribute of the cell starts with RHS value (e.g., label {starts_with} LC",
+        description="Binary, LHS attribute of the cell starts with RHS value (e.g., label {starts_with} LC)",
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Prefix",
@@ -231,7 +231,7 @@ STRUCTURED_SEARCH_OPERATORS = [
     BinarySearchOperator(
         name=OP_CONTAINS,
         shorthand=">>",
-        description="Binary, LHS attribute of the cell contains RHS value (e.g., label {contains} dsx",
+        description="Binary, LHS attribute of the cell contains RHS value (e.g., label {contains} dsx)",
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Substring",
@@ -272,21 +272,21 @@ STRUCTURED_SEARCH_OPERATORS = [
     UnarySearchOperator(
         name=OP_UPSTREAM,
         shorthand="^^",
-        description="Unary, matches cells upstream of specified Cell ID)",
+        description="Unary, matches cells upstream of specified Cell ID",
         rhs_description="Cell ID",
         rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_DOWNSTREAM,
         shorthand="!^",
-        description="Unary, matches cells downstream of specified Cell ID)",
+        description="Unary, matches cells downstream of specified Cell ID",
         rhs_description="Cell ID",
         rhs_range=None,
     ),
     BinarySearchOperator(
         name=OP_UPSTREAM_REGION,
         shorthand="^R",
-        description="Binary, matches cells upstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
+        description="Binary, matches cells upstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG)",
         lhs_description="Region or Side",
         lhs_range=HEMISPHERES + sorted(REGIONS.keys()),
         rhs_description="Cell ID",
@@ -295,7 +295,7 @@ STRUCTURED_SEARCH_OPERATORS = [
     BinarySearchOperator(
         name=OP_DOWNSTREAM_REGION,
         shorthand="!R",
-        description="Binary, matches cells downstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG).",
+        description="Binary, matches cells downstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG)",
         lhs_description="Region or Side",
         lhs_range=HEMISPHERES + sorted(REGIONS.keys()),
         rhs_description="Cell ID",
@@ -456,6 +456,13 @@ def _make_predicate(structured_term, input_sets, output_sets, case_sensitive):
     elif op in [OP_IN, OP_NOT_IN]:
         search_attr = _search_attribute_by_name(lhs)
         rhs_items = search_attr.list_convertor(rhs)
+        # optimization for "id" lookups
+        if lhs == "id":
+            idset = set(rhs_items)
+            if op == OP_IN:
+                return lambda n: str(n["root_id"]) in idset
+            else:
+                return lambda n: str(n["root_id"]) not in idset
         predicates = [
             _make_comparison_predicate(
                 lhs=lhs,
@@ -566,6 +573,7 @@ def _parse_search_terms(terms):
                     if not parts[0] and parts[1]:
                         structured.append({"op": op.name, "rhs": parts[1]})
                         continue
+        log_error(f"Too many search operators in : {term}")
         raise_malformed_structured_search_query()
 
     return free_form, structured

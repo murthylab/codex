@@ -56,6 +56,8 @@ from src.utils.formatting import (
     synapse_table_to_csv_string,
     synapse_table_to_json_dict,
     highlight_annotations,
+    concat_labels,
+    trim_long_tokens,
 )
 from src.utils.graph_algos import reachable_node_counts, distance_matrix
 from src.utils.graph_vis import make_graph_html
@@ -67,6 +69,7 @@ from src.utils.logging import (
     log,
     log_user_help,
 )
+from src.utils.nglui import can_be_flywire_root_id
 from src.utils.pathway_vis import pathway_chart_data_rows
 from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
@@ -105,6 +108,7 @@ def stats():
         data_stats=data_stats,
         data_charts=data_charts,
         num_items=num_items,
+        searched_for_root_id=can_be_flywire_root_id(filter_string),
         # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
         # Otherwise it will be available as downloadable file.
         root_ids_str=",".join([str(ddi) for ddi in filtered_root_id_list])
@@ -132,9 +136,11 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
         log_error(f"No stats results for {filter_string}. Sending hint '{hint}'")
 
-    data = [neuron_db.get_neuron_data(i) for i in filtered_root_id_list]
+    neuron_data = [neuron_db.get_neuron_data(i) for i in filtered_root_id_list]
+    label_data = [neuron_db.get_label_data(i) for i in filtered_root_id_list]
     caption, data_stats, data_charts = stats_utils.compile_data(
-        data,
+        neuron_data=neuron_data,
+        label_data=label_data,
         search_query=filter_string,
         case_sensitive=case_sensitive,
         match_words=whole_word,
@@ -162,6 +168,26 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
         data_stats,
         data_charts,
     )
+
+
+@app.route("/leaderboard")
+@request_wrapper
+@require_data_access
+def leaderboard():
+    log_activity(f"Loading Leaderboard")
+    return render_template("leaderboard.html", data_stats=_leaderboard_cached())
+
+
+@lru_cache
+def _leaderboard_cached():
+    res = {}
+    stats_utils.fill_in_leaderboard_data(
+        label_data=neuron_data_factory.get().all_label_data(),
+        top_n=20,
+        include_lab_leaderboard=True,
+        destination=res,
+    )
+    return stats_utils.format_for_display(res)
 
 
 @app.route("/explore")
@@ -233,6 +259,7 @@ def render_neuron_list(
         nd["root_id"]: url_for_skeleton(nd["root_id"], data_version=data_version)
         for nd in display_data
     }
+    highlighted_tags = {}
     for nd in display_data:
         if nd["inherited_tag_root_id"]:
             skeleton_thumbnail_urls[nd["inherited_tag_root_id"]] = url_for_skeleton(
@@ -240,13 +267,18 @@ def render_neuron_list(
             )
 
         # Only highlight free-form search tokens (and not structured search attributes)
-        nd["colored_annotations"] = highlight_annotations(
-            parse_search_query(filter_string)[1], nd["tag"]
+        psq = parse_search_query(filter_string)
+        search_terms = psq[1] + [stq["rhs"] for stq in psq[2] or []]
+        highlighted_tag_list = highlight_annotations(
+            search_terms, [trim_long_tokens(t) for t in nd["tag"]]
         )
+        for t, highlighted_tag in enumerate(highlighted_tag_list):
+            highlighted_tags[nd["tag"][t]] = highlighted_tag
 
     return render_template(
         template_name_or_list=template_name,
         display_data=display_data,
+        highlighted_tags=highlighted_tags,
         skeleton_thumbnail_urls=skeleton_thumbnail_urls,
         # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
         # Otherwise it will be available as downloadable file.
@@ -254,6 +286,7 @@ def render_neuron_list(
         if len(filtered_root_id_list) <= MAX_NEURONS_FOR_DOWNLOAD
         else [],
         num_items=num_items,
+        searched_for_root_id=can_be_flywire_root_id(filter_string),
         pagination_info=pagination_info,
         filter_string=filter_string,
         hint=hint,
@@ -263,6 +296,7 @@ def render_neuron_list(
         whole_word=whole_word,
         extra_data=extra_data,
         advanced_search_data=get_advanced_search_data(current_query=filter_string),
+        multi_val_attrs=neuron_db.multi_val_attrs(filtered_root_id_list),
     )
 
 
@@ -292,6 +326,7 @@ def search():
             query=filter_string,
             ids=filtered_root_id_list,
             output_sets=neuron_db.output_sets(),
+            label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["tag"]),
         )
     else:
         hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
@@ -332,7 +367,7 @@ def download_search_results():
 
     cols = [
         "root_id",
-        "annotations",
+        "tag",
         "name",
         "nt_type",
         "class",
@@ -471,7 +506,7 @@ def accept_label_suggestion():
         )
 
     return render_info(
-        f"Label(s) <b> {from_neuron['annotations']} </b> assigned to Cell ID <b> {to_root_id} </b>"
+        f"Label(s) <b> {from_neuron['tag']} </b> assigned to Cell ID <b> {to_root_id} </b>"
     )
 
 
@@ -504,9 +539,14 @@ def reject_label_suggestion():
 def flywire_url():
     root_ids = [int(rid) for rid in request.args.getlist("root_ids")]
     log_request = request.args.get("log_request", default=1, type=int)
-    url = nglui.url_for_root_ids(root_ids)
+    proofreading_url = request.args.get("proofreading_url", default=0, type=int)
+    url = nglui.url_for_root_ids(
+        root_ids, point_to_proofreading_flywire=proofreading_url
+    )
     if log_request:
-        log_activity(f"Redirecting for {root_ids} to FlyWire {format_link(url)}")
+        log_activity(
+            f"Redirecting for {root_ids} to FlyWire {format_link(url)}, {proofreading_url=}"
+        )
     return ngl_redirect_with_browser_check(ngl_url=url)
 
 
@@ -527,12 +567,15 @@ def ngl_redirect_with_browser_check(ngl_url):
 @request_wrapper
 @require_data_access
 def cell_details():
+    min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
+    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    neuron_db = neuron_data_factory.get(data_version)
+
     if request.method == "POST":
         annotation_text = request.form.get("annotation_text")
         annotation_coordinates = request.form.get("annotation_coordinates")
         annotation_cell_id = request.form.get("annotation_cell_id")
         if not annotation_coordinates:
-            neuron_db = neuron_data_factory.get()
             ndata = neuron_db.get_neuron_data(annotation_cell_id)
             annotation_coordinates = ndata["position"][0] if ndata["position"] else None
         fw_user_id = fetch_flywire_user_id(session)
@@ -556,7 +599,6 @@ def cell_details():
     else:
         cell_names_or_id = request.args.get("cell_names_or_id")
         if cell_names_or_id:
-            neuron_db = neuron_data_factory.get()
             if cell_names_or_id == "{random_cell}":
                 log_activity(f"Generated random cell detail page")
                 root_id = neuron_db.random_cell_id()
@@ -578,16 +620,34 @@ def cell_details():
     if root_id is None:
         log_activity(f"Generated empty cell detail page")
         return render_template("cell_details.html")
-
-    min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
-    neuron_db = neuron_data_factory.get(data_version)
     log(f"Generating neuron info {activity_suffix(root_id, data_version)}")
+    return _cached_cell_details(
+        cell_names_or_id=cell_names_or_id,
+        root_id=root_id,
+        neuron_db=neuron_db,
+        min_syn_cnt=min_syn_cnt,
+    )
+
+
+@lru_cache
+def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
     nd = neuron_db.get_neuron_data(root_id=root_id)
+    labels_data = neuron_db.get_label_data(root_id=root_id)
+    tags = sorted(set([ld["tag"] for ld in labels_data or []]))
+    unames = sorted(
+        set(
+            [
+                f'<small>{ld["user_name"]}, {ld["user_affiliation"]}</small>'
+                for ld in labels_data or []
+            ]
+        )
+    )
     cell_attributes = {
         "Name": nd["name"],
         "FlyWire Root ID": root_id,
-        "Annotations": "&nbsp; <b>&#x2022;</b> &nbsp;".join(nd["tag"]),
+        f'Labels<br><span style="font-size: 9px; color: purple;">Updated {neuron_db.labels_ingestion_timestamp()}</span>': concat_labels(
+            tags
+        ),
         "NT Type": nd["nt_type"]
         + f' ({lookup_nt_type_name(nd["nt_type"])})'
         + "<br><small>predictions "
@@ -596,7 +656,8 @@ def cell_details():
         )
         + "</small>",
         "Classification": nd["class"],
-        "Position": "<br>".join(nd["position"]),
+        "Marked coordinates": "<br>".join(nd["position"]),
+        f"Label contributors": concat_labels(unames),
     }
 
     related_cells = {}
@@ -617,9 +678,8 @@ def cell_details():
             )
             related_cells[search_link] = nglui_link
 
-    connectivity_table = gcs_data_loader.load_connection_table_for_root_id(
-        root_id, min_syn_count=min_syn_cnt
-    )
+    connectivity_table = neuron_db.connections(ids=[root_id], min_syn_count=min_syn_cnt)
+
     if connectivity_table:
         input_neuropil_synapse_count = defaultdict(int)
         output_neuropil_synapse_count = defaultdict(int)
@@ -760,16 +820,18 @@ def cell_details():
 
     cell_extra_data = {}
     if neuron_db.connection_rows:
+        ins, outs = neuron_db.input_output_sets()
+
         reachable_counts = reachable_node_counts(
             sources={root_id},
-            neighbor_sets=neuron_db.output_sets(),
+            neighbor_sets=outs,
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
             cell_extra_data["Downstream Reachable Cells (5+ syn)"] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources={root_id},
-            neighbor_sets=neuron_db.input_sets(),
+            neighbor_sets=ins,
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
@@ -778,6 +840,7 @@ def cell_details():
     log_activity(
         f"Generated neuron info for {root_id} with {len(cell_attributes) + len(related_cells)} items"
     )
+
     return render_template(
         "cell_details.html",
         cell_names_or_id=cell_names_or_id or nd["name"],
@@ -795,34 +858,40 @@ def cell_details():
 @request_wrapper
 @require_data_access
 def nblast():
-    sample_input = "720575940628063479, 720575940645542276, 720575940626822533, 720575940609037432, 720575940628445399"
+    sample_input = "720575940645542276,720575940626822533,720575940609037432,720575940624535554,720575940626158598"
     source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
     if not source_cell_names_or_ids and not target_cell_names_or_ids:
         if request.args.get("with_sample_input", type=int, default=0):
-            cell_names_or_ids = sample_input
+            source_cell_names_or_ids = target_cell_names_or_ids = sample_input
         else:
-            cell_names_or_ids = None
-    else:
-        cell_names_or_ids = " ".join(
-            [q for q in [source_cell_names_or_ids, target_cell_names_or_ids] if q]
-        )
+            source_cell_names_or_ids = target_cell_names_or_ids = ""
 
     download = request.args.get("download", 0, type=int)
-    log_activity(f"Generating NBLAST table for '{cell_names_or_ids}' {download=}")
+    log_activity(
+        f"Generating NBLAST table for '{source_cell_names_or_ids}' -> '{target_cell_names_or_ids}' {download=}"
+    )
     message = None
 
-    if cell_names_or_ids:
+    if source_cell_names_or_ids or target_cell_names_or_ids:
         neuron_db = neuron_data_factory.get()
-        root_ids = neuron_db.search(search_query=cell_names_or_ids)
+        root_ids = set()
+        if source_cell_names_or_ids:
+            root_ids |= set(neuron_db.search(search_query=source_cell_names_or_ids))
+        if (
+            target_cell_names_or_ids
+            and target_cell_names_or_ids != source_cell_names_or_ids
+        ):
+            root_ids |= set(neuron_db.search(search_query=target_cell_names_or_ids))
+        root_ids = sorted(root_ids)
         if not root_ids:
             return render_error(
                 title="No matching cells found",
-                message=f"Could not find any cells matching '{cell_names_or_ids}'",
+                message=f"Could not find any cells matching '{source_cell_names_or_ids} -> {target_cell_names_or_ids}'",
             )
         elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
             message = (
-                f"{len(root_ids)} cells match '{cell_names_or_ids}'. "
+                f"{len(root_ids)} cells match your query. "
                 f"Fetching NBLAST scores for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
             )
             root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
@@ -987,30 +1056,36 @@ def path_length():
 
     if not source_cell_names_or_ids and not target_cell_names_or_ids:
         if request.args.get("with_sample_input", type=int, default=0):
-            cell_names_or_ids = sample_input
+            source_cell_names_or_ids = target_cell_names_or_ids = sample_input
         else:
-            cell_names_or_ids = None
-    else:
-        cell_names_or_ids = " ".join(
-            [q for q in [source_cell_names_or_ids, target_cell_names_or_ids] if q]
-        )
+            source_cell_names_or_ids = target_cell_names_or_ids = ""
 
     download = request.args.get("download", 0, type=int)
-    log_activity(f"Generating path lengths table for '{cell_names_or_ids}' {download=}")
+    log_activity(
+        f"Generating path lengths table for '{source_cell_names_or_ids}' -> '{target_cell_names_or_ids}' {download=}"
+    )
     message = None
-    neuron_db = neuron_data_factory.get()
 
-    if cell_names_or_ids:
-        root_ids = neuron_db.search(search_query=cell_names_or_ids)
+    if source_cell_names_or_ids or target_cell_names_or_ids:
+        neuron_db = neuron_data_factory.get()
+        root_ids = set()
+        if source_cell_names_or_ids:
+            root_ids |= set(neuron_db.search(search_query=source_cell_names_or_ids))
+        if (
+            target_cell_names_or_ids
+            and target_cell_names_or_ids != source_cell_names_or_ids
+        ):
+            root_ids |= set(neuron_db.search(search_query=target_cell_names_or_ids))
+        root_ids = sorted(root_ids)
         if not root_ids:
             return render_error(
                 title="No matching cells found",
-                message=f"Could not find any cells matching '{cell_names_or_ids}'",
+                message=f"Could not find any cells matching '{source_cell_names_or_ids} -> {target_cell_names_or_ids}'",
             )
         elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
             message = (
-                f"{len(root_ids)} cells match '{cell_names_or_ids}'. "
-                f"Fetching path lengths for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
+                f"{len(root_ids)} cells match your query. "
+                f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
             )
             root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
         elif len(root_ids) == 1:
@@ -1104,6 +1179,7 @@ def connectivity():
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     nt_type = request.args.get("nt_type", "all")
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
+    nodes_limit = request.args.get("nodes_limit", 10, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     if (
         request.args.get("with_sample_input", type=int, default=0)
@@ -1130,19 +1206,10 @@ def connectivity():
                 title="No matching cells found",
                 message=f"Could not find any cells matching '{cell_names_or_ids}'",
             )
-        elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
-            message = (
-                f"Too many ({len(root_ids)}) cells match '{cell_names_or_ids}'. "
-                f"Generating connectivity network for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
-            )
-            root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
 
-        contable = gcs_data_loader.load_connection_table_for_root_ids(root_ids)
-        nt_type = nt_type.upper()
-        if nt_type and nt_type != "ALL":
-            contable = [r for r in contable if r[4].upper() == nt_type]
-        if min_syn_cnt:
-            contable = [r for r in contable if r[3] >= min_syn_cnt]
+        contable = neuron_db.connections(
+            ids=root_ids, nt_type=nt_type, min_syn_count=min_syn_cnt
+        )
         if len(contable) <= 1:
             return render_error(
                 f"Connections for {min_syn_cnt=}, {nt_type=} and Cell IDs {root_ids} are unavailable."
@@ -1189,6 +1256,7 @@ def connectivity():
             connection_table=contable,
             neuron_data_fetcher=lambda nid: neuron_db.get_neuron_data(nid),
             center_ids=root_ids,
+            nodes_limit=nodes_limit,
         )
         if headless:
             return network_html
@@ -1198,6 +1266,7 @@ def connectivity():
                 cell_names_or_ids=cell_names_or_ids,
                 min_syn_cnt=min_syn_cnt,
                 nt_type=nt_type,
+                nodes_limit=nodes_limit,
                 network_html=network_html,
                 info_text=None,
                 sample_input=None,
@@ -1210,6 +1279,7 @@ def connectivity():
             cell_names_or_ids=cell_names_or_ids,
             min_syn_cnt=min_syn_cnt,
             nt_type=nt_type,
+            nodes_limit=nodes_limit,
             network_html=None,
             info_text="With this tool you can specify one or more cells and visualize their connectivity network.<br>"
             f"{con_doc['a']}",

@@ -3,6 +3,7 @@ from functools import lru_cache
 from random import choice
 
 from src.data.brain_regions import neuropil_hemisphere, REGIONS
+from src.data.gcs_data_loader import load_connection_table_for_root_ids
 from src.data.neuron_collections import NEURON_COLLECTIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.search_index import SearchIndex
@@ -12,9 +13,10 @@ from src.data.structured_search_filters import (
     parse_search_query,
 )
 from src.configuration import MIN_SYN_COUNT
+from src.utils.formatting import compact_tag
 from src.utils.logging import log
 
-# Expected column in static FlyWire data CSV file
+# Expected columns in static FlyWire data CSV file
 DATA_FILE_COLUMNS = [
     "root_id",
     "name",
@@ -44,6 +46,18 @@ DATA_FILE_COLUMNS = [
     "da_avg",
 ]
 
+# Expected columns in static labels data CSV file
+LABEL_FILE_COLUMNS = [
+    "root_id",
+    "tag",
+    "user_id",
+    "position",
+    "supervoxel_id",
+    "tag_id",
+    "user_name",
+    "user_affiliation",
+]
+
 # Keywords will be matched against these attributes
 NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "root_id",
@@ -58,24 +72,20 @@ COLUMN_INDEX = {c: i for i, c in enumerate(DATA_FILE_COLUMNS)}
 
 
 class NeuronDB(object):
-    def __init__(self, data_file_rows, connection_rows):
+    def __init__(
+        self, data_file_rows, connection_rows, label_rows, labels_file_timestamp
+    ):
         self.neuron_data = {}
         self.rids_of_neurons_with_inherited_tags = []
+        self.label_data = {}
+        self.labels_file_timestamp = labels_file_timestamp
 
         for i, r in enumerate(data_file_rows):
-            if not i:
+            if i == 0:
                 # check header
                 assert r == DATA_FILE_COLUMNS
                 continue
             root_id = self._get_value(r, "root_id", to_type=int)
-
-            def _compact_tag(anno_tag):
-                # TODO: get rid of this
-                return anno_tag.replace(
-                    "; Part of comprehensive neck connective tracing; contact Connectomics Group Cambridge "
-                    "for more detailed information on descending/ascending neurons",
-                    "",
-                )
 
             self.neuron_data[root_id] = {
                 "root_id": root_id,
@@ -100,7 +110,6 @@ class NeuronDB(object):
                 "supervoxel_id": self._get_value(
                     r, "supervoxel_id", split=True, to_type=int
                 ),
-                "tag": [_compact_tag(t) for t in self._get_value(r, "tag", split=True)],
                 "inherited_tag_root_id": self._get_value(
                     r, "inherited_tag_root_id", to_type=int
                 ),
@@ -118,17 +127,52 @@ class NeuronDB(object):
                 "oct_avg": self._get_value(r, "oct_avg", to_type=float),
                 "ser_avg": self._get_value(r, "ser_avg", to_type=float),
                 "da_avg": self._get_value(r, "da_avg", to_type=float),
+                "tag": [],
             }
+
+        log(f"App initialization processing label data..")
+        rid_col_idx = LABEL_FILE_COLUMNS.index("root_id")
+        tag_col_idx = LABEL_FILE_COLUMNS.index("tag")
+        not_found_rids = set()
+        not_found_tags = defaultdict(int)
+        for i, r in enumerate(label_rows or []):
+            if i == 0:
+                # check header
+                assert r == LABEL_FILE_COLUMNS
+                continue
+            rid = int(r[rid_col_idx])
+            if rid not in self.neuron_data:
+                not_found_rids.add(rid)
+                not_found_tags[r[tag_col_idx]] += 1
+                continue
+            label_data_list = self.label_data.get(rid)
+            if not label_data_list:
+                label_data_list = []
+                self.label_data[rid] = label_data_list
+            label_dict = NeuronDB._row_to_dict(
+                columns=LABEL_FILE_COLUMNS,
+                row=r,
+                exclude={"root_id"},
+                to_int={"user_id", "supervoxel_id", "tag_id"},
+            )
+            label_data_list.append(label_dict)
+            ctag = compact_tag(label_dict["tag"])
+            if ctag and ctag not in self.neuron_data[rid]["tag"]:
+                self.neuron_data[rid]["tag"].append(compact_tag(ctag))
+        log(
+            f"App initialization labels loaded for {len(self.label_data)} root ids, "
+            f"not found rids: {len(not_found_rids)}"
+        )
+        if not_found_tags:
+            log("Top 10 not found tags:")
+            for p in sorted(not_found_tags.items(), key=lambda x: -x[1])[:10]:
+                log(f"  {p}")
 
         log(f"App initialization augmenting..")
         # augment
         for nd in self.neuron_data.values():
             if nd["inherited_tag_root_id"]:
-                assert nd["tag"] or nd["classes"]
                 self.rids_of_neurons_with_inherited_tags.append(nd["root_id"])
-            nd["annotations"] = "&nbsp; <b>&#x2022;</b> &nbsp;".join(
-                [self._trim_long_tokens(t) for t in nd["tag"]]
-            )
             nd["hemisphere_fingerprint"] = NeuronDB.hemisphere_fingerprint(
                 nd["input_neuropils"], nd["output_neuropils"]
             )
@@ -159,20 +203,22 @@ class NeuronDB(object):
 
         log(f"App initialization loading connections..")
         self.connection_rows = []
-        if connection_rows:
-            for r in connection_rows:
-                from_node, to_node, neuropil, syn_count, nt_type = (
-                    int(r[0]),
-                    int(r[1]),
-                    r[2].upper(),
-                    int(r[3]),
-                    r[4].upper(),
-                )
-                assert from_node in self.neuron_data and to_node in self.neuron_data
-                assert syn_count >= MIN_SYN_COUNT
-                assert nt_type in NEURO_TRANSMITTER_NAMES
-                assert neuropil == "NONE" or neuropil in REGIONS.keys()
-                self.connection_rows.append([from_node, to_node, neuropil, syn_count])
+        for r in connection_rows or []:
+            from_node, to_node, neuropil, syn_count, nt_type = (
+                int(r[0]),
+                int(r[1]),
+                r[2].upper(),
+                int(r[3]),
+                r[4].upper(),
+            )
+            assert from_node in self.neuron_data and to_node in self.neuron_data
+            assert syn_count >= MIN_SYN_COUNT
+            assert nt_type in NEURO_TRANSMITTER_NAMES
+            assert neuropil == "NONE" or neuropil in REGIONS.keys()
+            self.connection_rows.append(
+                [from_node, to_node, neuropil, syn_count, nt_type]
+            )
+
         # augment ndata with in/out partner counts
         in_sets = self.input_sets()
         out_sets = self.output_sets()
@@ -180,29 +226,35 @@ class NeuronDB(object):
             nd["input_cells"] = len(in_sets[rid]) or "-"
             nd["output_cells"] = len(out_sets[rid]) or "-"
 
-    @lru_cache
     def input_sets(self, min_syn_count=5):
-        res = defaultdict(set)
-        for r in self.connection_rows:
-            if r[3] >= min_syn_count:
-                res[r[1]].add(r[0])
-        return res
+        return self.input_output_sets(min_syn_count)[0]
+
+    def output_sets(self, min_syn_count=5):
+        return self.input_output_sets(min_syn_count)[1]
 
     @lru_cache
-    def output_sets(self, min_syn_count=5):
-        res = defaultdict(set)
+    def input_output_sets(self, min_syn_count=5):
+        ins = defaultdict(set)
+        outs = defaultdict(set)
         for r in self.connection_rows:
             if r[3] >= min_syn_count:
-                res[r[0]].add(r[1])
-        return res
+                ins[r[1]].add(r[0])
+                outs[r[0]].add(r[1])
+        return ins, outs
 
-    def connections(self, ids, min_syn_count=5):
+    def connections(self, ids, min_syn_count=5, nt_type=None):
         idset = set(ids)
-        return [
-            r
-            for r in self.connection_rows
-            if (r[0] in idset or r[1] in idset) and r[3] >= min_syn_count
-        ]
+        if self.connection_rows:  # avail in mem cache
+            cons = [r for r in self.connection_rows if (r[0] in idset or r[1] in idset)]
+        else:  # fetch from cloud
+            cons = load_connection_table_for_root_ids(ids)
+        if min_syn_count:
+            cons = [r for r in cons if r[3] >= min_syn_count]
+        if nt_type:
+            nt_type = nt_type.upper()
+            if nt_type != "ALL":
+                cons = [r for r in cons if r[2] == nt_type]
+        return cons
 
     @lru_cache
     def neuropils(self):
@@ -287,7 +339,7 @@ class NeuronDB(object):
                 "counts": [(k, len(v)) for k, v in NEURON_COLLECTIONS.items()],
             },
             {
-                "caption": _caption("Annotations", len(labels)),
+                "caption": _caption("Labels", len(labels)),
                 "key": "label",
                 "counts": _sorted_counts(labels),
             },
@@ -315,6 +367,16 @@ class NeuronDB(object):
             log(f"No data exists for {root_id} in {len(self.neuron_data)} records")
             nd = {}
         return nd
+
+    def get_label_data(self, root_id):
+        root_id = int(root_id)
+        return self.label_data.get(root_id)
+
+    def all_label_data(self):
+        return list(self.label_data.values())
+
+    def labels_ingestion_timestamp(self):
+        return self.labels_file_timestamp
 
     @staticmethod
     def hemisphere_fingerprint(input_pils, output_pils):
@@ -428,7 +490,37 @@ class NeuronDB(object):
             limited_ids_set=set(self.rids_of_neurons_with_inherited_tags),
         )
 
+    def multi_val_attrs(self, ids):
+        # Given list of cell ids, returns the attrs for which the set of values in these cells is >1
+        # This is used for deciding when to allow "include / exclude" filters.
+
+        attr_vals = defaultdict(set)
+        candidate_attr_names = {"class", "nt_type"}
+        multi_val_attr_names = set()
+
+        for cell_id in ids:
+            nd = self.neuron_data[cell_id]
+            for attr_name in candidate_attr_names:
+                attr_vals[attr_name].add(nd[attr_name])
+                if len(attr_vals[attr_name]) > 1:
+                    multi_val_attr_names.add(attr_name)
+            candidate_attr_names -= multi_val_attr_names
+            if not candidate_attr_names:
+                break
+
+        return multi_val_attr_names
+
     # Private helpers
+    @staticmethod
+    def _row_to_dict(columns, row, exclude, to_int):
+        res = {}
+        for i, c in enumerate(columns):
+            if not exclude or c not in exclude:
+                if not to_int or c not in to_int:
+                    res[c] = row[i]
+                else:
+                    res[c] = int(row[i])
+        return res
 
     @staticmethod
     def _get_value(row, col, split=False, to_type=None):
@@ -440,14 +532,3 @@ class NeuronDB(object):
             return [convert_type(v) for v in val.split(",")] if val else []
         else:
             return convert_type(val) if val else ""
-
-    @staticmethod
-    def _trim_long_tokens(text, limit=50):
-        def trim(token):
-            if len(token) > limit:
-                token = token[: limit - 5] + "..."
-            return token
-
-        if text and len(text) > limit:
-            return " ".join([trim(t) for t in text.split()])
-        return text

@@ -93,24 +93,25 @@ def _make_data_charts(data_list):
         input_output_regions.append(d["hemisphere_fingerprint"] or unknown_key)
         input_neuropils.extend(d["input_neuropils"] or [unknown_key])
         output_neuropils.extend(d["output_neuropils"] or [unknown_key])
-        classes.append(str(len(d["classes"]) if d["classes"] else 0))
+        classes.extend(d["classes"])
 
     result = {}
+    if classes:
+        result["Classes"] = make_chart_from_list(
+            chart_type="donut",
+            key_title="Cell Classes",
+            val_title="Count",
+            item_list=classes,
+            search_filter="class",
+        )
     if nt_types:
-        result["Num cells with neurotransmitter types"] = make_chart_from_list(
+        result["Neurotransmitter types"] = make_chart_from_list(
             chart_type="donut",
             key_title="Type",
             val_title="Num Cells",
             item_list=nt_types,
             descriptions_dict=NEURO_TRANSMITTER_NAMES,
             search_filter="nt",
-        )
-    if classes and len(set(classes)) > 1:
-        result["Num. Assigned Neuron Classes"] = make_chart_from_list(
-            chart_type="donut",
-            key_title="Num Classes",
-            val_title="Count",
-            item_list=classes,
         )
     if input_neuropils:
         result["Top input regions"] = make_chart_from_list(
@@ -143,38 +144,37 @@ def _make_data_charts(data_list):
     return result
 
 
-def _make_data_stats(data_list):
-    annotated_neurons = 0
+def _make_data_stats(neuron_data, label_data):
+    labeled_neurons = 0
     classified_neurons = 0
     anno_counts = defaultdict(int)
-    class_counts = defaultdict(int)
-    for d in data_list:
-        if d["tag"]:
-            annotated_neurons += 1
-            for t in d["tag"]:
+    for nd in neuron_data:
+        if nd["tag"]:
+            labeled_neurons += 1
+            for t in nd["tag"]:
                 anno_counts[t] += 1
-        if d["classes"]:
+        if nd["classes"]:
             classified_neurons += 1
-            for t in d["classes"]:
-                class_counts[t] += 1
 
     result = {
         "": {
-            "Cells": len(data_list),
-            "- Annotated": annotated_neurons,
+            "Cells": len(neuron_data),
+            "- Labeled": labeled_neurons,
             "- Classified": classified_neurons,
         }
     }
-    if class_counts:
-        result["Top Classes"] = {
-            k: class_counts[k]
-            for k in sorted(class_counts, key=class_counts.get, reverse=True)[:5]
-        }
     if anno_counts:
-        result["Top Annotations"] = {
+        result["Top Labels"] = {
             k: anno_counts[k]
             for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:5]
         }
+
+    fill_in_leaderboard_data(
+        label_data=label_data,
+        top_n=5,
+        include_lab_leaderboard=False,
+        destination=result,
+    )
 
     return result
 
@@ -183,14 +183,16 @@ def _format_val(val):
     return "{:,}".format(val) if isinstance(val, int) else val
 
 
-def _format_for_display(dict_of_dicts):
+def format_for_display(dict_of_dicts):
     def _format_dict(dct):
         return {k: _format_val(v) for k, v in dct.items()}
 
     return {k: _format_dict(d) for k, d in dict_of_dicts.items()}
 
 
-def compile_data(data, search_query, case_sensitive, match_words, data_version):
+def compile_data(
+    neuron_data, label_data, search_query, case_sensitive, match_words, data_version
+):
     stats_caption = []
     if search_query:
         stats_caption.append(f"search query: '{search_query}'")
@@ -201,9 +203,67 @@ def compile_data(data, search_query, case_sensitive, match_words, data_version):
     stats_caption.append(f"data version: {data_version}")
     caption = "Stats for " + ", ".join(stats_caption)
 
-    data_stats = _make_data_stats(data)
-    data_stats = _format_for_display(data_stats)
+    data_stats = _make_data_stats(neuron_data, label_data)
+    data_stats = format_for_display(data_stats)
 
-    data_charts = _make_data_charts(data)
+    data_charts = _make_data_charts(neuron_data)
 
     return caption, data_stats, data_charts
+
+
+def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destination):
+    all_tags = []
+    for ld in label_data:
+        if ld:
+            all_tags.extend(ld)
+    recent_tags = sorted(all_tags, key=lambda t: t["tag_id"])[-500:]
+
+    if include_lab_leaderboard:
+        contributors_by_lab = defaultdict(set)
+        for t in all_tags:
+            contributors_by_lab[t["user_affiliation"]].add(t["user_name"])
+        lab_lb = defaultdict(int)
+        for ld_item in all_tags:
+            lab_name = ld_item["user_affiliation"]
+            if lab_name:
+                caption = f"{lab_name}<br><small>{len(contributors_by_lab[lab_name])} contributors</small>"
+                lab_lb[caption] += 1
+
+        destination["Labs by label contributions"] = {
+            k: lab_lb[k]
+            for k in sorted(
+                lab_lb,
+                key=lab_lb.get,
+                reverse=True,
+            )[:top_n]
+        }
+
+    def user_cred_counts(tags_list):
+        res = defaultdict(int)
+        for ld_item in tags_list:
+            if ld_item["user_name"]:
+                caption = ld_item["user_name"]
+                if ld_item["user_affiliation"]:
+                    caption += "<br><small>" + ld_item["user_affiliation"] + "</small>"
+                res[caption] += 1
+        return res
+
+    user_credit_counts_all = user_cred_counts(all_tags)
+    if user_credit_counts_all:
+        destination["Top Labelers (all time)"] = {
+            k: user_credit_counts_all[k]
+            for k in sorted(
+                user_credit_counts_all, key=user_credit_counts_all.get, reverse=True
+            )[:top_n]
+        }
+
+    user_credit_counts_recent = user_cred_counts(recent_tags)
+    if user_credit_counts_recent:
+        destination["Top Labelers (recent)"] = {
+            k: user_credit_counts_recent[k]
+            for k in sorted(
+                user_credit_counts_recent,
+                key=user_credit_counts_recent.get,
+                reverse=True,
+            )[:top_n]
+        }

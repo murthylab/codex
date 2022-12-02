@@ -2,7 +2,7 @@
 
 ## Description
 Flask web app for finding and analyzing neurons/cells proofread by the
-FlyWire community (see flywire.ai). See [demo clip](https://codex.flywire.ai/demo_clip).
+FlyWire community (see flywire.ai). See [demo clips](https://codex.flywire.ai/demo_clip).
 
 ## Service URLs
 [prod](https://codex.flywire.ai) / [staging (may take few secs to load)](https://codex-staging.flywire.ai)
@@ -12,7 +12,7 @@ FlyWire community (see flywire.ai). See [demo clip](https://codex.flywire.ai/dem
 conda create -n codex python=3.9
 conda activate codex
 pip install -r requirements.txt
-./run_dev.sh
+./run_local.sh
 ```
 Navigate to [localhost:5000](http://localhost:5000)
 

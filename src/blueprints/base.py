@@ -1,4 +1,5 @@
 import os
+import time
 import traceback
 from functools import wraps
 from random import randint
@@ -58,15 +59,22 @@ BUILD_TIMESTAMP = os.environ.get("BUILD_TIMESTAMP", "na")
 MAX_NEURONS_FOR_DOWNLOAD = 50
 
 num_requests_processed = 0
-neuron_data_factory = NeuronDataFactory(
-    preload_latest=os.environ.get("SKIP_NEURON_DB_LOAD") != "true"
-)
+num_request_errors = 0
+total_request_serving_time_millis = 0.0
+neuron_data_factory = NeuronDataFactory()
+
+
+def current_milli_time():
+    return round(time.time() * 1000)
 
 
 def request_wrapper(func):
     @wraps(func)
     def wrap(*args, **kwargs):
         global num_requests_processed
+        global num_request_errors
+        global total_request_serving_time_millis
+        start_millis = current_milli_time()
         num_requests_processed += 1
         log_verbose = False
 
@@ -102,10 +110,13 @@ def request_wrapper(func):
 
         # if we got here, this could be authenticated or non-authenticated request
         try:
-            return func(*args, **kwargs)
+            exec_res = func(*args, **kwargs)
+            total_request_serving_time_millis += current_milli_time() - start_millis
+            return exec_res
         except Exception as e:
             traceback.print_exc()
             log_error(f"Exception when executing {signature}: {e}")
+            num_request_errors += 1
             return render_error(f"{e}\n")
 
     return wrap
@@ -238,6 +249,11 @@ def about():
         instance_proc_id=proc_id,
         instance_uptime=uptime(millis=False),
         instance_num_requests=num_requests_processed,
+        instance_error_rate=f'{float(f"{num_request_errors / max(1, num_requests_processed):.1g}"):g}',
+        instance_mean_response_time=round(
+            total_request_serving_time_millis / max(1, num_requests_processed)
+        )
+        / 1000,
     )
 
 
@@ -327,8 +343,8 @@ def index(path):
                 "url": "app.nblast",
             },
             {
-                "header": "Connectivity",
-                "body": "Visualize network of neurons and their synaptic connections",
+                "header": "Network Graphs",
+                "body": "Visualize connectivity of neurons and their synaptic links",
                 "asset_filename": "card-network.jpg",
                 "url": "app.connectivity",
             },
@@ -456,10 +472,8 @@ def todo_list():
 
 @base.route("/demo_clip", methods=["GET"])
 def demo_clip():
-    log_activity("Loading demo clip")
-    return redirect(
-        "https://www.youtube.com/watch?v=YQoXg_UA-ZY&ab_channel=FlyWirePrinceton"
-    )
+    log_activity("Loading demo clips")
+    return redirect("https://www.youtube.com/@flywireprinceton4189/search?query=codex")
 
 
 def activity_suffix(filter_string, data_version):

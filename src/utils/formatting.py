@@ -59,7 +59,7 @@ def highlight_annotations(free_form_search_terms, tags):
 
                 # only add if not overlapping
                 if not_intersecting(highlight_locations, start, end):
-                    highlight_locations.append(("lightgreen", start, end))
+                    highlight_locations.append(("#C5FCB8", start, end))  # green
             else:
                 for search_token in folded_search_tokens:
                     if search_token in token:
@@ -72,7 +72,7 @@ def highlight_annotations(free_form_search_terms, tags):
                         ):
                             highlight_locations.append(
                                 (
-                                    "yellow",
+                                    "#F7FCB8",
                                     start + index,
                                     start + index + len(search_token),
                                 )
@@ -93,10 +93,8 @@ def highlight_annotations(free_form_search_terms, tags):
                     ]
                 highlighted_tag_string += f'<span style="padding:1px;border-radius:5px;background-color:{color}">{tag_string[start:end]}</span>'
             highlighted_tag_string += tag_string[end:]
-
         highlighted_annotations.append(highlighted_tag_string)
-
-    return " • ".join(highlighted_annotations)
+    return highlighted_annotations
 
 
 def not_intersecting(list_of_ranges, start, end):
@@ -106,3 +104,33 @@ def not_intersecting(list_of_ranges, start, end):
         if r[1] <= start <= r[2] or r[1] <= end <= r[2]:
             return False
     return True
+
+
+def trim_long_tokens(text, limit=50):
+    def trim(token):
+        if len(token) > limit:
+            token = token[: limit - 5] + "..."
+        return token
+
+    if text and len(text) > limit:
+        return " ".join([trim(t) for t in text.split()])
+    return text
+
+
+def concat_labels(labels):
+    return "<br>".join(
+        ["&nbsp; <b>&#x2022;</b> &nbsp; " + trim_long_tokens(t) for t in labels]
+    )
+
+
+def shorten_and_concat_labels(labels):
+    return concat_labels([trim_long_tokens(t) for t in labels])
+
+
+def compact_tag(anno_tag):
+    # TODO: get rid of this
+    return anno_tag.replace(
+        "; Part of comprehensive neck connective tracing, contact Connectomics Group Cambridge for more detailed "
+        "information on descending/ascending neurons",
+        "",
+    )
