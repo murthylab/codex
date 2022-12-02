@@ -1167,7 +1167,7 @@ def connectivity():
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     nt_type = request.args.get("nt_type", "all")
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
-    nodes_limit = request.args.get("nodes_limit", 25, type=int)
+    nodes_limit = request.args.get("nodes_limit", 10, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     if (
         request.args.get("with_sample_input", type=int, default=0)
