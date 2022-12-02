@@ -10,14 +10,14 @@ Neuropil Explorer
     <ul>
       {% for category in regions[hemisphere] %}
       <li>
-        <a href="http://localhost:5000/app/neuropils?selected={{category['regions'] | map(attribute='id') | list | join(',')}}">
+        <a href="/app/neuropils?selected={{category['regions'] | map(attribute='id') | list | join(',')}}">
           {{category["name"]}}
         </a>
       </li>
       <ul>
         {% for region in category["regions"] %}
         <li>
-          <a href="http://localhost:5000/app/neuropils?selected={{region["id"]}}">
+          <a href="/app/neuropils?selected={{region["id"]}}">
             {{region["description"]}}
           </a>
         </li>
