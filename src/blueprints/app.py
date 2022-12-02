@@ -15,6 +15,7 @@ from flask import (
     url_for,
     Blueprint,
     session,
+    jsonify
 )
 
 from src.blueprints.base import (
@@ -36,6 +37,7 @@ from src.data.brain_regions import (
     REGION_CATEGORIES,
     neuropil_description,
     NEUROPIL_DESCRIPTIONS,
+    REGIONS_JSON,
     make_region_map
 )
 from src.data.faq_qa_kb import FAQ_QA_KB
@@ -1239,13 +1241,23 @@ def flywire_neuropil_url():
 @request_wrapper
 @require_data_access
 def neuropils():
+    # check content type
     region_map = make_region_map()
+
+
     selected = random.choice(list(REGIONS.keys()))
-    return render_template(
-        "neuropils.html",
-        regions=REGIONS,
-        region_map=region_map,
-        selected=selected,
-    )
+    if request.headers.get("Content-Type") == "application/json":
+        return jsonify(nglui.get_neuropils())
+    else:
+        return render_template(
+            "neuropils.html",
+            regions=REGIONS,
+            region_map=region_map,
+            selected=selected,
+        )
 
-
+@app.route("/neuropils/json")
+@request_wrapper
+@require_data_access
+def neuropils_json():
+    return jsonify(REGIONS_JSON)
