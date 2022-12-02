@@ -64,6 +64,12 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
     def node_color(ndata):
         return nt_color(ndata["nt_type"])
 
+    def node_label(nd):
+        if nd["root_id"] in center_ids:
+            return nd["name"]
+        else:
+            return nd["class"][:2].lower()
+
     def node_title(nd):
         rid = nd["root_id"]
         name = nd["name"]
@@ -107,7 +113,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
             x, y = node_position(nd)
             net.add_node(
                 name=nd["root_id"],
-                label=f"{nd['name']}",
+                label=node_label(nd),
                 title=node_title(nd),
                 color=node_color(nd),
                 shape=node_shape(nd),
