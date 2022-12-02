@@ -133,13 +133,13 @@
             },
             "interaction": {
                 "dragNodes": true,
-                "hideEdgesOnDrag": false,
+                "hideEdgesOnDrag": nodes.length > 50,
                 "hideNodesOnDrag": false
             },
             "physics": {
-                "enabled": false,
+                "enabled": nodes.length < 150,
                 "stabilization": {
-                    "enabled": false,
+                    "enabled": true,
                     "fit": true,
                     "iterations": 1000,
                     "onlyDynamicEdges": false,

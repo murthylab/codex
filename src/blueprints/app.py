@@ -1167,6 +1167,7 @@ def connectivity():
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     nt_type = request.args.get("nt_type", "all")
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
+    nodes_limit = request.args.get("nodes_limit", 25, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     if (
         request.args.get("with_sample_input", type=int, default=0)
@@ -1193,10 +1194,10 @@ def connectivity():
                 title="No matching cells found",
                 message=f"Could not find any cells matching '{cell_names_or_ids}'",
             )
-        elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
+        elif len(root_ids) > nodes_limit:
             message = (
                 f"Too many ({len(root_ids)}) cells match '{cell_names_or_ids}'. "
-                f"Generating connectivity network for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
+                f"Generating connectivity network for the first {nodes_limit} matches."
             )
             root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
 
@@ -1249,6 +1250,7 @@ def connectivity():
             connection_table=contable,
             neuron_data_fetcher=lambda nid: neuron_db.get_neuron_data(nid),
             center_ids=root_ids,
+            nodes_limit=nodes_limit,
         )
         if headless:
             return network_html
@@ -1258,6 +1260,7 @@ def connectivity():
                 cell_names_or_ids=cell_names_or_ids,
                 min_syn_cnt=min_syn_cnt,
                 nt_type=nt_type,
+                nodes_limit=nodes_limit,
                 network_html=network_html,
                 info_text=None,
                 sample_input=None,
