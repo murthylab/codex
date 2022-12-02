@@ -1232,8 +1232,17 @@ def activity_log():
 @app.route("/flywire_neuropil_url")
 @request_wrapper
 def flywire_neuropil_url():
-    segment_id = request.args.get("segment_id")
-    url = nglui.url_for_neuropil([segment_id])
+    
+    selected = request.args.get("selected")
+
+
+
+    print(f"selected: {selected}")
+
+    segment_ids = [REGIONS[r][0] for r in selected.split(',') if r]
+    print(f"segment_ids: {segment_ids}")
+
+    url = nglui.url_for_neuropil(segment_ids)
     return ngl_redirect_with_browser_check(ngl_url=url)
 
 
@@ -1241,23 +1250,18 @@ def flywire_neuropil_url():
 @request_wrapper
 @require_data_access
 def neuropils():
-    # check content type
-    region_map = make_region_map()
 
 
-    selected = random.choice(list(REGIONS.keys()))
-    if request.headers.get("Content-Type") == "application/json":
-        return jsonify(nglui.get_neuropils())
-    else:
-        return render_template(
-            "neuropils.html",
-            regions=REGIONS,
-            region_map=region_map,
-            selected=selected,
-        )
+ 
+    selected = request.args.get("selected")
 
-@app.route("/neuropils/json")
-@request_wrapper
-@require_data_access
-def neuropils_json():
-    return jsonify(REGIONS_JSON)
+
+
+    
+    return render_template(
+        "neuropils.html",
+        selected=selected,
+        regions=REGIONS_JSON
+    )
+
+
