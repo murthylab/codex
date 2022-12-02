@@ -169,7 +169,12 @@ def _make_data_stats(neuron_data, label_data):
             for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:5]
         }
 
-    fill_in_leaderboard_data(label_data=label_data, top_n=5, include_lab_leaderboard=False, destination=result)
+    fill_in_leaderboard_data(
+        label_data=label_data,
+        top_n=5,
+        include_lab_leaderboard=False,
+        destination=result,
+    )
 
     return result
 
@@ -212,7 +217,6 @@ def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destina
         if ld:
             all_tags.extend(ld)
     recent_tags = sorted(all_tags, key=lambda t: t["tag_id"])[-500:]
-
 
     if include_lab_leaderboard:
         contributors_by_lab = defaultdict(set)

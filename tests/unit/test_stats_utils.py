@@ -9,9 +9,7 @@ class Test(TestCase):
     def test_format_for_display(self):
         self.assertEqual(
             {"d1": {"a": "6,555"}, "d2": {"b": None, "c": 0.55}},
-            stats.format_for_display(
-                {"d1": {"a": 6555}, "d2": {"b": None, "c": 0.55}}
-            ),
+            stats.format_for_display({"d1": {"a": 6555}, "d2": {"b": None, "c": 0.55}}),
         )
 
     def test_compile_data(self):
