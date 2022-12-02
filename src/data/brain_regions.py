@@ -255,9 +255,8 @@ def hemisphere_categories(hemisphere):
             }
             for k, v in REGION_CATEGORIES.items()
         ]
-        if len(c['regions']) > 0
+        if len(c["regions"]) > 0
     ]
 
 
-REGIONS_JSON = { h: hemisphere_categories(h) for h in HEMISPHERES }
-
+REGIONS_JSON = {h: hemisphere_categories(h) for h in HEMISPHERES}
