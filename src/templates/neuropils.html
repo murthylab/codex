@@ -35,9 +35,11 @@ Neuropil Explorer
     {{ card("Left") }}
     {{ card("Center") }}
     {{ card("Right") }}
-
+ {% if selected %}
     <div class="card">
     <div class="card-body">
+    
+  
       <iframe
         id="neuroglancer"
         style="width: 500px; height: 500px"
@@ -45,13 +47,13 @@ Neuropil Explorer
         loading="lazy"
         src="/app/flywire_neuropil_url?selected={{selected}}"
       ></iframe>
-
+  
       <h5>Search For Neurons:</h5>
       
       <p>
         
         <a
-          href="/app/search?filter_string=output_neuropil+%3D%3D+{{selected}}"
+          href="/app/search?filter_string=output_neuropil+%7Bin%7D+{{selected}}"
           className="btn btn-primary"
         >
           With this region as output
@@ -59,7 +61,7 @@ Neuropil Explorer
       </p>
       <p>
         <a
-          href="/app/search?filter_string=input_neuropil+%3d%3d+{{selected}}"
+          href="/app/search?filter_string=input_neuropil+%7Bin%7D+{{selected}}"
           classname="btn btn-primary"
         >
           With this region as input
@@ -68,7 +70,7 @@ Neuropil Explorer
       <h5>See Neuron Stats</h5>
       <p>
         <a
-          href="/app/stats?filter_string=input_neuropil+%3D%3D+{{selected}}"
+          href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{selected}}"
           className="btn btn-primary"
         >
           With this region as output
@@ -76,13 +78,15 @@ Neuropil Explorer
       </p>
       <p>
         <a
-          href="/app/stats?filter_string=input_neuropil+%3D%3D+{{selected}}"
+          href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{selected}}"
         >
           With this region as input
         </a>
       </p>
+      
 </div>
     </div>
+    {% endif %}
   </div>
 
   <script type="text/javascript">
