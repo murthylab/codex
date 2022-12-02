@@ -3,7 +3,12 @@
 <span style="margin-left: 15px; margin-top: 5px; color: black; font-size: 12px;">{{"{:,}".format(num_items) + (" matches, further analysis:" if num_items else " matches")}}</span>
 {% if num_items %}
 <div class="row flex-row flex-nowrap" style="overflow-x: auto; padding-left: 20px;">
-    {% if num_items > 1%}
+    {% if num_items == 1%}
+    <a class="btn btn-link" onclick="loading();"
+       href="{{url_for('app.cell_details', cell_names_or_id=filter_string, data_version=data_version)}}">
+        <i class="fa-solid fa-file-contract"></i> &nbsp; Cell Details
+    </a>
+    {% else %}
     <a class="btn btn-link" onclick="loading();"
        href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}"
        ><i class="fa-solid fa-cube"></i> &nbsp; 3D view</a>
@@ -18,7 +23,6 @@
         <i class="fa-solid fa-chart-pie"></i> &nbsp; Stats
     </a>
     {% endif %}
-    {% if root_ids_str %}
     <a class="btn btn-link" onclick="loading();"
        href="{{url_for('app.nblast', source_cell_names_or_ids=filter_string, target_cell_names_or_ids=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
         <i class="fa-solid fa-table-cells"></i> &nbsp; NBLAST
@@ -27,6 +31,18 @@
        href="{{url_for('app.path_length', source_cell_names_or_ids=filter_string, target_cell_names_or_ids=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
         <i class="fa-solid fa-route"></i> &nbsp; Pathways
     </a>
+    <a class="btn btn-link" onclick="loading();"
+       href="{{url_for('app.connectivity', cell_names_or_ids=filter_string)}}" >
+        <i class="fa-solid fa-circle-nodes"></i> &nbsp; Network
+    </a>
+    <a class="btn btn-link"
+       href="{{url_for('app.connectivity', download=1, cell_names_or_ids=filter_string)}}" >
+        <i class="fa-solid fa-download"></i> &nbsp; Synapse table
+    </a>
+    <a class="btn btn-link"
+       href="{{url_for('app.download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
+        <i class="fa-solid fa-download"></i> &nbsp; CSV </a>
+    {% if root_ids_str %}
     <a class="btn btn-link" onclick="copyRootIdsToClipboard();">
         <i class="fa-regular fa-clipboard"></i> &nbsp; Copy IDs
     </a>
@@ -36,28 +52,12 @@
         alert("{{num_items}} IDs copied to clipboard");
       }
     </script>
-    <a class="btn btn-link" onclick="loading();"
-       href="{{url_for('app.connectivity', cell_names_or_ids=root_ids_str)}}" >
-        <i class="fa-solid fa-circle-nodes"></i> &nbsp; Network
-    </a>
-
-    <a class="btn btn-link"
-       href="{{url_for('app.connectivity', download=1, cell_names_or_ids=root_ids_str)}}" >
-        <i class="fa-solid fa-download"></i> &nbsp; Synapse table
-    </a>
-    <a class="btn btn-link"
-       href="{{url_for('app.download_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
-        <i class="fa-solid fa-download"></i> &nbsp; CSV </a>
     {% else %}
     <a class="btn btn-link"
        href="{{url_for('app.root_ids_from_search_results', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
         <i class="fa-solid fa-download"></i> &nbsp; Cell IDs </a>
     {% endif %}
-    {% else %}
-    <a class="btn btn-link" onclick="loading();"
-       href="{{url_for('app.cell_details', cell_names_or_id=root_ids_str, data_version=data_version)}}">
-        <i class="fa-solid fa-file-contract"></i> &nbsp; Cell Details
-    </a>
+
     {% endif %}
 </div>
 {% endif %}
