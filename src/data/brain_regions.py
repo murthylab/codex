@@ -151,16 +151,6 @@ REGION_CATEGORIES = {
     "gnathal ganglia": ["GNG"],
 }
 
-REGIONS_JSON = {
-    "regions": [
-        {"id": k, "name": v[1], "segment_id": v[0]} for k, v in REGIONS.items()
-    ],
-    "region_categories": [
-        {"name": k, "regions": [{"segment_id": REGIONS[r][0], "id":r, "description":REGIONS[r][1]} for r in v]}
-        for k, v in REGION_CATEGORIES.items()
-    ],
-}
-
 
 def neuropil_hemisphere(pil):
     pil = pil.upper()
@@ -245,3 +235,29 @@ def make_region_map():  # todo: cache this
                     }
 
     return region_map
+
+
+def hemisphere_categories(hemisphere):
+    return [
+        c
+        for c in [
+            {
+                "name": k,
+                "regions": [
+                    {
+                        "segment_id": REGIONS[r][0],
+                        "id": r,
+                        "description": REGIONS[r][1],
+                    }
+                    for r in v
+                    if neuropil_hemisphere(r) == hemisphere
+                ],
+            }
+            for k, v in REGION_CATEGORIES.items()
+        ]
+        if len(c['regions']) > 0
+    ]
+
+
+REGIONS_JSON = { h: hemisphere_categories(h) for h in HEMISPHERES }
+
