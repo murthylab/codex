@@ -53,12 +53,16 @@ class TestHighlighting(TestCase):
             (
                 "Kenyon cell KC",
                 ["Mushroom Body Kenyon cell KC"],
-                'Mushroom Body <span style="padding:1px;border-radius:5px;background-color:lightgreen">Kenyon</span> <span style="padding:1px;border-radius:5px;background-color:lightgreen">cell</span> <span style="padding:1px;border-radius:5px;background-color:lightgreen">KC</span>',
+                [
+                    'Mushroom Body <span style="padding:1px;border-radius:5px;background-color:#C5FCB8">Kenyon</span> <span style="padding:1px;border-radius:5px;background-color:#C5FCB8">cell</span> <span style="padding:1px;border-radius:5px;background-color:#C5FCB8">KC</span>'
+                ],
             ),
             (
                 "mushroom body",
                 ["Mushroom Body Kenyon cell KC"],
-                '<span style="padding:1px;border-radius:5px;background-color:lightgreen">Mushroom</span> <span style="padding:1px;border-radius:5px;background-color:lightgreen">Body</span> Kenyon cell KC',
+                [
+                    '<span style="padding:1px;border-radius:5px;background-color:#C5FCB8">Mushroom</span> <span style="padding:1px;border-radius:5px;background-color:#C5FCB8">Body</span> Kenyon cell KC'
+                ],
             ),
             (
                 "pMP",
@@ -71,25 +75,37 @@ class TestHighlighting(TestCase):
                     "putative fru*",
                     "putative dsx",
                 ],
-                'pCd1(FW)/SMP487(HB) * • SMPpv1; left • <span style="padding:1px;border-radius:5px;background-color:yellow">pMP</span>3a; put_PDM15gC; pCd1?* • SMPpv1; right; acetylcholine* • pCd1? • putative fru* • putative dsx',
+                [
+                    "pCd1(FW)/SMP487(HB) *",
+                    "SMPpv1; left",
+                    '<span style="padding:1px;border-radius:5px;background-color:#F7FCB8">pMP</span>3a; put_PDM15gC; pCd1?*',
+                    "SMPpv1; right; acetylcholine*",
+                    "pCd1?",
+                    "putative fru*",
+                    "putative dsx",
+                ],
             ),
             (
                 "shroo",
                 ["Mushroom Body Kenyon cell KC"],
-                'Mu<span style="padding:1px;border-radius:5px;background-color:yellow">shroo</span>m Body Kenyon cell KC',
+                [
+                    'Mu<span style="padding:1px;border-radius:5px;background-color:#F7FCB8">shroo</span>m Body Kenyon cell KC'
+                ],
             ),
             (
                 "{has} name",
                 ["there is name here but it should not be highlighted"],
-                "there is name here but it should not be highlighted",
+                ["there is name here but it should not be highlighted"],
             ),
             (
                 "some label",
                 ["some label*"],
-                '<span style="padding:1px;border-radius:5px;background-color:lightgreen">some</span> <span style="padding:1px;border-radius:5px;background-color:lightgreen">label</span>*',
+                [
+                    '<span style="padding:1px;border-radius:5px;background-color:#C5FCB8">some</span> <span style="padding:1px;border-radius:5px;background-color:#C5FCB8">label</span>*'
+                ],
             ),
         ]
         for filter_string, tags, expected in input:
             free_form_search_terms = parse_search_query(filter_string)[1]
             actual = highlight_annotations(free_form_search_terms, tags)
-            self.assertEqual(expected, actual)
+            self.assertEqual(expected, actual, filter_string)

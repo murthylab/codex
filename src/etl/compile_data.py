@@ -1,6 +1,9 @@
 import os.path
+import shutil
 from collections import defaultdict
+from datetime import datetime
 from random import sample
+import numpy as np
 
 import pandas
 from caveclient import CAVEclient
@@ -18,7 +21,7 @@ from src.data.local_data_loader import read_csv, write_csv
 #  - download it into RAW_DATA_ROOT_FOLDER and name it as NEURON_NT_TYPES_FILE_NAME below
 # Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
 # and store it in this file (no quotes)
-from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
+from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS
 
 CAVE_AUTH_TOKEN_FILE_NAME = f"static/secrets/cave_auth_token.txt"
 CAVE_DATASTACK_NAME = "flywire_fafb_production"
@@ -119,23 +122,50 @@ def init_cave_client():
     return CAVEclient(CAVE_DATASTACK_NAME, auth_token=auth_token)
 
 
-def load_neuron_info_from_cave(client):
+def load_neuron_info_from_cave(client, map_to_version=LATEST_DATA_SNAPSHOT_VERSION):
     print("Downloading 'neuron_information_v2' with CAVE client..")
-    df = client.materialize.query_table(
-        "neuron_information_v2", materialization_version=LATEST_DATA_SNAPSHOT_VERSION
-    )
+    df = client.materialize.query_table("neuron_information_v2")
     print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
-    neuron_info_table = [["root_id", "tag", "user_id", "position", "supervoxel_id"]]
+    supervoxel_ids = df["pt_supervoxel_id"].astype(np.uint64)
+    mat_timestamp = client.materialize.get_version_metadata(map_to_version)[
+        "time_stamp"
+    ]
+    df["pt_root_id"] = client.chunkedgraph.get_roots(
+        supervoxel_ids, timestamp=mat_timestamp
+    )
+    print(f"Mapped to version {map_to_version}")
+    neuron_info_table = [
+        ["root_id", "tag", "user_id", "position", "supervoxel_id", "tag_id"]
+    ]
+    user_ids = set()
     for index, d in df.iterrows():
+        user_ids.add(d["user_id"])
         neuron_info_table.append(
             [
                 int(d["pt_root_id"]),
                 str(d["tag"]),
-                str(d["user_id"]),
+                int(d["user_id"]),
                 str(d["pt_position"]),
                 int(d["pt_supervoxel_id"]),
+                int(d["id"]),
             ]
         )
+
+    user_infos = client.auth.get_user_information(user_ids)
+    user_id_to_info = {u["id"]: (u["name"], u["pi"]) for u in user_infos}
+    print(
+        f"Fetched user infos: {len(user_infos)}, not found: {len(user_ids - set(user_id_to_info.keys()))}"
+    )
+    uinfo_not_found = 0
+    neuron_info_table[0].extend(["user_name", "user_affiliation"])
+    for r in neuron_info_table[1:]:
+        uinfo = user_id_to_info.get(r[2])
+        if uinfo:
+            r.extend([uinfo[0], uinfo[1]])
+        else:
+            r.extend(["", ""])
+            uinfo_not_found += 1
+    print(f"Annos without uinfo: {uinfo_not_found}")
     return neuron_info_table
 
 
@@ -475,10 +505,111 @@ def fill_missing_positions(version=LATEST_DATA_SNAPSHOT_VERSION):
     write_csv(filename=fname_out, rows=content, compress=True)
 
 
+def fill_new_annotations(version=LATEST_DATA_SNAPSHOT_VERSION):
+    fname_in = f"static/data/{version}/neuron_data.csv.gz"
+    fname_out = (
+        f"static/data/{version}/neuron_data_with_annotations_{datetime.now()}.csv.gz"
+    )
+
+    content = read_csv(fname_in)
+    print(content[0])
+    tag_col_idx = content[0].index("tag")
+
+    annotations = load_neuron_info_from_cave(
+        client=init_cave_client(), map_to_version=version
+    )
+    print(f"Writing labels file with {len(annotations)} lines")
+    write_csv(f"static/data/{version}/labels.csv.gz", rows=annotations, compress=True)
+    print(annotations[0])
+    rid_to_tags = defaultdict(list)
+    for r in annotations:
+        rid_to_tags[r[0]].append(r[1])
+
+    mismatch = match = not_found = filled = contained = 0
+    for r in content[1:]:
+        new_tags = rid_to_tags.get(int(r[0]))
+        new_tags = set([t.replace(",", ";") for t in new_tags or []])
+        old_tags = set(
+            [t for t in r[tag_col_idx].split(",") if t and not t.endswith("*")]
+        )
+
+        if not new_tags and old_tags:
+            print(f"Not found: {old_tags}")
+            r[tag_col_idx] = ",".join(old_tags)
+            not_found += 1
+        elif not old_tags and new_tags:
+            r[tag_col_idx] = ",".join(new_tags)
+            filled += 1
+        elif new_tags == old_tags:
+            r[tag_col_idx] = ",".join(new_tags)
+            match += 1
+        elif all([t in new_tags for t in old_tags]):
+            r[tag_col_idx] = ",".join(new_tags)
+            contained += 1
+        else:
+            print(f"Mismatch: {old_tags} -> {new_tags}")
+            r[tag_col_idx] = ",".join(old_tags.union(new_tags))
+            mismatch += 1
+    print(f"{not_found=} {filled=} {match=} {mismatch=} {contained=}")
+    write_csv(filename=fname_out, rows=content, compress=True)
+
+
+# CLEAN
+def val_counts(table):
+    unique_counts = {}
+    missing_counts = {}
+    for i, c in enumerate(table[0]):
+        unique_counts[c] = len(set([r[i] for r in table[1:] if r[i]]))
+        missing_counts[c] = len([r[i] for r in table[1:] if not r[i]])
+    return unique_counts, missing_counts
+
+
+def summarize_csv(content):
+    print(f"- header: {content[0]}")
+    uniq_counts, miss_counts = val_counts(content)
+    print(f"- unique val counts: {uniq_counts}")
+    print(f"- missing val counts: {miss_counts}")
+    return content
+
+
+def compare_csvs(old_table, new_table):
+    old_row_set = set([",".join([str(d) for d in r]) for r in old_table])
+    new_row_set = set([",".join([str(d) for d in r]) for r in new_table])
+    print(f"Rows in old but not new: {len(old_row_set - new_row_set)}")
+    print(f"Rows in new but not old: {len(new_row_set - old_row_set)}")
+
+
+def update_labels_file(version=LATEST_DATA_SNAPSHOT_VERSION):
+    fname = f"static/data/{version}/labels.csv.gz"
+    backup_fname = f"static/data/{version}/labels_bkp.csv.gz"
+    old_content = None
+    if os.path.isfile(fname):
+        print(f"Reading {fname}...")
+        old_content = read_csv(fname)
+        summarize_csv(old_content)
+        print(f"Copying to {backup_fname}..")
+        shutil.copy2(fname, backup_fname)
+    else:
+        print(f"File {fname} not found.")
+
+    print("Loading labels from DB..")
+    new_content = load_neuron_info_from_cave(
+        client=init_cave_client(), map_to_version=version
+    )
+    summarize_csv(new_content)
+    if old_content:
+        compare_csvs(old_content, new_content)
+    print(f"Writing labels file with {len(new_content)} lines to {fname}")
+    write_csv(fname, rows=new_content, compress=True)
+
+
 if __name__ == "__main__":
     # compile_data()
     # augment_existing_data()
     # replace_classes_in_existing_data()
     # augment_with_nt_scores()
     # correct_nt_scores()
-    fill_missing_positions()
+    # fill_missing_positions()
+    # fill_new_annotations()
+    for v in DATA_SNAPSHOT_VERSIONS:
+        update_labels_file(version=v)

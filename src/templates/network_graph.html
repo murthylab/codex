@@ -44,6 +44,17 @@
         display: none;
     }
 
+    #warning-msg {
+      position: fixed;
+      background-color: #ffffff77;
+      text-align: center;
+      border-radius: 2px;
+      z-index: 1;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 10px;
+    }
+
     #legend {
         position: absolute;
         left: 20px;
@@ -74,6 +85,10 @@
 
 <body>
 <div id="mynetwork"></div>
+
+{% if warning_msg %}
+<div id="warning-msg">{{warning_msg}}</div><br>
+{% endif %}
 <div id="legend">
     {% for entry in legend %}
     <div class="legend-circle" style="background-color: {{entry['color']}};"></div>
@@ -118,13 +133,13 @@
             },
             "interaction": {
                 "dragNodes": true,
-                "hideEdgesOnDrag": false,
+                "hideEdgesOnDrag": nodes.length > 50,
                 "hideNodesOnDrag": false
             },
             "physics": {
-                "enabled": false,
+                "enabled": nodes.length < 150,
                 "stabilization": {
-                    "enabled": false,
+                    "enabled": true,
                     "fit": true,
                     "iterations": 1000,
                     "onlyDynamicEdges": false,

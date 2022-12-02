@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from src.data.gcs_data_loader import load_connection_table_for_root_id
 from src.data.structured_search_filters import (
     OP_DOWNSTREAM,
@@ -11,11 +13,13 @@ from src.utils.logging import log_error, log
 DOWNSTREAM_SYNAPSE_COUNT = "downstream_synapse_count"
 UPSTREAM_SYNAPSE_COUNT = "upstream_synapse_count"
 DISTANCE_FROM = "distance_from"
+ITEM_COUNT = "item_count"
 
 SORTABLE_OPS = {
     OP_DOWNSTREAM: DOWNSTREAM_SYNAPSE_COUNT,
     OP_UPSTREAM: UPSTREAM_SYNAPSE_COUNT,
     OP_PATHWAYS: DISTANCE_FROM,
+    None: ITEM_COUNT,
 }
 
 
@@ -33,16 +37,23 @@ def infer_sort_by(query):
                 target_cell_id = part["lhs"]
             sort_by = f"{sort_type}:{target_cell_id}"
             log(f"Inferred sort by {sort_by} from query: {query}")
+        elif len(sortable_terms) == 0 and not free_form:
+            sort_by = f"{ITEM_COUNT}:label"
+
     return sort_by
 
 
-def sort_search_results(query, ids, output_sets, sort_by=None):
+def sort_search_results(query, ids, output_sets, label_count_getter, sort_by=None):
     try:
         sort_by = sort_by or infer_sort_by(query)
         if sort_by:
             parts = sort_by.split(":")
             if len(parts) != 2 or parts[0] not in SORTABLE_OPS.values():
                 raise ValueError(f"Unsupported sort_by parameter: {sort_by}")
+            if parts[0] == ITEM_COUNT:
+                ids = sorted(ids, key=lambda x: -label_count_getter(x))
+                return ids, None
+
             sort_by_target_cell_rid = int(parts[1])
 
             if parts[0] in [DOWNSTREAM_SYNAPSE_COUNT, UPSTREAM_SYNAPSE_COUNT]:
@@ -51,16 +62,18 @@ def sort_search_results(query, ids, output_sets, sort_by=None):
                     extra_data_title = (
                         f"Number of input synapses from {sort_by_target_cell_rid}"
                     )
-                    dct = {
-                        r[1]: r[3] for r in con_table if r[0] == sort_by_target_cell_rid
-                    }
+                    dct = defaultdict(int)
+                    for r in con_table:
+                        if r[0] == sort_by_target_cell_rid:
+                            dct[r[1]] += r[3]
                 else:
                     extra_data_title = (
                         f"Number of output synapses to {sort_by_target_cell_rid}"
                     )
-                    dct = {
-                        r[0]: r[3] for r in con_table if r[1] == sort_by_target_cell_rid
-                    }
+                    dct = defaultdict(int)
+                    for r in con_table:
+                        if r[1] == sort_by_target_cell_rid:
+                            dct[r[0]] += r[3]
                 extra_data = {
                     "title": extra_data_title,
                     "column_name": "Syn",

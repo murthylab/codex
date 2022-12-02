@@ -63,6 +63,13 @@ def url_for_random_sample(root_ids, sample_size=50):
     return url_for_root_ids(root_ids)
 
 
+
+def can_be_flywire_root_id(txt):
+    try:
+        return len(txt) == 18 and txt.startswith("72") and int(txt)
+    except Exception as e:
+        return False
+
 def url_for_neuropils(segment_ids=[]):
 
     seg_ids = "[" + ",".join([f'"{rid}"' for rid in segment_ids]) + "]"
@@ -73,4 +80,6 @@ def url_for_neuropils(segment_ids=[]):
 
     return "https://neuroglancer-demo.appspot.com/#!" + urllib.parse.quote(
         prefix + seg_ids + suffix
+
     )
+

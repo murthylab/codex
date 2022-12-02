@@ -40,7 +40,7 @@ def reachable_node_counts(sources, neighbor_sets, total_count):
     for i in range(1, 100):
         if i not in res:
             break
-        agg_val = sum([res[j] for j in range(i + 1)])
+        agg_val = sum([res[j] for j in range(1, i + 1)])
         aggregated[
             f"{i} hop{'s' if i > 1 else ''}"
         ] = f"{'{:,}'.format(agg_val)} ({percentage(agg_val, total_count)})"

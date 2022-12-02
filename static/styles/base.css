@@ -16,6 +16,25 @@ th, td {
   padding: 8px;
 }
 
+.td_filter_buttons {
+  opacity: 0.1;
+}
+
+.td_filter_buttons_caption {
+  font-size: 10px;
+  color: grey;
+  opacity: 0.0;
+}
+
+td:hover .td_filter_buttons {
+  opacity: 1;
+}
+
+td:hover .td_filter_buttons_caption {
+  opacity: 1;
+}
+
+
 tr:nth-child(even){background-color: #fafafa}
 
 #snackbar {
@@ -27,4 +46,74 @@ tr:nth-child(even){background-color: #fafafa}
   left: 50%;
   transform: translateX(-50%);
   bottom: 10px;
+}
+
+#leaderboard-banner {
+  position: center;
+  background-color: #ffffff77;
+  text-align: center;
+  border-radius: 2px;
+  z-index: 1;
+  right: 50%;
+  top: 10px;
+}
+
+/*loading animation container*/
+.overlay{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:auto;
+  height:50vh;
+}
+
+.ball{
+  width:20px;
+  height:20px;
+  border-radius:10px;
+  background:white;
+  opacity:0.3;
+}
+.a{
+  margin-right:10px;
+  animation: ball-a 0.7s ease-out 0s infinite alternate;
+  /*animation-tutorial: name duration ease delay iterate-count direction*/
+}
+.b{
+  margin-right:10px;
+  animation: ball-b 0.7s ease-out 0.2s infinite alternate;
+}
+.c{
+  animation: ball-c 0.7s ease-out 0.4s infinite alternate;
+}
+/*ANIMATION STORAGE*/
+@keyframes ball-a {
+  from{
+    height:20px;
+    opacity:0.3;
+    background:white;}
+  to{
+    height:70px;
+    opacity:1;
+    background:#1167b1;}
+}
+@keyframes ball-b {
+  from{
+    height:20px;
+    opacity:0.3;
+    background:white;}
+  to{
+    height:65px;
+    opacity:1;
+    background:#187bcd;}
+}
+@keyframes ball-c {
+  from{
+    height:20px;
+    opacity:0.3;
+    background:white;}
+  to{
+    height:60px;
+    opacity:1;
+    background:#2a9df4;}
 }

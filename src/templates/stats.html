@@ -75,7 +75,7 @@ div.google-visualization-tooltip { width:250px; }
         <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search"
                id="filter_string" name="filter_string" placeholder="filter stats data" aria-label="Filter"
                value="{{filter_string}}">
-        <button class="btn btn btn-primary my-2 my-sm-0" type="submit"><i class="fa-solid fa-magnifying-glass"></i>
+        <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();"><i class="fa-solid fa-magnifying-glass"></i>
         </button>
 
         {% include "advanced_search.html" %}
@@ -101,8 +101,8 @@ div.google-visualization-tooltip { width:250px; }
                         <tbody>
                         {% for k_l3, v_l3 in d_l2.items() %}
                         <tr>
-                            <td><b>{{k_l3}}</b></td>
-                            <td style="text-align: end;">{{v_l3}}</td>
+                            <td><b>{{k_l3|safe}}</b></td>
+                            <td style="text-align: end;">{{v_l3|safe}}</td>
                         </tr>
                         {% endfor %}
                         </tbody>

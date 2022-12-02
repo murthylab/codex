@@ -99,15 +99,17 @@ div.google-visualization-tooltip { width:250px; }
         </div>
         <div>
             <form style="margin: 10px;" target="_blank">
-                <p style="color: purple;"> <i class="fa-solid fa-pen-to-square"></i> Contribute your annotation / cell identification</p>
+                <h7 style="color: purple;"> <i class="fa-solid fa-pen-to-square"></i> Contribute to the labeling effort</h7>
                 <textarea class="form-control" id="annotation_text" minlength="2" rows="2" name="annotation_text"
-                      placeholder="annotation / cell identification" required></textarea>
+                      placeholder="label, annotate, or identify this cell" required></textarea>
                 <input style="margin-top: 10px;" class="form-control mr-sm-2" autocomplete="off" minlength="11" required
                     id="annotation_coordinates" name="annotation_coordinates" placeholder="coordinates: x y z (in nano)"
                     aria-label="Soma Coordinates in Nanometers" value="{{cell_coordinates}}">
                 <input type="hidden" id="annotation_cell_id" name="annotation_cell_id" value="{{cell_id}}"/>
-                <button type="submit" style="margin-top: 10px;" class="btn btn-outline-success btn-sm" formmethod="post">
+                <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">
                     Continue
+                </button> <button type="button" onclick="alert('After you fill in the annotation info and hit Continue, you will be taken to the Flywire annotation management system to submit it with one click. If accepted, your annotation will show up in Codex the next work day.')" style="margin-top: 10px;" class="btn btn-outline-info btn-sm">
+                    <i class="fa-solid fa-info"></i>
                 </button>
             </form>
         </div>
@@ -180,7 +182,7 @@ div.google-visualization-tooltip { width:250px; }
         Look up a cell by name or ID to see its detailed information, including connectivity with upstream / downstream
         cells, 3D rendering, annotations and a list of morphologically similar as well as other related cells.
         <br><br>
-        <button class="btn btn btn-success my-2 my-sm-0" type="button"
+        <button class="btn btn btn-outline-success my-2 my-sm-0" type="button"
                 onclick="loading(); sb_elem = document.getElementById('cell_names_or_id'); sb_elem.value = '{random_cell}'; sb_elem.form.submit();">
             Try Random Cell
         </button>

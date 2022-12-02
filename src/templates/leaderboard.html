@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+Leaderboard
+{% endblock title %}
+
+{% block content %}
+<div id="leaderboard-banner"><img src="{{url_for('base.asset', filename='leaderboard.png')}}" style="width: auto; height: 150px;"></div>
+<div class="card mb-3" style="margin: 5px;">
+    <div class="body">
+        <div class="card-columns" id="data_container" style="padding: 5px;">
+            {% for k_l2, d_l2 in data_stats.items() %}
+            <div class="card">
+                {% if k_l2 %}
+                <div class="card-header">
+                    {{k_l2}}
+                </div>
+                {% endif %}
+                <div style="overflow-x:auto;">
+                    <table class="table">
+                        <tbody>
+                        {% for k_l3, v_l3 in d_l2.items() %}
+                        <tr>
+                            <td><b>{{k_l3|safe}}</b></td>
+                            <td style="text-align: end;">{{v_l3|safe}}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
