@@ -1,79 +1,130 @@
 {% extends "base.html" %} {% block title %} Neuropil Explorer {% endblock title
 %} {% block content %}
-<script type="module">
-  import {
-    html,
-    Component,
-    render,
-    useState,
-  } from "https://unpkg.com/htm/preact/standalone.module.js";
 
-  const regions = {{ regions | tojson}};
-  const region_map = {{ region_map | tojson}};
-  console.log(region_map);
-  function App() {
-    const [selection, setSelection] = useState('{{selected}}');
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
-    return html`
-        <div class="card-columns">
-              {% for hemisphere in region_map %}
-                <div class="card">
-                  <summary>{{hemisphere}}</summary>
-                  {% for category in region_map[hemisphere] %}
-                    <div style="padding-left: 20px" >
-                      <summary>{{category}}</summary>
-                        {% for region in region_map[hemisphere][category] %}
-                          <button onclick=${() => setSelection("{{region}}")} 
-                                  style="margin:1px" 
-                                  class="${selection == '{{region}}' ? 'btn-success' : 'btn-primary'}">
-                            {{region_map[hemisphere][category][region].description}}
-                          </button>
-                        {% endfor %}
-                    </div>
-                  {% endfor %}
-                </div>
-              {% endfor %}
-          <div class="card">
-                      <p>Search For Neurons:</p>
-                    <p>
-                    <a href="/app/search?filter_string=output_neuropil+%3D%3D+"${selection} class="btn btn-primary">With this region as output</a>
-                    </p>
-                    <p>
-                    <a href="/app/search?filter_string=input_neuropil+%3D%3D+"${selection} class="btn btn-primary">With this region as input</a>
-                    </p>
-                    <p>See Neuron Stats</p>
-                    <p>
-                    <a href="/app/stats?filter_string=output_neuropil+%3D%3D+"${selection} class="btn btn-primary">With this region as output</a>
-                    </p>
-                    <p>
-                    <a href="/app/stats?filter_string=input_neuropil+%3D%3D+"${selection} class="btn btn-primary">With this region as input</a>
-                    </p>
-        </div>
+<!-- FIXME: Don't use this in production: -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-          <!-- neuroglancer -->
-          <div class="card" style="height:500px">
-            <div class="card-header" style="color: purple">
-              <a href="/app/flywire_neuropil_url?segment_id="${regions[selection][0]} target="_blank"
-                >3D Rendering
-                <i
-                  style="margin-left: 3px"
-                  class="fa-sharp fa-solid fa-up-right-from-square"
-                ></i
-              ></a>
-            </div>
-            <iframe
-              style="width: 98%; height: 100%"
-              id="neuroglancer"
-              src="/app/flywire_neuropil_url?segment_id="${regions[selection][0]}
-              title="neuroglancer"
-              loading="lazy"
-            ></iframe>
-          </div>
-        </div>
-    `;
-  }
-  render(html`<${App} />`, document.getElementById("root"));
-</script>
 <div id="root"></div>
+<script type="text/babel">
+class Neuropils extends React.Component {
+  state = {
+    data: null,
+    selection: null,
+  };
 
+  async componentDidMount() {
+    const response = await fetch("http://localhost:5000/app/neuropils/json");
+    const data = await response.json();
+    this.setState({ data: data });
+    console.log(data);
+  }
+
+  render() {
+    const { data, selection } = this.state;
+    return (
+      <div className="container-fluid ">
+        <div className="card-columns">
+          <div className="card">
+            <p>Selected: {selection?.description}</p>
+            <p>Search For Neurons:</p>
+            <p>
+              <button
+                href={`/app/search?filter_string=output_neuropil+%3D%3D+${selection?.id}`}
+                onClick={() => {
+                  window.location.href = `/app/search?filter_string=output_neuropil+%3D%3D+${selection?.id}`;
+                }}
+                className="btn btn-primary"
+                disabled={!selection}
+              >
+                With this region as output
+              </button>
+            </p>
+            <p>
+              <button
+                onClick={() => {
+                  window.location.href = `/app/search?filter_string=input_neuropil+%3D%3D+${selection?.id}`;
+                }}
+                className="btn btn-primary"
+                disabled={!selection}
+              >
+                With this region as input
+              </button>
+            </p>
+            <p>See Neuron Stats</p>
+            <p>
+              <button
+                onClick={() => {
+                  window.location.href = `/app/stats?filter_string=output_neuropil+%3D%3D+${selection?.id}`;
+                }}
+                className="btn btn-primary"
+                disabled={!selection}
+              >
+                With this region as output
+              </button>
+            </p>
+            <p>
+              <button
+                onClick={() => {
+                  window.location.href = `/app/stats?filter_string=input_neuropil+%3D%3D+${selection?.id}`;
+                }}
+                className="btn btn-primary"
+                disabled={!selection}
+              >
+                With this region as input
+              </button>
+            </p>
+          </div>
+
+          <div className="card p-1">
+            {data &&
+              data["region_categories"].map((category, index) => (
+                <div className="p1" key={index}>
+                  <div>
+                    <button
+                      className="btn btn-primary"
+                      type="button"
+                      data-toggle="collapse"
+                      data-target={`#category-${index}`}
+                      aria-expanded="false"
+                      aria-controls="collapseExample"
+                    >
+                      {category.name}
+                    </button>
+
+                    <div className="collapse p-1" id={`category-${index}`}>
+                      <div>
+                        {category.regions.map((region) => (
+                          <button
+                            key={region.id}
+                            onClick={() => this.setState({ selection: region })}
+                          >
+                            {region.description}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+          <iframe
+            id="neuroglancer"
+            title="neuroglancer"
+            loading="lazy"
+            src={`/app/flywire_neuropil_url?segment_id=${selection?.segment_id}`}
+          ></iframe>
+        </div>
+      </div>
+    );
+  }
+}
+
+const container = document.getElementById("root");
+const root = ReactDOM.createRoot(container);
+root.render(<Neuropils />);
+
+</script>
 {% endblock content %}
