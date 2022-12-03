@@ -26,10 +26,17 @@
             <input style="margin: 5px;" type="range" class="form-range" min="1" max="100" id="nodes_limit" name="nodes_limit" value="{{nodes_limit}}" onchange="loading(); this.form.submit();">
 
             </div>
-            <button class="btn btn btn-success my-2 my-sm-0" type="button"
-                    onclick="document.getElementById('network-frame').contentWindow.drawGraph();"
-                    title="Redraw" style="margin: 5px;"> Redraw
-                <i class="fa-solid fa-repeat"></i></button>
+
+            <div class="dropdown">
+              <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-repeat"></i> Simulate
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <button class="dropdown-item" onclick="document.getElementById('network-frame').contentWindow.drawGraph('barnesHut');">Barnes-Hut</button>
+                <button class="dropdown-item" onclick="document.getElementById('network-frame').contentWindow.drawGraph('repulsion');">Repulsion</button>
+                <button class="dropdown-item" onclick="document.getElementById('network-frame').contentWindow.drawGraph('forceAtlas2Based');">Force Atlas 2</button>
+              </div>
+            </div>
 
         {% endif %}
     </form>
