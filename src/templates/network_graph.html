@@ -107,7 +107,7 @@
     var mousePos;
 
     // This method is responsible for drawing the graph, returns the drawn network
-    function drawGraph() {
+    function drawGraph(solver) {
         var container = document.getElementById("mynetwork");
 
         nodeslist = {{nodes|tojson}};
@@ -137,6 +137,7 @@
                 "hideNodesOnDrag": false
             },
             "physics": {
+                "solver": solver,
                 "enabled": nodes.length < 150,
                 "stabilization": {
                     "enabled": true,
@@ -202,7 +203,7 @@
         return network;
     }
 
-    drawGraph();
+    drawGraph("barnesHut");
 
     function getMousePos(canvas, evt) {
         var rect = canvas.getBoundingClientRect();
