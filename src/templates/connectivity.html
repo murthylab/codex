@@ -32,9 +32,10 @@
                 <i class="fa-solid fa-repeat"></i> Simulate
               </button>
               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <button class="dropdown-item" onclick="document.getElementById('network-frame').contentWindow.drawGraph('barnesHut');">Barnes-Hut</button>
-                <button class="dropdown-item" onclick="document.getElementById('network-frame').contentWindow.drawGraph('repulsion');">Repulsion</button>
-                <button class="dropdown-item" onclick="document.getElementById('network-frame').contentWindow.drawGraph('forceAtlas2Based');">Force Atlas 2</button>
+                <button class="dropdown-item" type="button" onclick="document.getElementById('network-frame').contentWindow.drawGraph('barnesHut');">Barnes-Hut</button>
+                <button class="dropdown-item" type="button" onclick="document.getElementById('network-frame').contentWindow.drawGraph('repulsion');">Repulsion</button>
+                <button class="dropdown-item" type="button" onclick="document.getElementById('network-frame').contentWindow.drawGraph('forceAtlas2Based');">Force Atlas 2</button>
+                <button class="dropdown-item" type="button" onclick="document.getElementById('network-frame').contentWindow.drawGraph('hierarchicalRepulsion');">Hierarchical</button>
               </div>
             </div>
 
