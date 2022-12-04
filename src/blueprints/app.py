@@ -1202,7 +1202,9 @@ def connectivity():
             return render_error(
                 f"Connections for {min_syn_cnt=}, {nt_type=} and Cell IDs {root_ids} are unavailable."
             )
-        max_nodes_limit = min(len(set([r[0] for r in contable]).union(set([r[1] for r in contable]))), 100)
+        max_nodes_limit = min(
+            len(set([r[0] for r in contable]).union(set([r[1] for r in contable]))), 100
+        )
         if log_request:
             log_activity(
                 f"Generated connections table for {root_ids} {download=} {min_syn_cnt=} {nt_type=}"

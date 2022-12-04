@@ -134,3 +134,10 @@ def compact_tag(anno_tag):
         "information on descending/ascending neurons",
         "",
     )
+
+
+def truncate(txt, charlim):
+    if len(txt) <= charlim:
+        return txt
+    else:
+        return txt[: charlim - 2] + ".."

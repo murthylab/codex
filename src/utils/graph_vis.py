@@ -3,8 +3,7 @@ from collections import defaultdict
 from flask import render_template, url_for
 
 from src.data.brain_regions import neuropil_description, REGIONS
-from src.utils.formatting import shorten_and_concat_labels
-
+from src.utils.formatting import shorten_and_concat_labels, truncate
 
 INPUT_NEUROPIL_COLOR = "#97c2fc"
 OUTPUT_NEUROPIL_COLOR = "#fcc297"
@@ -79,10 +78,12 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
         return nt_color(ndata["nt_type"])
 
     def node_label(nd):
-        if nd["root_id"] in center_ids:
-            return nd["name"]
+        if nd["root_id"] in center_ids or nodes_limit < 10:
+            labels = sorted(nd["tag"], key=lambda x: len(x))
+            lbl = labels[0] if labels else nd["name"]
+            return truncate(lbl, 15)
         else:
-            return nd["class"][:2].lower()
+            return " "
 
     def node_title(nd):
         rid = nd["root_id"]
@@ -92,11 +93,11 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
             tags_str = shorten_and_concat_labels(nd["tag"])
             class_and_annotations += f"<br>{tags_str}"
 
-        prefix = "selected cell" if rid in center_ids else "connected cell"
+        prefix = "queried cell" if rid in center_ids else "connected cell"
         cell_detail_url = url_for("app.cell_details", root_id=rid)
         thumbnail_url = url_for("base.skeleton_thumbnail_url", root_id=rid)
         return (
-            f'<a href="{cell_detail_url}" target="_parent">{name}</a><br>({prefix})<br><small>{rid}'
+            f'<a href="{cell_detail_url}" target="_parent">{name}</a> [{prefix}]<br><small>{rid}'
             f"</small><br><small>{class_and_annotations}</small><br>"
             f'<a href="{cell_detail_url}" target="_parent">'
             f'<img src="{thumbnail_url}" width="200px" height="150px;" border="0px;"></a>'
