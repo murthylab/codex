@@ -1269,8 +1269,8 @@ def connectivity():
             cell_names_or_ids=cell_names_or_ids,
             min_syn_cnt=min_syn_cnt,
             nt_type=nt_type,
-            nodes_limit=nodes_limit,
-            max_nodes_limit=max_nodes_limit,
+            nodes_limit=1,
+            max_nodes_limit=1,
             network_html=None,
             info_text="With this tool you can specify one or more cells and visualize their connectivity network.<br>"
             f"{con_doc['a']}",
