@@ -1202,6 +1202,7 @@ def connectivity():
             return render_error(
                 f"Connections for {min_syn_cnt=}, {nt_type=} and Cell IDs {root_ids} are unavailable."
             )
+        max_nodes_limit = min(len(set([r[0] for r in contable]).union(set([r[1] for r in contable]))), 100)
         if log_request:
             log_activity(
                 f"Generated connections table for {root_ids} {download=} {min_syn_cnt=} {nt_type=}"
@@ -1255,6 +1256,7 @@ def connectivity():
                 min_syn_cnt=min_syn_cnt,
                 nt_type=nt_type,
                 nodes_limit=nodes_limit,
+                max_nodes_limit=max_nodes_limit,
                 network_html=network_html,
                 info_text=None,
                 sample_input=None,
@@ -1268,6 +1270,7 @@ def connectivity():
             min_syn_cnt=min_syn_cnt,
             nt_type=nt_type,
             nodes_limit=nodes_limit,
+            max_nodes_limit=max_nodes_limit,
             network_html=None,
             info_text="With this tool you can specify one or more cells and visualize their connectivity network.<br>"
             f"{con_doc['a']}",

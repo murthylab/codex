@@ -18,18 +18,20 @@
                 }
             </script>
             <a class="btn btn btn-outline-primary my-2 my-sm-0" style="margin: 5px;"
-               onclick="download_data('csv');"><i class="fa-solid fa-download"></i> &nbsp;  CSV</a>
+               onclick="download_data('csv');"><i class="fa-solid fa-download"></i> CSV</a>
             <a class="btn btn btn-outline-primary my-2 my-sm-0"
-                onclick="download_data('json');"><i class="fa-solid fa-download"></i> &nbsp;  JSON</a>
-            <div>
-            <label for="nodes_limit" class="form-label">Detail Level</label>
-            <input style="margin: 5px;" type="range" class="form-range" min="1" max="100" id="nodes_limit" name="nodes_limit" value="{{nodes_limit}}" onchange="loading(); this.form.submit();">
+                onclick="download_data('json');"><i class="fa-solid fa-download"></i> JSON</a>
 
+            {% if max_nodes_limit > 1 %}
+            <div style="margin-left: 5px; margin-right: 5px;">
+                <label for="nodes_limit" class="form-label"># nodes</label>
+                <input type="range" class="form-range" min="1" max="{{max_nodes_limit}}" id="nodes_limit" name="nodes_limit" value="{{nodes_limit}}" onchange="loading(); this.form.submit();">
             </div>
+            {% endif %}
 
             <div class="dropdown">
-              <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fa-solid fa-repeat"></i> Simulate
+              <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-repeat"></i>
               </button>
               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <button class="dropdown-item" type="button" onclick="document.getElementById('network-frame').contentWindow.drawGraph('barnesHut');">Barnes-Hut</button>
