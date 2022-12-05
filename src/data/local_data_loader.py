@@ -7,12 +7,15 @@ from datetime import datetime
 from src.data.neuron_data import NeuronDB
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS
 from src.utils.logging import log, log_error
+from src.utils.networking import download
 
 DATA_ROOT_PATH = "static/data"
 NEURON_DATA_FILE_NAME = "neuron_data.csv.gz"
 CONNECTIONS_FILE_NAME = "connections_5syn.csv.gz"
 LABELS_FILE_NAME = "labels.csv.gz"
 NEURON_DB_PICKLE_FILE_NAME = "neuron_db.pickle.gz"
+
+GCS_PICKLE_URL_TEMPLATE = "https://storage.googleapis.com/flywire-data/codex/pickle/{version}/neuron_db.pickle.gz"
 
 
 def data_file_path_for_version(version, data_root_path=DATA_ROOT_PATH):
@@ -60,7 +63,19 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
 
 def unpickle_neuron_db(version, data_root_path=DATA_ROOT_PATH):
     try:
-        pf = f"{data_file_path_for_version(version=version, data_root_path=data_root_path)}/{NEURON_DB_PICKLE_FILE_NAME}"
+        fldr = data_file_path_for_version(
+            version=version, data_root_path=data_root_path
+        )
+        pf = f"{fldr}/{NEURON_DB_PICKLE_FILE_NAME}"
+        if not os.path.isfile(pf):
+            log(f"App initialization downloading pickle for version {version}")
+            ok = download(
+                url=GCS_PICKLE_URL_TEMPLATE.format(version=version), dest_folder=fldr
+            )
+            if not ok:
+                raise RuntimeError(
+                    f"Failed to download data file for {version=} and {data_root_path=}"
+                )
         with gzip.open(pf, "rb") as handle:
             db = pickle.load(handle)
             log(f"App initialization pickle loaded for version {version}")

@@ -12,7 +12,6 @@ FlyWire community (see flywire.ai). See [demo clips](https://codex.flywire.ai/de
 conda create -n codex python=3.9
 conda activate codex
 pip install -r requirements.txt
-curl -o ./static/data/447/neuron_db.pickle.gz https://storage.googleapis.com/flywire-data/codex/pickle/447/neuron_db.pickle.gz
 ./run_local.sh
 ```
 Navigate to [localhost:5000](http://localhost:5000)
