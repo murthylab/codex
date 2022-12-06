@@ -219,7 +219,6 @@ def lookup_neuropil_set(txt):
 NEUROPIL_DESCRIPTIONS = {k: neuropil_description(k) for k in REGIONS.keys()}
 
 
-
 def hemisphere_categories(hemisphere):
     categories = []
 
@@ -230,20 +229,18 @@ def hemisphere_categories(hemisphere):
             if neuropil_hemisphere(region_id) == hemisphere:
                 segment_id = REGIONS[region_id][0]
                 description = REGIONS[region_id][1]
-                regions.append({
-                    "segment_id": segment_id,
-                    "id": region_id,
-                    "description": description
-                })
+                regions.append(
+                    {
+                        "segment_id": segment_id,
+                        "id": region_id,
+                        "description": description,
+                    }
+                )
 
         if len(regions) > 0:
-            categories.append({
-                "name": category[0],
-                "regions": regions
-            })
+            categories.append({"name": category[0], "regions": regions})
 
     return categories
-
 
 
 REGIONS_JSON = {h: hemisphere_categories(h) for h in HEMISPHERES}

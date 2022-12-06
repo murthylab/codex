@@ -1321,4 +1321,9 @@ def neuropils():
 
     selected = request.args.get("selected")
 
-    return render_template("neuropils.html", selected=selected, regions=REGIONS_JSON, descriptions=NEUROPIL_DESCRIPTIONS)
+    return render_template(
+        "neuropils.html",
+        selected=selected,
+        regions=REGIONS_JSON,
+        descriptions=NEUROPIL_DESCRIPTIONS,
+    )
