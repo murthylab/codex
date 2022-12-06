@@ -136,8 +136,11 @@ def compact_tag(anno_tag):
     )
 
 
-def truncate(txt, charlim):
+def truncate(txt, charlim, include_length=False):
     if len(txt) <= charlim:
         return txt
     else:
-        return txt[: charlim - 2] + ".."
+        res = txt[: charlim - 2] + ".."
+        if include_length:
+            res += f"({len(txt)})"
+        return res

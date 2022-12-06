@@ -113,6 +113,7 @@ class TestHighlighting(TestCase):
     def test_truncate(self):
         self.assertEqual("bit", truncate("bit", 5))
         self.assertEqual("bit..", truncate("bit longer", 5))
+        self.assertEqual("bit..(21)", truncate("bit longer with count", 5, include_length=True))
         self.assertEqual("bits", truncate("bits", 5))
         self.assertEqual("bitim", truncate("bitim", 5))
         self.assertEqual("", truncate("", 5))

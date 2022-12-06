@@ -313,7 +313,8 @@ def search():
     )
     if filtered_root_id_list:
         log_activity(
-            f"Loaded {len(filtered_root_id_list)} search results for page {page_number} {activity_suffix(filter_string, data_version)}"
+            f"Loaded {len(filtered_root_id_list)} search results for page {page_number} "
+            f"{activity_suffix(filter_string, data_version)}"
         )
         filtered_root_id_list, extra_data = sort_search_results(
             query=filter_string,

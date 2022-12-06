@@ -34,6 +34,7 @@ from src.utils.cookies import (
     delete_cookies,
     store_user_info,
 )
+from src.utils.formatting import truncate
 from src.utils.logging import (
     log,
     log_activity,
@@ -477,7 +478,7 @@ def demo_clip():
 
 
 def activity_suffix(filter_string, data_version):
-    return (f"for '{filter_string}'" if filter_string else "") + (
+    return (f"for '{truncate(filter_string, 50)}'" if filter_string else "") + (
         f" (v{data_version})" if data_version != LATEST_DATA_SNAPSHOT_VERSION else ""
     )
 
