@@ -111,79 +111,6 @@ def load_feather_file(filename, columns_to_read=None):
     return load_feather_data_to_table(full_path, columns_to_read=columns_to_read)
 
 
-def init_cave_client():
-    with open(CAVE_AUTH_TOKEN_FILE_NAME) as fn:
-        auth_token = str(fn.readline()).strip()
-        if not auth_token:
-            print(
-                "!! Missing access token. See link in the comment for how to obtain it."
-            )
-            exit(1)
-    return CAVEclient(CAVE_DATASTACK_NAME, auth_token=auth_token)
-
-
-def load_neuron_info_from_cave(client, map_to_version=LATEST_DATA_SNAPSHOT_VERSION):
-    print("Downloading 'neuron_information_v2' with CAVE client..")
-    df = client.materialize.query_table("neuron_information_v2")
-    print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
-    supervoxel_ids = df["pt_supervoxel_id"].astype(np.uint64)
-    mat_timestamp = client.materialize.get_version_metadata(map_to_version)[
-        "time_stamp"
-    ]
-    df["pt_root_id"] = client.chunkedgraph.get_roots(
-        supervoxel_ids, timestamp=mat_timestamp
-    )
-    print(f"Mapped to version {map_to_version}")
-    neuron_info_table = [
-        ["root_id", "tag", "user_id", "position", "supervoxel_id", "tag_id"]
-    ]
-    user_ids = set()
-    for index, d in df.iterrows():
-        user_ids.add(d["user_id"])
-        neuron_info_table.append(
-            [
-                int(d["pt_root_id"]),
-                str(d["tag"]),
-                int(d["user_id"]),
-                str(d["pt_position"]),
-                int(d["pt_supervoxel_id"]),
-                int(d["id"]),
-            ]
-        )
-
-    user_infos = client.auth.get_user_information(user_ids)
-    user_id_to_info = {u["id"]: (u["name"], u["pi"]) for u in user_infos}
-    print(
-        f"Fetched user infos: {len(user_infos)}, not found: {len(user_ids - set(user_id_to_info.keys()))}"
-    )
-    uinfo_not_found = 0
-    neuron_info_table[0].extend(["user_name", "user_affiliation"])
-    for r in neuron_info_table[1:]:
-        uinfo = user_id_to_info.get(r[2])
-        if uinfo:
-            r.extend([uinfo[0], uinfo[1]])
-        else:
-            r.extend(["", ""])
-            uinfo_not_found += 1
-    print(f"Annos without uinfo: {uinfo_not_found}")
-    return neuron_info_table
-
-
-def load_proofreading_info_from_cave(client):
-    print("Downloading 'proofreading_status_public_v1' with CAVE client..")
-    df = client.materialize.query_table(
-        "proofreading_status_public_v1",
-        materialization_version=LATEST_DATA_SNAPSHOT_VERSION,
-    )
-    print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
-    pr_info_table = [["root_id", "position", "supervoxel_id"]]
-    for index, d in df.iterrows():
-        pr_info_table.append(
-            [int(d["pt_root_id"]), str(d["pt_position"]), int(d["pt_supervoxel_id"])]
-        )
-    return pr_info_table
-
-
 def compile_data():
     client = init_cave_client()
     mat_timestamp = client.materialize.get_version_metadata(
@@ -515,9 +442,7 @@ def fill_new_annotations(version=LATEST_DATA_SNAPSHOT_VERSION):
     print(content[0])
     tag_col_idx = content[0].index("tag")
 
-    annotations = load_neuron_info_from_cave(
-        client=init_cave_client(), map_to_version=version
-    )
+    annotations = load_neuron_info_from_cave(client=init_cave_client(), version=version)
     print(f"Writing labels file with {len(annotations)} lines")
     write_csv(f"static/data/{version}/labels.csv.gz", rows=annotations, compress=True)
     print(annotations[0])
@@ -555,6 +480,82 @@ def fill_new_annotations(version=LATEST_DATA_SNAPSHOT_VERSION):
 
 
 # CLEAN
+
+
+def init_cave_client():
+    with open(CAVE_AUTH_TOKEN_FILE_NAME) as fn:
+        auth_token = str(fn.readline()).strip()
+        if not auth_token:
+            print(
+                "!! Missing access token. See link in the comment for how to obtain it."
+            )
+            exit(1)
+    return CAVEclient(CAVE_DATASTACK_NAME, auth_token=auth_token)
+
+
+def load_neuron_info_from_cave(client, version):
+    print("Downloading 'neuron_information_v2' with CAVE client..")
+    df = client.materialize.query_table("neuron_information_v2")
+    print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
+    supervoxel_ids = df["pt_supervoxel_id"].astype(np.uint64)
+    mat_timestamp = client.materialize.get_version_metadata(version)["time_stamp"]
+    df["pt_root_id"] = client.chunkedgraph.get_roots(
+        supervoxel_ids, timestamp=mat_timestamp
+    )
+    print(f"Mapped to version {version}")
+    neuron_info_table = [
+        ["root_id", "tag", "user_id", "position", "supervoxel_id", "tag_id"]
+    ]
+    user_ids = set()
+    for index, d in df.iterrows():
+        user_ids.add(d["user_id"])
+        neuron_info_table.append(
+            [
+                int(d["pt_root_id"]),
+                str(d["tag"]),
+                int(d["user_id"]),
+                str(d["pt_position"]),
+                int(d["pt_supervoxel_id"]),
+                int(d["id"]),
+            ]
+        )
+
+    user_infos = client.auth.get_user_information(user_ids)
+    user_id_to_info = {u["id"]: (u["name"], u["pi"]) for u in user_infos}
+    print(
+        f"Fetched user infos: {len(user_infos)}, not found: {len(user_ids - set(user_id_to_info.keys()))}"
+    )
+    uinfo_not_found = 0
+    neuron_info_table[0].extend(["user_name", "user_affiliation"])
+    for r in neuron_info_table[1:]:
+        uinfo = user_id_to_info.get(r[2])
+        if uinfo:
+            r.extend([uinfo[0], uinfo[1]])
+        else:
+            r.extend(["", ""])
+            uinfo_not_found += 1
+    print(f"Annos without uinfo: {uinfo_not_found}")
+    return neuron_info_table
+
+
+def load_proofreading_info_from_cave(client, version):
+    print("Downloading 'proofreading_status_public_v1' with CAVE client..")
+    df = client.materialize.query_table("proofreading_status_public_v1")
+    print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
+    supervoxel_ids = df["pt_supervoxel_id"].astype(np.uint64)
+    mat_timestamp = client.materialize.get_version_metadata(version)["time_stamp"]
+    df["pt_root_id"] = client.chunkedgraph.get_roots(
+        supervoxel_ids, timestamp=mat_timestamp
+    )
+    print(f"Mapped to version {version}")
+    pr_info_table = [["root_id", "position", "supervoxel_id"]]
+    for index, d in df.iterrows():
+        pr_info_table.append(
+            [int(d["pt_root_id"]), str(d["pt_position"]), int(d["pt_supervoxel_id"])]
+        )
+    return pr_info_table
+
+
 def val_counts(table):
     unique_counts = {}
     missing_counts = {}
@@ -579,9 +580,10 @@ def compare_csvs(old_table, new_table):
     print(f"Rows in new but not old: {len(new_row_set - old_row_set)}")
 
 
-def update_labels_file(version=LATEST_DATA_SNAPSHOT_VERSION):
-    fname = f"static/data/{version}/labels.csv.gz"
-    backup_fname = f"static/data/{version}/labels_bkp.csv.gz"
+def update_cave_data_file(name, db_load_func, cave_client, version):
+    print(f"Updating {name} file..")
+    fname = f"static/data/{version}/{name}.csv.gz"
+    backup_fname = f"static/data/{version}/{name}_bkp.csv.gz"
     old_content = None
     if os.path.isfile(fname):
         print(f"Reading {fname}...")
@@ -590,16 +592,14 @@ def update_labels_file(version=LATEST_DATA_SNAPSHOT_VERSION):
         print(f"Copying to {backup_fname}..")
         shutil.copy2(fname, backup_fname)
     else:
-        print(f"File {fname} not found.")
+        print(f"Previous file {fname} not found.")
 
-    print("Loading labels from DB..")
-    new_content = load_neuron_info_from_cave(
-        client=init_cave_client(), map_to_version=version
-    )
+    print(f"Loading {name} from DB..")
+    new_content = db_load_func(client=cave_client, version=version)
     summarize_csv(new_content)
     if old_content:
         compare_csvs(old_content, new_content)
-    print(f"Writing labels file with {len(new_content)} lines to {fname}")
+    print(f"Writing {name} file with {len(new_content)} lines to {fname}")
     write_csv(fname, rows=new_content, compress=True)
 
 
@@ -611,5 +611,17 @@ if __name__ == "__main__":
     # correct_nt_scores()
     # fill_missing_positions()
     # fill_new_annotations()
+    client = init_cave_client()
     for v in DATA_SNAPSHOT_VERSIONS:
-        update_labels_file(version=v)
+        update_cave_data_file(
+            name="coordinates",
+            db_load_func=load_proofreading_info_from_cave,
+            cave_client=client,
+            version=v,
+        )
+        update_cave_data_file(
+            name="coordinates",
+            db_load_func=load_neuron_info_from_cave,
+            cave_client=client,
+            version=v,
+        )
