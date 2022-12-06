@@ -46,32 +46,34 @@
     {{ card("Right") }}
     <div class="card">
       <div class="card-body">
+          <h6 style="max-width: 500px">{{caption | title }}</h6>
     {% if selected %}
-        <h6 style="max-width: 500px">{{caption | title }}</h6>
         <iframe id="neuroglancer" style="width: 500px; height: 500px" title="neuroglancer" loading="lazy"
           src="/app/flywire_neuropil_url?selected={{selected}}"></iframe>
-        <h5>Search For Neurons:</h5>
-        <p>
-          <a href="/app/search?filter_string=output_neuropil+%7Bin%7D+{{selected}}">
-            With outputs in {{this_or_these}}
-          </a>
-        </p>
-        <p>
-          <a href="/app/search?filter_string=input_neuropil+%7Bin%7D+{{selected}}">
-            With inputs in {{this_or_these}}
-          </a>
-        </p>
-        <h5>See Neuron Stats:</h5>
-        <p>
-          <a href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{selected}}">
-             With outputs in {{this_or_these}}
-          </a>
-        </p>
-        <p>
-          <a href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{selected}}">
-            With inputs in {{this_or_these}}
-          </a>
-        </p>
+        {% if not landing %}
+            <h5>Search For Neurons:</h5>
+            <p>
+              <a href="/app/search?filter_string=output_neuropil+%7Bin%7D+{{selected}}">
+                With outputs in {{this_or_these}}
+              </a>
+            </p>
+            <p>
+              <a href="/app/search?filter_string=input_neuropil+%7Bin%7D+{{selected}}">
+                With inputs in {{this_or_these}}
+              </a>
+            </p>
+            <h5>See Neuron Stats:</h5>
+            <p>
+              <a href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{selected}}">
+                 With outputs in {{this_or_these}}
+              </a>
+            </p>
+            <p>
+              <a href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{selected}}">
+                With inputs in {{this_or_these}}
+              </a>
+            </p>
+            {%  endif %}
     {% else %}
     <p class="text-center">Select a neuropil or category to get started</p>
     {% endif %}

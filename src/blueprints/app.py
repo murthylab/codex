@@ -1319,6 +1319,7 @@ def flywire_neuropil_url():
 @require_data_access
 def neuropils():
 
+    landing = False
     selected = request.args.get("selected")
     if selected:
         selected_ids = [r for r in selected.split(",") if r in REGIONS]
@@ -1327,9 +1328,14 @@ def neuropils():
         else:
             caption = NEUROPIL_DESCRIPTIONS[selected_ids[0]]
     else:
-        selected_ids = []
-        caption = ""
+        selected = ",".join(REGIONS.keys())
+        landing = True
+        caption = "All neuropils"
 
     return render_template(
-        "neuropils.html", selected=selected, REGIONS_JSON=REGIONS_JSON, caption=caption
+        "neuropils.html",
+        selected=selected,
+        REGIONS_JSON=REGIONS_JSON,
+        caption=caption,
+        landing=landing,
     )
