@@ -147,8 +147,13 @@ def log_activity(msg):
     post_to_slk(msg)
 
 
-def log_error(msg):
+def log_warning(msg):
     msg = log(f":warning: > {msg}")
+    post_to_slk(msg)
+
+
+def log_error(msg):
+    msg = log(f":exclamation: > {msg}")
     post_to_slk(msg, hk=SLCKHKSOS)
 
 

@@ -68,6 +68,7 @@ from src.utils.logging import (
     user_agent,
     log,
     log_user_help,
+    log_warning,
 )
 from src.utils.nglui import can_be_flywire_root_id
 from src.utils.pathway_vis import pathway_chart_data_rows
@@ -99,7 +100,7 @@ def stats():
             f"Stats got {num_items} results {activity_suffix(filter_string, data_version)}"
         )
     else:
-        log_activity(
+        log_warning(
             f"No stats {activity_suffix(filter_string, data_version)}, sending hint '{hint}'"
         )
 
@@ -133,8 +134,12 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
     if filtered_root_id_list:
         hint = None
     else:
-        hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
-        log_error(f"No stats results for {filter_string}. Sending hint '{hint}'")
+        hint, edist = neuron_db.closest_token(
+            filter_string, case_sensitive=case_sensitive
+        )
+        log_warning(
+            f"No stats results for {filter_string}. Sending hint '{hint}' {edist=}"
+        )
 
     neuron_data = [neuron_db.get_neuron_data(i) for i in filtered_root_id_list]
     label_data = [neuron_db.get_label_data(i) for i in filtered_root_id_list]
@@ -320,7 +325,8 @@ def search():
     )
     if filtered_root_id_list:
         log_activity(
-            f"Loaded {len(filtered_root_id_list)} search results for page {page_number} {activity_suffix(filter_string, data_version)}"
+            f"Loaded {len(filtered_root_id_list)} search results for page {page_number} "
+            f"{activity_suffix(filter_string, data_version)}"
         )
         filtered_root_id_list, extra_data = sort_search_results(
             query=filter_string,
@@ -329,8 +335,10 @@ def search():
             label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["tag"]),
         )
     else:
-        hint = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
-        log_error(f"No results for '{filter_string}', sending hint '{hint}'")
+        hint, edist = neuron_db.closest_token(
+            filter_string, case_sensitive=case_sensitive
+        )
+        log_warning(f"No results for '{filter_string}', sending hint '{hint}' {edist=}")
 
     return render_neuron_list(
         data_version=data_version,
@@ -464,11 +472,11 @@ def labeling_suggestions():
             f"Got {len(filtered_root_id_list)} labeling suggestions {activity_suffix(filter_string, data_version)}"
         )
     else:
-        hint = neuron_db.closest_token_from_inherited_tags(
+        hint, edist = neuron_db.closest_token_from_inherited_tags(
             filter_string, case_sensitive=case_sensitive
         )
-        log_activity(
-            f"No labeling suggestion results {activity_suffix(filter_string, data_version)}, sending hint '{hint}'"
+        log_warning(
+            f"No labeling suggestion results {activity_suffix(filter_string, data_version)}, sending hint '{hint}' {edist=}"
         )
 
     return render_neuron_list(
