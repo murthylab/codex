@@ -41,23 +41,20 @@ Neuropil Explorer
         <h5 class="card-title">{{descriptions[selected] | title }}</h5>
         <iframe id="neuroglancer" style="width: 500px; height: 500px" title="neuroglancer" loading="lazy"
           src="/app/flywire_neuropil_url?selected={{selected}}"></iframe>
-
         <h5>Search For Neurons:</h5>
-
         <p>
-
-          <a href="/app/search?filter_string=output_neuropil+%7Bin%7D+{{selected}}" className="btn btn-primary">
+          <a href="/app/search?filter_string=output_neuropil+%7Bin%7D+{{selected}}">
             With this region as output
           </a>
         </p>
         <p>
-          <a href="/app/search?filter_string=input_neuropil+%7Bin%7D+{{selected}}" classname="btn btn-primary">
+          <a href="/app/search?filter_string=input_neuropil+%7Bin%7D+{{selected}}">
             With this region as input
           </a>
         </p>
         <h5>See Neuron Stats:</h5>
         <p>
-          <a href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{selected}}" className="btn btn-primary">
+          <a href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{selected}}">
             With this region as output
           </a>
         </p>
@@ -66,11 +63,8 @@ Neuropil Explorer
             With this region as input
           </a>
         </p>
-
       </div>
     </div>
     {% endif %}
   </div>
-
-
   {% endblock content %}
