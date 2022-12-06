@@ -1220,7 +1220,7 @@ def connectivity():
         )
         if log_request:
             log_activity(
-                f"Generated connections table for {root_ids} {download=} {min_syn_cnt=} {nt_type=}"
+                f"Generated connections table for {len(root_ids)} cells with {nodes_limit=}, {download=} {min_syn_cnt=} {nt_type=}"
             )
         if download:
             if download.lower() == "json":
