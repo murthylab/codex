@@ -7,13 +7,6 @@
                id="cell_names_or_ids" name="cell_names_or_ids" placeholder="Cell names or IDs"
                aria-label="Cell Names or IDs" value="{{cell_names_or_ids}}">
         <input type="hidden" id="download_type" name="download" value=""/>
-        {% if cell_names_or_ids %}
-        <label>cap</label>
-        <input class="form-control mr-sm-2" style="width: 80px; margin-left: 5px;" autocomplete="off" autofocus
-               type="number" id="nodes_limit" name="nodes_limit" placeholder=""
-               aria-label="Number of top nodes to render" value="{{nodes_limit}}"
-               onchange="loading(); this.form.submit();">
-        {% endif %}
         <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading();">
             <i class="fa-solid fa-magnifying-glass-chart"></i></i></button>
         {% if network_html %}
@@ -25,11 +18,28 @@
                 }
             </script>
             <a class="btn btn btn-outline-primary my-2 my-sm-0" style="margin: 5px;"
-               onclick="download_data('csv');"><i class="fa-solid fa-download"></i> &nbsp;  CSV</a>
+               onclick="download_data('csv');"><i class="fa-solid fa-download"></i> CSV</a>
             <a class="btn btn btn-outline-primary my-2 my-sm-0"
-                onclick="download_data('json');"><i class="fa-solid fa-download"></i> &nbsp;  JSON</a>
-            <button class="btn btn btn-success my-2 my-sm-0" type="submit" onclick="loading();" title="Re-render" style="margin: 5px;">
-                <i class="fa-solid fa-repeat"></i></button>
+                onclick="download_data('json');"><i class="fa-solid fa-download"></i> JSON</a>
+
+            {% if max_nodes_limit > 1 %}
+            <div style="margin-left: 5px; margin-right: 5px;">
+                <label for="nodes_limit" class="form-label"># nodes</label>
+                <input type="range" class="form-range" min="1" max="{{max_nodes_limit}}" id="nodes_limit" name="nodes_limit" value="{{nodes_limit}}" onchange="loading(); this.form.submit();">
+            </div>
+            {% endif %}
+
+            <div class="dropdown">
+              <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-repeat"></i>
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <button class="dropdown-item" type="button" onclick="document.getElementById('network-frame').contentWindow.drawGraph('barnesHut');">Barnes-Hut</button>
+                <button class="dropdown-item" type="button" onclick="document.getElementById('network-frame').contentWindow.drawGraph('repulsion');">Repulsion</button>
+                <button class="dropdown-item" type="button" onclick="document.getElementById('network-frame').contentWindow.drawGraph('forceAtlas2Based');">Force Atlas 2</button>
+                <button class="dropdown-item" type="button" onclick="document.getElementById('network-frame').contentWindow.drawGraph('hierarchicalRepulsion');">Hierarchical</button>
+              </div>
+            </div>
 
         {% endif %}
     </form>
@@ -47,7 +57,7 @@
 {% endif %}
 
 {% if network_html %}
-<iframe style="position: absolute; width: 100%; height: 80%; border: none" srcdoc="{{network_html}}"></iframe>
+<iframe id="network-frame" style="position: absolute; width: 100%; height: 80%; border: none" srcdoc="{{network_html}}"></iframe>
 {% else %}
 <div class="card" style="margin: 15px;">
     <div class="card-header" style="color: purple;">

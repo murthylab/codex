@@ -5,7 +5,7 @@ Leaderboard
 {% endblock title %}
 
 {% block content %}
-<div id="leaderboard-banner"><img src="{{url_for('base.asset', filename='leaderboard.png')}}" style="width: auto; height: 150px;"></div>
+<div id="leaderboard-banner"><img src="{{url_for('base.asset', filename='leaderboard.png')}}" style="width: auto; max-width: 100%; max-height: 150px;"></div>
 <div class="card mb-3" style="margin: 5px;">
     <div class="body">
         <div class="card-columns" id="data_container" style="padding: 5px;">

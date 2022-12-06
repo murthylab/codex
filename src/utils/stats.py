@@ -226,11 +226,14 @@ def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destina
         for ld_item in all_tags:
             lab_name = ld_item["user_affiliation"]
             if lab_name:
-                caption = f"{lab_name}<br><small>{len(contributors_by_lab[lab_name])} contributors</small>"
-                lab_lb[caption] += 1
+                lab_lb[lab_name] += 1
 
         destination["Labs by label contributions"] = {
-            k: lab_lb[k]
+            k
+            if len(contributors_by_lab[k]) <= 1
+            else f"{k}<br><small>{len(contributors_by_lab[k])} contributors</small>": lab_lb[
+                k
+            ]
             for k in sorted(
                 lab_lb,
                 key=lab_lb.get,
@@ -241,7 +244,7 @@ def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destina
     def user_cred_counts(tags_list):
         res = defaultdict(int)
         for ld_item in tags_list:
-            if ld_item["user_name"]:
+            if ld_item["user_name"] and "members" not in ld_item["user_name"].lower():
                 caption = ld_item["user_name"]
                 if ld_item["user_affiliation"]:
                     caption += "<br><small>" + ld_item["user_affiliation"] + "</small>"

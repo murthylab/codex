@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from src.data.structured_search_filters import parse_search_query
 from src.utils.parsing import tokenize_and_fold_for_highlight
-from src.utils.formatting import highlight_annotations
+from src.utils.formatting import highlight_annotations, truncate
 
 
 class TestHighlighting(TestCase):
@@ -109,3 +109,10 @@ class TestHighlighting(TestCase):
             free_form_search_terms = parse_search_query(filter_string)[1]
             actual = highlight_annotations(free_form_search_terms, tags)
             self.assertEqual(expected, actual, filter_string)
+
+    def test_truncate(self):
+        self.assertEqual("bit", truncate("bit", 5))
+        self.assertEqual("bit..", truncate("bit longer", 5))
+        self.assertEqual("bits", truncate("bits", 5))
+        self.assertEqual("bitim", truncate("bitim", 5))
+        self.assertEqual("", truncate("", 5))

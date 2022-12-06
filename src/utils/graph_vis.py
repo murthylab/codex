@@ -3,10 +3,10 @@ from collections import defaultdict
 from flask import render_template, url_for
 
 from src.data.brain_regions import neuropil_description, REGIONS
-from src.utils.formatting import shorten_and_concat_labels
+from src.utils.formatting import shorten_and_concat_labels, truncate
 
-
-NEUROPIL_COLOR = "#97c2fc"
+INPUT_NEUROPIL_COLOR = "#97c2fc"
+OUTPUT_NEUROPIL_COLOR = "#fcc297"
 NT_COLORS = {
     "ach": "#ff9999",
     "gaba": "#99ff99",
@@ -78,10 +78,12 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
         return nt_color(ndata["nt_type"])
 
     def node_label(nd):
-        if nd["root_id"] in center_ids:
-            return nd["name"]
+        if nd["root_id"] in center_ids or nodes_limit < 10:
+            labels = sorted(nd["tag"], key=lambda x: len(x))
+            lbl = labels[0] if labels else nd["name"]
+            return truncate(lbl, 15)
         else:
-            return nd["class"][:2].lower()
+            return " "
 
     def node_title(nd):
         rid = nd["root_id"]
@@ -91,11 +93,11 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
             tags_str = shorten_and_concat_labels(nd["tag"])
             class_and_annotations += f"<br>{tags_str}"
 
-        prefix = "selected cell" if rid in center_ids else "connected cell"
+        prefix = "queried cell" if rid in center_ids else "connected cell"
         cell_detail_url = url_for("app.cell_details", root_id=rid)
         thumbnail_url = url_for("base.skeleton_thumbnail_url", root_id=rid)
         return (
-            f'<a href="{cell_detail_url}" target="_parent">{name}</a><br>({prefix})<br><small>{rid}'
+            f'<a href="{cell_detail_url}" target="_parent">{name}</a> [{prefix}]<br><small>{rid}'
             f"</small><br><small>{class_and_annotations}</small><br>"
             f'<a href="{cell_detail_url}" target="_parent">'
             f'<img src="{thumbnail_url}" width="200px" height="150px;" border="0px;"></a>'
@@ -140,28 +142,30 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
 
     added_pil_nodes = set()
 
-    def add_pil_node(pil):
-        if pil not in added_pil_nodes:
+    def add_pil_node(pil, is_input):
+        node_name = f"{pil}_{'in' if is_input else 'out'}"
+        if node_name not in added_pil_nodes:
             title = f"Neuropil {pil}<br><small>{neuropil_description(pil)}</small>"
             net.add_node(
-                name=pil,
+                name=node_name,
                 label=pil,
                 title=title,
                 shape="box",
                 size=pil_size(),
                 mass=node_mass("neuropil"),
-                color=NEUROPIL_COLOR,
+                color=INPUT_NEUROPIL_COLOR if is_input else OUTPUT_NEUROPIL_COLOR,
             )
-            added_pil_nodes.add(pil)
-            net.add_legend("Neuropil", color=NEUROPIL_COLOR)
-        return pil
+            added_pil_nodes.add(node_name)
+            net.add_legend("Input Neuropil", color=INPUT_NEUROPIL_COLOR)
+            net.add_legend("Output Neuropil", color=OUTPUT_NEUROPIL_COLOR)
+        return node_name
 
-    # add the most significant connections first
+    # add the most significant
     for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[
         : 2 * nodes_limit
     ]:
         add_cell_node(k[0])
-        pnid = add_pil_node(k[1])
+        pnid = add_pil_node(k[1], is_input=k[0] not in center_ids)
         net.add_edge(
             source=k[0],
             target=pnid,
@@ -173,7 +177,7 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
         : 2 * nodes_limit
     ]:
         add_cell_node(k[1])
-        pnid = add_pil_node(k[0])
+        pnid = add_pil_node(k[0], is_input=k[1] in center_ids)
         net.add_edge(
             source=pnid,
             target=k[1],
