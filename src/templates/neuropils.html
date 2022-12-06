@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}
-Neuropil Explorer
+Neuropil Explorer - {{caption | title}}
 {% endblock title %}
 
 {% macro card(hemisphere) %}
@@ -8,7 +8,7 @@ Neuropil Explorer
   <div class="card-body">
     <h5 class="card-title">{{ hemisphere|capitalize }} Hemisphere</h5>
     <ul>
-      {% for category in regions[hemisphere] %}
+      {% for category in REGIONS_JSON[hemisphere] %}
       <li>
         <a href="/app/neuropils?selected={{category['regions'] | map(attribute='id') | list | join(',')}}">
           {{category["name"]}}
@@ -29,43 +29,50 @@ Neuropil Explorer
 </div>
 {% endmacro %}
 
+{% set this_or_these %}
+ {% if selected %}
+  {% if ',' in selected %}these regions{% else %}this region{% endif %}
+  {% endif %}
+{% endset %}
+
 {% block content %}
 <div class="container-fluid">
   <div class="row">
     {{ card("Left") }}
     {{ card("Center") }}
     {{ card("Right") }}
-    {% if selected %}
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">{{descriptions[selected] | title }}</h5>
+    {% if selected %}
+        <h6 style="max-width: 500px">{{caption | title }}</h6>
         <iframe id="neuroglancer" style="width: 500px; height: 500px" title="neuroglancer" loading="lazy"
           src="/app/flywire_neuropil_url?selected={{selected}}"></iframe>
         <h5>Search For Neurons:</h5>
         <p>
           <a href="/app/search?filter_string=output_neuropil+%7Bin%7D+{{selected}}">
-            With this region as output
+            With {{this_or_these}} as output
           </a>
         </p>
         <p>
           <a href="/app/search?filter_string=input_neuropil+%7Bin%7D+{{selected}}">
-            With this region as input
+            With {{this_or_these}} as input
           </a>
         </p>
         <h5>See Neuron Stats:</h5>
         <p>
           <a href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{selected}}">
-            With this region as output
+            With {{this_or_these}} as output
           </a>
         </p>
         <p>
           <a href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{selected}}">
-            With this region as input
+            With {{this_or_these}} as input
           </a>
         </p>
+    {% else %}
+    <p class="text-center">Select a neuropil or category to get started</p>
+    {% endif %}
       </div>
     </div>
-    {% endif %}
   </div>
   {% endblock content %}
-  

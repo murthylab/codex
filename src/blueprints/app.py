@@ -1309,7 +1309,7 @@ def activity_log():
 @request_wrapper
 def flywire_neuropil_url():
     selected = request.args.get("selected")
-    segment_ids = [REGIONS[r][0] for r in selected.split(",") if r]
+    segment_ids = [REGIONS[r][0] for r in selected.split(",") if r in REGIONS]
     url = nglui.url_for_neuropils(segment_ids)
     return ngl_redirect_with_browser_check(ngl_url=url)
 
@@ -1320,10 +1320,20 @@ def flywire_neuropil_url():
 def neuropils():
 
     selected = request.args.get("selected")
+    if selected:
+        selected_ids = [r for r in selected.split(",") if r in REGIONS]
+        if len(selected_ids) > 1:
+            caption = ', '.join([NEUROPIL_DESCRIPTIONS[r] for r in selected_ids])
+        else:
+            caption = NEUROPIL_DESCRIPTIONS[selected_ids[0]]
+    else:
+        selected_ids = []
+        caption = ""
 
     return render_template(
         "neuropils.html",
         selected=selected,
-        regions=REGIONS_JSON,
-        descriptions=NEUROPIL_DESCRIPTIONS,
+        REGIONS_JSON=REGIONS_JSON,
+        caption=caption
     )
+
