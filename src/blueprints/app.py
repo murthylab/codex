@@ -1323,7 +1323,7 @@ def neuropils():
     if selected:
         selected_ids = [r for r in selected.split(",") if r in REGIONS]
         if len(selected_ids) > 1:
-            caption = ', '.join([NEUROPIL_DESCRIPTIONS[r] for r in selected_ids])
+            caption = ", ".join([NEUROPIL_DESCRIPTIONS[r] for r in selected_ids])
         else:
             caption = NEUROPIL_DESCRIPTIONS[selected_ids[0]]
     else:
@@ -1331,9 +1331,5 @@ def neuropils():
         caption = ""
 
     return render_template(
-        "neuropils.html",
-        selected=selected,
-        REGIONS_JSON=REGIONS_JSON,
-        caption=caption
+        "neuropils.html", selected=selected, REGIONS_JSON=REGIONS_JSON, caption=caption
     )
-
