@@ -88,7 +88,7 @@ def stats():
             f"Stats got {num_items} results {activity_suffix(filter_string, data_version)}"
         )
     else:
-        log_activity(
+        log_warning(
             f"No stats {activity_suffix(filter_string, data_version)}, sending hint '{hint}'"
         )
 
@@ -326,7 +326,7 @@ def search():
         hint, edist = neuron_db.closest_token(
             filter_string, case_sensitive=case_sensitive
         )
-        log_error(f"No results for '{filter_string}', sending hint '{hint}' {edist=}")
+        log_warning(f"No results for '{filter_string}', sending hint '{hint}' {edist=}")
 
     return render_neuron_list(
         data_version=data_version,
@@ -463,7 +463,7 @@ def labeling_suggestions():
         hint, edist = neuron_db.closest_token_from_inherited_tags(
             filter_string, case_sensitive=case_sensitive
         )
-        log_activity(
+        log_warning(
             f"No labeling suggestion results {activity_suffix(filter_string, data_version)}, sending hint '{hint}' {edist=}"
         )
 
