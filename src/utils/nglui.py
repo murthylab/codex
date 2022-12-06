@@ -67,8 +67,8 @@ def url_for_root_ids(root_ids, point_to_proofreading_flywire=False):
     if point_to_proofreading_flywire:
         return PROOFREADFW.format("%22%2C%22".join([str(seg) for seg in root_ids]))
     else:
-        payload = urllib.parse.quote(f"{_PREFIX}{seg_ids}{_SUFFIX}")
         seg_ids = ",".join([f'"{rid}"' for rid in root_ids])
+        payload = urllib.parse.quote(f"{_PREFIX}{seg_ids}{_SUFFIX}")
         return f"{_BASE_URL}/#!{payload}"
 
 
