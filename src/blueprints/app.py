@@ -13,7 +13,6 @@ from flask import (
     url_for,
     Blueprint,
     session,
-    jsonify,
 )
 
 from src.blueprints.base import (
