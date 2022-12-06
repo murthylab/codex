@@ -96,14 +96,15 @@ class NeuronDataTest(TestCase):
             self.neuron_db.closest_token("BLO==BE", case_sensitive=True), (None, None)
         )
         self.assertEqual(
-            self.neuron_db.closest_token("BLOBE && Lb3", case_sensitive=False), (None, None)
+            self.neuron_db.closest_token("BLOBE && Lb3", case_sensitive=False),
+            (None, None),
         )
 
         self.assertEqual(
             self.neuron_db.closest_token_from_inherited_tags(
                 "blobe", case_sensitive=False
             ),
-            ("lobe", 1)
+            ("lobe", 1),
         )
 
     def test_search(self):

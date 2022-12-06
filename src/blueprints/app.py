@@ -56,6 +56,7 @@ from src.utils.logging import (
     user_agent,
     log,
     log_user_help,
+    log_warning,
 )
 from src.utils.nglui import can_be_flywire_root_id
 from src.utils.pathway_vis import pathway_chart_data_rows
@@ -121,8 +122,12 @@ def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
     if filtered_root_id_list:
         hint = None
     else:
-        hint, edist = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
-        log_error(f"No stats results for {filter_string}. Sending hint '{hint}' {edist=}")
+        hint, edist = neuron_db.closest_token(
+            filter_string, case_sensitive=case_sensitive
+        )
+        log_warning(
+            f"No stats results for {filter_string}. Sending hint '{hint}' {edist=}"
+        )
 
     neuron_data = [neuron_db.get_neuron_data(i) for i in filtered_root_id_list]
     label_data = [neuron_db.get_label_data(i) for i in filtered_root_id_list]
@@ -317,7 +322,9 @@ def search():
             label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["tag"]),
         )
     else:
-        hint, edist = neuron_db.closest_token(filter_string, case_sensitive=case_sensitive)
+        hint, edist = neuron_db.closest_token(
+            filter_string, case_sensitive=case_sensitive
+        )
         log_error(f"No results for '{filter_string}', sending hint '{hint}' {edist=}")
 
     return render_neuron_list(
