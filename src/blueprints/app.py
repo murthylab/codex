@@ -27,7 +27,12 @@ from src.blueprints.base import (
 )
 from src.configuration import MIN_SYN_COUNT
 from src.data import gcs_data_loader
-from src.data.brain_regions import neuropil_hemisphere, NEUROPIL_DESCRIPTIONS
+from src.data.brain_regions import (
+    neuropil_hemisphere,
+    REGIONS,
+    NEUROPIL_DESCRIPTIONS,
+    REGIONS_JSON,
+)
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.structured_search_filters import (
     OP_DOWNSTREAM,
@@ -1297,4 +1302,34 @@ def activity_log():
         message=f"Activity log feature coming soon. It will list a history of recent searches / queries with "
         f"links to results.",
         title="Coming soon",
+    )
+
+
+@app.route("/flywire_neuropil_url")
+@request_wrapper
+def flywire_neuropil_url():
+    selected = request.args.get("selected")
+    segment_ids = [REGIONS[r][0] for r in selected.split(",") if r in REGIONS]
+    url = nglui.url_for_neuropils(segment_ids)
+    return ngl_redirect_with_browser_check(ngl_url=url)
+
+
+@app.route("/neuropils")
+@request_wrapper
+@require_data_access
+def neuropils():
+
+    selected = request.args.get("selected")
+    if selected:
+        selected_ids = [r for r in selected.split(",") if r in REGIONS]
+        if len(selected_ids) > 1:
+            caption = ", ".join([NEUROPIL_DESCRIPTIONS[r] for r in selected_ids])
+        else:
+            caption = NEUROPIL_DESCRIPTIONS[selected_ids[0]]
+    else:
+        selected_ids = []
+        caption = ""
+
+    return render_template(
+        "neuropils.html", selected=selected, REGIONS_JSON=REGIONS_JSON, caption=caption
     )
