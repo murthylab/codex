@@ -4,3 +4,5 @@ python3 -m src.etl.pickle_data && \
 python3 -m pytest tests/unit/test_stats_utils.py -x && \
 python3 -m pytest tests/unit/test_neuron_data.py -x && \
 python3 -m pytest tests/integration/test_neuron_data.py -x
+
+gsutil -m rsync -r static/data gs://flywire-data/codex/data

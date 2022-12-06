@@ -1,4 +1,5 @@
 import csv
+import gc
 import gzip
 import os
 import pickle
@@ -15,7 +16,7 @@ CONNECTIONS_FILE_NAME = "connections_5syn.csv.gz"
 LABELS_FILE_NAME = "labels.csv.gz"
 NEURON_DB_PICKLE_FILE_NAME = "neuron_db.pickle.gz"
 
-GCS_PICKLE_URL_TEMPLATE = "https://storage.googleapis.com/flywire-data/codex/pickle/{version}/neuron_db.pickle.gz"
+GCS_PICKLE_URL_TEMPLATE = "https://storage.googleapis.com/flywire-data/codex/data/{version}/neuron_db.pickle.gz"
 
 
 def data_file_path_for_version(version, data_root_path=DATA_ROOT_PATH):
@@ -77,7 +78,9 @@ def unpickle_neuron_db(version, data_root_path=DATA_ROOT_PATH):
                     f"Failed to download data file for {version=} and {data_root_path=}"
                 )
         with gzip.open(pf, "rb") as handle:
+            gc.disable()
             db = pickle.load(handle)
+            gc.enable()
             log(f"App initialization pickle loaded for version {version}")
             return db
     except Exception as e:

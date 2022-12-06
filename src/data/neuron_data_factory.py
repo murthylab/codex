@@ -1,5 +1,6 @@
 from src.data.local_data_loader import unpickle_neuron_db, DATA_ROOT_PATH
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSION
+from src.utils.logging import log
 
 
 class NeuronDataFactory(object):
@@ -8,6 +9,7 @@ class NeuronDataFactory(object):
         self._available_versions = DATA_SNAPSHOT_VERSIONS
         self._version_to_data = {}
         if preload_latest:
+            log("App Initialization: preloading latest version")
             self.get()
 
     def get(self, version=None):
