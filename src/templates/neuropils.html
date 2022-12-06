@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 {% block title %}
-    {% if not selected %}
-        Neuropil Explorer
-    {% else %}
-        {{caption | title}} - Neuropil Explorer
+    {% if selected %}
+        {{caption | title}} -
     {% endif %}
+        Neuropil Explorer
 {% endblock title %}
 
 {% macro card(hemisphere) %}
