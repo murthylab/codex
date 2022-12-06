@@ -219,44 +219,31 @@ def lookup_neuropil_set(txt):
 NEUROPIL_DESCRIPTIONS = {k: neuropil_description(k) for k in REGIONS.keys()}
 
 
-def make_region_map():  # todo: cache this
-
-    region_map = {}
-    for hemisphere in HEMISPHERES:
-        region_map[hemisphere] = {}
-        for category, regions in REGION_CATEGORIES.items():
-            for region in regions:
-                if neuropil_hemisphere(region) == hemisphere:
-                    if category not in region_map[hemisphere]:
-                        region_map[hemisphere][category] = {}
-                    region_map[hemisphere][category][region] = {
-                        "segment_id": REGIONS[region][0],
-                        "description": REGIONS[region][1],
-                    }
-
-    return region_map
-
 
 def hemisphere_categories(hemisphere):
-    return [
-        c
-        for c in [
-            {
-                "name": k,
-                "regions": [
-                    {
-                        "segment_id": REGIONS[r][0],
-                        "id": r,
-                        "description": REGIONS[r][1],
-                    }
-                    for r in v
-                    if neuropil_hemisphere(r) == hemisphere
-                ],
-            }
-            for k, v in REGION_CATEGORIES.items()
-        ]
-        if len(c["regions"]) > 0
-    ]
+    categories = []
+
+    for category in REGION_CATEGORIES.items():
+        regions = []
+
+        for region_id in category[1]:
+            if neuropil_hemisphere(region_id) == hemisphere:
+                segment_id = REGIONS[region_id][0]
+                description = REGIONS[region_id][1]
+                regions.append({
+                    "segment_id": segment_id,
+                    "id": region_id,
+                    "description": description
+                })
+
+        if len(regions) > 0:
+            categories.append({
+                "name": category[0],
+                "regions": regions
+            })
+
+    return categories
+
 
 
 REGIONS_JSON = {h: hemisphere_categories(h) for h in HEMISPHERES}

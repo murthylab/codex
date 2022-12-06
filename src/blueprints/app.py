@@ -32,13 +32,9 @@ from src.configuration import MIN_SYN_COUNT
 from src.data import gcs_data_loader
 from src.data.brain_regions import (
     neuropil_hemisphere,
-    HEMISPHERES,
     REGIONS,
-    REGION_CATEGORIES,
-    neuropil_description,
     NEUROPIL_DESCRIPTIONS,
     REGIONS_JSON,
-    make_region_map,
 )
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.structured_search_filters import (
@@ -1315,14 +1311,8 @@ def activity_log():
 @app.route("/flywire_neuropil_url")
 @request_wrapper
 def flywire_neuropil_url():
-
     selected = request.args.get("selected")
-
-    print(f"selected: {selected}")
-
     segment_ids = [REGIONS[r][0] for r in selected.split(",") if r]
-    print(f"segment_ids: {segment_ids}")
-
     url = nglui.url_for_neuropils(segment_ids)
     return ngl_redirect_with_browser_check(ngl_url=url)
 
@@ -1334,4 +1324,4 @@ def neuropils():
 
     selected = request.args.get("selected")
 
-    return render_template("neuropils.html", selected=selected, regions=REGIONS_JSON)
+    return render_template("neuropils.html", selected=selected, regions=REGIONS_JSON, descriptions=NEUROPIL_DESCRIPTIONS)
