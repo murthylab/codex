@@ -1,11 +1,9 @@
 import json
 import math
 import re
-import random
 from collections import defaultdict
 from datetime import datetime
 from functools import lru_cache
-from pprint import pprint
 
 from flask import (
     render_template,
