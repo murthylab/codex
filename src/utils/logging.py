@@ -29,7 +29,7 @@ def uptime(millis=True):
             break
 
     parts = ut.split(".")
-    if millis:
+    if millis and len(parts) > 1:
         return f"{parts[0]}.{parts[1][:2]}"
     else:
         return parts[0]
