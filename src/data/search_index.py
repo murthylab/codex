@@ -171,7 +171,8 @@ class SearchIndex(object):
         # make deterministic (if few minimums)
         key_set = sorted(key_set)
 
-        return min(key_set, key=lambda x: self.edit_distance(x, term))
+        closest = min(key_set, key=lambda x: self.edit_distance(x, term))
+        return closest, self.edit_distance(closest, term)
 
     def all_doc_ids(self):
         res_set = set()

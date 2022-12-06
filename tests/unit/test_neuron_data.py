@@ -82,28 +82,28 @@ class NeuronDataTest(TestCase):
 
         # closest term search
         self.assertEqual(
-            self.neuron_db.closest_token("blobe", case_sensitive=False), "lobe"
+            self.neuron_db.closest_token("blobe", case_sensitive=False), ("lobe", 1)
         )
         self.assertEqual(
-            self.neuron_db.closest_token("blobe", case_sensitive=True), "lobe"
+            self.neuron_db.closest_token("blobe", case_sensitive=True), ("lobe", 1)
         )
         self.assertEqual(
-            self.neuron_db.closest_token("BLOBE", case_sensitive=True), "LB3"
+            self.neuron_db.closest_token("BLOBE", case_sensitive=True), ("LB3", 3)
         )
 
         # don't suggest in structured queries
         self.assertEqual(
-            self.neuron_db.closest_token("BLO==BE", case_sensitive=True), None
+            self.neuron_db.closest_token("BLO==BE", case_sensitive=True), (None, None)
         )
         self.assertEqual(
-            self.neuron_db.closest_token("BLOBE && Lb3", case_sensitive=False), None
+            self.neuron_db.closest_token("BLOBE && Lb3", case_sensitive=False), (None, None)
         )
 
         self.assertEqual(
             self.neuron_db.closest_token_from_inherited_tags(
                 "blobe", case_sensitive=False
             ),
-            "lobe",
+            ("lobe", 1)
         )
 
     def test_search(self):
