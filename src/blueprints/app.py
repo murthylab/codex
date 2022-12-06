@@ -645,7 +645,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
     )
     cell_attributes = {
         "Name": nd["name"],
-        "FlyWire Root ID": root_id,
+        "FlyWire Root ID": f'{root_id}<br><small><a href="{nglui.url_for_root_ids([root_id], point_to_proofreading_flywire=True)}">Open in FlyWire <i class="fa-solid fa-up-right-from-square"></i> </a></small>',
         f'Labels<br><span style="font-size: 9px; color: purple;">Updated {neuron_db.labels_ingestion_timestamp()}</span>': concat_labels(
             tags
         ),
