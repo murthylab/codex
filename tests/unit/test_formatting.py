@@ -119,3 +119,5 @@ class TestHighlighting(TestCase):
         self.assertEqual("bits", truncate("bits", 5))
         self.assertEqual("bitim", truncate("bitim", 5))
         self.assertEqual("", truncate("", 5))
+        self.assertEqual("123", truncate(123, 5))
+        self.assertEqual("123..", truncate(123456789, 5))
