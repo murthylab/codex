@@ -56,8 +56,8 @@ _NEUROPIL_PREFIX = (
 _NEUROPIL_SUFFIX = (
     ',"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":'
     '"neuropil-regions-surface"}],"navigation":{"pose":{"position":{"voxelSize":[4,4,40],'
-    '"voxelCoordinates":[144710,55390,512]}},"zoomFactor":4.875984234132744},"showAxisLines":false,'
-    '"perspectiveViewBackgroundColor":"#ffffff","perspectiveZoom":7804.061655381219,"showSlices":false,'
+    '"voxelCoordinates":[144710,55390,512]}},"zoomFactor":40.875984234132744},"showAxisLines":false,'
+    '"perspectiveViewBackgroundColor":"#ffffff","perspectiveZoom":3000,"showSlices":false,'
     '"gpuMemoryLimit":2000000000,"selectedLayer":{"layer":"neuropil-regions-surface","visible":false},'
     '"layout":"3d"}'
 )

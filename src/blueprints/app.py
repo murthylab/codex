@@ -1324,11 +1324,11 @@ def flywire_neuropil_url():
 @request_wrapper
 @require_data_access
 def neuropils():
-
     landing = False
     selected = request.args.get("selected")
+    log_activity(f"Rendering neuropils page with {selected=}")
     if selected:
-        selected_ids = [r for r in selected.split(",") if r in REGIONS]
+        selected_ids = [r for r in selected.split(",")]
         if len(selected_ids) > 1:
             caption = ", ".join([NEUROPIL_DESCRIPTIONS[r] for r in selected_ids])
         else:

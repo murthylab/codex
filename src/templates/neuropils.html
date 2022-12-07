@@ -7,8 +7,8 @@
 {% endblock title %}
 
 {% macro card(hemisphere) %}
-    <div class="card flex-fill">
-        <div class="card-body">
+    <div class="card flex-fill border-0">
+        <div class="card-body border-0">
             <h5 class="card-title">{{ hemisphere|capitalize }}</h5>
             <ul>
                 {% for category in REGIONS_JSON[hemisphere] %}
@@ -20,7 +20,7 @@
                     <ul>
                         {% for region in category["regions"] %}
                             <li><small>
-                                <a {% if region['id'] == selected %}
+                                <a {% if selected and region['id'] in selected.split(',') %}
                                     style="padding:1px; border-radius:5px; background-color:#C5FCB8"
                                 {% else %}
                                     href="/app/neuropils?selected={{ region["id"] }}"
@@ -50,15 +50,18 @@
 {% block content %}
     <div class="container-fluid">
         <div class="row">
-            <div class="col"  style="padding: 0px;">
-                <div class="card">
-                    <div class="card-body d-flex flex-column">
-                        <h6 style="max-width: 500px">{{ caption | title }}</h6>
+            <div class="col" style="padding: 0px;">
+                <div class="card border-0" >
+                    <div class="card-body d-flex flex-column" style="padding: 0px;">
                         <iframe
                                 style="min-height: 500px"
                                 id="neuroglancer" title="neuroglancer"
                                 loading="lazy"
                                 src="/app/flywire_neuropil_url?selected={{ selected }}"></iframe>
+
+                        <div class="d-inline-flex justify-content-center">
+                                <h6 style="color: green;">{{ caption | title }}</h6>
+                        </div>
                         {% if not landing %}
                             <div class="d-inline-flex justify-content-center">
                                 <a class="btn-sm btn-outline-primary m-1"
