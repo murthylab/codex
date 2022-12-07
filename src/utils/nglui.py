@@ -58,7 +58,8 @@ _NEUROPIL_SUFFIX = (
     '"neuropil-regions-surface"}],"navigation":{"pose":{"position":{"voxelSize":[4,4,40],'
     '"voxelCoordinates":[144710,55390,512]}},"zoomFactor":40.875984234132744},"showAxisLines":false,'
     '"perspectiveViewBackgroundColor":"#ffffff","perspectiveZoom":3000,"showSlices":false,'
-    '"gpuMemoryLimit":2000000000,"selectedLayer":{"layer":"neuropil-regions-surface","visible":false},'
+    '"gpuMemoryLimit":2000000000,"showDefaultAnnotations":false,'
+    '"selectedLayer":{"layer":"neuropil-regions-surface","visible":false},'
     '"layout":"3d"}'
 )
 
