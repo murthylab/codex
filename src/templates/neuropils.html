@@ -7,7 +7,7 @@
 {% endblock title %}
 
 {% macro card(hemisphere) %}
-    <div style="width:400px" class="card">
+    <div class="card flex-fill">
         <div class="card-body">
             <h5 class="card-title">{{ hemisphere|capitalize }}</h5>
             <ul>
@@ -83,7 +83,7 @@
                 </div>
             </div>
         </div>
-        <div class="row d-flex justify-content-center">
+        <div class="row d-flex flex-inline justify-content-center">
             {{ card("Left") }}
             {{ card("Center") }}
             {{ card("Right") }}
