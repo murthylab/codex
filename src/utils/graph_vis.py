@@ -103,6 +103,11 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
             f'<img src="{thumbnail_url}" width="200px" height="150px;" border="0px;"></a>'
         )
 
+    def neuropil_title(pil):
+        npil_explorer_url = url_for('app.neuropils', selected=pil)
+        return f"Neuropil {pil}<br><small>{neuropil_description(pil)}</small>" \
+               f'<br><a href="{npil_explorer_url}" target="_blank">see in neuropil explorer</a> '
+
     def edge_title(num):
         return f"{num} synapses"
 
@@ -145,11 +150,10 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
     def add_pil_node(pil, is_input):
         node_name = f"{pil}_{'in' if is_input else 'out'}"
         if node_name not in added_pil_nodes:
-            title = f"Neuropil {pil}<br><small>{neuropil_description(pil)}</small>"
             net.add_node(
                 name=node_name,
                 label=pil,
-                title=title,
+                title=neuropil_title(pil),
                 shape="box",
                 size=pil_size(),
                 mass=node_mass("neuropil"),
