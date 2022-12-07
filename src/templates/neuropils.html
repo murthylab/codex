@@ -102,7 +102,10 @@
         ngl.style.height = `${localStorage.getItem('preferredHeight') || '500'}px`
         const myObserver = new ResizeObserver(entries => {
             entries.forEach(entry => {
-                localStorage.setItem('preferredHeight', entry.contentRect.height)
+                height = entry.contentRect.height;
+                if (height != 0) {
+                    localStorage.setItem('preferredHeight', height);
+                }
             });
         });
         myObserver.observe(ngl);
