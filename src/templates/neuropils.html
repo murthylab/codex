@@ -19,7 +19,7 @@
                     </li>
                     <ul>
                         {% for region in category["regions"] %}
-                            <li>
+                            <li><small>
                                 <a {% if region['id'] == selected %}
                                     style="padding:1px; border-radius:5px; background-color:#C5FCB8"
                                 {% else %}
@@ -28,7 +28,7 @@
                                 >
                                     {{ region['id'] }} - {{ region["description"] }}
                                 </a>
-                            </li>
+                            </small></li>
                         {% endfor %}
                     </ul>
                 {% endfor %}
@@ -50,7 +50,7 @@
 {% block content %}
     <div class="container-fluid">
         <div class="row">
-            <div class="col">
+            <div class="col"  style="padding: 0px;">
                 <div class="card">
                     <div class="card-body d-flex flex-column">
                         <h6 style="max-width: 500px">{{ caption | title }}</h6>
