@@ -45,7 +45,7 @@ from src.utils.logging import (
     host_name,
     proc_id,
     _is_smoke_test_request,
-    APP_ENVIRONMENT,
+    APP_ENVIRONMENT, log_warning,
 )
 from src.utils.thumbnails import url_for_skeleton
 
@@ -215,7 +215,7 @@ def error():
 
 
 def warning_with_redirect(title, message, redirect_url, redirect_button_text):
-    log_error(
+    log_warning(
         f"Loading warning with redirect page with '{message}' to {format_link(redirect_url)}"
     )
     return render_template(
