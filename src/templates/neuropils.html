@@ -61,21 +61,21 @@
                                 src="/app/flywire_neuropil_url?selected={{ selected }}"></iframe>
                         {% if not landing %}
                             <div class="d-inline-flex justify-content-center">
-                                <a class="btn-sm btn-primary m-1"
+                                <a class="btn-sm btn-outline-primary m-1"
                                    href="/app/search?filter_string=output_neuropil+%7Bin%7D+{{ selected }}">
-                                    🔎 Search for neurons with outputs in {{ this_or_these }}
+                                    <i class="fa-solid fa-list"></i> Neurons with outputs in {{ this_or_these }}
                                 </a>
-                                <a class="btn-sm btn-primary m-1"
+                                <a class="btn-sm btn-outline-primary m-1"
                                    href="/app/search?filter_string=input_neuropil+%7Bin%7D+{{ selected }}">
-                                    🔎 Search for neurons with inputs in {{ this_or_these }}
+                                    <i class="fa-solid fa-list"></i> Neurons with inputs in {{ this_or_these }}
                                 </a>
-                                <a class="btn-sm btn-primary m-1"
+                                <a class="btn-sm btn-outline-primary m-1"
                                    href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{ selected }}">
-                                    📊 Show stats for neurons with outputs in {{ this_or_these }}
+                                    <i class="fa-solid fa-chart-pie"></i> Stats for neurons with outputs in {{ this_or_these }}
                                 </a>
-                                <a class="btn-sm btn-primary m-1"
+                                <a class="btn-sm btn-outline-primary m-1"
                                    href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{ selected }}">
-                                    📊 Show stats for neurons with inputs in {{ this_or_these }}
+                                    <i class="fa-solid fa-chart-pie"></i> Stats for neurons with inputs in {{ this_or_these }}
                                 </a>
                             </div>
                         {% endif %}
