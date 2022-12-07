@@ -73,12 +73,12 @@ class NeuronDataTest(TestCase):
                 "symmetrical_root_ids",
                 "input_neuropils",
                 "output_neuropils",
-                "supervoxel_id",
                 "tag",
                 "user_id",
                 "position",
             ]:
                 self.assertEqual(len(set(n[col])), len(n[col]))
+            self.assertEqual(len(n["supervoxel_id"]), len(n["position"]))
 
         # closest term search
         self.assertEqual(

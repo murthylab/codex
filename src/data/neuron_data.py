@@ -13,7 +13,7 @@ from src.data.structured_search_filters import (
     parse_search_query,
 )
 from src.configuration import MIN_SYN_COUNT
-from src.utils.formatting import compact_tag
+from src.utils.formatting import compact_tag, nanometer_to_flywire_coordinates
 from src.utils.logging import log
 
 # Expected columns in static FlyWire data CSV file
@@ -58,6 +58,13 @@ LABEL_FILE_COLUMNS = [
     "user_affiliation",
 ]
 
+# Expected columns in static coordinates data CSV file
+COORDINATE_FILE_COLUMNS = [
+    "root_id",
+    "position",
+    "supervoxel_id",
+]
+
 # Keywords will be matched against these attributes
 NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "root_id",
@@ -73,7 +80,12 @@ COLUMN_INDEX = {c: i for i, c in enumerate(DATA_FILE_COLUMNS)}
 
 class NeuronDB(object):
     def __init__(
-        self, data_file_rows, connection_rows, label_rows, labels_file_timestamp
+        self,
+        data_file_rows,
+        connection_rows,
+        label_rows,
+        labels_file_timestamp,
+        coordinate_rows,
     ):
         self.neuron_data = {}
         self.rids_of_neurons_with_inherited_tags = []
@@ -107,9 +119,6 @@ class NeuronDB(object):
                 ),
                 "input_neuropils": self._get_value(r, "input_neuropils", split=True),
                 "output_neuropils": self._get_value(r, "output_neuropils", split=True),
-                "supervoxel_id": self._get_value(
-                    r, "supervoxel_id", split=True, to_type=int
-                ),
                 "inherited_tag_root_id": self._get_value(
                     r, "inherited_tag_root_id", to_type=int
                 ),
@@ -120,7 +129,6 @@ class NeuronDB(object):
                     r, "inherited_tag_mirrored", to_type=int
                 ),
                 "user_id": self._get_value(r, "user_id", split=True),
-                "position": self._get_value(r, "position", split=True),
                 "gaba_avg": self._get_value(r, "gaba_avg", to_type=float),
                 "ach_avg": self._get_value(r, "ach_avg", to_type=float),
                 "glut_avg": self._get_value(r, "glut_avg", to_type=float),
@@ -128,6 +136,8 @@ class NeuronDB(object):
                 "ser_avg": self._get_value(r, "ser_avg", to_type=float),
                 "da_avg": self._get_value(r, "da_avg", to_type=float),
                 "tag": [],
+                "position": [],
+                "supervoxel_id": [],
             }
 
         log(f"App initialization processing label data..")
@@ -167,6 +177,41 @@ class NeuronDB(object):
             log("Top 10 not found tags:")
             for p in sorted(not_found_tags.items(), key=lambda x: -x[1])[:10]:
                 log(f"  {p}")
+
+        log(f"App initialization processing coordinates data..")
+        rid_col_idx = COORDINATE_FILE_COLUMNS.index("root_id")
+        pos_col_idx = COORDINATE_FILE_COLUMNS.index("position")
+        vox_col_idx = COORDINATE_FILE_COLUMNS.index("supervoxel_id")
+        not_found_rids = set()
+        not_found_tags = defaultdict(int)
+        for i, r in enumerate(coordinate_rows or []):
+            if i == 0:
+                # check header
+                assert r == COORDINATE_FILE_COLUMNS
+                continue
+            rid = int(r[rid_col_idx])
+            if rid not in self.neuron_data:
+                not_found_rids.add(rid)
+                not_found_tags[r[tag_col_idx]] += 1
+                continue
+            pos = r[pos_col_idx]
+            vox = int(r[vox_col_idx])
+            if (
+                vox not in self.neuron_data[rid]["supervoxel_id"]
+                or pos not in self.neuron_data[rid]["position"]
+            ):
+                self.neuron_data[rid]["position"].append(pos)
+                self.neuron_data[rid]["supervoxel_id"].append(vox)
+                fw_x, fw_y, fw_z = nanometer_to_flywire_coordinates(pos)
+                assert fw_x and fw_y and fw_z
+        for nd in self.neuron_data.values():
+            assert len(nd["position"]) == len(nd["supervoxel_id"])
+        log(
+            f"App initialization coordinates loaded for "
+            f"{len([nd for nd in self.neuron_data.values() if nd['position']])} root ids, supervoxel ids loaded for "
+            f"{len([nd for nd in self.neuron_data.values() if nd['supervoxel_id']])} root ids, "
+            f"not found rids: {len(not_found_rids)}, max list val: {max([(len(nd['position']), nd['root_id']) for nd in self.neuron_data.values()])}"
+        )
 
         log(f"App initialization augmenting..")
         # augment

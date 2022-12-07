@@ -1,4 +1,5 @@
 # proofreading management system links
+from src.utils.formatting import nanometer_to_flywire_coordinates
 
 CELL_IDENTIFICATION_SUBMISSION_URL_TEMPLATE = (
     "https://prod.flywire-daf.com/neurons/api/v1/"
@@ -24,18 +25,15 @@ def cell_identification_url(cell_id, user_id, coordinates, annotation):
     else:
         annotation = annotation_safe
 
-    coordinates = coordinates or ""
-    if coordinates:
-        coordinates = coordinates.replace("[", "")
-        coordinates = coordinates.replace("]", "")
-        coordinates = coordinates.replace(",", "")
-        coordinates = coordinates.replace(";", "")
-        coordinates = [p for p in coordinates.split() if p]
-        if len(coordinates) == 3:
-            # convert from nm to FlyWire units
-            coordinates = f"{int(coordinates[0]) // 4},{int(coordinates[1]) // 4},{int(coordinates[2]) // 40}"
-        else:
-            coordinates = ""
+    try:
+        x, y, z = nanometer_to_flywire_coordinates(coordinates)
+        coordinates = f"{x},{y},{z}"
+    except Exception as e:
+        raise ValueError(
+            f"Provided coordinates do not look right: '{coordinates}'. Please specify x,y,z in nanometers and retry.",
+            e,
+        )
+
     return CELL_IDENTIFICATION_SUBMISSION_URL_TEMPLATE.format(
         cell_id=cell_id, user_id=user_id, coordinates=coordinates, annotation=annotation
     )

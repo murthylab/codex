@@ -14,6 +14,7 @@ DATA_ROOT_PATH = "static/data"
 NEURON_DATA_FILE_NAME = "neuron_data.csv.gz"
 CONNECTIONS_FILE_NAME = "connections_5syn.csv.gz"
 LABELS_FILE_NAME = "labels.csv.gz"
+COORDINATES_FILE_NAME = "coordinates.csv.gz"
 NEURON_DB_PICKLE_FILE_NAME = "neuron_db.pickle.gz"
 
 GCS_PICKLE_URL_TEMPLATE = "https://storage.googleapis.com/flywire-data/codex/data/{version}/neuron_db.pickle.gz"
@@ -35,6 +36,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         connection_rows = read_csv(f"{data_file_path}/{CONNECTIONS_FILE_NAME}")
     else:
         connection_rows = []
+
     if os.path.exists(f"{data_file_path}/{LABELS_FILE_NAME}"):
         label_rows = read_csv(f"{data_file_path}/{LABELS_FILE_NAME}")
         labels_file_timestamp = os.path.getmtime(f"{data_file_path}/{LABELS_FILE_NAME}")
@@ -45,16 +47,24 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     else:
         label_rows = []
         labels_file_timestamp = "?"
+
+    if os.path.exists(f"{data_file_path}/{COORDINATES_FILE_NAME}"):
+        coordinate_rows = read_csv(f"{data_file_path}/{COORDINATES_FILE_NAME}")
+    else:
+        coordinate_rows = []
+
     log(
         f"App initialization loaded {len(neuron_data_rows)} items from {data_file_path}, "
         f"{len(connection_rows)} connection rows, "
-        f"{len(label_rows)} label rows."
+        f"{len(label_rows)} label rows, "
+        f"{len(coordinate_rows)} coordinate rows."
     )
     neuron_db = NeuronDB(
         data_file_rows=neuron_data_rows,
         connection_rows=connection_rows,
         label_rows=label_rows,
         labels_file_timestamp=labels_file_timestamp,
+        coordinate_rows=coordinate_rows,
     )
     # free mem
     del neuron_data_rows

@@ -51,6 +51,7 @@ from src.utils.formatting import (
     highlight_annotations,
     concat_labels,
     trim_long_tokens,
+    nanometer_to_flywire_coordinates,
 )
 from src.utils.graph_algos import reachable_node_counts, distance_matrix
 from src.utils.graph_vis import make_graph_html
@@ -657,7 +658,6 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
         )
         + "</small>",
         "Classification": nd["class"],
-        "Marked coordinates": "<br>".join(nd["position"]),
         f"Label contributors": concat_labels(unames),
     }
 
@@ -837,6 +837,12 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
         )
         if reachable_counts:
             cell_extra_data["Upstream Reachable Cells (5+ syn)"] = reachable_counts
+
+    if nd["position"]:
+        cell_extra_data["Marked coordinates and Supervoxel IDs"] = {
+            f"nm: {c}<br>fw: {nanometer_to_flywire_coordinates(c)}": s
+            for c, s in zip(nd["position"], nd["supervoxel_id"])
+        }
 
     log_activity(
         f"Generated neuron info for {root_id} with {len(cell_attributes) + len(related_cells)} items"

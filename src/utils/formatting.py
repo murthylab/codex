@@ -146,3 +146,13 @@ def truncate(txt, charlim, include_length=False):
         if include_length:
             res += f"({len(txt)})"
         return res
+
+
+def nanometer_to_flywire_coordinates(coordinates):
+    coordinates = tokenize(coordinates)
+    assert len(coordinates) == 3
+    return (
+        round(int(coordinates[0]) / 4),
+        round(int(coordinates[1]) / 4),
+        round(int(coordinates[2]) / 40),
+    )

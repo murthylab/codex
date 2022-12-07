@@ -2,7 +2,11 @@ from unittest import TestCase
 
 from src.data.structured_search_filters import parse_search_query
 from src.utils.parsing import tokenize_and_fold_for_highlight
-from src.utils.formatting import highlight_annotations, truncate
+from src.utils.formatting import (
+    highlight_annotations,
+    truncate,
+    nanometer_to_flywire_coordinates,
+)
 
 
 class TestHighlighting(TestCase):
@@ -121,3 +125,17 @@ class TestHighlighting(TestCase):
         self.assertEqual("", truncate("", 5))
         self.assertEqual("123", truncate(123, 5))
         self.assertEqual("123..", truncate(123456789, 5))
+
+    def test_nanometer_to_flywire_coordinates(self):
+        self.assertEqual((1, 1, 1), nanometer_to_flywire_coordinates("[4, 4, 40]"))
+        self.assertEqual((1, 1, 1), nanometer_to_flywire_coordinates("[4, 4, 41]"))
+        self.assertEqual((1, 1, 2), nanometer_to_flywire_coordinates("[3, 3, 61]"))
+        self.assertEqual((1, 1, 2), nanometer_to_flywire_coordinates("[3 3 61]"))
+        self.assertEqual((1, 1, 2), nanometer_to_flywire_coordinates("3, 3, 61"))
+        self.assertEqual((1, 1, 2), nanometer_to_flywire_coordinates("3 3  61"))
+        with self.assertRaises(ValueError):
+            nanometer_to_flywire_coordinates("3, 3, foo")
+        with self.assertRaises(AssertionError):
+            nanometer_to_flywire_coordinates("3, 33")
+        with self.assertRaises(AssertionError):
+            nanometer_to_flywire_coordinates("3, 3, 3 2")
