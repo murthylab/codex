@@ -22,9 +22,9 @@
                             <li><small>
                                 <a {% if not landing and selected and region['id'] in selected.split(',') %}
                                     style="padding:1px; border-radius:5px; background-color:#C5FCB8"
-                                {% else %}
-                                    href="/app/neuropils?selected={{ region["id"] }}"
                                 {% endif %}
+                                    href="/app/neuropils?selected={{ region["id"] }}"
+
                                 >
                                     {{ region['id'] }} - {{ region["description"] }}
                                 </a>
