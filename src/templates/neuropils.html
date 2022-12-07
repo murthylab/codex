@@ -20,7 +20,7 @@
                     <ul>
                         {% for region in category["regions"] %}
                             <li><small>
-                                <a {% if selected and region['id'] in selected.split(',') %}
+                                <a {% if not landing and selected and region['id'] in selected.split(',') %}
                                     style="padding:1px; border-radius:5px; background-color:#C5FCB8"
                                 {% else %}
                                     href="/app/neuropils?selected={{ region["id"] }}"
