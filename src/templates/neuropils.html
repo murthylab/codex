@@ -54,7 +54,7 @@
             <div class="col" style="padding: 0px;">
                 <div class="card border-0">
                     <div id='ngl' class="card-body d-flex flex-column"
-                         style="height:{{ height }}px; resize: vertical; overflow: hidden">
+                         style="resize: vertical; overflow: hidden">
 
                         <iframe style="height: 100%"
                                 id="neuroglancer" title="neuroglancer"
@@ -99,13 +99,10 @@
 
     <script>
         const ngl = document.getElementById('ngl');
-        ngl.style.height = `${localStorage.getItem('preferredHeight') || '500'}px`
+        ngl.style.height = `${localStorage.getItem('preferredHeight') || '500px'}`
         const myObserver = new ResizeObserver(entries => {
             entries.forEach(entry => {
-                height = entry.contentRect.height;
-                if (height != 0) {
-                    localStorage.setItem('preferredHeight', height);
-                }
+                localStorage.setItem('preferredHeight', entry.target.style.height);
             });
         });
         myObserver.observe(ngl);
