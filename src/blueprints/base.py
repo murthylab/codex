@@ -12,6 +12,7 @@ from flask import (
     url_for,
     send_from_directory,
     Blueprint,
+    jsonify,
 )
 from google.auth.transport import requests
 from google.oauth2 import id_token
@@ -45,7 +46,8 @@ from src.utils.logging import (
     host_name,
     proc_id,
     _is_smoke_test_request,
-    APP_ENVIRONMENT, log_warning,
+    APP_ENVIRONMENT,
+    log_warning,
 )
 from src.utils.thumbnails import url_for_skeleton
 
@@ -274,6 +276,14 @@ def faq():
         user_email=fetch_user_email(session),
         message_sent=message_sent,
     )
+
+
+@base.route("/feedback_note", methods=["POST"])
+@request_wrapper
+def feedback_note():
+    note = request.json.get("note")
+    log_user_help(f"Submitting feedback: {note}")
+    return jsonify({"message": "note received"})
 
 
 @base.route("/", defaults={"path": ""})

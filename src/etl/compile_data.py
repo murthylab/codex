@@ -620,7 +620,7 @@ if __name__ == "__main__":
             version=v,
         )
         update_cave_data_file(
-            name="coordinates",
+            name="labels",
             db_load_func=load_neuron_info_from_cave,
             cave_client=client,
             version=v,

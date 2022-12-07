@@ -65,6 +65,38 @@
 
             </script>
         </ul>
+
+        <div class="col-sm-3 my-1">
+            <script>
+              function send_feedback_txt() {
+                txtbox = document.getElementById("feedback_txt");
+                var feedback_txt = txtbox.value;
+                if (feedback_txt) {
+                    let data = {note: feedback_txt};
+                    console.log("Submitting feedback:", data);
+                    fetch("/feedback_note", {
+                      method: "POST",
+                      headers: {'Content-Type': 'application/json'},
+                      body: JSON.stringify(data)
+                    }).then(res => {
+                      console.log("Feedback request complete, response:", res);
+                      if (res.status == 200) {
+                        txtbox.value = "";
+                        txtbox.placeholder = "note sent";
+                      }
+                    });
+                }
+              }
+            </script>
+            <div class="input-group">
+            <input type="text" class="form-control form-control-sm" id="feedback_txt" name="feedback_txt" placeholder="send a note to authors" title="Your message will be sent to Codex authors">
+            <div class="input-group-append" >
+              <div class="input-group-text" style="background-color: #1aa260;" onclick="send_feedback_txt();">
+                  <i style="color: white;" class="fa-regular fa-paper-plane"></i>
+              </div>
+            </div>
+            </div>
+        </div>
     </div>
 </nav>
 
