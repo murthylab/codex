@@ -48,19 +48,21 @@
 {% endset %}
 
 {% block content %}
+
     <div class="container-fluid">
         <div class="row">
             <div class="col" style="padding: 0px;">
-                <div class="card border-0" >
-                    <div class="card-body d-flex flex-column" style="padding: 0px;">
-                        <iframe
-                                style="min-height: 500px"
+                <div class="card border-0">
+                    <div id='ngl' class="card-body d-flex flex-column"
+                         style="height:{{ height }}px; resize: vertical; overflow: hidden">
+
+                        <iframe style="height: 100%"
                                 id="neuroglancer" title="neuroglancer"
                                 loading="lazy"
                                 src="/app/flywire_neuropil_url?selected={{ selected }}"></iframe>
 
                         <div class="d-inline-flex justify-content-center">
-                                <h6 style="color: green;">{{ caption | title }}</h6>
+                            <h6 style="color: green;">{{ caption | title }}</h6>
                         </div>
                         {% if not landing %}
                             <div class="d-inline-flex justify-content-center">
@@ -74,11 +76,13 @@
                                 </a>
                                 <a class="btn-sm btn-outline-primary m-1"
                                    href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{ selected }}">
-                                    <i class="fa-solid fa-chart-pie"></i> Stats for neurons with outputs in {{ this_or_these }}
+                                    <i class="fa-solid fa-chart-pie"></i> Stats for neurons with outputs
+                                    in {{ this_or_these }}
                                 </a>
                                 <a class="btn-sm btn-outline-primary m-1"
                                    href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{ selected }}">
-                                    <i class="fa-solid fa-chart-pie"></i> Stats for neurons with inputs in {{ this_or_these }}
+                                    <i class="fa-solid fa-chart-pie"></i> Stats for neurons with inputs
+                                    in {{ this_or_these }}
                                 </a>
                             </div>
                         {% endif %}
@@ -93,4 +97,14 @@
         </div>
     </div>
 
+    <script>
+        const ngl = document.getElementById('ngl');
+        ngl.style.height = `${localStorage.getItem('preferredHeight') || '500'}px`
+        const myObserver = new ResizeObserver(entries => {
+            entries.forEach(entry => {
+                localStorage.setItem('preferredHeight', entry.contentRect.height)
+            });
+        });
+        myObserver.observe(ngl);
+    </script>
 {% endblock content %}
