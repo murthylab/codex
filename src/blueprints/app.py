@@ -436,56 +436,6 @@ def search_results_flywire_url():
     return ngl_redirect_with_browser_check(ngl_url=url)
 
 
-@app.route("/accept_label_suggestion")
-@request_wrapper
-@require_data_access
-def accept_label_suggestion():
-    from_root_id = request.args.get("from_root_id")
-    to_root_id = request.args.get("to_root_id")
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
-    neuron_db = neuron_data_factory.get(data_version)
-
-    from_neuron = neuron_db.get_neuron_data(from_root_id)
-    to_neuron = neuron_db.get_neuron_data(to_root_id)
-
-    log_activity(
-        f"Accepting label suggestion from\n{from_root_id}: {from_neuron}\nto\n{to_root_id}: {to_neuron}"
-    )
-
-    if not from_neuron or not to_neuron:
-        return render_error(
-            f"Neurons for Cell IDs {from_root_id} and/or {to_root_id} not found."
-        )
-
-    return render_info(
-        f"Label(s) <b> {from_neuron['tag']} </b> assigned to Cell ID <b> {to_root_id} </b>"
-    )
-
-
-@app.route("/reject_label_suggestion")
-@request_wrapper
-@require_data_access
-def reject_label_suggestion():
-    from_root_id = request.args.get("from_root_id")
-    to_root_id = request.args.get("to_root_id")
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
-    neuron_db = neuron_data_factory.get(data_version)
-
-    from_neuron = neuron_db.get_neuron_data(from_root_id)
-    to_neuron = neuron_db.get_neuron_data(to_root_id)
-
-    log_activity(
-        f"Rejecting label suggestion from\n{from_root_id}: {from_neuron}\nto\n{to_root_id}: {to_neuron}"
-    )
-
-    if not from_neuron or not to_neuron:
-        return render_error(
-            f"Neurons for Cell IDs {from_root_id} and/or {to_root_id} not found."
-        )
-
-    return render_info(f"Label suggestion rejected.")
-
-
 @app.route("/flywire_url")
 @request_wrapper
 def flywire_url():
