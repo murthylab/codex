@@ -15,6 +15,7 @@ NEURON_DATA_FILE_NAME = "neuron_data.csv.gz"
 CONNECTIONS_FILE_NAME = "connections_5syn.csv.gz"
 LABELS_FILE_NAME = "labels.csv.gz"
 COORDINATES_FILE_NAME = "coordinates.csv.gz"
+CLASSIFICATIONS_FILE_NAME = "classification.csv.gz"
 NEURON_DB_PICKLE_FILE_NAME = "neuron_db.pickle.gz"
 
 GCS_PICKLE_URL_TEMPLATE = "https://storage.googleapis.com/flywire-data/codex/data/{version}/neuron_db.pickle.gz"
@@ -53,6 +54,11 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     else:
         coordinate_rows = []
 
+    if os.path.exists(f"{data_file_path}/{CLASSIFICATIONS_FILE_NAME}"):
+        classification_rows = read_csv(f"{data_file_path}/{CLASSIFICATIONS_FILE_NAME}")
+    else:
+        classification_rows = []
+
     log(
         f"App initialization loaded {len(neuron_data_rows)} items from {data_file_path}, "
         f"{len(connection_rows)} connection rows, "
@@ -65,6 +71,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         label_rows=label_rows,
         labels_file_timestamp=labels_file_timestamp,
         coordinate_rows=coordinate_rows,
+        classification_rows=classification_rows,
     )
     # free mem
     del neuron_data_rows
@@ -107,13 +114,10 @@ def unpickle_all_neuron_db_versions(data_root_path=DATA_ROOT_PATH):
 
 def load_and_pickle_all_neuron_db_versions(data_root_path=DATA_ROOT_PATH):
     for v in DATA_SNAPSHOT_VERSIONS:
-        try:
-            db = load_neuron_db(version=v, data_root_path=data_root_path)
-            pf = f"{data_file_path_for_version(version=v, data_root_path=data_root_path)}/{NEURON_DB_PICKLE_FILE_NAME}"
-            with gzip.open(pf, "wb") as handle:
-                pickle.dump(db, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        except Exception as e:
-            log_error(f"Failed to load and pickle DB for data version {v}: {e}")
+        db = load_neuron_db(version=v, data_root_path=data_root_path)
+        pf = f"{data_file_path_for_version(version=v, data_root_path=data_root_path)}/{NEURON_DB_PICKLE_FILE_NAME}"
+        with gzip.open(pf, "wb") as handle:
+            pickle.dump(db, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 # generic CSV file reader with settings

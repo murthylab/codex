@@ -22,7 +22,6 @@ DATA_FILE_COLUMNS = [
     "root_id",
     "name",
     "group",
-    "classes",
     # similarity
     "similar_root_ids",
     "similar_root_id_scores",
@@ -61,6 +60,9 @@ COORDINATE_FILE_COLUMNS = [
     "supervoxel_id",
 ]
 
+# Expected columns in static classification data CSV file
+CLASSIFICATION_FILE_COLUMNS = ["root_id", "class"]
+
 # Keywords will be matched against these attributes
 NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "root_id",
@@ -80,6 +82,7 @@ class NeuronDB(object):
         label_rows,
         labels_file_timestamp,
         coordinate_rows,
+        classification_rows,
     ):
         self.neuron_data = {}
         self.label_data = {}
@@ -112,7 +115,6 @@ class NeuronDB(object):
                 "name": _get_value("name"),
                 "group": _get_value("group"),
                 "nt_type": _get_value("nt_type").upper(),
-                "classes": _get_value("classes", split=True),
                 "similar_root_ids": _get_value(
                     "similar_root_ids", split=True, to_type=int
                 ),
@@ -132,6 +134,7 @@ class NeuronDB(object):
                 "ser_avg": _get_value("ser_avg", to_type=float),
                 "da_avg": _get_value("da_avg", to_type=float),
                 # clean
+                "classes": [],
                 "tag": [],
                 "position": [],
                 "supervoxel_id": [],
@@ -182,7 +185,6 @@ class NeuronDB(object):
         pos_col_idx = COORDINATE_FILE_COLUMNS.index("position")
         vox_col_idx = COORDINATE_FILE_COLUMNS.index("supervoxel_id")
         not_found_rids = set()
-        not_found_tags = defaultdict(int)
         for i, r in enumerate(coordinate_rows or []):
             if i == 0:
                 # check header
@@ -191,7 +193,6 @@ class NeuronDB(object):
             rid = int(r[rid_col_idx])
             if rid not in self.neuron_data:
                 not_found_rids.add(rid)
-                not_found_tags[r[tag_col_idx]] += 1
                 continue
             pos = r[pos_col_idx]
             vox = int(r[vox_col_idx])
@@ -210,6 +211,32 @@ class NeuronDB(object):
             f"{len([nd for nd in self.neuron_data.values() if nd['position']])} root ids, supervoxel ids loaded for "
             f"{len([nd for nd in self.neuron_data.values() if nd['supervoxel_id']])} root ids, "
             f"not found rids: {len(not_found_rids)}, max list val: {max([(len(nd['position']), nd['root_id']) for nd in self.neuron_data.values()])}"
+        )
+
+        log(f"App initialization processing classification data..")
+        rid_col_idx = CLASSIFICATION_FILE_COLUMNS.index("root_id")
+        cls_col_idx = CLASSIFICATION_FILE_COLUMNS.index("class")
+        not_found_rids = set()
+        all_classes = set()
+        for i, r in enumerate(classification_rows or []):
+            if i == 0:
+                # check header
+                assert r == CLASSIFICATION_FILE_COLUMNS
+                continue
+            rid = int(r[rid_col_idx])
+            if rid not in self.neuron_data:
+                not_found_rids.add(rid)
+                continue
+            cl = r[cls_col_idx]
+            if cl not in self.neuron_data[rid]["classes"]:
+                all_classes.add(cl)
+                self.neuron_data[rid]["classes"].append(cl)
+        len([nd for nd in self.neuron_data.values() if not nd["classes"]])
+        log(
+            f"App initialization classes loaded for all root ids."
+            f"not found rids: {len(not_found_rids)}, "
+            f"max list val: {max([len(nd['classes']) for nd in self.neuron_data.values()])}, "
+            f"classes: {all_classes}"
         )
 
         log(f"App initialization loading connections..")

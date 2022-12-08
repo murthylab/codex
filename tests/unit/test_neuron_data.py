@@ -263,13 +263,16 @@ class NeuronDataTest(TestCase):
         input_neuropils = defaultdict(set)
         output_neuropils = defaultdict(set)
         for r in self.neuron_db.connection_rows:
-            if r[2] != 'NONE':
+            if r[2] != "NONE":
                 input_neuropils[r[1]].add(r[2])
                 output_neuropils[r[0]].add(r[2])
         for nd in self.neuron_db.neuron_data.values():
-            self.assertEqual(sorted(input_neuropils[nd["root_id"]]), sorted(nd["input_neuropils"]))
-            self.assertEqual(sorted(output_neuropils[nd["root_id"]]), sorted(nd["output_neuropils"]))
-
+            self.assertEqual(
+                sorted(input_neuropils[nd["root_id"]]), sorted(nd["input_neuropils"])
+            )
+            self.assertEqual(
+                sorted(output_neuropils[nd["root_id"]]), sorted(nd["output_neuropils"])
+            )
 
     def test_classes(self):
         expected_list = [
