@@ -1228,11 +1228,13 @@ def neuropils():
     selected = request.args.get("selected")
     log_activity(f"Rendering neuropils page with {selected=}")
     if selected:
-        selected_ids = [r for r in selected.split(",")]
+        selected = selected.strip(",")
+        selected_ids = [r for r in selected.split(",") if r]
         if len(selected_ids) > 1:
             caption = ", ".join([NEUROPIL_DESCRIPTIONS[r] for r in selected_ids])
         else:
             caption = NEUROPIL_DESCRIPTIONS[selected_ids[0]]
+        selected = ",".join(selected_ids)
     else:
         selected = ",".join(REGIONS.keys())
         landing = True

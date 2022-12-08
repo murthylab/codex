@@ -20,6 +20,17 @@
                     <ul>
                         {% for region in category["regions"] %}
                             <li><small>
+
+                            
+                            {% if region["id"] in selected.split(',') and not landing %}
+                                <a title="Remove from current view" href="/app/neuropils?selected={{selected.replace(region['id'], '')}}">
+                                    <i class="fa-solid fa-circle-minus"></i>
+                                </a>
+                            {%  elif not landing %} 
+                                <a title="Add to current view" href="/app/neuropils?selected={{selected}},{{ region["id"] }}">
+                                    <i class="fa-solid fa-circle-plus"></i>
+                                </a>
+                            {% endif %}
                                 <a {% if not landing and selected and region['id'] in selected.split(',') %}
                                     style="padding:1px; border-radius:5px; background-color:#C5FCB8"
                                 {% endif %}
@@ -99,7 +110,8 @@
 
     <script>
         const ngl = document.getElementById('ngl');
-        ngl.style.height = `${localStorage.getItem('preferredHeight') || '500px'}`
+        ngl.style.height = localStorage.getItem('preferredHeight') || '500px';
+
         const myObserver = new ResizeObserver(entries => {
             entries.forEach(entry => {
                 localStorage.setItem('preferredHeight', entry.target.style.height);
