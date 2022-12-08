@@ -297,19 +297,10 @@ class NeuronDB(object):
             cons = [r for r in cons if r[3] >= min_syn_count]
         if nt_type:
             nt_type = nt_type.upper()
-            if nt_type != "ALL":
-                cons = [r for r in cons if r[2] == nt_type]
+            if nt_type not in NEURO_TRANSMITTER_NAMES:
+                raise ValueError(f"Unknown NT type: {nt_type}, must be one of {NEURO_TRANSMITTER_NAMES}")
+            cons = [r for r in cons if r[2] == nt_type]
         return cons
-
-    @lru_cache
-    def neuropils(self):
-        res = set()
-        for nd in self.neuron_data.values():
-            for p in nd["input_neuropils"]:
-                res.add(p)
-            for p in nd["output_neuropils"]:
-                res.add(p)
-        return sorted(list([p for p in res if p]))
 
     def random_cell_id(self):
         return choice(list(self.neuron_data.keys()))
@@ -319,8 +310,7 @@ class NeuronDB(object):
 
     @lru_cache
     def num_synapses(self):
-        # TODO: implement this once synapse data is loaded
-        return 19351447
+        return sum([r[3] for r in self.connection_rows])
 
     @lru_cache
     def num_annotations(self):
