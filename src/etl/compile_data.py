@@ -217,9 +217,9 @@ def summarize_csv(content):
     return content
 
 
-def compare_csvs(old_table, new_table):
-    old_row_set = set([",".join([str(d) for d in r]) for r in old_table])
-    new_row_set = set([",".join([str(d) for d in r]) for r in new_table])
+def compare_csvs(old_table, new_table, first_cols=999999):
+    old_row_set = set([",".join([str(d) for d in r[:first_cols]]) for r in old_table])
+    new_row_set = set([",".join([str(d) for d in r[:first_cols]]) for r in new_table])
     print(f"Rows in old but not new: {len(old_row_set - new_row_set)}")
     print(f"Rows in new but not old: {len(new_row_set - old_row_set)}")
 
@@ -272,6 +272,22 @@ def process_classification_file(version):
     write_csv(filename=fpath, rows=new_content, compress=True)
 
 
+def process_synapse_table_file(version):
+    st_filepath = raw_data_file_path(
+        version=version, filename=f"{SYNAPSE_TABLE_FILE_NAME}"
+    )
+    st_nt_filepath = raw_data_file_path(
+        version=version, filename=f"{SYNAPSE_TABLE_WITH_NT_TYPES_FILE_NAME}"
+    )
+
+    print(f"Loading synapse table from {st_filepath}")
+    st_new_content = load_feather_data_to_table(st_filepath)
+    st_nt_new_content = load_feather_data_to_table(st_nt_filepath)
+
+    compare_csvs(st_new_content, st_nt_new_content, first_cols=4)
+    exit(1)
+
+
 def remove_columns(version, columns_to_remove):
     fname = f"static/data/{version}/neuron_data.csv.gz"
     fname_bkp = f"static/data/{version}/neuron_data_bkp.csv.gz"
@@ -302,6 +318,7 @@ if __name__ == "__main__":
         "update_coordinates": False,
         "update_labels": False,
         "update_classifications": False,
+        "update_connections": True,
     }
     if config["columns_to_remove"]:
         for v in DATA_SNAPSHOT_VERSIONS:
@@ -309,6 +326,8 @@ if __name__ == "__main__":
 
     client = init_cave_client()
     for v in DATA_SNAPSHOT_VERSIONS:
+        if config["update_connections"]:
+            process_synapse_table_file(version=v)
         if config["update_classifications"]:
             process_classification_file(version=v)
         if config["update_coordinates"]:
