@@ -1084,7 +1084,7 @@ def connectivity():
         "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
     )
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
-    nt_type = request.args.get("nt_type", "all")
+    nt_type = request.args.get("nt_type", None)
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     nodes_limit = request.args.get("nodes_limit", 10, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
