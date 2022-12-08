@@ -260,11 +260,6 @@ def render_neuron_list(
     }
     highlighted_tags = {}
     for nd in display_data:
-        if nd["inherited_tag_root_id"]:
-            skeleton_thumbnail_urls[nd["inherited_tag_root_id"]] = url_for_skeleton(
-                nd["inherited_tag_root_id"], data_version=data_version
-            )
-
         # Only highlight free-form search tokens (and not structured search attributes)
         psq = parse_search_query(filter_string)
         search_terms = psq[1] + [stq["rhs"] for stq in psq[2] or []]
@@ -439,51 +434,6 @@ def search_results_flywire_url():
         f"Redirecting results {activity_suffix(filter_string, data_version)} to FlyWire {format_link(url)}"
     )
     return ngl_redirect_with_browser_check(ngl_url=url)
-
-
-@app.route("/labeling_suggestions")
-@request_wrapper
-@require_data_access
-def labeling_suggestions():
-    filter_string = request.args.get("filter_string", "")
-    page_number = int(request.args.get("page_number", 1))
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
-    case_sensitive = request.args.get("case_sensitive", 0, type=int)
-    whole_word = request.args.get("whole_word", 0, type=int)
-    neuron_db = neuron_data_factory.get(data_version)
-
-    hint = None
-
-    log_activity(
-        f"Loading labeling suggestions page {page_number} {activity_suffix(filter_string, data_version)}"
-    )
-    filtered_root_id_list = neuron_db.search_in_neurons_with_inherited_labels(
-        filter_string
-    )
-
-    if filtered_root_id_list:
-        log_activity(
-            f"Got {len(filtered_root_id_list)} labeling suggestions {activity_suffix(filter_string, data_version)}"
-        )
-    else:
-        hint, edist = neuron_db.closest_token_from_inherited_tags(
-            filter_string, case_sensitive=case_sensitive
-        )
-        log_warning(
-            f"No labeling suggestion results {activity_suffix(filter_string, data_version)}, sending hint '{hint}' {edist=}"
-        )
-
-    return render_neuron_list(
-        data_version=data_version,
-        template_name="labeling_suggestions.html",
-        filtered_root_id_list=filtered_root_id_list,
-        filter_string=filter_string,
-        case_sensitive=case_sensitive,
-        whole_word=whole_word,
-        page_number=page_number,
-        hint=hint,
-        extra_data=None,
-    )
 
 
 @app.route("/accept_label_suggestion")

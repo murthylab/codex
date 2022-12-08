@@ -147,7 +147,6 @@ OBSOLETE_ROUTE_DESTINATIONS = {
     "stats": "app/stats",
     "explore": "app/explore",
     "annotation_search": "app/search",
-    "annotation_augmentations": "app/labeling_suggestions",
     "download_search_results": "app/download_search_results",
     "search_results_flywire_url": "app/search_results_flywire_url",
     "flywire_url": "app/flywire_url",
@@ -332,13 +331,7 @@ def index(path):
                 "header": "Explore",
                 "body": "Browse cell types, labels, and groupings of the neurons in the dataset",
                 "asset_filename": "card-explore.jpg",
-                "url": "app.explore"
-                # TODO: Refactor this into separate app (CODA)
-                #    }, {
-                #        'header': 'Labeling',
-                #        'body': 'Automatically generated labeling suggestions, based on similarity of neuron pairs',
-                #        'asset_filename': 'card-labelsugg.jpg',
-                #        'url': 'app.labeling_suggestions'
+                "url": "app.explore",
             },
             {
                 "header": "Cell Details",

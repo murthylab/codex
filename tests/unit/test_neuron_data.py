@@ -52,8 +52,6 @@ class NeuronDataTest(TestCase):
         check_min_values_present("output_neuropils", 64302)
         check_min_values_present("supervoxel_id", 22155)
         check_min_values_present("tag", 28000)
-        check_min_values_present("inherited_tag_root_id", 2871)
-        check_min_values_present("inherited_tag_score", 2871)
         check_min_values_present("user_id", 23155)
         check_min_values_present("position", 68375)
 
@@ -98,13 +96,6 @@ class NeuronDataTest(TestCase):
         self.assertEqual(
             self.neuron_db.closest_token("BLOBE && Lb3", case_sensitive=False),
             (None, None),
-        )
-
-        self.assertEqual(
-            self.neuron_db.closest_token_from_inherited_tags(
-                "blobe", case_sensitive=False
-            ),
-            ("lobe", 1),
         )
 
     def test_search(self):
@@ -376,14 +367,6 @@ class NeuronDataTest(TestCase):
         )
         self.assertGreater(
             len(self.neuron_db.get_neuron_data(root_id="720575940624056624")), 5
-        )
-
-    def test_augmentation_loading(self):
-        self.assertGreater(
-            len(self.neuron_db.search_in_neurons_with_inherited_labels("")), 2800
-        )
-        self.assertGreater(
-            len(self.neuron_db.search_in_neurons_with_inherited_labels("da")), 500
         )
 
     def test_label_data_consistency(self):

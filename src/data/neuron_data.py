@@ -18,22 +18,23 @@ from src.utils.logging import log
 
 # Expected columns in static FlyWire data CSV file
 DATA_FILE_COLUMNS = [
+    # naming
     "root_id",
     "name",
     "group",
-    "nt_type",
     "classes",
+    # connectivity
+    "input_neuropils",
+    "output_neuropils",
+    # similarity
     "similar_root_ids",
     "similar_root_id_scores",
     "symmetrical_root_ids",
     "symmetrical_root_id_scores",
-    "input_neuropils",
-    "output_neuropils",
-    "inherited_tag_root_id",
-    "inherited_tag_score",
-    "inherited_tag_mirrored",
     "closest_nblast_root_ids",
     "closest_nblast_scores",
+    # neurotransmitter types
+    "nt_type",
     "gaba_avg",
     "ach_avg",
     "glut_avg",
@@ -42,9 +43,15 @@ DATA_FILE_COLUMNS = [
     "da_avg",
     # clean
     "tag",
-    "user_id",
     "position",
     "supervoxel_id",
+]
+
+EXCLUDED_DATA_FILE_COLUMNS = [
+    "user_id",
+    "inherited_tag_root_id",
+    "inherited_tag_score",
+    "inherited_tag_mirrored",
 ]
 
 # Expected columns in static labels data CSV file
@@ -87,7 +94,6 @@ class NeuronDB(object):
         coordinate_rows,
     ):
         self.neuron_data = {}
-        self.rids_of_neurons_with_inherited_tags = []
         self.label_data = {}
         self.labels_file_timestamp = labels_file_timestamp
 
@@ -95,7 +101,9 @@ class NeuronDB(object):
         for i, r in enumerate(data_file_rows):
             if i == 0:
                 # check header
-                assert sorted(r) == sorted(DATA_FILE_COLUMNS)
+                assert sorted(r) == sorted(
+                    DATA_FILE_COLUMNS + EXCLUDED_DATA_FILE_COLUMNS
+                )
                 column_index = {c: i for i, c in enumerate(r)}
                 continue
 
@@ -131,13 +139,6 @@ class NeuronDB(object):
                 ),
                 "input_neuropils": _get_value("input_neuropils", split=True),
                 "output_neuropils": _get_value("output_neuropils", split=True),
-                "inherited_tag_root_id": _get_value(
-                    "inherited_tag_root_id", to_type=int
-                ),
-                "inherited_tag_score": _get_value("inherited_tag_score", to_type=float),
-                "inherited_tag_mirrored": _get_value(
-                    "inherited_tag_mirrored", to_type=int
-                ),
                 "gaba_avg": _get_value("gaba_avg", to_type=float),
                 "ach_avg": _get_value("ach_avg", to_type=float),
                 "glut_avg": _get_value("glut_avg", to_type=float),
@@ -226,8 +227,6 @@ class NeuronDB(object):
         log(f"App initialization augmenting..")
         # augment
         for nd in self.neuron_data.values():
-            if nd["inherited_tag_root_id"]:
-                self.rids_of_neurons_with_inherited_tags.append(nd["root_id"])
             nd["hemisphere_fingerprint"] = NeuronDB.hemisphere_fingerprint(
                 nd["input_neuropils"], nd["output_neuropils"]
             )
@@ -507,26 +506,6 @@ class NeuronDB(object):
             chaining_rule=chaining_rule, term_search_results=term_search_results
         )
 
-    @lru_cache
-    def search_in_neurons_with_inherited_labels(
-        self, search_term, case_sensitive=False, word_match=False
-    ):
-        if search_term:
-            matching_doc_ids_set = set(
-                self.search(
-                    search_query=search_term,
-                    case_sensitive=case_sensitive,
-                    word_match=word_match,
-                )
-            )
-            return [
-                p
-                for p in self.rids_of_neurons_with_inherited_tags
-                if p in matching_doc_ids_set
-            ]
-        else:
-            return self.rids_of_neurons_with_inherited_tags
-
     def closest_token(self, query, case_sensitive, limited_ids_set=None):
         query = query.strip()
         if not query or query.isnumeric():  # do not suggest number/id close matches
@@ -536,13 +515,6 @@ class NeuronDB(object):
             return None, None
         return self.search_index.closest_token(
             term=query, case_sensitive=case_sensitive, limited_ids_set=limited_ids_set
-        )
-
-    def closest_token_from_inherited_tags(self, term, case_sensitive):
-        return self.closest_token(
-            term,
-            case_sensitive=case_sensitive,
-            limited_ids_set=set(self.rids_of_neurons_with_inherited_tags),
         )
 
     def multi_val_attrs(self, ids):

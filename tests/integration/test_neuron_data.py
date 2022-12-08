@@ -12,7 +12,12 @@ class NeuronDataTest(TestCase):
     def setUp(self):
         # this allows to temporarily disable some checks when updating the schema of data files. should be kept empty
         # after the updates are tested and complete
-        self.exclude_keys = {"user_id"}
+        self.exclude_keys = {
+            "user_id",
+            "inherited_tag_root_id",
+            "inherited_tag_score",
+            "inherited_tag_mirrored",
+        }
         self.neuron_dbs = unpickle_all_neuron_db_versions(
             data_root_path=TEST_DATA_ROOT_PATH
         )
@@ -41,7 +46,8 @@ class NeuronDataTest(TestCase):
             for rid, nd in tested.neuron_data.items():
                 ndp = golden.get_neuron_data(rid)
                 self.assertEqual(
-                    set(nd.keys()) - self.exclude_keys, set(ndp.keys()) - self.exclude_keys
+                    set(nd.keys()) - self.exclude_keys,
+                    set(ndp.keys()) - self.exclude_keys,
                 )
                 for k, val in nd.items():
                     if k in self.exclude_keys:

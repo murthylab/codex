@@ -18,12 +18,6 @@
             <li class="nav-item">
                 <a onclick="loading();" class="nav-link" id="nav_stats" href="{{url_for('app.stats')}}?filter_string={{filter_string or cell_names_or_ids or source_cell_names_or_ids}}">Stats</a>
             </li>
-            <!-- TODO: Refactor this into separate app (CODA)
-            <li class="nav-item">
-                <a class="nav-link" id="nav_labeling_suggestions" href="{{url_for('app.labeling_suggestions')}}">Labeling
-                    Suggestions</a>
-            </li>
-            -->
             <li class="nav-item">
                 <a onclick="loading();" class="nav-link" id="nav_connectivity" href="{{url_for('app.connectivity')}}">Network</a>
             </li>
@@ -51,7 +45,7 @@
 
             <script>
               function nav_elem_id(cur_url) {
-                let tabs = ['search', 'cell_details', 'stats', 'explore', 'labeling_suggestions',
+                let tabs = ['search', 'cell_details', 'stats', 'explore',
                             'nblast', 'connectivity','path_length','neuropils', 'faq', 'about'];
                 for (const tab of tabs){
                     if (cur_url.includes(tab)) {
