@@ -29,13 +29,9 @@ DATA_FILE_COLUMNS = [
     "symmetrical_root_id_scores",
     "input_neuropils",
     "output_neuropils",
-    "supervoxel_id",
-    "tag",
     "inherited_tag_root_id",
     "inherited_tag_score",
     "inherited_tag_mirrored",
-    "user_id",
-    "position",
     "closest_nblast_root_ids",
     "closest_nblast_scores",
     "gaba_avg",
@@ -44,6 +40,11 @@ DATA_FILE_COLUMNS = [
     "oct_avg",
     "ser_avg",
     "da_avg",
+    # clean
+    "tag",
+    "user_id",
+    "position",
+    "supervoxel_id",
 ]
 
 # Expected columns in static labels data CSV file
@@ -75,8 +76,6 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "hemisphere_fingerprint",
 ]
 
-COLUMN_INDEX = {c: i for i, c in enumerate(DATA_FILE_COLUMNS)}
-
 
 class NeuronDB(object):
     def __init__(
@@ -92,49 +91,60 @@ class NeuronDB(object):
         self.label_data = {}
         self.labels_file_timestamp = labels_file_timestamp
 
+        column_index = {}
         for i, r in enumerate(data_file_rows):
             if i == 0:
                 # check header
-                assert r == DATA_FILE_COLUMNS
+                assert sorted(r) == sorted(DATA_FILE_COLUMNS)
+                column_index = {c: i for i, c in enumerate(r)}
                 continue
-            root_id = self._get_value(r, "root_id", to_type=int)
+
+            def _get_value(col, split=False, to_type=None):
+                def convert_type(v):
+                    return to_type(v) if to_type else v
+
+                val = r[column_index[col]]
+                if split:
+                    return [convert_type(v) for v in val.split(",")] if val else []
+                else:
+                    return convert_type(val) if val else ""
+
+            root_id = _get_value("root_id", to_type=int)
 
             self.neuron_data[root_id] = {
                 "root_id": root_id,
-                "name": self._get_value(r, "name"),
-                "group": self._get_value(r, "group"),
-                "nt_type": self._get_value(r, "nt_type").upper(),
-                "classes": self._get_value(r, "classes", split=True),
-                "similar_root_ids": self._get_value(
-                    r, "similar_root_ids", split=True, to_type=int
+                "name": _get_value("name"),
+                "group": _get_value("group"),
+                "nt_type": _get_value("nt_type").upper(),
+                "classes": _get_value("classes", split=True),
+                "similar_root_ids": _get_value(
+                    "similar_root_ids", split=True, to_type=int
                 ),
-                "similar_root_id_scores": self._get_value(
-                    r, "similar_root_id_scores", split=True, to_type=float
+                "similar_root_id_scores": _get_value(
+                    "similar_root_id_scores", split=True, to_type=float
                 ),
-                "symmetrical_root_ids": self._get_value(
-                    r, "symmetrical_root_ids", split=True, to_type=int
+                "symmetrical_root_ids": _get_value(
+                    "symmetrical_root_ids", split=True, to_type=int
                 ),
-                "symmetrical_root_id_scores": self._get_value(
-                    r, "symmetrical_root_id_scores", split=True, to_type=float
+                "symmetrical_root_id_scores": _get_value(
+                    "symmetrical_root_id_scores", split=True, to_type=float
                 ),
-                "input_neuropils": self._get_value(r, "input_neuropils", split=True),
-                "output_neuropils": self._get_value(r, "output_neuropils", split=True),
-                "inherited_tag_root_id": self._get_value(
-                    r, "inherited_tag_root_id", to_type=int
+                "input_neuropils": _get_value("input_neuropils", split=True),
+                "output_neuropils": _get_value("output_neuropils", split=True),
+                "inherited_tag_root_id": _get_value(
+                    "inherited_tag_root_id", to_type=int
                 ),
-                "inherited_tag_score": self._get_value(
-                    r, "inherited_tag_score", to_type=float
+                "inherited_tag_score": _get_value("inherited_tag_score", to_type=float),
+                "inherited_tag_mirrored": _get_value(
+                    "inherited_tag_mirrored", to_type=int
                 ),
-                "inherited_tag_mirrored": self._get_value(
-                    r, "inherited_tag_mirrored", to_type=int
-                ),
-                "user_id": self._get_value(r, "user_id", split=True),
-                "gaba_avg": self._get_value(r, "gaba_avg", to_type=float),
-                "ach_avg": self._get_value(r, "ach_avg", to_type=float),
-                "glut_avg": self._get_value(r, "glut_avg", to_type=float),
-                "oct_avg": self._get_value(r, "oct_avg", to_type=float),
-                "ser_avg": self._get_value(r, "ser_avg", to_type=float),
-                "da_avg": self._get_value(r, "da_avg", to_type=float),
+                "gaba_avg": _get_value("gaba_avg", to_type=float),
+                "ach_avg": _get_value("ach_avg", to_type=float),
+                "glut_avg": _get_value("glut_avg", to_type=float),
+                "oct_avg": _get_value("oct_avg", to_type=float),
+                "ser_avg": _get_value("ser_avg", to_type=float),
+                "da_avg": _get_value("da_avg", to_type=float),
+                # clean
                 "tag": [],
                 "position": [],
                 "supervoxel_id": [],
@@ -566,14 +576,3 @@ class NeuronDB(object):
                 else:
                     res[c] = int(row[i])
         return res
-
-    @staticmethod
-    def _get_value(row, col, split=False, to_type=None):
-        def convert_type(v):
-            return to_type(v) if to_type else v
-
-        val = row[COLUMN_INDEX[col]]
-        if split:
-            return [convert_type(v) for v in val.split(",")] if val else []
-        else:
-            return convert_type(val) if val else ""

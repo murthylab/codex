@@ -104,9 +104,11 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
         )
 
     def neuropil_title(pil):
-        npil_explorer_url = url_for('app.neuropils', selected=pil)
-        return f"Neuropil {pil}<br><small>{neuropil_description(pil)}</small>" \
-               f'<br><a href="{npil_explorer_url}" target="_blank">see in neuropil explorer</a> '
+        npil_explorer_url = url_for("app.neuropils", selected=pil)
+        return (
+            f"Neuropil {pil}<br><small>{neuropil_description(pil)}</small>"
+            f'<br><a href="{npil_explorer_url}" target="_blank">see in neuropil explorer</a> '
+        )
 
     def edge_title(num):
         return f"{num} synapses"

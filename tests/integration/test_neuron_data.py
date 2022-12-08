@@ -10,6 +10,9 @@ from collections import defaultdict
 
 class NeuronDataTest(TestCase):
     def setUp(self):
+        # this allows to temporarily disable some checks when updating the schema of data files. should be kept empty
+        # after the updates are tested and complete
+        self.exclude_keys = {"user_id"}
         self.neuron_dbs = unpickle_all_neuron_db_versions(
             data_root_path=TEST_DATA_ROOT_PATH
         )
@@ -37,8 +40,12 @@ class NeuronDataTest(TestCase):
             diff_vals = defaultdict(int)
             for rid, nd in tested.neuron_data.items():
                 ndp = golden.get_neuron_data(rid)
-                self.assertEqual(set(nd.keys()), set(ndp.keys()))
+                self.assertEqual(
+                    set(nd.keys()) - self.exclude_keys, set(ndp.keys()) - self.exclude_keys
+                )
                 for k, val in nd.items():
+                    if k in self.exclude_keys:
+                        continue
                     if isnan(val):
                         if not isnan(ndp[k]):
                             diff_keys[k] += 1
@@ -73,3 +80,7 @@ class NeuronDataTest(TestCase):
             compare_neuron_dbs(
                 tested=neuron_data_factory.get(v), golden=self.neuron_dbs[v]
             )
+
+    # this is a helper test to not forget clean up excluded keys once schema has updated
+    def test_no_keys_excluded(self):
+        self.assertEqual(self.exclude_keys, {})
