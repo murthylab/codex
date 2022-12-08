@@ -563,7 +563,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
 
     related_cells = {}
 
-    def insert_neuron_list_links(key, ids, search_endpoint=None):
+    def insert_neuron_list_links(key, ids, icon, search_endpoint=None):
         if ids:
             ids = set(ids)
             comma_separated_root_ids = ", ".join([str(rid) for rid in ids])
@@ -571,7 +571,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
                 search_endpoint = (
                     f"search?filter_string=id << {comma_separated_root_ids}"
                 )
-            search_link = f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{len(ids)} {key}</a>'
+            search_link = f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{icon}&nbsp; {len(ids)} {key}</a>'
             ngl_url = url_for("app.flywire_url", root_ids=[root_id] + list(ids))
             nglui_link = (
                 f'<a class="btn btn-outline-primary btn-sm" href="{ngl_url}"'
@@ -604,6 +604,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
         insert_neuron_list_links(
             "input cells (upstream) with 5+ synapses",
             upstream,
+            '<i class="fa-solid fa-arrow-up"></i>',
             search_endpoint=url_for(
                 "app.search", filter_string=f"{OP_UPSTREAM} {root_id}"
             ),
@@ -611,6 +612,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
         insert_neuron_list_links(
             "output cells (downstream) with 5+ synapses",
             downstream,
+            '<i class="fa-solid fa-arrow-down"></i>',
             search_endpoint=url_for(
                 "app.search", filter_string=f"{OP_DOWNSTREAM} {root_id}"
             ),
@@ -695,7 +697,9 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
         if i[1] > 0.4 and i[0] != root_id
     ]
     insert_neuron_list_links(
-        "cells with similar morphology (NBLAST based)", top_nblast_matches
+        "cells with similar morphology (NBLAST based)",
+        top_nblast_matches,
+        '<i class="fa-regular fa-clone"></i>',
     )
 
     similar_root_ids = [
@@ -703,7 +707,11 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
         for i in zip(nd["similar_root_ids"], nd["similar_root_id_scores"])
         if i[1] > 12 and i[0] != root_id
     ]
-    insert_neuron_list_links("cells with similar neuropil projection", similar_root_ids)
+    insert_neuron_list_links(
+        "cells with similar neuropil projection",
+        similar_root_ids,
+        '<i class="fa-solid fa-arrows-turn-right"></i>',
+    )
 
     symmetrical_root_ids = [
         i[0]
@@ -713,6 +721,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
     insert_neuron_list_links(
         "cells with similar neuropil projection in opposite hemisphere",
         symmetrical_root_ids,
+        '<i class="fa-solid fa-arrows-turn-to-dots"></i>',
     )
 
     # remove empty items
