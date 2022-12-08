@@ -24,7 +24,7 @@
 
             {% if max_nodes_limit > 1 %}
             <div style="margin-left: 5px; margin-right: 5px;">
-                <label for="nodes_limit" class="form-label"># nodes</label>
+                <label for="nodes_limit" class="form-label"><small>detail level: {{nodes_limit}}</small></label>
                 <input type="range" class="form-range" min="1" max="{{max_nodes_limit}}" id="nodes_limit" name="nodes_limit" value="{{nodes_limit}}" onchange="loading(); this.form.submit();">
             </div>
             {% endif %}
