@@ -52,7 +52,6 @@ class NeuronDataTest(TestCase):
         check_min_values_present("output_neuropils", 64302)
         check_min_values_present("supervoxel_id", 22155)
         check_min_values_present("tag", 28000)
-        check_min_values_present("user_id", 23155)
         check_min_values_present("position", 68375)
 
     def test_annotations(self):
@@ -72,7 +71,6 @@ class NeuronDataTest(TestCase):
                 "input_neuropils",
                 "output_neuropils",
                 "tag",
-                "user_id",
                 "position",
             ]:
                 self.assertEqual(len(set(n[col])), len(n[col]))

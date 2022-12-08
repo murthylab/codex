@@ -47,12 +47,7 @@ DATA_FILE_COLUMNS = [
     "supervoxel_id",
 ]
 
-EXCLUDED_DATA_FILE_COLUMNS = [
-    "user_id",
-    "inherited_tag_root_id",
-    "inherited_tag_score",
-    "inherited_tag_mirrored",
-]
+EXCLUDED_DATA_FILE_COLUMNS = []
 
 # Expected columns in static labels data CSV file
 LABEL_FILE_COLUMNS = [

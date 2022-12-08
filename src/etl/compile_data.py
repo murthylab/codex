@@ -603,6 +603,30 @@ def update_cave_data_file(name, db_load_func, cave_client, version):
     write_csv(fname, rows=new_content, compress=True)
 
 
+def remove_columns(version, columns_to_remove):
+    fname = f"static/data/{version}/neuron_data.csv.gz"
+    fname_bkp = f"static/data/{version}/neuron_data_bkp.csv.gz"
+    content = read_csv(fname)
+
+    columns_to_remove = {
+        i: c for i, c in enumerate(content[0]) if c in columns_to_remove
+    }
+    if columns_to_remove:
+        print(f"Backing up {fname} to {fname_bkp}..")
+        shutil.copy2(fname, fname_bkp)
+        print(f"Removing columns {columns_to_remove} from {fname}")
+
+        def project(row):
+            return [val for i, val in enumerate(row) if i not in columns_to_remove]
+
+        new_content = [project(r) for r in content]
+        print(f"Writing new content with cols {new_content[0]} to {fname}..")
+        write_csv(fname, rows=new_content, compress=True)
+        print("Done.")
+    else:
+        print(f"None of the columns {columns_to_remove} found in {fname}.")
+
+
 if __name__ == "__main__":
     # compile_data()
     # augment_existing_data()
@@ -611,6 +635,12 @@ if __name__ == "__main__":
     # correct_nt_scores()
     # fill_missing_positions()
     # fill_new_annotations()
+
+    columns_to_remove = []
+    if columns_to_remove:
+        for v in DATA_SNAPSHOT_VERSIONS:
+            remove_columns(v, columns_to_remove)
+
     client = init_cave_client()
     for v in DATA_SNAPSHOT_VERSIONS:
         update_cave_data_file(

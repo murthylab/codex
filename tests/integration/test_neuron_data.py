@@ -12,12 +12,7 @@ class NeuronDataTest(TestCase):
     def setUp(self):
         # this allows to temporarily disable some checks when updating the schema of data files. should be kept empty
         # after the updates are tested and complete
-        self.exclude_keys = {
-            "user_id",
-            "inherited_tag_root_id",
-            "inherited_tag_score",
-            "inherited_tag_mirrored",
-        }
+        self.exclude_keys = {}
         self.neuron_dbs = unpickle_all_neuron_db_versions(
             data_root_path=TEST_DATA_ROOT_PATH
         )
