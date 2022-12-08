@@ -639,7 +639,7 @@ if __name__ == "__main__":
     config = {
         "columns_to_remove": [],
         "update_coordinates": False,
-        "update_labels": False
+        "update_labels": False,
     }
     if config["columns_to_remove"]:
         for v in DATA_SNAPSHOT_VERSIONS:

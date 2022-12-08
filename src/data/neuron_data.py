@@ -23,9 +23,6 @@ DATA_FILE_COLUMNS = [
     "name",
     "group",
     "classes",
-    # connectivity
-    "input_neuropils",
-    "output_neuropils",
     # similarity
     "similar_root_ids",
     "similar_root_id_scores",
@@ -128,8 +125,6 @@ class NeuronDB(object):
                 "symmetrical_root_id_scores": _get_value(
                     "symmetrical_root_id_scores", split=True, to_type=float
                 ),
-                "input_neuropils": _get_value("input_neuropils", split=True),
-                "output_neuropils": _get_value("output_neuropils", split=True),
                 "gaba_avg": _get_value("gaba_avg", to_type=float),
                 "ach_avg": _get_value("ach_avg", to_type=float),
                 "glut_avg": _get_value("glut_avg", to_type=float),
@@ -140,6 +135,8 @@ class NeuronDB(object):
                 "tag": [],
                 "position": [],
                 "supervoxel_id": [],
+                "input_neuropils": [],
+                "output_neuropils": [],
             }
 
         log(f"App initialization processing label data..")
@@ -215,19 +212,44 @@ class NeuronDB(object):
             f"not found rids: {len(not_found_rids)}, max list val: {max([(len(nd['position']), nd['root_id']) for nd in self.neuron_data.values()])}"
         )
 
+        log(f"App initialization loading connections..")
+        self.connection_rows = []
+        input_neuropils = defaultdict(set)
+        output_neuropils = defaultdict(set)
+        for r in connection_rows or []:
+            from_node, to_node, neuropil, syn_count, nt_type = (
+                int(r[0]),
+                int(r[1]),
+                r[2].upper(),
+                int(r[3]),
+                r[4].upper(),
+            )
+            assert from_node in self.neuron_data and to_node in self.neuron_data
+            assert syn_count >= MIN_SYN_COUNT
+            assert nt_type in NEURO_TRANSMITTER_NAMES
+            assert neuropil == "NONE" or neuropil in REGIONS.keys()
+            if neuropil != "NONE":
+                input_neuropils[to_node].add(r[2])
+                output_neuropils[from_node].add(r[2])
+            self.connection_rows.append(
+                [from_node, to_node, neuropil, syn_count, nt_type]
+            )
+
         log(f"App initialization augmenting..")
-        # augment
-        for nd in self.neuron_data.values():
+        for rid, nd in self.neuron_data.items():
+            nd["input_neuropils"] = sorted(input_neuropils[rid])
+            nd["output_neuropils"] = sorted(output_neuropils[rid])
             nd["hemisphere_fingerprint"] = NeuronDB.hemisphere_fingerprint(
                 nd["input_neuropils"], nd["output_neuropils"]
             )
             nd["class"] = ", ".join([c for c in nd["classes"]])
             nt_score_key = f'{nd["nt_type"].lower()}_avg'
             nd["nt_type_score"] = nd.get(nt_score_key, "")
+            nd["input_cells"] = len(self.input_sets()[rid]) or "-"
+            nd["output_cells"] = len(self.output_sets()[rid]) or "-"
 
-        log(f"App initialization sorting..")
+        log(f"App initialization building search index..")
 
-        # init search index
         def searchable_labels(ndata):
             labels = []
             for c in NEURON_SEARCH_LABEL_ATTRIBUTES:
@@ -245,31 +267,6 @@ class NeuronDB(object):
                 for k, nd in self.neuron_data.items()
             ]
         )
-
-        log(f"App initialization loading connections..")
-        self.connection_rows = []
-        for r in connection_rows or []:
-            from_node, to_node, neuropil, syn_count, nt_type = (
-                int(r[0]),
-                int(r[1]),
-                r[2].upper(),
-                int(r[3]),
-                r[4].upper(),
-            )
-            assert from_node in self.neuron_data and to_node in self.neuron_data
-            assert syn_count >= MIN_SYN_COUNT
-            assert nt_type in NEURO_TRANSMITTER_NAMES
-            assert neuropil == "NONE" or neuropil in REGIONS.keys()
-            self.connection_rows.append(
-                [from_node, to_node, neuropil, syn_count, nt_type]
-            )
-
-        # augment ndata with in/out partner counts
-        in_sets = self.input_sets()
-        out_sets = self.output_sets()
-        for rid, nd in self.neuron_data.items():
-            nd["input_cells"] = len(in_sets[rid]) or "-"
-            nd["output_cells"] = len(out_sets[rid]) or "-"
 
     def input_sets(self, min_syn_count=5):
         return self.input_output_sets(min_syn_count)[0]
@@ -298,7 +295,9 @@ class NeuronDB(object):
         if nt_type:
             nt_type = nt_type.upper()
             if nt_type not in NEURO_TRANSMITTER_NAMES:
-                raise ValueError(f"Unknown NT type: {nt_type}, must be one of {NEURO_TRANSMITTER_NAMES}")
+                raise ValueError(
+                    f"Unknown NT type: {nt_type}, must be one of {NEURO_TRANSMITTER_NAMES}"
+                )
             cons = [r for r in cons if r[2] == nt_type]
         return cons
 
