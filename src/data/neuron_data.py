@@ -41,10 +41,6 @@ DATA_FILE_COLUMNS = [
     "oct_avg",
     "ser_avg",
     "da_avg",
-    # clean
-    "tag",
-    "position",
-    "supervoxel_id",
 ]
 
 EXCLUDED_DATA_FILE_COLUMNS = []

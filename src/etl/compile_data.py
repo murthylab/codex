@@ -636,22 +636,28 @@ if __name__ == "__main__":
     # fill_missing_positions()
     # fill_new_annotations()
 
-    columns_to_remove = []
-    if columns_to_remove:
+    config = {
+        "columns_to_remove": [],
+        "update_coordinates": False,
+        "update_labels": False
+    }
+    if config["columns_to_remove"]:
         for v in DATA_SNAPSHOT_VERSIONS:
-            remove_columns(v, columns_to_remove)
+            remove_columns(v, config["columns_to_remove"])
 
     client = init_cave_client()
     for v in DATA_SNAPSHOT_VERSIONS:
-        update_cave_data_file(
-            name="coordinates",
-            db_load_func=load_proofreading_info_from_cave,
-            cave_client=client,
-            version=v,
-        )
-        update_cave_data_file(
-            name="labels",
-            db_load_func=load_neuron_info_from_cave,
-            cave_client=client,
-            version=v,
-        )
+        if config["update_coordinates"]:
+            update_cave_data_file(
+                name="coordinates",
+                db_load_func=load_proofreading_info_from_cave,
+                cave_client=client,
+                version=v,
+            )
+        if config["update_labels"]:
+            update_cave_data_file(
+                name="labels",
+                db_load_func=load_neuron_info_from_cave,
+                cave_client=client,
+                version=v,
+            )
