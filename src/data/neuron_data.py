@@ -74,6 +74,35 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
 ]
 
 
+NEURON_DATA_ATTRIBUTES = {
+    "ach_avg": float,
+    "class": str,
+    "classes": list,
+    "da_avg": float,
+    "gaba_avg": float,
+    "glut_avg": float,
+    "group": str,
+    "hemisphere_fingerprint": str,
+    "input_cells": int,
+    "input_neuropils": list,
+    "name": str,
+    "nt_type": str,
+    "nt_type_score": float,
+    "oct_avg": float,
+    "output_cells": int,
+    "output_neuropils": list,
+    "position": list,
+    "root_id": int,
+    "ser_avg": float,
+    "similar_root_id_scores": list,
+    "similar_root_ids": list,
+    "supervoxel_id": list,
+    "symmetrical_root_id_scores": list,
+    "symmetrical_root_ids": list,
+    "tag": list,
+}
+
+
 class NeuronDB(object):
     def __init__(
         self,
@@ -271,9 +300,9 @@ class NeuronDB(object):
             )
             nd["class"] = ", ".join([c for c in nd["classes"]])
             nt_score_key = f'{nd["nt_type"].lower()}_avg'
-            nd["nt_type_score"] = nd.get(nt_score_key, "")
-            nd["input_cells"] = len(self.input_sets()[rid]) or "-"
-            nd["output_cells"] = len(self.output_sets()[rid]) or "-"
+            nd["nt_type_score"] = nd.get(nt_score_key, 0.)
+            nd["input_cells"] = len(self.input_sets()[rid])
+            nd["output_cells"] = len(self.output_sets()[rid])
 
         log(f"App initialization building search index..")
 
