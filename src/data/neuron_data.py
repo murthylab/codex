@@ -300,7 +300,7 @@ class NeuronDB(object):
             )
             nd["class"] = ", ".join([c for c in nd["classes"]])
             nt_score_key = f'{nd["nt_type"].lower()}_avg'
-            nd["nt_type_score"] = nd.get(nt_score_key, 0.)
+            nd["nt_type_score"] = nd.get(nt_score_key, 0.0)
             nd["input_cells"] = len(self.input_sets()[rid])
             nd["output_cells"] = len(self.output_sets()[rid])
 
