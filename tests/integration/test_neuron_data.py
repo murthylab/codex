@@ -12,7 +12,7 @@ class NeuronDataTest(TestCase):
     def setUp(self):
         # this allows to temporarily disable some checks when updating the schema of data files. should be kept empty
         # after the updates are tested and complete
-        self.exclude_keys = {}
+        self.exclude_keys = set()
         self.neuron_dbs = unpickle_all_neuron_db_versions(
             data_root_path=TEST_DATA_ROOT_PATH
         )
@@ -84,4 +84,4 @@ class NeuronDataTest(TestCase):
 
     # this is a helper test to not forget clean up excluded keys once schema has updated
     def test_no_keys_excluded(self):
-        self.assertEqual(self.exclude_keys, {})
+        self.assertEqual(0, len(self.exclude_keys))
