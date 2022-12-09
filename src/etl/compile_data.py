@@ -19,6 +19,7 @@ from src.data.local_data_loader import read_csv, write_csv
 #  - download it into RAW_DATA_ROOT_FOLDER and name it as NEURON_NT_TYPES_FILE_NAME below
 # Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
 # and store it in this file (no quotes)
+from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.versions import DATA_SNAPSHOT_VERSIONS
 
 CAVE_AUTH_TOKEN_FILE_NAME = f"static/secrets/cave_auth_token.txt"
@@ -88,6 +89,25 @@ def load_feather_data_to_table(filepath, columns_to_read=None):
             print(f"Rows scanned: {rows_scanned}")
     print(f"Rows scanned: {rows_scanned}")
     return rows
+
+
+def comp_backup_and_update_csv(fpath, content):
+    if os.path.isfile(fpath):
+        old_content = read_csv(fpath)
+        print(f"Comparing {fpath} content with new")
+        compare_csvs(old_content, content)
+        fpath_bkp = fpath.replace(".csv.gz", "_bkp.csv.gz")
+        print(f"Backing up {fpath} to {fpath_bkp}..")
+        shutil.copy2(fpath, fpath_bkp)
+        print("Old content summary")
+        summarize_csv(old_content)
+    else:
+        print(f"Previous file {fpath} not found.")
+
+    print("New content summary")
+    summarize_csv(content)
+    print(f"Writing to {fpath}..")
+    write_csv(filename=fpath, rows=content, compress=True)
 
 
 def compact_nt_scores_data(version):
@@ -226,27 +246,12 @@ def compare_csvs(old_table, new_table, first_cols=999999):
 
 def update_cave_data_file(name, db_load_func, cave_client, version):
     print(f"Updating {name} file..")
-    fpath = compiled_data_file_path(version=version, filename="{name}.csv.gz")
-    backup_fpath = compiled_data_file_path(
-        version=version, filename="{name}_bkp.csv.gz"
-    )
-    old_content = None
-    if os.path.isfile(fpath):
-        print(f"Reading {fpath}...")
-        old_content = read_csv(fpath)
-        summarize_csv(old_content)
-        print(f"Copying to {backup_fpath}..")
-        shutil.copy2(fpath, backup_fpath)
-    else:
-        print(f"Previous file {fpath} not found.")
+    fpath = compiled_data_file_path(version=version, filename=f"{name}.csv.gz")
 
     print(f"Loading {name} from DB..")
     new_content = db_load_func(client=cave_client, version=version)
-    summarize_csv(new_content)
-    if old_content:
-        compare_csvs(old_content, new_content)
-    print(f"Writing {name} file with {len(new_content)} lines to {fpath}")
-    write_csv(fpath, rows=new_content, compress=True)
+
+    comp_backup_and_update_csv(fpath, content=new_content)
 
 
 def process_classification_file(version):
@@ -257,59 +262,71 @@ def process_classification_file(version):
     new_content = load_feather_data_to_table(filepath)
 
     fpath = compiled_data_file_path(version=version, filename="classification.csv.gz")
-
-    if os.path.isfile(fpath):
-        old_content = read_csv(fpath)
-        print("Comparing with current")
-        compare_csvs(old_content, new_content)
-        fpath_bkp = compiled_data_file_path(
-            version=version, filename="classification_bkp.csv.gz"
-        )
-        print(f"Backing up {fpath} to {fpath_bkp}..")
-        shutil.copy2(fpath, fpath_bkp)
-
-    print(f"Saving {len(new_content)} coarse labels to {fpath}")
-    write_csv(filename=fpath, rows=new_content, compress=True)
+    comp_backup_and_update_csv(fpath=fpath, content=new_content)
 
 
 def process_synapse_table_file(version):
-    st_filepath = raw_data_file_path(
-        version=version, filename=f"{SYNAPSE_TABLE_FILE_NAME}"
-    )
     st_nt_filepath = raw_data_file_path(
         version=version, filename=f"{SYNAPSE_TABLE_WITH_NT_TYPES_FILE_NAME}"
     )
 
-    print(f"Loading synapse table from {st_filepath}")
-    st_new_content = load_feather_data_to_table(st_filepath)
-    st_nt_new_content = load_feather_data_to_table(st_nt_filepath)
+    print(f"Loading synapse table from {st_nt_filepath}")
+    st_nt_content = load_feather_data_to_table(st_nt_filepath)
 
-    compare_csvs(st_new_content, st_nt_new_content, first_cols=4)
+    # compile connections table
+    connections = []
+    from_col_id = SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES.index("pre_pt_root_id")
+    to_col_id = SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES.index("post_pt_root_id")
+    pil_col_id = SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES.index("neuropil")
+    syn_cnt_col_id = SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES.index("syn_count")
+    nt_score_col_indices = {
+        nt_type: SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES.index(
+            f"{nt_type.lower()}_avg"
+        )
+        for nt_type in NEURO_TRANSMITTER_NAMES
+    }
+    for i, r in enumerate(st_nt_content):
+        if i == 0:
+            assert r == SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES
+            connections.append(
+                ["pre_root_id", "post_root_id", "neuropil", "syn_count", "nt_type"]
+            )
+        else:
+            syn_cnt = int(r[syn_cnt_col_id])
+            if syn_cnt >= MIN_SYN_COUNT:
+                nt_scores = [
+                    (float(r[nt_score_col_indices[ntt]]), ntt)
+                    for ntt in NEURO_TRANSMITTER_NAMES
+                ]
+                nt_type = max(nt_scores)[1]
+                connections.append(
+                    [r[from_col_id], r[to_col_id], r[pil_col_id], syn_cnt, nt_type]
+                )
+
+    connections_fpath = compiled_data_file_path(
+        version=version, filename="connections.csv.gz"
+    )
+    comp_backup_and_update_csv(fpath=connections_fpath, content=connections)
+
     exit(1)
 
 
 def remove_columns(version, columns_to_remove):
-    fname = f"static/data/{version}/neuron_data.csv.gz"
-    fname_bkp = f"static/data/{version}/neuron_data_bkp.csv.gz"
-    content = read_csv(fname)
-
+    fpath = compiled_data_file_path(version=version, filename="neuron_data.csv.gz")
+    content = read_csv(fpath)
     columns_to_remove = {
         i: c for i, c in enumerate(content[0]) if c in columns_to_remove
     }
     if columns_to_remove:
-        print(f"Backing up {fname} to {fname_bkp}..")
-        shutil.copy2(fname, fname_bkp)
-        print(f"Removing columns {columns_to_remove} from {fname}")
+        print(f"Removing columns {list(columns_to_remove.values())} from {fpath}")
 
         def project(row):
             return [val for i, val in enumerate(row) if i not in columns_to_remove]
 
-        new_content = [project(r) for r in content]
-        print(f"Writing new content with cols {new_content[0]} to {fname}..")
-        write_csv(fname, rows=new_content, compress=True)
-        print("Done.")
+        content = [project(r) for r in content]
+        comp_backup_and_update_csv(fpath=fpath, content=content)
     else:
-        print(f"None of the columns {columns_to_remove} found in {fname}.")
+        print(f"None of the columns {columns_to_remove} found in {fpath}.")
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ from src.utils.networking import download
 
 DATA_ROOT_PATH = "static/data"
 NEURON_DATA_FILE_NAME = "neuron_data.csv.gz"
-CONNECTIONS_FILE_NAME = "connections_5syn.csv.gz"
+CONNECTIONS_FILE_NAME = "connections.csv.gz"
 LABELS_FILE_NAME = "labels.csv.gz"
 COORDINATES_FILE_NAME = "coordinates.csv.gz"
 CLASSIFICATIONS_FILE_NAME = "classification.csv.gz"

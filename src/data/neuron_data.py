@@ -53,6 +53,15 @@ LABEL_FILE_COLUMNS = [
     "user_affiliation",
 ]
 
+# Expected columns in static connections data CSV file
+CONNECTIONS_FILE_COLUMNS = [
+    "pre_root_id",
+    "post_root_id",
+    "neuropil",
+    "syn_count",
+    "nt_type",
+]
+
 # Expected columns in static coordinates data CSV file
 COORDINATE_FILE_COLUMNS = [
     "root_id",
@@ -272,7 +281,10 @@ class NeuronDB(object):
         self.connection_rows = []
         input_neuropils = defaultdict(set)
         output_neuropils = defaultdict(set)
-        for r in connection_rows or []:
+        for i, r in enumerate(connection_rows or []):
+            if i == 0:
+                assert r == CONNECTIONS_FILE_COLUMNS
+                continue
             from_node, to_node, neuropil, syn_count, nt_type = (
                 int(r[0]),
                 int(r[1]),
