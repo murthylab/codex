@@ -207,7 +207,18 @@ class Network(object):
         self.active_edges = {}
 
     def add_node(
-        self, name, size, mass, label, shape, color, title=None, x=None, y=None, cluster_inputs=False, cluster_outputs=False
+        self,
+        name,
+        size,
+        mass,
+        label,
+        shape,
+        color,
+        title=None,
+        x=None,
+        y=None,
+        cluster_inputs=False,
+        cluster_outputs=False,
     ):
         name = str(name)
         if name not in self.node_map:
@@ -247,16 +258,16 @@ class Network(object):
         assert target in self.node_map, f"non existent node '{str(target)}'"
 
         edge = {
-                "id": source + "_to_" + target,
-                "from": source,
-                "to": target,
-                "physics": self.edge_physics,
-                "label": label,
-                "title": title,
-                "arrows": "to",
-                "width": 1 if weak else 2,
-                "dashes": False,
-            }
+            "id": source + "_to_" + target,
+            "from": source,
+            "to": target,
+            "physics": self.edge_physics,
+            "label": label,
+            "title": title,
+            "arrows": "to",
+            "width": 1 if weak else 2,
+            "dashes": False,
+        }
         self.edges.append(edge)
 
         if target in self.cluster_data:
