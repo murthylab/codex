@@ -21,6 +21,7 @@ from src.data.local_data_loader import read_csv, write_csv
 # and store it in this file (no quotes)
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.versions import DATA_SNAPSHOT_VERSIONS
+from src.etl.synapse_table_processor import compile_connection_rows, compile_neuron_rows
 
 CAVE_AUTH_TOKEN_FILE_NAME = f"static/secrets/cave_auth_token.txt"
 CAVE_DATASTACK_NAME = "flywire_fafb_production"
@@ -108,42 +109,6 @@ def comp_backup_and_update_csv(fpath, content):
     summarize_csv(content)
     print(f"Writing to {fpath}..")
     write_csv(filename=fpath, rows=content, compress=True)
-
-
-def compact_nt_scores_data(version):
-    nt_scores_data = load_feather_data_to_table(
-        filepath=raw_data_file_path(version, SYNAPSE_TABLE_WITH_NT_TYPES_FILE_NAME),
-        columns_to_read=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES,
-    )
-
-    header = nt_scores_data[0]
-    rid_to_scores = {}
-
-    def isnan(val):
-        return val != val
-
-    for r in nt_scores_data[1:]:
-        if r[0] not in rid_to_scores:
-            rid_to_scores[r[0]] = defaultdict(int)
-        for i in [4, 5, 6, 7, 8, 9]:
-            if not isnan(r[3]) and not isnan(r[i]):
-                rid_to_scores[r[0]][header[i]] += r[3] * r[i]
-
-    def round_float(f):
-        return float("{:0.2f}".format(f))
-
-    def normalize(scores_dict):
-        tot = sum(scores_dict.values())
-        for k, v in scores_dict.items():
-            scores_dict[k] = round_float(v / tot)
-
-    for rid, scores in rid_to_scores.items():
-        normalize(scores)
-
-    for r in nt_scores_data[1:5]:
-        print(f"{r[0]}: {rid_to_scores[r[0]]}")
-
-    return rid_to_scores
 
 
 def init_cave_client():
@@ -273,36 +238,20 @@ def process_synapse_table_file(version):
     print(f"Loading synapse table from {st_nt_filepath}")
     st_nt_content = load_feather_data_to_table(st_nt_filepath)
 
-    # compile connections table
-    connections = []
-    from_col_id = SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES.index("pre_pt_root_id")
-    to_col_id = SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES.index("post_pt_root_id")
-    pil_col_id = SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES.index("neuropil")
-    syn_cnt_col_id = SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES.index("syn_count")
-    nt_score_col_indices = {
-        nt_type: SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES.index(
-            f"{nt_type.lower()}_avg"
-        )
-        for nt_type in NEURO_TRANSMITTER_NAMES
-    }
-    for i, r in enumerate(st_nt_content):
-        if i == 0:
-            assert r == SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES
-            connections.append(
-                ["pre_root_id", "post_root_id", "neuropil", "syn_count", "nt_type"]
-            )
-        else:
-            syn_cnt = int(r[syn_cnt_col_id])
-            if syn_cnt >= MIN_SYN_COUNT:
-                nt_scores = [
-                    (float(r[nt_score_col_indices[ntt]]), ntt)
-                    for ntt in NEURO_TRANSMITTER_NAMES
-                ]
-                nt_type = max(nt_scores)[1]
-                connections.append(
-                    [r[from_col_id], r[to_col_id], r[pil_col_id], syn_cnt, nt_type]
-                )
+    # compile neuron rows
+    neurons = compile_neuron_rows(
+        syn_table_content=st_nt_content,
+        min_syn_count=MIN_SYN_COUNT,
+    )
+    neurons_fpath = compiled_data_file_path(version=version, filename="neurons.csv.gz")
+    comp_backup_and_update_csv(fpath=neurons_fpath, content=neurons)
 
+    # compile connection rows
+    connections = compile_connection_rows(
+        syn_table_content=st_nt_content,
+        columns=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES,
+        min_syn_count=MIN_SYN_COUNT,
+    )
     connections_fpath = compiled_data_file_path(
         version=version, filename="connections.csv.gz"
     )

@@ -256,6 +256,25 @@ class NeuronDataTest(TestCase):
             attribs = {k: type(v) for k, v in nd.items()}
             self.assertEqual(NEURON_DATA_ATTRIBUTES, attribs)
 
+    def test_not_connected_cells(self):
+        connected_cells = set(self.neuron_db.input_sets().keys()).union(
+            set(self.neuron_db.output_sets().keys())
+        )
+        not_connected_cells = set(self.neuron_db.neuron_data.keys()) - connected_cells
+        self.assertGreater(2000, len(not_connected_cells))
+
+    def test_nt_score_stats(self):
+        for nd in self.neuron_db.neuron_data.values():
+            scores_list = [
+                nd[f"{nt_type.lower()}_avg"] for nt_type in NEURO_TRANSMITTER_NAMES
+            ]
+            for s in scores_list:
+                self.assertGreaterEqual(1, s)
+                self.assertLessEqual(0, s)
+            total = sum(scores_list)
+            self.assertGreaterEqual(1.05, total)
+            self.assertLessEqual(0.0, total, nd)
+
     def test_neuropils(self):
         res = set()
         for nd in self.neuron_db.neuron_data.values():
