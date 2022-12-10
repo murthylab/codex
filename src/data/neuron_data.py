@@ -3,6 +3,14 @@ from functools import lru_cache
 from random import choice
 
 from src.data.brain_regions import neuropil_hemisphere, REGIONS
+from src.data.catalog import (
+    get_neurons_file_columns,
+    get_similar_cells_file_columns,
+    get_labels_file_columns,
+    get_coordinates_file_columns,
+    get_classes_file_columns,
+    get_connections_file_columns,
+)
 from src.data.gcs_data_loader import load_connection_table_for_root_ids
 from src.data.neuron_collections import NEURON_COLLECTIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
@@ -16,65 +24,6 @@ from src.configuration import MIN_SYN_COUNT
 from src.utils.formatting import compact_tag, nanometer_to_flywire_coordinates
 from src.utils.logging import log
 
-# Expected columns in static FlyWire data CSV file
-DATA_FILE_COLUMNS = [
-    "root_id",
-    "similar_root_ids",
-    "similar_root_id_scores",
-    "symmetrical_root_ids",
-    "symmetrical_root_id_scores",
-    "closest_nblast_root_ids",
-    "closest_nblast_scores",
-]
-
-EXCLUDED_DATA_FILE_COLUMNS = []
-
-# Expected columns in static neurons data CSV file
-NEURON_FILE_COLUMNS = [
-    "root_id",
-    "name",
-    "group",
-    "nt_type",
-    "nt_type_score",
-    "gaba_avg",
-    "ach_avg",
-    "glut_avg",
-    "oct_avg",
-    "ser_avg",
-    "da_avg",
-]
-
-# Expected columns in static labels data CSV file
-LABEL_FILE_COLUMNS = [
-    "root_id",
-    "tag",
-    "user_id",
-    "position",
-    "supervoxel_id",
-    "tag_id",
-    "user_name",
-    "user_affiliation",
-]
-
-# Expected columns in static connections data CSV file
-CONNECTIONS_FILE_COLUMNS = [
-    "pre_root_id",
-    "post_root_id",
-    "neuropil",
-    "syn_count",
-    "nt_type",
-]
-
-# Expected columns in static coordinates data CSV file
-COORDINATE_FILE_COLUMNS = [
-    "root_id",
-    "position",
-    "supervoxel_id",
-]
-
-# Expected columns in static classification data CSV file
-CLASSIFICATION_FILE_COLUMNS = ["root_id", "class"]
-
 # Keywords will be matched against these attributes
 NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "root_id",
@@ -84,7 +33,6 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "classes",
     "hemisphere_fingerprint",
 ]
-
 
 NEURON_DATA_ATTRIBUTES = {
     "ach_avg": float,
@@ -134,8 +82,7 @@ class NeuronDB(object):
         column_index = {}
         for i, r in enumerate(neuron_file_rows):
             if i == 0:
-                # check header
-                assert sorted(r) == sorted(NEURON_FILE_COLUMNS)
+                assert r == get_neurons_file_columns()
                 column_index = {c: i for i, c in enumerate(r)}
                 continue
 
@@ -176,7 +123,7 @@ class NeuronDB(object):
         column_index = {}
         for i, r in enumerate(data_file_rows):
             if i == 0:
-                assert sorted(r) == sorted(DATA_FILE_COLUMNS)
+                assert sorted(r) == sorted(get_similar_cells_file_columns())
                 column_index = {c: i for i, c in enumerate(r)}
                 continue
 
@@ -210,14 +157,15 @@ class NeuronDB(object):
             )
 
         log(f"App initialization processing label data..")
-        rid_col_idx = LABEL_FILE_COLUMNS.index("root_id")
-        tag_col_idx = LABEL_FILE_COLUMNS.index("tag")
+        labels_file_columns = get_labels_file_columns()
+        rid_col_idx = labels_file_columns.index("root_id")
+        tag_col_idx = labels_file_columns.index("tag")
         not_found_rids = set()
         not_found_tags = defaultdict(int)
         for i, r in enumerate(label_rows or []):
             if i == 0:
                 # check header
-                assert r == LABEL_FILE_COLUMNS
+                assert r == labels_file_columns
                 continue
             rid = int(r[rid_col_idx])
             if rid not in self.neuron_data:
@@ -229,7 +177,7 @@ class NeuronDB(object):
                 label_data_list = []
                 self.label_data[rid] = label_data_list
             label_dict = NeuronDB._row_to_dict(
-                columns=LABEL_FILE_COLUMNS,
+                columns=labels_file_columns,
                 row=r,
                 exclude={"root_id"},
                 to_int={"user_id", "supervoxel_id", "tag_id"},
@@ -248,14 +196,15 @@ class NeuronDB(object):
                 log(f"  {p}")
 
         log(f"App initialization processing coordinates data..")
-        rid_col_idx = COORDINATE_FILE_COLUMNS.index("root_id")
-        pos_col_idx = COORDINATE_FILE_COLUMNS.index("position")
-        vox_col_idx = COORDINATE_FILE_COLUMNS.index("supervoxel_id")
+        coordinates_file_columns = get_coordinates_file_columns()
+        rid_col_idx = coordinates_file_columns.index("root_id")
+        pos_col_idx = coordinates_file_columns.index("position")
+        vox_col_idx = coordinates_file_columns.index("supervoxel_id")
         not_found_rids = set()
         for i, r in enumerate(coordinate_rows or []):
             if i == 0:
                 # check header
-                assert r == COORDINATE_FILE_COLUMNS
+                assert r == coordinates_file_columns
                 continue
             rid = int(r[rid_col_idx])
             if rid not in self.neuron_data:
@@ -281,14 +230,15 @@ class NeuronDB(object):
         )
 
         log(f"App initialization processing classification data..")
-        rid_col_idx = CLASSIFICATION_FILE_COLUMNS.index("root_id")
-        cls_col_idx = CLASSIFICATION_FILE_COLUMNS.index("class")
+        classes_file_columns = get_classes_file_columns()
+        rid_col_idx = classes_file_columns.index("root_id")
+        cls_col_idx = classes_file_columns.index("class")
         not_found_rids = set()
         all_classes = set()
         for i, r in enumerate(classification_rows or []):
             if i == 0:
                 # check header
-                assert r == CLASSIFICATION_FILE_COLUMNS
+                assert r == classes_file_columns
                 continue
             rid = int(r[rid_col_idx])
             if rid not in self.neuron_data:
@@ -312,7 +262,7 @@ class NeuronDB(object):
         output_neuropils = defaultdict(set)
         for i, r in enumerate(connection_rows or []):
             if i == 0:
-                assert r == CONNECTIONS_FILE_COLUMNS
+                assert r == get_connections_file_columns()
                 continue
             from_node, to_node, neuropil, syn_count, nt_type = (
                 int(r[0]),
