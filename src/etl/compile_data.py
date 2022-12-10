@@ -280,9 +280,9 @@ if __name__ == "__main__":
     config = {
         "columns_to_remove": [],
         "update_coordinates": False,
-        "update_labels": False,
+        "update_labels": True,
         "update_classifications": False,
-        "update_connections": True,
+        "update_connections": False,
     }
     if config["columns_to_remove"]:
         for v in DATA_SNAPSHOT_VERSIONS:
