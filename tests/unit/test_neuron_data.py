@@ -41,7 +41,7 @@ class NeuronDataTest(TestCase):
             self.assertGreaterEqual(num_present, lower_bound)
 
         check_min_values_present("name", 66812)
-        check_min_values_present("nt_type", 67852)
+        check_min_values_present("nt_type", 63891)
         check_min_values_present("hemisphere_fingerprint", 66633)
         check_min_values_present("classes", 10782)
         check_min_values_present("similar_root_ids", 66633)
@@ -229,7 +229,7 @@ class NeuronDataTest(TestCase):
             "center {downstream_region} 720575940629495808"
         )
         self.assertEqual(
-            [720575940611639794, 720575940636691824, 720575940626476038], downstream
+            sorted([720575940611639794, 720575940636691824, 720575940626476038]), sorted(downstream)
         )
 
         upstream = self.neuron_db.search("left {upstream_region} 720575940629495808")

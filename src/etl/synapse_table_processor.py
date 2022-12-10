@@ -42,18 +42,13 @@ def compile_nt_scores_data(syn_table_content):
 
 
 def infer_nt_type_and_score(scores):
-    max_score = 0.2
-    max_nt_type = ""
-    for k, v in scores.items():
-        if v > max_score:
-            max_score = v
-            max_nt_type = k
-    if max_nt_type:
-        nt_type = max_nt_type.replace("_avg", "").upper()
+    scores = sorted([(sc, k) for k, sc in scores.items()], reverse=True)
+    if scores[0][0] > 0.2 and scores[0][0] > scores[1][0] + 0.1:
+        nt_type = scores[0][1].replace("_avg", "").upper()
         assert nt_type in NEURO_TRANSMITTER_NAMES
-        return nt_type, max_score
+        return nt_type, scores[0][0]
     else:
-        return "", 0.0
+        return "", -1.0
 
 
 def assign_names_and_groups(
@@ -151,7 +146,7 @@ def compile_neuron_rows(syn_table_content, min_syn_count):
     )
 
     neuron_rows = [
-        ["root_id", "name", "group", "nt_type", "nt_score"]
+        ["root_id", "name", "group", "nt_type", "nt_type_score"]
         + [f"{nt_type.lower()}_avg" for nt_type in NEURO_TRANSMITTER_NAMES]
     ]
     for rid in sorted(all_neurons_set):

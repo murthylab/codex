@@ -11,6 +11,7 @@ from src.utils.logging import log, log_error
 from src.utils.networking import download
 
 DATA_ROOT_PATH = "static/data"
+NEURON_FILE_NAME = "neurons.csv.gz"
 NEURON_DATA_FILE_NAME = "neuron_data.csv.gz"
 CONNECTIONS_FILE_NAME = "connections.csv.gz"
 LABELS_FILE_NAME = "labels.csv.gz"
@@ -32,6 +33,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         version=version, data_root_path=data_root_path
     )
     log(f"App initialization loading data from {data_file_path}...")
+    neuron_rows = read_csv(f"{data_file_path}/{NEURON_FILE_NAME}")
     neuron_data_rows = read_csv(f"{data_file_path}/{NEURON_DATA_FILE_NAME}")
     if os.path.exists(f"{data_file_path}/{CONNECTIONS_FILE_NAME}"):
         connection_rows = read_csv(f"{data_file_path}/{CONNECTIONS_FILE_NAME}")
@@ -66,6 +68,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         f"{len(coordinate_rows)} coordinate rows."
     )
     neuron_db = NeuronDB(
+        neuron_file_rows=neuron_rows,
         data_file_rows=neuron_data_rows,
         connection_rows=connection_rows,
         label_rows=label_rows,

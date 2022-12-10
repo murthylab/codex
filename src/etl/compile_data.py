@@ -257,8 +257,6 @@ def process_synapse_table_file(version):
     )
     comp_backup_and_update_csv(fpath=connections_fpath, content=connections)
 
-    exit(1)
-
 
 def remove_columns(version, columns_to_remove):
     fpath = compiled_data_file_path(version=version, filename="neuron_data.csv.gz")
@@ -292,6 +290,9 @@ if __name__ == "__main__":
 
     client = init_cave_client()
     for v in DATA_SNAPSHOT_VERSIONS:
+        print(
+            f"#######################\nCompiling version {v}..\n#######################"
+        )
         if config["update_connections"]:
             process_synapse_table_file(version=v)
         if config["update_classifications"]:

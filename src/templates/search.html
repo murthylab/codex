@@ -90,7 +90,7 @@
                 <td style="color:black;">{{extra_data.values_dict.get(neuron.root_id)}}</td>
             {% endif %}
             <td style="color:#3A3AAA;">{{neuron.nt_type}}
-                {% if neuron.nt_type_score %}
+                {% if neuron.nt_type %}
                 <br><small style="color: {{'green' if neuron.nt_type_score > 0.65 else ('orange' if neuron.nt_type_score > 0.45 else 'red')}}">{{neuron.nt_type_score}}</small>
                 {% endif %}
                 {% if neuron.nt_type and 'nt_type' in multi_val_attrs %}

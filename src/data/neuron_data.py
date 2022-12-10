@@ -18,19 +18,24 @@ from src.utils.logging import log
 
 # Expected columns in static FlyWire data CSV file
 DATA_FILE_COLUMNS = [
-    # naming
     "root_id",
-    "name",
-    "group",
-    # similarity
     "similar_root_ids",
     "similar_root_id_scores",
     "symmetrical_root_ids",
     "symmetrical_root_id_scores",
     "closest_nblast_root_ids",
     "closest_nblast_scores",
-    # neurotransmitter types
+]
+
+EXCLUDED_DATA_FILE_COLUMNS = []
+
+# Expected columns in static neurons data CSV file
+NEURON_FILE_COLUMNS = [
+    "root_id",
+    "name",
+    "group",
     "nt_type",
+    "nt_type_score",
     "gaba_avg",
     "ach_avg",
     "glut_avg",
@@ -38,8 +43,6 @@ DATA_FILE_COLUMNS = [
     "ser_avg",
     "da_avg",
 ]
-
-EXCLUDED_DATA_FILE_COLUMNS = []
 
 # Expected columns in static labels data CSV file
 LABEL_FILE_COLUMNS = [
@@ -115,6 +118,7 @@ NEURON_DATA_ATTRIBUTES = {
 class NeuronDB(object):
     def __init__(
         self,
+        neuron_file_rows,
         data_file_rows,
         connection_rows,
         label_rows,
@@ -126,13 +130,12 @@ class NeuronDB(object):
         self.label_data = {}
         self.labels_file_timestamp = labels_file_timestamp
 
+        log(f"App initialization processing neuron data..")
         column_index = {}
-        for i, r in enumerate(data_file_rows):
+        for i, r in enumerate(neuron_file_rows):
             if i == 0:
                 # check header
-                assert sorted(r) == sorted(
-                    DATA_FILE_COLUMNS + EXCLUDED_DATA_FILE_COLUMNS
-                )
+                assert sorted(r) == sorted(NEURON_FILE_COLUMNS)
                 column_index = {c: i for i, c in enumerate(r)}
                 continue
 
@@ -153,18 +156,7 @@ class NeuronDB(object):
                 "name": _get_value("name"),
                 "group": _get_value("group"),
                 "nt_type": _get_value("nt_type").upper(),
-                "similar_root_ids": _get_value(
-                    "similar_root_ids", split=True, to_type=int
-                ),
-                "similar_root_id_scores": _get_value(
-                    "similar_root_id_scores", split=True, to_type=float
-                ),
-                "symmetrical_root_ids": _get_value(
-                    "symmetrical_root_ids", split=True, to_type=int
-                ),
-                "symmetrical_root_id_scores": _get_value(
-                    "symmetrical_root_id_scores", split=True, to_type=float
-                ),
+                "nt_type_score": _get_value("nt_type_score", to_type=float),
                 "gaba_avg": _get_value("gaba_avg", to_type=float),
                 "ach_avg": _get_value("ach_avg", to_type=float),
                 "glut_avg": _get_value("glut_avg", to_type=float),
@@ -179,6 +171,43 @@ class NeuronDB(object):
                 "input_neuropils": [],
                 "output_neuropils": [],
             }
+
+        log(f"App initialization processing similar cells data..")
+        column_index = {}
+        for i, r in enumerate(data_file_rows):
+            if i == 0:
+                assert sorted(r) == sorted(DATA_FILE_COLUMNS)
+                column_index = {c: i for i, c in enumerate(r)}
+                continue
+
+            def _get_value(col, split=False, to_type=None):
+                def convert_type(v):
+                    return to_type(v) if to_type else v
+
+                val = r[column_index[col]]
+                if split:
+                    return [convert_type(v) for v in val.split(",")] if val else []
+                else:
+                    return convert_type(val) if val else ""
+
+            root_id = _get_value("root_id", to_type=int)
+
+            self.neuron_data[root_id].update(
+                {
+                    "similar_root_ids": _get_value(
+                        "similar_root_ids", split=True, to_type=int
+                    ),
+                    "similar_root_id_scores": _get_value(
+                        "similar_root_id_scores", split=True, to_type=float
+                    ),
+                    "symmetrical_root_ids": _get_value(
+                        "symmetrical_root_ids", split=True, to_type=int
+                    ),
+                    "symmetrical_root_id_scores": _get_value(
+                        "symmetrical_root_id_scores", split=True, to_type=float
+                    ),
+                }
+            )
 
         log(f"App initialization processing label data..")
         rid_col_idx = LABEL_FILE_COLUMNS.index("root_id")
@@ -311,8 +340,6 @@ class NeuronDB(object):
                 nd["input_neuropils"], nd["output_neuropils"]
             )
             nd["class"] = ", ".join([c for c in nd["classes"]])
-            nt_score_key = f'{nd["nt_type"].lower()}_avg'
-            nd["nt_type_score"] = nd.get(nt_score_key, 0.0)
             nd["input_cells"] = len(self.input_sets()[rid])
             nd["output_cells"] = len(self.output_sets()[rid])
 

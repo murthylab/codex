@@ -38,6 +38,7 @@ class NeuronDataTest(TestCase):
 
             diff_keys = defaultdict(int)
             diff_vals = defaultdict(int)
+            diff_rids = set()
             for rid, nd in tested.neuron_data.items():
                 ndp = golden.get_neuron_data(rid)
                 obj.assertEqual(
@@ -50,10 +51,13 @@ class NeuronDataTest(TestCase):
                     if isnan(val):
                         if not isnan(ndp[k]):
                             diff_keys[k] += 1
+                            diff_rids.add(rid)
                     else:
                         if val != ndp[k]:
                             diff_keys[k] += 1
                             diff_vals[f"{k}: {val} vs {ndp[k]}"] += 1
+                            diff_rids.add(rid)
+            print(f"Diff RIDs {len(diff_rids)}: {sorted(diff_rids)[:100]}")
             obj.assertEqual(
                 0,
                 len(diff_keys),
