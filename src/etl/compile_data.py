@@ -278,21 +278,21 @@ def remove_columns(version, columns_to_remove):
 
 if __name__ == "__main__":
     config = {
+        "versions": DATA_SNAPSHOT_VERSIONS,
         "columns_to_remove": [],
         "update_coordinates": False,
-        "update_labels": True,
         "update_classifications": False,
         "update_connections": False,
+        "update_labels": True,
     }
-    if config["columns_to_remove"]:
-        for v in DATA_SNAPSHOT_VERSIONS:
-            remove_columns(v, config["columns_to_remove"])
 
     client = init_cave_client()
-    for v in DATA_SNAPSHOT_VERSIONS:
+    for v in config["versions"]:
         print(
             f"#######################\nCompiling version {v}..\n#######################"
         )
+        if config["columns_to_remove"]:
+            remove_columns(v, config["columns_to_remove"])
         if config["update_connections"]:
             process_synapse_table_file(version=v)
         if config["update_classifications"]:
