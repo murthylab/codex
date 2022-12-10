@@ -34,15 +34,19 @@ Stats
             const selectedItem = chart.getSelection()[0];
             if (selectedItem) {
                 const value = data.getValue(selectedItem.row, 0);
-                if (value.toUpperCase() === 'UNKNOWN') {
-                    return;
-                }
                 let filter_string = {{filter_string|tojson}};
-                if (!filter_string.split(" ").includes(value)) {
+                if (value.toUpperCase() === 'UNKNOWN') {
                     if (filter_string) {
                         filter_string += " && ";
                     }
-                    filter_string += json["search_filter"] + " == " + value;
+                    filter_string += "{not} " + json["search_filter"];
+                } else {
+                    if (!filter_string.split(" ").includes(value)) {
+                        if (filter_string) {
+                            filter_string += " && ";
+                        }
+                        filter_string += json["search_filter"] + " == " + value;
+                    }
                 }
                 loading();
                 const searchbox = document.getElementById("filter_string");

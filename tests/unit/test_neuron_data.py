@@ -229,7 +229,8 @@ class NeuronDataTest(TestCase):
             "center {downstream_region} 720575940629495808"
         )
         self.assertEqual(
-            sorted([720575940611639794, 720575940636691824, 720575940626476038]), sorted(downstream)
+            sorted([720575940611639794, 720575940636691824, 720575940626476038]),
+            sorted(downstream),
         )
 
         upstream = self.neuron_db.search("left {upstream_region} 720575940629495808")
