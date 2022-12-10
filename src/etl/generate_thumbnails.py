@@ -4,8 +4,6 @@ import numpy as np
 from PIL import Image
 from meshparty import skeleton_io, trimesh_vtk, trimesh_io
 
-from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
-
 """
 Generates thumbnails for a set of .h5 skeleton files.
 
@@ -19,7 +17,7 @@ Instructions:
 """
 
 DATA_PATH = os.path.join(
-    "flywire_resource_data_files", LATEST_DATA_SNAPSHOT_VERSION, "l2_skeletons"
+    "flywire_resource_data_files", "l2_skeletons"
 )
 BRAIN_MESH_PATH = "brain_mesh_v141.obj"
 
