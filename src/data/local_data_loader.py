@@ -34,7 +34,10 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     )
     log(f"App initialization loading data from {data_file_path}...")
     neuron_rows = read_csv(f"{data_file_path}/{NEURON_FILE_NAME}")
-    neuron_data_rows = read_csv(f"{data_file_path}/{NEURON_DATA_FILE_NAME}")
+    if os.path.exists(f"{data_file_path}/{NEURON_DATA_FILE_NAME}"):
+        neuron_data_rows = read_csv(f"{data_file_path}/{NEURON_DATA_FILE_NAME}")
+    else:
+        neuron_data_rows = []
     if os.path.exists(f"{data_file_path}/{CONNECTIONS_FILE_NAME}"):
         connection_rows = read_csv(f"{data_file_path}/{CONNECTIONS_FILE_NAME}")
     else:

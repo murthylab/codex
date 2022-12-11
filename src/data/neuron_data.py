@@ -97,7 +97,7 @@ class NeuronDB(object):
                     return convert_type(val) if val else ""
 
             root_id = _get_value("root_id", to_type=int)
-
+            assert root_id not in self.neuron_data
             self.neuron_data[root_id] = {
                 "root_id": root_id,
                 "name": _get_value("name"),
@@ -117,11 +117,15 @@ class NeuronDB(object):
                 "supervoxel_id": [],
                 "input_neuropils": [],
                 "output_neuropils": [],
+                "similar_root_ids": [],
+                "similar_root_id_scores": [],
+                "symmetrical_root_ids": [],
+                "symmetrical_root_id_scores": [],
             }
 
         log(f"App initialization processing similar cells data..")
         column_index = {}
-        for i, r in enumerate(data_file_rows):
+        for i, r in enumerate(data_file_rows or []):
             if i == 0:
                 assert sorted(r) == sorted(get_similar_cells_file_columns())
                 column_index = {c: i for i, c in enumerate(r)}
