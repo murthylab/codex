@@ -67,12 +67,12 @@ class NeuronDB(object):
     def __init__(
         self,
         neuron_file_rows,
-        data_file_rows,
         connection_rows,
         label_rows,
         labels_file_timestamp,
         coordinate_rows,
         classification_rows,
+        similar_cell_rows
     ):
         self.neuron_data = {}
         self.label_data = {}
@@ -125,7 +125,7 @@ class NeuronDB(object):
 
         log(f"App initialization processing similar cells data..")
         column_index = {}
-        for i, r in enumerate(data_file_rows or []):
+        for i, r in enumerate(similar_cell_rows or []):
             if i == 0:
                 assert sorted(r) == sorted(get_similar_cells_file_columns())
                 column_index = {c: i for i, c in enumerate(r)}
