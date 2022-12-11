@@ -36,18 +36,18 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     log(f"App initialization loading data from {data_file_path}...")
 
     def _read_data(filename, with_timestamp=False):
-        if os.path.exists(f"{data_file_path}/{filename}"):
-            rows = read_csv(f"{data_file_path}/{CLASSIFICATIONS_FILE_NAME}")
-        else:
-            rows = []
-        if with_timestamp:
-            if rows:
-                ts = os.path.getmtime(f"{data_file_path}/{filename}")
-                return rows, datetime.utcfromtimestamp(ts).strftime("%Y-%m-%d")
+        fname = f"{data_file_path}/{filename}"
+        if os.path.exists(fname):
+            rows = read_csv(fname)
+            if with_timestamp:
+                return rows, datetime.utcfromtimestamp(os.path.getmtime(fname)).strftime("%Y-%m-%d")
             else:
-                return rows, "?"
+                return rows
         else:
-            return rows
+            if with_timestamp:
+                return [], "?"
+            else:
+                return []
 
     neuron_rows = _read_data(NEURON_FILE_NAME)
     connection_rows = _read_data(CONNECTIONS_FILE_NAME)
@@ -57,7 +57,8 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     similar_cell_rows = _read_data(SIMILAR_CELLS_FILE_NAME)
 
     log(
-        f"App initialization loaded {len(neuron_rows)} neurons from {data_file_path} with:"
+        f"App initialization loading data from {data_file_path}:\n"
+        f"   {len(neuron_rows)} neuron rows\n"
         f"   {len(connection_rows)} connection rows\n"
         f"   {len(label_rows)} label rows ({labels_file_timestamp})\n"
         f"   {len(coordinate_rows)} coordinate rows\n"
@@ -120,8 +121,10 @@ def load_and_pickle_all_neuron_db_versions(data_root_path=DATA_ROOT_PATH):
     for v in DATA_SNAPSHOT_VERSIONS:
         db = load_neuron_db(version=v, data_root_path=data_root_path)
         pf = f"{data_file_path_for_version(version=v, data_root_path=data_root_path)}/{NEURON_DB_PICKLE_FILE_NAME}"
+        print(f"App initialization writing pickle to {pf}..")
         with gzip.open(pf, "wb") as handle:
             pickle.dump(db, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        print(f"Done.")
 
 
 # generic CSV file reader with settings
