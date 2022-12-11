@@ -16,9 +16,7 @@ Instructions:
 - Run `python generate_thumbnails.py`. For each `<root_id>.h5` skeleton file, a corresponding thumbnail in the thumbnails folder named `<root_id>.png` will be created.
 """
 
-DATA_PATH = os.path.join(
-    "flywire_resource_data_files", "l2_skeletons"
-)
+DATA_PATH = os.path.join("flywire_resource_data_files", "l2_skeletons")
 BRAIN_MESH_PATH = "brain_mesh_v141.obj"
 
 SEGMENT_COLOR = (160 / 255, 42 / 255, 250 / 255)
