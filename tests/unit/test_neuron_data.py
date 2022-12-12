@@ -213,35 +213,35 @@ class NeuronDataTest(TestCase):
         )
 
     def test_downstream_upstream_queries(self):
-        downstream = self.neuron_db.search("{downstream} 720575940629495808")
-        self.assertEqual(31, len(downstream))
+        downstream = self.neuron_db.search("{downstream} 720575940611848362")
+        self.assertEqual(625, len(downstream))
 
-        upstream = self.neuron_db.search("{upstream} 720575940629495808")
-        self.assertEqual(11, len(upstream))
+        upstream = self.neuron_db.search("{upstream} 720575940611848362")
+        self.assertEqual(2, len(upstream))
 
     def test_downstream_upstream_region_queries(self):
         downstream = self.neuron_db.search(
-            "left {downstream_region} 720575940629495808"
+            "left {downstream_region} 720575940643467886"
         )
-        self.assertEqual(22, len(downstream))
+        self.assertEqual(14, len(downstream))
         downstream = self.neuron_db.search(
-            "right {downstream_region} 720575940629495808"
+            "right {downstream_region} 720575940643467886"
         )
-        self.assertEqual(10, len(downstream))
+        self.assertEqual(0, len(downstream))
         downstream = self.neuron_db.search(
-            "center {downstream_region} 720575940636691824"
+            "center {downstream_region} 720575940643467886"
         )
         self.assertEqual(
-            sorted([720575940631643532]),
+            sorted([720575940614371218, 720575940619538136, 720575940640259456]),
             sorted(downstream),
         )
 
-        upstream = self.neuron_db.search("left {upstream_region} 720575940629495808")
+        upstream = self.neuron_db.search("left {upstream_region} 720575940643467886")
+        self.assertEqual(34, len(upstream))
+        upstream = self.neuron_db.search("right {upstream_region} 720575940643467886")
+        self.assertEqual(0, len(upstream))
+        upstream = self.neuron_db.search("center {upstream_region} 720575940643467886")
         self.assertEqual(5, len(upstream))
-        upstream = self.neuron_db.search("right {upstream_region} 720575940629495808")
-        self.assertEqual(2, len(upstream))
-        upstream = self.neuron_db.search("center {upstream_region} 720575940629495808")
-        self.assertEqual(6, len(upstream))
 
     def test_neuropil_queries(self):
         self.assertGreater(
