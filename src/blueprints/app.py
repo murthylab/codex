@@ -495,29 +495,27 @@ def cell_details():
         )
 
     root_id = None
-    cell_names_or_id = None
-    if "root_id" in request.args:
-        root_id = int(request.args.get("root_id"))
-    else:
-        cell_names_or_id = request.args.get("cell_names_or_id")
-        if cell_names_or_id:
-            if cell_names_or_id == "{random_cell}":
-                log_activity(f"Generated random cell detail page")
-                root_id = neuron_db.random_cell_id()
-                cell_names_or_id = (
-                    f"name == {neuron_db.get_neuron_data(root_id)['name']}"
-                )
+    cell_names_or_id = request.args.get("cell_names_or_id")
+    if not cell_names_or_id:
+        cell_names_or_id = request.args.get("root_id")
+    if cell_names_or_id:
+        if cell_names_or_id == "{random_cell}":
+            log_activity(f"Generated random cell detail page")
+            root_id = neuron_db.random_cell_id()
+            cell_names_or_id = (
+                f"name == {neuron_db.get_neuron_data(root_id)['name']}"
+            )
+        else:
+            log_activity(
+                f"Generating cell detail page from search: '{cell_names_or_id}"
+            )
+            root_ids = neuron_db.search(search_query=cell_names_or_id)
+            if len(root_ids) == 1:
+                root_id = root_ids[0]
             else:
-                log_activity(
-                    f"Generating cell detail page from search: '{cell_names_or_id}"
+                return redirect(
+                    url_for("app.search", filter_string=cell_names_or_id)
                 )
-                root_ids = neuron_db.search(search_query=cell_names_or_id)
-                if len(root_ids) == 1:
-                    root_id = root_ids[0]
-                else:
-                    return redirect(
-                        url_for("app.search", filter_string=cell_names_or_id)
-                    )
 
     if root_id is None:
         log_activity(f"Generated empty cell detail page")
