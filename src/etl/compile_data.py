@@ -249,25 +249,25 @@ def process_classification_file(version, summarize_files=False):
             assert f_content[0] == new_content[0]
             new_content.extend(f_content[1:])
         elif f in [
-                    'coarse_anno_BOL_526.feather',
-                    'coarse_anno_endocrine_526.feather',
-                    'coarse_anno_sensory_526.feather',
-                    'coarse_anno_DN_526.feather',
-                    'coarse_anno_BVP_526.feather',
-                    'coarse_anno_VP_526.feather',
-                    'coarse_anno_motor_526.feather',
-                    'coarse_anno_VC_526.feather',
-                    'coarse_anno_AN_526.feather',
-                ]:
-            assert f_content[0] == ['x', 'y', 'z', 'supervoxel_id', 'root_id', 'label']
+            "coarse_anno_BOL_526.feather",
+            "coarse_anno_endocrine_526.feather",
+            "coarse_anno_sensory_526.feather",
+            "coarse_anno_DN_526.feather",
+            "coarse_anno_BVP_526.feather",
+            "coarse_anno_VP_526.feather",
+            "coarse_anno_motor_526.feather",
+            "coarse_anno_VC_526.feather",
+            "coarse_anno_AN_526.feather",
+        ]:
+            assert f_content[0] == ["x", "y", "z", "supervoxel_id", "root_id", "label"]
             new_content.extend([[r[4], r[5]] for r in f_content[1:]])
-        elif f in ['coarse_anno_cb_526.feather']:
-            assert f_content[0] == ['root_id', 'label', 'x', 'y', 'z', 'supervoxel_id']
+        elif f in ["coarse_anno_cb_526.feather"]:
+            assert f_content[0] == ["root_id", "label", "x", "y", "z", "supervoxel_id"]
             new_content.extend([[r[0], r[1]] for r in f_content[1:]])
-        elif f in ['coarse_anno_ol_526.feather']:
-            assert f_content[0] == ['root_id', 'label', 'x', 'y', 'z', 'supervoxel_id']
+        elif f in ["coarse_anno_ol_526.feather"]:
+            assert f_content[0] == ["root_id", "label", "x", "y", "z", "supervoxel_id"]
             new_content.extend([[r[0], "Optic Lobe"] for r in f_content[1:]])
-        elif f in ['coarse_anno_nerve_type_526.feather', 'coarse_anno_526.feather']:
+        elif f in ["coarse_anno_nerve_type_526.feather", "coarse_anno_526.feather"]:
             print(f"Skipping {f}")
         else:
             assert f"Unknown file: {f}" is None
@@ -331,7 +331,7 @@ if __name__ == "__main__":
         "update_coordinates": False,
         "update_classifications": True,
         "update_connections": False,
-        "update_labels": False,
+        "update_labels": True,
     }
 
     client = init_cave_client()

@@ -443,6 +443,10 @@ class NeuronDB(object):
             },
         ]
 
+    def is_in_dataset(self, root_id):
+        root_id = int(root_id)
+        return root_id in self.neuron_data
+
     def get_neuron_data(self, root_id):
         root_id = int(root_id)
         nd = self.neuron_data.get(root_id)

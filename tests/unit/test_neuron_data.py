@@ -158,7 +158,7 @@ class NeuronDataTest(TestCase):
             "class == descending", case_sensitive=True
         )
         self.assertEqual(len(class_matches), 0)
-        class_matches = self.neuron_db.search("class == descending")
+        class_matches = self.neuron_db.search("class == descending neuron")
         self.assertGreater(len(class_matches), 800)
 
         # starts with op
@@ -304,12 +304,17 @@ class NeuronDataTest(TestCase):
 
     def test_classes(self):
         expected_list = [
-            "Ascending",
+            "Ascending neuron",
+            "Bilateral Optic Lobe neuron",
+            "Bilateral visual projection neuron",
             "Central Brain",
-            "Descending",
+            "Descending neuron",
+            "Endocrine neuron",
+            "Motor neuron",
             "Optic Lobe",
-            "Sensory",
-            "Visual Projection",
+            "Sensory neuron",
+            "Visual centrifugal neuron",
+            "Visual projection neuron",
         ]
         self.assertEqual(expected_list, self.neuron_db.classes())
 
