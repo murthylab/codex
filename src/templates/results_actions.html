@@ -27,6 +27,11 @@
         <i class="fa-solid fa-circle-nodes"></i> &nbsp; Network
     </a>
 
+    <a class="btn btn-link" target="_blank"
+       href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}"
+       ><i class="fa-solid fa-cube"></i> &nbsp; 3D view {{'' if root_ids_str else 'sample'}}
+    </a>
+
     {% if root_ids_str %}
 
     <a class="btn btn-link" onclick="copyRootIdsToClipboard();">
@@ -38,10 +43,6 @@
         alert("{{num_items}} IDs copied to clipboard");
       }
     </script>
-
-    <a class="btn btn-link" target="_blank"
-       href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}"
-       ><i class="fa-solid fa-cube"></i> &nbsp; 3D view</a>
 
     <a class="btn btn-link" onclick="loading();"
        href="{{url_for('app.nblast', source_cell_names_or_ids=filter_string, target_cell_names_or_ids=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
