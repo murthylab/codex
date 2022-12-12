@@ -1,6 +1,6 @@
 NEURO_TRANSMITTER_NAMES = {
     "DA": "dopamine",
-    "SER": "seratonin",
+    "SER": "serotonin",
     "GABA": "gabaergic",
     "GLUT": "glutamate",
     "ACH": "acetylcholine",
