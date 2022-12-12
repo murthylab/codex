@@ -11,7 +11,6 @@ from src.data.catalog import (
     get_classes_file_columns,
     get_connections_file_columns,
 )
-from src.data.gcs_data_loader import load_connection_table_for_root_ids
 from src.data.neuron_collections import NEURON_COLLECTIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.search_index import SearchIndex
@@ -335,10 +334,9 @@ class NeuronDB(object):
 
     def connections(self, ids, min_syn_count=5, nt_type=None):
         idset = set(ids)
+        cons = []
         if self.connection_rows:  # avail in mem cache
             cons = [r for r in self.connection_rows if (r[0] in idset or r[1] in idset)]
-        else:  # fetch from cloud
-            cons = load_connection_table_for_root_ids(ids)
         if min_syn_count:
             cons = [r for r in cons if r[3] >= min_syn_count]
         if nt_type:
@@ -349,6 +347,32 @@ class NeuronDB(object):
                 )
             cons = [r for r in cons if r[2] == nt_type]
         return cons
+
+    def connections_by_region(self, cell_id, by_neuropil=False, min_syn_count=5, nt_type=None):
+        try:
+            cell_id = int(cell_id)
+        except:
+            raise ValueError(f"'{cell_id}' is not a valid cell ID")
+        table = self.connections(ids=[cell_id], min_syn_count=min_syn_count, nt_type=nt_type)
+        if by_neuropil:
+            downstream = defaultdict(list)
+            upstream = defaultdict(list)
+        else:
+            downstream = []
+            upstream = []
+        for r in table or []:
+            if r[0] == cell_id:
+                if by_neuropil:
+                    downstream[r[2]].append(r[1])
+                else:
+                    downstream.append(r[1])
+            else:
+                assert r[1] == cell_id
+                if by_neuropil:
+                    upstream[r[2]].append(r[0])
+                else:
+                    upstream.append(r[0])
+        return downstream, upstream
 
     def random_cell_id(self):
         return choice(list(self.neuron_data.keys()))
@@ -529,6 +553,7 @@ class NeuronDB(object):
                 structured_terms=structured_terms,
                 input_sets=self.input_sets(),
                 output_sets=self.output_sets(),
+                connections_loader=self.connections_by_region,
                 case_sensitive=case_sensitive,
             )
             term_search_results.append(

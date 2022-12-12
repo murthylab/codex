@@ -322,6 +322,7 @@ def search():
             ids=filtered_root_id_list,
             output_sets=neuron_db.output_sets(),
             label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["tag"]),
+            connections_getter=lambda x: neuron_db.connections(ids=[x]),
         )
     else:
         hint, edist = neuron_db.closest_token(

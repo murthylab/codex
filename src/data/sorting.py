@@ -1,6 +1,5 @@
 from collections import defaultdict
 
-from src.data.gcs_data_loader import load_connection_table_for_root_id
 from src.data.structured_search_filters import (
     OP_DOWNSTREAM,
     OP_UPSTREAM,
@@ -43,7 +42,7 @@ def infer_sort_by(query):
     return sort_by
 
 
-def sort_search_results(query, ids, output_sets, label_count_getter, sort_by=None):
+def sort_search_results(query, ids, output_sets, label_count_getter, connections_getter, sort_by=None):
     try:
         sort_by = sort_by or infer_sort_by(query)
         if sort_by:
@@ -57,7 +56,7 @@ def sort_search_results(query, ids, output_sets, label_count_getter, sort_by=Non
             sort_by_target_cell_rid = int(parts[1])
 
             if parts[0] in [DOWNSTREAM_SYNAPSE_COUNT, UPSTREAM_SYNAPSE_COUNT]:
-                con_table = load_connection_table_for_root_id(sort_by_target_cell_rid)
+                con_table = connections_getter(sort_by_target_cell_rid)
                 if parts[0] == DOWNSTREAM_SYNAPSE_COUNT:
                     extra_data_title = (
                         f"Number of input synapses from {sort_by_target_cell_rid}"

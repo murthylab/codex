@@ -7,7 +7,6 @@ from src.data.brain_regions import (
     HEMISPHERES,
     neuropil_hemisphere,
 )
-from src.data.gcs_data_loader import load_connections_for_root_id
 from src.data.neurotransmitters import lookup_nt_type, NEURO_TRANSMITTER_NAMES
 from src.utils.graph_algos import pathways
 from src.utils.logging import log_error
@@ -427,7 +426,7 @@ def _make_has_predicate(rhs):
     return lambda nd: search_attr.value_getter(nd)
 
 
-def _make_predicate(structured_term, input_sets, output_sets, case_sensitive):
+def _make_predicate(structured_term, input_sets, output_sets, connections_loader, case_sensitive):
     lhs = structured_term.get("lhs")  # lhs is optional e.g. for unary operators
     op = structured_term["op"]
     rhs = structured_term["rhs"]
@@ -477,11 +476,11 @@ def _make_predicate(structured_term, input_sets, output_sets, case_sensitive):
         else:
             return lambda x: not any([p(x) for p in predicates])
     elif op in [OP_DOWNSTREAM, OP_UPSTREAM]:
-        downstream, upstream = load_connections_for_root_id(rhs, by_neuropil=False)
+        downstream, upstream = connections_loader(rhs, by_neuropil=False)
         target_rid_set = set(downstream) if op == OP_DOWNSTREAM else set(upstream)
         return lambda x: x["root_id"] in target_rid_set
     elif op in [OP_DOWNSTREAM_REGION, OP_UPSTREAM_REGION]:
-        downstream, upstream = load_connections_for_root_id(rhs, by_neuropil=True)
+        downstream, upstream = connections_loader(rhs, by_neuropil=True)
         region_neuropil_set = lookup_neuropil_set(lhs)
         target_rid_set = set()
         for k, v in (downstream if op == OP_DOWNSTREAM_REGION else upstream).items():
@@ -506,13 +505,14 @@ def _make_predicate(structured_term, input_sets, output_sets, case_sensitive):
 
 
 def make_structured_terms_predicate(
-    chaining_rule, structured_terms, input_sets, output_sets, case_sensitive
+    chaining_rule, structured_terms, input_sets, output_sets, connections_loader, case_sensitive
 ):
     predicates = [
         _make_predicate(
             structured_term=t,
             input_sets=input_sets,
             output_sets=output_sets,
+            connections_loader=connections_loader,
             case_sensitive=case_sensitive,
         )
         for t in structured_terms
