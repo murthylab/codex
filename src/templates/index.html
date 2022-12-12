@@ -5,7 +5,7 @@
      style="background-image: url(/background_image); background-size: 50%; background-position: right top; background-repeat: no-repeat;">
     <div class="container">
         <h1 class="display-4">Codex</h1>
-        <p><i>Connectome Data Explorer</i></p>
+        <p><i>Connectome Data Explorer</i> &nbsp; <small><i class="fa-solid fa-ellipsis-vertical"></i></small> &nbsp; <a href="/demo_clip" target="_blank"><i class="fa-brands fa-youtube"></i> demo clips </a> </p>
 
         <!-- Data Snapshot Versions Modal -->
         <div class="modal fade" id="dataVersionsModal" tabindex="-1" role="dialog"
@@ -32,12 +32,13 @@
         <div style="min-width: 300px; width: 50%;">
             <hr class="my-4" align="left">
 
-            <h2 style="color: purple;">FlyWire Dataset Info</h2>
+            <h2 style="color: purple;">FlyWire Dataset (v{{default_version}})</h2>
             <p>Codex provides access to <a href="details" data-toggle="modal" data-target="#dataVersionsModal">
                 static snapshots
             </a>
-                of the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome.
-                See short <a href="/demo_clip" target="_blank">demo clips <i class="fa-brands fa-youtube"></i></a> and <a href="/faq">FAQs</a> page for details.</p>
+                of the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome. Current
+                default snapshot version is {{default_version}}, and older versions are available from search settings.
+                See <a href="/faq">FAQs</a> page for details.</p>
 
             <table cellspacing="0" cellpadding="0" style="border: none; border-collapse: collapse;">
                 <tr style="background: none; margin: 0; padding: 0;">

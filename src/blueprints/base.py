@@ -375,6 +375,7 @@ def index(path):
             num_cells="{:,}".format(neuron_db.num_cells()),
             num_synapses="{:,}".format(neuron_db.num_synapses()),
             num_annotations="{:,}".format(neuron_db.num_annotations()),
+            default_version=LATEST_DATA_SNAPSHOT_VERSION,
         )
 
 

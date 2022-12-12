@@ -1,4 +1,5 @@
 import json
+import os
 from unittest import TestCase
 
 from src.data.brain_regions import neuropil_description
@@ -7,6 +8,7 @@ from src.data.structured_search_filters import *
 from src.data.local_data_loader import (
     unpickle_all_neuron_db_versions,
     unpickle_neuron_db,
+    read_csv,
 )
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSION
 from src.utils.formatting import compact_tag
@@ -533,3 +535,13 @@ class NeuronDataTest(TestCase):
                     )
 
         # self.fail()
+
+    def test_thumbnails(self):
+        # Run this first to collect existing skeleton root ids:
+        # gsutil du gs://flywire-data/526/skeleton_thumbnails | grep png | cut -d"/" -f 6 | cut -d "." -f 1 > static/raw_data/526/thumbnails_tmp.csv
+        fname = f"{TEST_DATA_ROOT_PATH}/../raw_data/526/thumbnails_tmp.csv"
+        if os.path.isfile(fname):
+            content = set([int(r[0]) for r in read_csv(fname)])
+            self.assertEqual(
+                [], [r for r in self.neuron_db.neuron_data.keys() if r not in content]
+            )

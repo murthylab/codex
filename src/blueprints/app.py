@@ -430,7 +430,11 @@ def search_results_flywire_url():
         f"For URLs got {len(filtered_root_id_list)} results {activity_suffix(filter_string, data_version)}"
     )
 
-    url = nglui.url_for_random_sample(filtered_root_id_list, version=data_version, sample_size=MAX_NEURONS_FOR_DOWNLOAD)
+    url = nglui.url_for_random_sample(
+        filtered_root_id_list,
+        version=data_version,
+        sample_size=MAX_NEURONS_FOR_DOWNLOAD,
+    )
     log_activity(
         f"Redirecting results {activity_suffix(filter_string, data_version)} to FlyWire {format_link(url)}"
     )
@@ -529,7 +533,9 @@ def cell_details():
 
 
 @lru_cache
-def _cached_cell_details(cell_names_or_id, root_id, neuron_db, data_version, min_syn_cnt):
+def _cached_cell_details(
+    cell_names_or_id, root_id, neuron_db, data_version, min_syn_cnt
+):
     nd = neuron_db.get_neuron_data(root_id=root_id)
     labels_data = neuron_db.get_label_data(root_id=root_id)
     tags = sorted(set([ld["tag"] for ld in labels_data or []]))

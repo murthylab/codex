@@ -51,8 +51,17 @@ class Test(TestCase):
                     return {}, {}
                 else:
                     return [], []
-            self.assertIsNotNone(_make_predicate(st, {}, {}, connections_loader=mock_con_loader, case_sensitive=False))
-            self.assertIsNotNone(_make_predicate(st, {}, {}, connections_loader=mock_con_loader, case_sensitive=True))
+
+            self.assertIsNotNone(
+                _make_predicate(
+                    st, {}, {}, connections_loader=mock_con_loader, case_sensitive=False
+                )
+            )
+            self.assertIsNotNone(
+                _make_predicate(
+                    st, {}, {}, connections_loader=mock_con_loader, case_sensitive=True
+                )
+            )
 
     def test_structured_query_parsing(self):
         # free form
