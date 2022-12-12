@@ -12,11 +12,12 @@ from src.utils.networking import download
 
 DATA_ROOT_PATH = "static/data"
 NEURON_FILE_NAME = "neurons.csv.gz"
-NEURON_DATA_FILE_NAME = "neuron_data.csv.gz"
 CONNECTIONS_FILE_NAME = "connections.csv.gz"
 LABELS_FILE_NAME = "labels.csv.gz"
 COORDINATES_FILE_NAME = "coordinates.csv.gz"
 CLASSIFICATIONS_FILE_NAME = "classification.csv.gz"
+SIMILAR_CELLS_FILE_NAME = "similar_cells.csv.gz"
+
 NEURON_DB_PICKLE_FILE_NAME = "neuron_db.pickle.gz"
 
 GCS_PICKLE_URL_TEMPLATE = "https://storage.googleapis.com/flywire-data/codex/data/{version}/neuron_db.pickle.gz"
@@ -33,52 +34,57 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         version=version, data_root_path=data_root_path
     )
     log(f"App initialization loading data from {data_file_path}...")
-    neuron_rows = read_csv(f"{data_file_path}/{NEURON_FILE_NAME}")
-    neuron_data_rows = read_csv(f"{data_file_path}/{NEURON_DATA_FILE_NAME}")
-    if os.path.exists(f"{data_file_path}/{CONNECTIONS_FILE_NAME}"):
-        connection_rows = read_csv(f"{data_file_path}/{CONNECTIONS_FILE_NAME}")
-    else:
-        connection_rows = []
 
-    if os.path.exists(f"{data_file_path}/{LABELS_FILE_NAME}"):
-        label_rows = read_csv(f"{data_file_path}/{LABELS_FILE_NAME}")
-        labels_file_timestamp = os.path.getmtime(f"{data_file_path}/{LABELS_FILE_NAME}")
-        labels_file_timestamp = datetime.utcfromtimestamp(
-            labels_file_timestamp
-        ).strftime("%Y-%m-%d")
-        log(f"Labels file timestamp: {labels_file_timestamp}")
-    else:
-        label_rows = []
-        labels_file_timestamp = "?"
+    def _read_data(filename, with_timestamp=False):
+        fname = f"{data_file_path}/{filename}"
+        if os.path.exists(fname):
+            rows = read_csv(fname)
+            if with_timestamp:
+                return rows, datetime.utcfromtimestamp(
+                    os.path.getmtime(fname)
+                ).strftime("%Y-%m-%d")
+            else:
+                return rows
+        else:
+            if with_timestamp:
+                return [], "?"
+            else:
+                return []
 
-    if os.path.exists(f"{data_file_path}/{COORDINATES_FILE_NAME}"):
-        coordinate_rows = read_csv(f"{data_file_path}/{COORDINATES_FILE_NAME}")
-    else:
-        coordinate_rows = []
-
-    if os.path.exists(f"{data_file_path}/{CLASSIFICATIONS_FILE_NAME}"):
-        classification_rows = read_csv(f"{data_file_path}/{CLASSIFICATIONS_FILE_NAME}")
-    else:
-        classification_rows = []
+    neuron_rows = _read_data(NEURON_FILE_NAME)
+    connection_rows = _read_data(CONNECTIONS_FILE_NAME)
+    label_rows, labels_file_timestamp = _read_data(
+        LABELS_FILE_NAME, with_timestamp=True
+    )
+    coordinate_rows = _read_data(COORDINATES_FILE_NAME)
+    classification_rows = _read_data(CLASSIFICATIONS_FILE_NAME)
+    similar_cell_rows = _read_data(SIMILAR_CELLS_FILE_NAME)
 
     log(
-        f"App initialization loaded {len(neuron_data_rows)} items from {data_file_path}, "
-        f"{len(connection_rows)} connection rows, "
-        f"{len(label_rows)} label rows, "
-        f"{len(coordinate_rows)} coordinate rows."
+        f"App initialization loading data from {data_file_path}:\n"
+        f"   {len(neuron_rows)} neuron rows\n"
+        f"   {len(connection_rows)} connection rows\n"
+        f"   {len(label_rows)} label rows ({labels_file_timestamp})\n"
+        f"   {len(coordinate_rows)} coordinate rows\n"
+        f"   {len(classification_rows)} classification rows\n"
+        f"   {len(similar_cell_rows)} similar cell rows\n"
     )
     neuron_db = NeuronDB(
         neuron_file_rows=neuron_rows,
-        data_file_rows=neuron_data_rows,
         connection_rows=connection_rows,
         label_rows=label_rows,
         labels_file_timestamp=labels_file_timestamp,
         coordinate_rows=coordinate_rows,
         classification_rows=classification_rows,
+        similar_cell_rows=similar_cell_rows,
     )
     # free mem
-    del neuron_data_rows
+    del neuron_rows
     del connection_rows
+    del label_rows
+    del coordinate_rows
+    del classification_rows
+    del similar_cell_rows
     return neuron_db
 
 
@@ -119,8 +125,10 @@ def load_and_pickle_all_neuron_db_versions(data_root_path=DATA_ROOT_PATH):
     for v in DATA_SNAPSHOT_VERSIONS:
         db = load_neuron_db(version=v, data_root_path=data_root_path)
         pf = f"{data_file_path_for_version(version=v, data_root_path=data_root_path)}/{NEURON_DB_PICKLE_FILE_NAME}"
+        print(f"App initialization writing pickle to {pf}..")
         with gzip.open(pf, "wb") as handle:
             pickle.dump(db, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        print(f"Done.")
 
 
 # generic CSV file reader with settings

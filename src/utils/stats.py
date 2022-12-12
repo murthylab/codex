@@ -262,7 +262,7 @@ def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destina
 
     user_credit_counts_recent = user_cred_counts(recent_tags)
     if user_credit_counts_recent:
-        destination["Top Labelers (recent)"] = {
+        destination[f"Top Labelers (last {len(recent_tags)})"] = {
             k: user_credit_counts_recent[k]
             for k in sorted(
                 user_credit_counts_recent,

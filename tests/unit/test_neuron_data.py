@@ -4,9 +4,10 @@ from unittest import TestCase
 from src.data.brain_regions import neuropil_description
 from src.data.neuron_data import *
 from src.data.structured_search_filters import *
-from src.data.local_data_loader import unpickle_all_neuron_db_versions
-
-# for IDE test
+from src.data.local_data_loader import (
+    unpickle_all_neuron_db_versions,
+    unpickle_neuron_db,
+)
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSION
 from src.utils.formatting import compact_tag
 from src.utils.graph_algos import neighbors
@@ -16,43 +17,45 @@ from tests import TEST_DATA_ROOT_PATH
 class NeuronDataTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.neuron_dbs = unpickle_all_neuron_db_versions(
-            data_root_path=TEST_DATA_ROOT_PATH
+        cls.neuron_db = unpickle_neuron_db(
+            version=LATEST_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
         )
-        cls.neuron_db = cls.neuron_dbs[LATEST_DATA_SNAPSHOT_VERSION]
 
     def test_loading(self):
         # check that all versions loaded
-        versions = DATA_SNAPSHOT_VERSIONS
-        for v in versions:
-            self.assertIsNotNone(self.neuron_dbs[v])
+        neuron_dbs = unpickle_all_neuron_db_versions(data_root_path=TEST_DATA_ROOT_PATH)
+        for v in DATA_SNAPSHOT_VERSIONS:
+            self.assertIsNotNone(neuron_dbs[v])
             self.assertEqual(
-                set(self.neuron_dbs[v].neuron_data.keys()),
-                set(self.neuron_dbs[v].search_index.all_doc_ids()),
+                set(neuron_dbs[v].neuron_data.keys()),
+                set(neuron_dbs[v].search_index.all_doc_ids()),
             )
 
     def test_index_data(self):
         assert 60000 < len(self.neuron_db.neuron_data)
 
-        def check_min_values_present(attrib, lower_bound):
+        def check_num_values_present(attrib, lower_bound, upper_bound=None):
             num_present = len(
                 [1 for nd in self.neuron_db.neuron_data.values() if nd[attrib]]
             )
-            self.assertGreaterEqual(num_present, lower_bound)
+            if lower_bound is not None:
+                self.assertGreaterEqual(num_present, lower_bound)
+            if upper_bound is not None:
+                self.assertLessEqual(num_present, upper_bound)
 
-        check_min_values_present("name", 66812)
-        check_min_values_present("nt_type", 63891)
-        check_min_values_present("hemisphere_fingerprint", 66633)
-        check_min_values_present("classes", 10782)
-        check_min_values_present("similar_root_ids", 66633)
-        check_min_values_present("similar_root_id_scores", 66633)
-        check_min_values_present("symmetrical_root_ids", 66633)
-        check_min_values_present("symmetrical_root_id_scores", 66633)
-        check_min_values_present("input_neuropils", 63308)
-        check_min_values_present("output_neuropils", 64302)
-        check_min_values_present("supervoxel_id", 22155)
-        check_min_values_present("tag", 28000)
-        check_min_values_present("position", 68375)
+        check_num_values_present("name", 66812)
+        check_num_values_present("nt_type", 63891)
+        check_num_values_present("hemisphere_fingerprint", 66633)
+        check_num_values_present("classes", 10782)
+        check_num_values_present("similar_root_ids", 0, 0)
+        check_num_values_present("similar_root_id_scores", 0, 0)
+        check_num_values_present("symmetrical_root_ids", 0, 0)
+        check_num_values_present("symmetrical_root_id_scores", 0, 0)
+        check_num_values_present("input_neuropils", 63308)
+        check_num_values_present("output_neuropils", 64302)
+        check_num_values_present("supervoxel_id", 22155)
+        check_num_values_present("tag", 28000)
+        check_num_values_present("position", 68375)
 
     def test_annotations(self):
         neurons_with_tags = [n for n in self.neuron_db.neuron_data.values() if n["tag"]]
@@ -155,8 +158,8 @@ class NeuronDataTest(TestCase):
             "class == descending", case_sensitive=True
         )
         self.assertEqual(len(class_matches), 0)
-        class_matches = self.neuron_db.search("class == descending")
-        self.assertGreater(len(class_matches), 1000)
+        class_matches = self.neuron_db.search("class == descending neuron")
+        self.assertGreater(len(class_matches), 800)
 
         # starts with op
         self.assertGreater(len(self.neuron_db.search("label {starts_with} LC")), 350)
@@ -200,45 +203,45 @@ class NeuronDataTest(TestCase):
         self.assertLess(len(self.neuron_db.search("gaba && nt != gaba")), 700)
 
         self.assertEqual(
-            2, len(self.neuron_db.search("720575940624284903 720575940625504714"))
+            2, len(self.neuron_db.search("720575940643084488 720575940643467886"))
         )
         self.assertEqual(
-            2, len(self.neuron_db.search("720575940624284903,720575940625504714"))
+            2, len(self.neuron_db.search("720575940643084488,720575940643467886"))
         )
         self.assertEqual(
-            2, len(self.neuron_db.search("720575940624284903, 720575940625504714"))
+            2, len(self.neuron_db.search("720575940643084488, 720575940643467886"))
         )
 
     def test_downstream_upstream_queries(self):
         downstream = self.neuron_db.search("{downstream} 720575940629495808")
-        self.assertEqual(55, len(downstream))
+        self.assertEqual(31, len(downstream))
 
         upstream = self.neuron_db.search("{upstream} 720575940629495808")
-        self.assertEqual(18, len(upstream))
+        self.assertEqual(11, len(upstream))
 
     def test_downstream_upstream_region_queries(self):
         downstream = self.neuron_db.search(
             "left {downstream_region} 720575940629495808"
         )
-        self.assertEqual(40, len(downstream))
+        self.assertEqual(22, len(downstream))
         downstream = self.neuron_db.search(
             "right {downstream_region} 720575940629495808"
         )
-        self.assertEqual(15, len(downstream))
+        self.assertEqual(10, len(downstream))
         downstream = self.neuron_db.search(
-            "center {downstream_region} 720575940629495808"
+            "center {downstream_region} 720575940636691824"
         )
         self.assertEqual(
-            sorted([720575940611639794, 720575940636691824, 720575940626476038]),
+            sorted([720575940631643532]),
             sorted(downstream),
         )
 
         upstream = self.neuron_db.search("left {upstream_region} 720575940629495808")
-        self.assertEqual(8, len(upstream))
+        self.assertEqual(5, len(upstream))
         upstream = self.neuron_db.search("right {upstream_region} 720575940629495808")
-        self.assertEqual(3, len(upstream))
+        self.assertEqual(2, len(upstream))
         upstream = self.neuron_db.search("center {upstream_region} 720575940629495808")
-        self.assertEqual(10, len(upstream))
+        self.assertEqual(6, len(upstream))
 
     def test_neuropil_queries(self):
         self.assertGreater(
@@ -301,12 +304,17 @@ class NeuronDataTest(TestCase):
 
     def test_classes(self):
         expected_list = [
-            "Ascending",
+            "Ascending neuron",
+            "Bilateral Optic Lobe neuron",
+            "Bilateral visual projection neuron",
             "Central Brain",
-            "Descending",
+            "Descending neuron",
+            "Endocrine neuron",
+            "Motor neuron",
             "Optic Lobe",
-            "Sensory",
-            "Visual Projection",
+            "Sensory neuron",
+            "Visual centrifugal neuron",
+            "Visual projection neuron",
         ]
         self.assertEqual(expected_list, self.neuron_db.classes())
 
@@ -443,7 +451,7 @@ class NeuronDataTest(TestCase):
 
             found_rids = [i for i in rid_set if i in self.neuron_db.neuron_data]
             print(
-                f"### Num seg ids: {len(rid_set)}, found in 447 dataset: {len(found_rids)} {codex_link(found_rids)}"
+                f"### Num seg ids: {len(rid_set)}, found in {LATEST_DATA_SNAPSHOT_VERSION} dataset: {len(found_rids)} {codex_link(found_rids)}"
             )
             ustream = neighbors(found_rids, self.neuron_db.input_sets())
             dstream = neighbors(found_rids, self.neuron_db.output_sets())

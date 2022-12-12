@@ -694,7 +694,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
             )
             or []
         )
-        if i[1] > 0.4 and i[0] != root_id
+        if i[1] > 0.4 and i[0] != root_id and neuron_db.is_in_dataset(i[0])
     ]
     insert_neuron_list_links(
         "cells with similar morphology (NBLAST based)",

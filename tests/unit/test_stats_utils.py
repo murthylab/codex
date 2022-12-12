@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from src.data.local_data_loader import unpickle_neuron_db
+from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import stats
 from tests import TEST_DATA_ROOT_PATH
 
@@ -20,10 +21,10 @@ class Test(TestCase):
             search_query="test_query_1",
             case_sensitive=0,
             match_words=1,
-            data_version="447",
+            data_version=LATEST_DATA_SNAPSHOT_VERSION,
         )
         self.assertEqual(
-            "Stats for search query: 'test_query_1', match words, data version: 447",
+            f"Stats for search query: 'test_query_1', match words, data version: {LATEST_DATA_SNAPSHOT_VERSION}",
             caption,
         )
         self.assertEqual(
@@ -32,24 +33,26 @@ class Test(TestCase):
         self.assertEqual({}, data_charts)
 
         # actual data
-        neuron_db = unpickle_neuron_db("447", data_root_path=TEST_DATA_ROOT_PATH)
+        neuron_db = unpickle_neuron_db(
+            LATEST_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
+        )
         caption, data_stats, data_charts = stats.compile_data(
             neuron_data=list(neuron_db.neuron_data.values()),
             label_data=list(neuron_db.label_data.values()),
             search_query="test_query_2",
             case_sensitive=1,
             match_words=0,
-            data_version="447",
+            data_version=LATEST_DATA_SNAPSHOT_VERSION,
         )
         self.assertEqual(
-            "Stats for search query: 'test_query_2', case sensitive, data version: 447",
+            f"Stats for search query: 'test_query_2', case sensitive, data version: {LATEST_DATA_SNAPSHOT_VERSION}",
             caption,
         )
         self.assertEqual(
             {
                 "": 3,
                 "Top Labelers (all time)": 5,
-                "Top Labelers (recent)": 5,
+                "Top Labelers (last 500)": 5,
                 "Top Labels": 5,
             },
             {k: len(v) for k, v in data_stats.items()},
