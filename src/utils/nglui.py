@@ -1,22 +1,44 @@
 import random
 import urllib.parse
 
+from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
+
 _BASE_URL = "https://neuroglancer-demo.appspot.com"
-_PREFIX = (
-    '{"dimensions":{"x":[1.6e-8,"m"],"y":[1.6e-8,"m"],"z":[4e-8,"m"]},"projectionScale":30000,'
-    '"layers":['
-    '{"type":"image","source":"precomputed://https://bossdb-open-data.s3.amazonaws.com/flywire/fafbv14","tab":"source","name":"EM"},'
-    '{"source":"precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf",'
-    '"type":"segmentation","selectedAlpha":0,"saturation":0,"objectAlpha":0.1,"segmentColors":{"1":"#b5b5b5"},'
-    '"segments":["1"],"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":"tissue"},'
-    '{"type":"segmentation","source":"precomputed://gs://flywire_v141_m447"'
-    ',"tab":"source","segments":['
-)
-_SUFFIX = (
-    '],"name":"flywire_v141_m447"}],"showSlices":false,"perspectiveViewBackgroundColor":"#ffffff",'
-    '"showDefaultAnnotations":false, "selectedLayer":{"visible":false,"layer":"flywire_v141_m447"},'
-    '"layout":"3d"}'
-)
+_PREFIX = {
+    "447": (
+        '{"dimensions":{"x":[1.6e-8,"m"],"y":[1.6e-8,"m"],"z":[4e-8,"m"]},"projectionScale":30000,'
+        '"layers":['
+        '{"type":"image","source":"precomputed://https://bossdb-open-data.s3.amazonaws.com/flywire/fafbv14","tab":"source","name":"EM"},'
+        '{"source":"precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf",'
+        '"type":"segmentation","selectedAlpha":0,"saturation":0,"objectAlpha":0.1,"segmentColors":{"1":"#b5b5b5"},'
+        '"segments":["1"],"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":"tissue"},'
+        '{"type":"segmentation","source":"precomputed://gs://flywire_v141_m447"'
+        ',"tab":"source","segments":['
+    ),
+    "526": (
+        '{"dimensions":{"x":[1.6e-8,"m"],"y":[1.6e-8,"m"],"z":[4e-8,"m"]},"projectionScale":30000,'
+        '"layers":['
+        '{"type":"image","source":"precomputed://https://bossdb-open-data.s3.amazonaws.com/flywire/fafbv14","tab":"source","name":"EM"},'
+        '{"source":"precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf",'
+        '"type":"segmentation","selectedAlpha":0,"saturation":0,"objectAlpha":0.1,"segmentColors":{"1":"#b5b5b5"},'
+        '"segments":["1"],"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":"tissue"},'
+        '{"type":"segmentation","source":"precomputed://gs://flywire_v141_m526"'
+        ',"tab":"source","segments":['
+    ),
+}
+_SUFFIX = {
+    "447": (
+        '],"name":"flywire_v141_m447"}],"showSlices":false,"perspectiveViewBackgroundColor":"#ffffff",'
+        '"showDefaultAnnotations":false, "selectedLayer":{"visible":false,"layer":"flywire_v141_m447"},'
+        '"layout":"3d"}'
+    ),
+    "526": (
+        '],"name":"flywire_v141_m526"}],"showSlices":false,"perspectiveViewBackgroundColor":"#ffffff",'
+        '"showDefaultAnnotations":false, "selectedLayer":{"visible":false,"layer":"flywire_v141_m526"},'
+        '"layout":"3d"}'
+    ),
+}
+
 
 PROOFREADFW = (
     "https://neuromancer-seung-import.appspot.com/#!%7B%22layers%22:%5B%7B%22tab%22:%22"
@@ -64,21 +86,23 @@ _NEUROPIL_SUFFIX = (
 )
 
 
-def url_for_root_ids(root_ids, point_to_proofreading_flywire=False):
+def url_for_root_ids(root_ids, version, point_to_proofreading_flywire=False):
     if point_to_proofreading_flywire:
         return PROOFREADFW.format("%22%2C%22".join([str(seg) for seg in root_ids]))
     else:
+        prefix = _PREFIX.get(str(version)) or _PREFIX.get(str(LATEST_DATA_SNAPSHOT_VERSION))
+        sufix = _SUFFIX.get(str(version)) or _SUFFIX.get(str(LATEST_DATA_SNAPSHOT_VERSION))
         seg_ids = ",".join([f'"{rid}"' for rid in root_ids])
-        payload = urllib.parse.quote(f"{_PREFIX}{seg_ids}{_SUFFIX}")
+        payload = urllib.parse.quote(f"{prefix}{seg_ids}{sufix}")
         return f"{_BASE_URL}/#!{payload}"
 
 
-def url_for_random_sample(root_ids, sample_size=50):
+def url_for_random_sample(root_ids, version, sample_size=50):
     # make the random subset selections deterministic across executions
     random.seed(420)
     if len(root_ids) > sample_size:
         root_ids = random.sample(root_ids, sample_size)
-    return url_for_root_ids(root_ids)
+    return url_for_root_ids(root_ids, version=version)
 
 
 def can_be_flywire_root_id(txt):

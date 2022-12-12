@@ -430,7 +430,7 @@ def search_results_flywire_url():
         f"For URLs got {len(filtered_root_id_list)} results {activity_suffix(filter_string, data_version)}"
     )
 
-    url = nglui.url_for_random_sample(filtered_root_id_list, MAX_NEURONS_FOR_DOWNLOAD)
+    url = nglui.url_for_random_sample(filtered_root_id_list, version=data_version, sample_size=MAX_NEURONS_FOR_DOWNLOAD)
     log_activity(
         f"Redirecting results {activity_suffix(filter_string, data_version)} to FlyWire {format_link(url)}"
     )
@@ -441,10 +441,11 @@ def search_results_flywire_url():
 @request_wrapper
 def flywire_url():
     root_ids = [int(rid) for rid in request.args.getlist("root_ids")]
+    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     log_request = request.args.get("log_request", default=1, type=int)
     proofreading_url = request.args.get("proofreading_url", default=0, type=int)
     url = nglui.url_for_root_ids(
-        root_ids, point_to_proofreading_flywire=proofreading_url
+        root_ids, version=data_version, point_to_proofreading_flywire=proofreading_url
     )
     if log_request:
         log_activity(
@@ -522,12 +523,13 @@ def cell_details():
         cell_names_or_id=cell_names_or_id,
         root_id=root_id,
         neuron_db=neuron_db,
+        data_version=data_version,
         min_syn_cnt=min_syn_cnt,
     )
 
 
 @lru_cache
-def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
+def _cached_cell_details(cell_names_or_id, root_id, neuron_db, data_version, min_syn_cnt):
     nd = neuron_db.get_neuron_data(root_id=root_id)
     labels_data = neuron_db.get_label_data(root_id=root_id)
     tags = sorted(set([ld["tag"] for ld in labels_data or []]))
@@ -541,7 +543,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
     )
     cell_attributes = {
         "Name": nd["name"],
-        "FlyWire Root ID": f'{root_id}<br><small><a href="{nglui.url_for_root_ids([root_id], point_to_proofreading_flywire=True)}">Open in FlyWire <i class="fa-solid fa-up-right-from-square"></i> </a></small>',
+        "FlyWire Root ID": f'{root_id}<br><small><a href="{nglui.url_for_root_ids([root_id], version=data_version, point_to_proofreading_flywire=True)}">Open in FlyWire <i class="fa-solid fa-up-right-from-square"></i> </a></small>',
         f'Labels<br><span style="font-size: 9px; color: purple;">Updated {neuron_db.labels_ingestion_timestamp()}</span>': concat_labels(
             tags
         ),
@@ -756,6 +758,7 @@ def _cached_cell_details(cell_names_or_id, root_id, neuron_db, min_syn_cnt):
         "cell_details.html",
         cell_names_or_id=cell_names_or_id or nd["name"],
         cell_id=root_id,
+        data_version=data_version,
         cell_coordinates=nd["position"][0] if nd["position"] else "",
         cell_attributes=cell_attributes,
         cell_extra_data=cell_extra_data,

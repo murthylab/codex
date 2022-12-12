@@ -45,8 +45,14 @@ class Test(TestCase):
                 st = {"lhs": some_value(None), "rhs": some_value(None), "op": op.name}
             else:
                 self.fail(f"Unknown op type: {op}")
-            self.assertIsNotNone(_make_predicate(st, {}, {}, case_sensitive=False))
-            self.assertIsNotNone(_make_predicate(st, {}, {}, case_sensitive=True))
+
+            def mock_con_loader(cell_id, by_neuropil):
+                if by_neuropil:
+                    return {}, {}
+                else:
+                    return [], []
+            self.assertIsNotNone(_make_predicate(st, {}, {}, connections_loader=mock_con_loader, case_sensitive=False))
+            self.assertIsNotNone(_make_predicate(st, {}, {}, connections_loader=mock_con_loader, case_sensitive=True))
 
     def test_structured_query_parsing(self):
         # free form
