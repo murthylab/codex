@@ -4,7 +4,10 @@ from unittest import TestCase
 from src.data.brain_regions import neuropil_description
 from src.data.neuron_data import *
 from src.data.structured_search_filters import *
-from src.data.local_data_loader import unpickle_all_neuron_db_versions, unpickle_neuron_db
+from src.data.local_data_loader import (
+    unpickle_all_neuron_db_versions,
+    unpickle_neuron_db,
+)
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSION
 from src.utils.formatting import compact_tag
 from src.utils.graph_algos import neighbors
@@ -14,13 +17,13 @@ from tests import TEST_DATA_ROOT_PATH
 class NeuronDataTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.neuron_db = unpickle_neuron_db(version=LATEST_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH)
+        cls.neuron_db = unpickle_neuron_db(
+            version=LATEST_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
+        )
 
     def test_loading(self):
         # check that all versions loaded
-        neuron_dbs = unpickle_all_neuron_db_versions(
-            data_root_path=TEST_DATA_ROOT_PATH
-        )
+        neuron_dbs = unpickle_all_neuron_db_versions(data_root_path=TEST_DATA_ROOT_PATH)
         for v in DATA_SNAPSHOT_VERSIONS:
             self.assertIsNotNone(neuron_dbs[v])
             self.assertEqual(

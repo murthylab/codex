@@ -40,7 +40,9 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         if os.path.exists(fname):
             rows = read_csv(fname)
             if with_timestamp:
-                return rows, datetime.utcfromtimestamp(os.path.getmtime(fname)).strftime("%Y-%m-%d")
+                return rows, datetime.utcfromtimestamp(
+                    os.path.getmtime(fname)
+                ).strftime("%Y-%m-%d")
             else:
                 return rows
         else:
@@ -51,7 +53,9 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
 
     neuron_rows = _read_data(NEURON_FILE_NAME)
     connection_rows = _read_data(CONNECTIONS_FILE_NAME)
-    label_rows, labels_file_timestamp = _read_data(LABELS_FILE_NAME, with_timestamp=True)
+    label_rows, labels_file_timestamp = _read_data(
+        LABELS_FILE_NAME, with_timestamp=True
+    )
     coordinate_rows = _read_data(COORDINATES_FILE_NAME)
     classification_rows = _read_data(CLASSIFICATIONS_FILE_NAME)
     similar_cell_rows = _read_data(SIMILAR_CELLS_FILE_NAME)

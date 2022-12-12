@@ -1,6 +1,10 @@
 from unittest import TestCase
 
-from src.data.local_data_loader import unpickle_all_neuron_db_versions, load_neuron_db, unpickle_neuron_db
+from src.data.local_data_loader import (
+    unpickle_all_neuron_db_versions,
+    load_neuron_db,
+    unpickle_neuron_db,
+)
 from src.data.neuron_data_factory import NeuronDataFactory
 
 from src.data.versions import DATA_SNAPSHOT_VERSIONS
@@ -53,7 +57,9 @@ class NeuronDataTest(TestCase):
             self.assertEqual(
                 0,
                 len(diff_keys),
-                f"Diff keys not empty: {diff_keys=}\n\n {len(diff_vals)=}\n\n {diff_vals=}"[:1000],
+                f"Diff keys not empty: {diff_keys=}\n\n {len(diff_vals)=}\n\n {diff_vals=}"[
+                    :1000
+                ],
             )
             # compare optional output sets (adjacency)
             self.assertEqual(len(tested.connection_rows), len(golden.connection_rows))
@@ -74,13 +80,17 @@ class NeuronDataTest(TestCase):
         # check that all versions loaded
         for v in DATA_SNAPSHOT_VERSIONS:
             print(f"Testing version {v}...")
-            unpickled_db = unpickle_neuron_db(version=v, data_root_path=TEST_DATA_ROOT_PATH)
+            unpickled_db = unpickle_neuron_db(
+                version=v, data_root_path=TEST_DATA_ROOT_PATH
+            )
             loaded_db = load_neuron_db(version=v, data_root_path=TEST_DATA_ROOT_PATH)
             compare_neuron_dbs(tested=loaded_db, golden=unpickled_db)
             del loaded_db
 
             # check the same for data factory
-            neuron_data_factory = NeuronDataFactory(data_root_path=TEST_DATA_ROOT_PATH, preload_latest=False)
+            neuron_data_factory = NeuronDataFactory(
+                data_root_path=TEST_DATA_ROOT_PATH, preload_latest=False
+            )
             factory_db = neuron_data_factory.get(v)
             compare_neuron_dbs(tested=factory_db, golden=unpickled_db)
             del unpickled_db

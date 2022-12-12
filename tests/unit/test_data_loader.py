@@ -57,4 +57,3 @@ class Test(TestCase):
             set(tuple(i) for i in parallel_connections),
             set(tuple(i) for i in all_individual_connections),
         )
-

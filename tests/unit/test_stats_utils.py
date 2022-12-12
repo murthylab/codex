@@ -33,7 +33,9 @@ class Test(TestCase):
         self.assertEqual({}, data_charts)
 
         # actual data
-        neuron_db = unpickle_neuron_db(LATEST_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH)
+        neuron_db = unpickle_neuron_db(
+            LATEST_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
+        )
         caption, data_stats, data_charts = stats.compile_data(
             neuron_data=list(neuron_db.neuron_data.values()),
             label_data=list(neuron_db.label_data.values()),
