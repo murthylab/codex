@@ -29,31 +29,3 @@ class Test(TestCase):
         scores = load_nblast_scores_for_root_id(root_id="deadbeef")
         self.assertIsNone(scores)
 
-    def test_connection_table_loading(self):
-        # check that it doesn't explode with bogus rid
-        ct = load_connection_table_for_root_ids(root_ids=["deadbeef"])
-        self.assertEqual([], ct)
-
-        sample_root_ids = [
-            720575940637948288,
-            720575940639420800,
-            720575940626367625,
-            720575940625107352,
-        ]
-
-        # check individual loading (one root_id at a time)
-        all_individual_connections = []
-        for rid in sample_root_ids:
-            ct = load_connection_table_for_root_ids([rid])
-            self.assertGreater(len(ct), 1)
-            for r in ct:
-                self.assertTrue(rid == r[0] or rid == r[1])
-            all_individual_connections += ct
-
-        # check parallel loading
-        parallel_connections = load_connection_table_for_root_ids(sample_root_ids)
-        # check that the set of connections equals to individual loading
-        self.assertEqual(
-            set(tuple(i) for i in parallel_connections),
-            set(tuple(i) for i in all_individual_connections),
-        )
