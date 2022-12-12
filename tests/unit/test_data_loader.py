@@ -28,4 +28,3 @@ class Test(TestCase):
         # check that it doesn't explode with bogus rid
         scores = load_nblast_scores_for_root_id(root_id="deadbeef")
         self.assertIsNone(scores)
-

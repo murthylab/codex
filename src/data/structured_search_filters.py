@@ -426,7 +426,9 @@ def _make_has_predicate(rhs):
     return lambda nd: search_attr.value_getter(nd)
 
 
-def _make_predicate(structured_term, input_sets, output_sets, connections_loader, case_sensitive):
+def _make_predicate(
+    structured_term, input_sets, output_sets, connections_loader, case_sensitive
+):
     lhs = structured_term.get("lhs")  # lhs is optional e.g. for unary operators
     op = structured_term["op"]
     rhs = structured_term["rhs"]
@@ -505,7 +507,12 @@ def _make_predicate(structured_term, input_sets, output_sets, connections_loader
 
 
 def make_structured_terms_predicate(
-    chaining_rule, structured_terms, input_sets, output_sets, connections_loader, case_sensitive
+    chaining_rule,
+    structured_terms,
+    input_sets,
+    output_sets,
+    connections_loader,
+    case_sensitive,
 ):
     predicates = [
         _make_predicate(

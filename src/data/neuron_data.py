@@ -348,12 +348,16 @@ class NeuronDB(object):
             cons = [r for r in cons if r[2] == nt_type]
         return cons
 
-    def connections_by_region(self, cell_id, by_neuropil=False, min_syn_count=5, nt_type=None):
+    def connections_by_region(
+        self, cell_id, by_neuropil=False, min_syn_count=5, nt_type=None
+    ):
         try:
             cell_id = int(cell_id)
         except:
             raise ValueError(f"'{cell_id}' is not a valid cell ID")
-        table = self.connections(ids=[cell_id], min_syn_count=min_syn_count, nt_type=nt_type)
+        table = self.connections(
+            ids=[cell_id], min_syn_count=min_syn_count, nt_type=nt_type
+        )
         if by_neuropil:
             downstream = defaultdict(list)
             upstream = defaultdict(list)

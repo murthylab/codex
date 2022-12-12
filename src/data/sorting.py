@@ -42,7 +42,9 @@ def infer_sort_by(query):
     return sort_by
 
 
-def sort_search_results(query, ids, output_sets, label_count_getter, connections_getter, sort_by=None):
+def sort_search_results(
+    query, ids, output_sets, label_count_getter, connections_getter, sort_by=None
+):
     try:
         sort_by = sort_by or infer_sort_by(query)
         if sort_by:
