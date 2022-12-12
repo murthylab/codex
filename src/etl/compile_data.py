@@ -10,12 +10,12 @@ from src.configuration import MIN_SYN_COUNT
 from src.data.local_data_loader import read_csv, write_csv
 
 # FlyWire data snapshots are exported periodically in 2 Google Drive folders (within them snapshot sub-folders are
-# named by internal version, e.g. 447.):
+# named by internal version, e.g. 526.):
 # Raw synapse table is here: https://drive.google.com/drive/folders/1g7i3LMmDFcZXDXzevy3eUSrmcMJl2B6a/
-#  - look for file named something like 'syn_proof_analysis_filtered_consolidated_447.feather' (assuming version 447)
+#  - look for file named something like 'syn_proof_analysis_filtered_consolidated_526.feather' (assuming version 526)
 #  - download it into RAW_DATA_ROOT_FOLDER and name it as SYNAPSE_TABLE_FILE_NAME below
 # Neurotransmitter types are here: https://drive.google.com/drive/folders/1B1_-yLi-ED7U8af8OJHhCHr8STq3bf1H
-#  - look for file named something like 'neuron_proof_analysis_ntavg_447.feather' (assuming version 447)
+#  - look for file named something like 'neuron_proof_analysis_ntavg_526.feather' (assuming version 526)
 #  - download it into RAW_DATA_ROOT_FOLDER and name it as NEURON_NT_TYPES_FILE_NAME below
 # Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
 # and store it in this file (no quotes)
@@ -219,12 +219,60 @@ def update_cave_data_file(name, db_load_func, cave_client, version):
     comp_backup_and_update_csv(fpath, content=new_content)
 
 
-def process_classification_file(version):
-    filepath = raw_data_file_path(
-        version=version, filename=f"coarse_cell_classes.feather"
-    )
-    print(f"Loading coarse labels from {filepath}")
-    new_content = load_feather_data_to_table(filepath)
+def process_classification_file(version, summarize_files=False):
+    dirpath = raw_data_file_path(version=version, filename=f"classes")
+    files = os.listdir(dirpath)
+    print(f"Loading coarse labels from {dirpath}: {files}")
+
+    def summarize(rows):
+        res = ""
+        for i, c in enumerate(rows[0]):
+            if c in ["x", "y", "z", "supervoxel_id"]:
+                continue
+            vals = set([row[i] for row in rows[1:]])
+            vals_str = str(vals) if len(vals) < 20 else ""
+            res += f"{c}: {len(vals)} {vals_str}\n"
+        return res
+
+    new_content = [["root_id", "class"]]
+
+    for f in files:
+        fpath = raw_data_file_path(version=version, filename=f"classes/{f}")
+        f_content = load_feather_data_to_table(fpath)
+        if summarize_files:
+            print(
+                f"=================\n"
+                f"{f}, {len(f_content)}:\n{f_content[:2]}\n{summarize(f_content)}\n"
+                f"------------------"
+            )
+        if f == "coarse_cell_classes.feather":
+            assert f_content[0] == new_content[0]
+            new_content.extend(f_content[1:])
+        elif f in [
+                    'coarse_anno_BOL_526.feather',
+                    'coarse_anno_endocrine_526.feather',
+                    'coarse_anno_sensory_526.feather',
+                    'coarse_anno_DN_526.feather',
+                    'coarse_anno_BVP_526.feather',
+                    'coarse_anno_VP_526.feather',
+                    'coarse_anno_motor_526.feather',
+                    'coarse_anno_VC_526.feather',
+                    'coarse_anno_AN_526.feather',
+                ]:
+            assert f_content[0] == ['x', 'y', 'z', 'supervoxel_id', 'root_id', 'label']
+            new_content.extend([[r[4], r[5]] for r in f_content[1:]])
+        elif f in ['coarse_anno_cb_526.feather']:
+            assert f_content[0] == ['root_id', 'label', 'x', 'y', 'z', 'supervoxel_id']
+            new_content.extend([[r[0], r[1]] for r in f_content[1:]])
+        elif f in ['coarse_anno_ol_526.feather']:
+            assert f_content[0] == ['root_id', 'label', 'x', 'y', 'z', 'supervoxel_id']
+            new_content.extend([[r[0], "Optic Lobe"] for r in f_content[1:]])
+        elif f in ['coarse_anno_nerve_type_526.feather', 'coarse_anno_526.feather']:
+            print(f"Skipping {f}")
+        else:
+            assert f"Unknown file: {f}" is None
+
+        print(f"Class rows after processing {f}: {len(new_content)}")
 
     fpath = compiled_data_file_path(version=version, filename="classification.csv.gz")
     comp_backup_and_update_csv(fpath=fpath, content=new_content)
@@ -258,8 +306,8 @@ def process_synapse_table_file(version):
     comp_backup_and_update_csv(fpath=connections_fpath, content=connections)
 
 
-def remove_columns(version, columns_to_remove):
-    fpath = compiled_data_file_path(version=version, filename="neuron_data.csv.gz")
+def remove_columns(version, columns_to_remove, filename):
+    fpath = compiled_data_file_path(version=version, filename=filename)
     content = read_csv(fpath)
     columns_to_remove = {
         i: c for i, c in enumerate(content[0]) if c in columns_to_remove
@@ -279,11 +327,11 @@ def remove_columns(version, columns_to_remove):
 if __name__ == "__main__":
     config = {
         "versions": DATA_SNAPSHOT_VERSIONS,
-        "columns_to_remove": [],
+        "columns_to_remove": {},
         "update_coordinates": False,
-        "update_classifications": False,
+        "update_classifications": True,
         "update_connections": False,
-        "update_labels": True,
+        "update_labels": False,
     }
 
     client = init_cave_client()
@@ -292,11 +340,12 @@ if __name__ == "__main__":
             f"#######################\nCompiling version {v}..\n#######################"
         )
         if config["columns_to_remove"]:
-            remove_columns(v, config["columns_to_remove"])
+            for fname, cols in config["columns_to_remove"].items():
+                remove_columns(v, filename=fname, columns_to_remove=cols)
         if config["update_connections"]:
             process_synapse_table_file(version=v)
         if config["update_classifications"]:
-            process_classification_file(version=v)
+            process_classification_file(version=v, summarize_files=True)
         if config["update_coordinates"]:
             update_cave_data_file(
                 name="coordinates",
