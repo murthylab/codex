@@ -51,12 +51,14 @@ def reachable_node_counts(sources, neighbor_sets, total_count):
 
 # given set of sources and target nodes, calculates the pairwise distance matrix from any source to any target
 def distance_matrix(sources, targets, neuron_db, min_syn_count):
-    return _cached_distance_matrix(
+    cached_res = _cached_distance_matrix(
         sorted_sources_str=",".join([str(s) for s in sorted(sources)]),
         sorted_targets_str=",".join([str(t) for t in sorted(targets)]),
         neuron_db=neuron_db,
         min_syn_count=min_syn_count,
     )
+    # make a copy to protect cached value
+    return [list(r) for r in cached_res]
 
 
 @lru_cache
@@ -65,6 +67,7 @@ def _cached_distance_matrix(
 ):
     sources = [int(s) for s in sorted_sources_str.split(",")]
     targets = [int(t) for t in sorted_targets_str.split(",")]
+    assert all([neuron_db.is_in_dataset(s) for s in sources + targets])
     neighbor_sets = neuron_db.output_sets(min_syn_count=min_syn_count)
     matrix = [["from \\ to"] + targets]
     for s in sources:
