@@ -44,12 +44,14 @@ NEURON_DATA_ATTRIBUTES = {
     "hemisphere_fingerprint": str,
     "input_cells": int,
     "input_neuropils": list,
+    "input_synapses": int,
     "name": str,
     "nt_type": str,
     "nt_type_score": float,
     "oct_avg": float,
     "output_cells": int,
     "output_neuropils": list,
+    "output_synapses": int,
     "position": list,
     "root_id": int,
     "ser_avg": float,
@@ -263,6 +265,8 @@ class NeuronDB(object):
         self.connection_rows = []
         input_neuropils = defaultdict(set)
         output_neuropils = defaultdict(set)
+        input_synapses = defaultdict(int)
+        output_synapses = defaultdict(int)
         for i, r in enumerate(connection_rows or []):
             if i == 0:
                 assert r == get_connections_file_columns()
@@ -279,8 +283,10 @@ class NeuronDB(object):
             assert nt_type in NEURO_TRANSMITTER_NAMES
             assert neuropil == "NONE" or neuropil in REGIONS.keys()
             if neuropil != "NONE":
-                input_neuropils[to_node].add(r[2])
-                output_neuropils[from_node].add(r[2])
+                input_neuropils[to_node].add(neuropil)
+                output_neuropils[from_node].add(neuropil)
+            input_synapses[to_node] += syn_count
+            output_synapses[from_node] += syn_count
             self.connection_rows.append(
                 [from_node, to_node, neuropil, syn_count, nt_type]
             )
@@ -289,6 +295,8 @@ class NeuronDB(object):
         for rid, nd in self.neuron_data.items():
             nd["input_neuropils"] = sorted(input_neuropils[rid])
             nd["output_neuropils"] = sorted(output_neuropils[rid])
+            nd["input_synapses"] = input_synapses[rid]
+            nd["output_synapses"] = output_synapses[rid]
             nd["hemisphere_fingerprint"] = NeuronDB.hemisphere_fingerprint(
                 nd["input_neuropils"], nd["output_neuropils"]
             )

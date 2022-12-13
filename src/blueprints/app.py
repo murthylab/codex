@@ -381,6 +381,8 @@ def download_search_results():
         "name",
         "nt_type",
         "class",
+        "input_synapses",
+        "output_synapses",
         "hemisphere_fingerprint",
     ]
     data = [cols]
