@@ -326,6 +326,7 @@ def search():
             ids=filtered_root_id_list,
             output_sets=neuron_db.output_sets(),
             label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["tag"]),
+            synapse_neuropil_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["input_neuropils"]) + len(neuron_db.get_neuron_data(x)["output_neuropils"]),
             partner_count_getter=lambda x: len(neuron_db.output_sets()[x])
             + len(neuron_db.input_sets()[x]),
             connections_getter=lambda x: neuron_db.connections(ids=[x]),

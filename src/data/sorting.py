@@ -23,8 +23,12 @@ SORTABLE_OPS = {
 
 SORT_BY_OPTIONS = {
     "": "Default",
-    "partners": "Num Partners (high -> low)",
-    "-partners": "Num Partners (low -> high)",
+    "-partners": "# Partners (high -> low)",
+    "partners": "# Partners (low -> high)",
+    "-synapse_neuropils": "# Synapse Regions (high -> low)",
+    "synapse_neuropils": "# Synapse Regions (low -> high)",
+    "-labels": "# Labels (high -> low)",
+    "labels": "# Labels (low -> high)",
 }
 
 
@@ -53,6 +57,7 @@ def sort_search_results(
     ids,
     output_sets,
     label_count_getter,
+    synapse_neuropil_count_getter,
     partner_count_getter,
     connections_getter,
     sort_by=None,
@@ -60,12 +65,28 @@ def sort_search_results(
     try:
         sort_by = sort_by or infer_sort_by(query)
         if sort_by:
-            if sort_by == "partners":
+            if sort_by == "-partners":
                 ids = sorted(ids, key=lambda x: -partner_count_getter(x))
                 return ids, None
-            if sort_by == "-partners":
+            if sort_by == "partners":
                 ids = sorted(ids, key=lambda x: partner_count_getter(x))
                 return ids, None
+            if sort_by == "-labels":
+                ids = sorted(ids, key=lambda x: -label_count_getter(x))
+                return ids, None
+            if sort_by == "labels":
+                ids = sorted(ids, key=lambda x: label_count_getter(x))
+                return ids, None
+            if sort_by in ["synapse_neuropils", "-synapse_neuropils"]:
+                dct = {rid: synapse_neuropil_count_getter(rid) for rid in ids}
+                extra_data = {
+                    "title": "Number of neuropils with synapses",
+                    "column_name": "Syn Rgns",
+                    "values_dict": dct,
+                }
+                ids = sorted(ids, key=lambda x: -dct[x]) if sort_by.startswith("-") else sorted(ids, key=lambda x: dct[x])
+                return ids, extra_data
+
             parts = sort_by.split(":")
             if len(parts) != 2 or parts[0] not in SORTABLE_OPS.values():
                 raise ValueError(f"Unsupported sort_by parameter: {sort_by}")

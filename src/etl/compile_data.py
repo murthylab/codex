@@ -328,7 +328,7 @@ if __name__ == "__main__":
         "versions": DATA_SNAPSHOT_VERSIONS,
         "columns_to_remove": {},
         "update_coordinates": False,
-        "update_classifications": True,
+        "update_classifications": False,
         "update_connections": False,
         "update_labels": True,
     }
