@@ -224,6 +224,7 @@
                 }
             }
             cluster_data[node].collapsed = true;
+            nodes.updateOnly({id: node, borderWidth: 3, shadow: true});
         }
 
         function uncluster(node) {
@@ -242,11 +243,12 @@
             const c_nodes = cluster_data[node].nodes;
             for (const c_node of c_nodes) {
                 if (nodes.get(c_node).hidden) {
-                    uncluster(c_node);
                     nodes.updateOnly({id: c_node, hidden: false});
                 }
+                uncluster(c_node);
             }
             cluster_data[node].collapsed = false;
+            nodes.updateOnly({id: node, borderWidth: 1, shadow: false});
         }
 
         network.on("selectNode", function (params) {
