@@ -24,6 +24,18 @@
                         <label class="form-check-label" for="whole_word">Whole word</label>
                     </div>
                 </div>
+                {% if sort_by_options %}
+                <div class="form-group">
+                    <label style="margin: 20px;">Sort By</label>
+                    <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                            aria-label="Sort By" name="sort_by">
+                        {% for k, v in sort_by_options.items() %}
+                        <option value="{{k}}" {{
+                        'selected' if sort_by==v}}>{{v}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
                 <div class="form-group">
                     <label style="margin: 20px;">Data version</label>
                     <select style="margin: 20px;" class="form-select form-select-lg mb-3"

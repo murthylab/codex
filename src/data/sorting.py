@@ -21,6 +21,12 @@ SORTABLE_OPS = {
     None: ITEM_COUNT,
 }
 
+SORT_BY_OPTIONS = {
+    "": "Default",
+    "partners": "Num Partners (high -> low)",
+    "-partners": "Num Partners (low -> high)",
+}
+
 
 def infer_sort_by(query):
     sort_by = None
@@ -43,11 +49,23 @@ def infer_sort_by(query):
 
 
 def sort_search_results(
-    query, ids, output_sets, label_count_getter, connections_getter, sort_by=None
+    query,
+    ids,
+    output_sets,
+    label_count_getter,
+    partner_count_getter,
+    connections_getter,
+    sort_by=None,
 ):
     try:
         sort_by = sort_by or infer_sort_by(query)
         if sort_by:
+            if sort_by == "partners":
+                ids = sorted(ids, key=lambda x: -partner_count_getter(x))
+                return ids, None
+            if sort_by == "-partners":
+                ids = sorted(ids, key=lambda x: partner_count_getter(x))
+                return ids, None
             parts = sort_by.split(":")
             if len(parts) != 2 or parts[0] not in SORTABLE_OPS.values():
                 raise ValueError(f"Unsupported sort_by parameter: {sort_by}")

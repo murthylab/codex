@@ -41,7 +41,7 @@ from src.data.structured_search_filters import (
     parse_search_query,
 )
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
-from src.data.sorting import sort_search_results
+from src.data.sorting import sort_search_results, SORT_BY_OPTIONS
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.utils import nglui, stats as stats_utils
 from src.utils.cookies import fetch_flywire_user_id
@@ -212,6 +212,7 @@ def render_neuron_list(
     case_sensitive,
     whole_word,
     page_number,
+    sort_by,
     hint,
     extra_data,
 ):
@@ -289,6 +290,8 @@ def render_neuron_list(
         case_sensitive=case_sensitive,
         whole_word=whole_word,
         extra_data=extra_data,
+        sort_by=sort_by,
+        sort_by_options=SORT_BY_OPTIONS,
         advanced_search_data=get_advanced_search_data(current_query=filter_string),
         multi_val_attrs=neuron_db.multi_val_attrs(filtered_root_id_list),
     )
@@ -303,6 +306,7 @@ def search():
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
+    sort_by = request.args.get("sort_by")
     neuron_db = neuron_data_factory.get(data_version)
     hint = None
     extra_data = None
@@ -322,7 +326,10 @@ def search():
             ids=filtered_root_id_list,
             output_sets=neuron_db.output_sets(),
             label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["tag"]),
+            partner_count_getter=lambda x: len(neuron_db.output_sets()[x])
+            + len(neuron_db.input_sets()[x]),
             connections_getter=lambda x: neuron_db.connections(ids=[x]),
+            sort_by=sort_by,
         )
     else:
         hint, edist = neuron_db.closest_token(
@@ -338,6 +345,7 @@ def search():
         case_sensitive=case_sensitive,
         whole_word=whole_word,
         page_number=page_number,
+        sort_by=sort_by,
         hint=hint,
         extra_data=extra_data,
     )

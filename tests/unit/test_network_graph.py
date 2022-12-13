@@ -1,13 +1,41 @@
 from unittest import TestCase
 from src.utils.graph_vis import Network
 
+
 class Test(TestCase):
     def test_clusters(self):
         net = Network()
-        net.add_node("center", 1, 1, "center", "dot", "#00ff00", cluster_inputs = True, cluster_outputs = True)
-        net.add_node("inputs", 1, 1, "inputs", "dot", "#00ff00", cluster_inputs = True, cluster_outputs = False)
+        net.add_node(
+            "center",
+            1,
+            1,
+            "center",
+            "dot",
+            "#00ff00",
+            cluster_inputs=True,
+            cluster_outputs=True,
+        )
+        net.add_node(
+            "inputs",
+            1,
+            1,
+            "inputs",
+            "dot",
+            "#00ff00",
+            cluster_inputs=True,
+            cluster_outputs=False,
+        )
         net.add_node("input1", 1, 1, "input1", "dot", "#00ff00")
-        net.add_node("outputs", 1, 1, "outputs", "dot", "#00ff00", cluster_inputs = False, cluster_outputs = True)
+        net.add_node(
+            "outputs",
+            1,
+            1,
+            "outputs",
+            "dot",
+            "#00ff00",
+            cluster_inputs=False,
+            cluster_outputs=True,
+        )
         net.add_node("output1", 1, 1, "output1", "dot", "#00ff00")
         net.add_node("between", 1, 1, "between", "dot", "#00ff00")
         net.add_edge("inputs", "center", False, "", "")
