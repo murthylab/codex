@@ -173,30 +173,30 @@ class NeuronDataTest(TestCase):
 
     def test_structured_search_lists(self):
         # explicit searches
-        hundred_root_ids = list(self.neuron_db.neuron_data.keys())[:100]
+        many_root_ids = list(self.neuron_db.neuron_data.keys())[:30]
         root_id_search_explicit = self.neuron_db.search(
-            " || ".join([f"id == {rid}" for rid in hundred_root_ids])
+            " || ".join([f"id == {rid}" for rid in many_root_ids])
         )
-        self.assertEqual(set(root_id_search_explicit), set(hundred_root_ids))
+        self.assertEqual(set(root_id_search_explicit), set(many_root_ids))
         root_id_search_membership = self.neuron_db.search(
-            f"id << {','.join([str(rid) for rid in hundred_root_ids])}"
+            f"id << {','.join([str(rid) for rid in many_root_ids])}"
         )
         self.assertEqual(set(root_id_search_explicit), set(root_id_search_membership))
         self.assertEqual(
             len(self.neuron_db.neuron_data),
-            len(hundred_root_ids)
+            len(many_root_ids)
             + len(
                 self.neuron_db.search(
-                    " && ".join([f"id != {rid}" for rid in hundred_root_ids])
+                    " && ".join([f"id != {rid}" for rid in many_root_ids])
                 )
             ),
         )
         self.assertEqual(
             len(self.neuron_db.neuron_data),
-            len(hundred_root_ids)
+            len(many_root_ids)
             + len(
                 self.neuron_db.search(
-                    f"id !< {','.join([str(rid) for rid in hundred_root_ids])}"
+                    f"id !< {','.join([str(rid) for rid in many_root_ids])}"
                 )
             ),
         )

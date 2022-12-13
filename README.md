@@ -35,13 +35,9 @@ pip install git+https://github.com/psf/black && black src
 
 ## Profiling
 ```python3 -m cProfile -o profile -m pytest tests/unit/test_neuron_data.py -k test_augmentation_loading```
-Then load the generated `profile` file:
+Then print the generated `profile` file:
 ```
-import pstats
-p = pstats.Stats('profile')
-p.strip_dirs()
-p.sort_stats('cumtime')
-p.print_stats(50)
+python3 -m src.utils.print_profiling_data
 ```
 
 ## Downloading and packaging static data

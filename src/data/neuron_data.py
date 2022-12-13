@@ -265,6 +265,8 @@ class NeuronDB(object):
         self.connection_rows = []
         input_neuropils = defaultdict(set)
         output_neuropils = defaultdict(set)
+        input_cells = defaultdict(set)
+        output_cells = defaultdict(set)
         input_synapses = defaultdict(int)
         output_synapses = defaultdict(int)
         for i, r in enumerate(connection_rows or []):
@@ -282,6 +284,8 @@ class NeuronDB(object):
             assert syn_count >= MIN_SYN_COUNT
             assert nt_type in NEURO_TRANSMITTER_NAMES
             assert neuropil == "NONE" or neuropil in REGIONS.keys()
+            input_cells[to_node].add(from_node)
+            output_cells[from_node].add(to_node)
             if neuropil != "NONE":
                 input_neuropils[to_node].add(neuropil)
                 output_neuropils[from_node].add(neuropil)
@@ -301,8 +305,8 @@ class NeuronDB(object):
                 nd["input_neuropils"], nd["output_neuropils"]
             )
             nd["class"] = ", ".join([c for c in nd["classes"]])
-            nd["input_cells"] = len(self.input_sets()[rid])
-            nd["output_cells"] = len(self.output_sets()[rid])
+            nd["input_cells"] = len(input_cells[rid])
+            nd["output_cells"] = len(output_cells[rid])
 
         log(f"App initialization building search index..")
 
