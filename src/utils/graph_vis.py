@@ -69,13 +69,16 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
             return 3 if node_id in center_ids else 1
 
     def node_shape(ndata):
-        return "elipse" if ndata["root_id"] in center_ids else "dot"
+        return "ellipse" if ndata["root_id"] in center_ids else "dot"
 
     def node_position(ndata):
         return None, None
 
     def node_color(ndata):
         return nt_color(ndata["nt_type"])
+
+    def node_clusterable(node_id):
+        return node_id in center_ids
 
     def node_label(nd):
         if nd["root_id"] in center_ids or nodes_limit < 10:
@@ -143,6 +146,8 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
                 mass=node_mass(nd["root_id"]),
                 x=x,
                 y=y,
+                cluster_inputs=node_clusterable(nd["root_id"]),
+                cluster_outputs=node_clusterable(nd["root_id"]),
             )
             added_cell_nodes.add(nid)
             net.add_legend(nd["nt_type"].upper(), color=nt_color(nd["nt_type"]))
@@ -160,6 +165,8 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
                 size=pil_size(),
                 mass=node_mass("neuropil"),
                 color=INPUT_NEUROPIL_COLOR if is_input else OUTPUT_NEUROPIL_COLOR,
+                cluster_inputs=is_input,
+                cluster_outputs=not is_input,
             )
             added_pil_nodes.add(node_name)
             net.add_legend("Input Neuropil", color=INPUT_NEUROPIL_COLOR)
@@ -202,9 +209,22 @@ class Network(object):
         self.legend = []
         self.edge_physics = edge_physics
         self.node_physics = node_physics
+        self.cluster_data = {}
+        self.active_edges = {}
 
     def add_node(
-        self, name, size, mass, label, shape, color, title=None, x=None, y=None
+        self,
+        name,
+        size,
+        mass,
+        label,
+        shape,
+        color,
+        title=None,
+        x=None,
+        y=None,
+        cluster_inputs=False,
+        cluster_outputs=False,
     ):
         name = str(name)
         if name not in self.node_map:
@@ -226,6 +246,16 @@ class Network(object):
                 node["fixed.y"] = True
 
             self.node_map[name] = node
+            if cluster_inputs or cluster_outputs:
+                self.cluster_data[name] = {
+                    "edges": [],
+                    "nodes": [],
+                    "node_details": node,
+                    "cluster_inputs": cluster_inputs,
+                    "cluster_outputs": cluster_outputs,
+                    "collapsed": False,
+                }
+            self.active_edges[name] = 0
 
     def add_edge(self, source, target, weak, label, title):
         source = str(source)
@@ -233,18 +263,29 @@ class Network(object):
         assert source in self.node_map, f"non existent node '{str(source)}'"
         assert target in self.node_map, f"non existent node '{str(target)}'"
 
-        self.edges.append(
-            {
-                "from": source,
-                "to": target,
-                "physics": self.edge_physics,
-                "label": label,
-                "title": title,
-                "arrows": "to",
-                "width": 1 if weak else 2,
-                "dashes": False,
-            }
-        )
+        edge = {
+            "id": source + "_to_" + target,
+            "from": source,
+            "to": target,
+            "physics": self.edge_physics,
+            "label": label,
+            "title": title,
+            "arrows": "to",
+            "width": 1 if weak else 2,
+            "dashes": False,
+        }
+        self.edges.append(edge)
+
+        if target in self.cluster_data:
+            if self.cluster_data[target]["cluster_inputs"]:
+                self.cluster_data[target]["edges"].append(edge)
+                self.cluster_data[target]["nodes"].append(source)
+        if source in self.cluster_data:
+            if self.cluster_data[source]["cluster_outputs"]:
+                self.cluster_data[source]["edges"].append(edge)
+                self.cluster_data[source]["nodes"].append(target)
+        self.active_edges[target] += 1
+        self.active_edges[source] += 1
 
     def add_legend(self, label, color):
         legend_entry = {"label": label, "color": color}
@@ -256,6 +297,8 @@ class Network(object):
             "network_graph.html",
             nodes=list(self.node_map.values()),
             edges=self.edges,
+            cluster_data=self.cluster_data,
+            active_edges=self.active_edges,
             legend=self.legend,
             warning_msg=warning_msg,
         )

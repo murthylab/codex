@@ -11,7 +11,6 @@
 
 ## Connectivity / network view
 1. it could be helpful to have the option to decide how many connections will be shown, including "all" inputs or outputs
-1. clickable neuropils
 
 ## Pathways / NBLAST tables
 1. after nblast, people might want to look at a subset (but more than 2 neurons) together. Perhaps a checkbox to select ids to copy would be useful?
