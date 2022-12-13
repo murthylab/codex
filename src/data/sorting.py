@@ -84,7 +84,11 @@ def sort_search_results(
                     "column_name": "Syn Rgns",
                     "values_dict": dct,
                 }
-                ids = sorted(ids, key=lambda x: -dct[x]) if sort_by.startswith("-") else sorted(ids, key=lambda x: dct[x])
+                ids = (
+                    sorted(ids, key=lambda x: -dct[x])
+                    if sort_by.startswith("-")
+                    else sorted(ids, key=lambda x: dct[x])
+                )
                 return ids, extra_data
 
             parts = sort_by.split(":")
