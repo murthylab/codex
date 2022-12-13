@@ -1029,7 +1029,8 @@ def path_length():
         matrix = distance_matrix(
             sources=root_ids,
             targets=root_ids,
-            neighbor_sets=neuron_db.output_sets(min_syn_count=min_syn_count),
+            neuron_db=neuron_db,
+            min_syn_count=min_syn_count,
         )
         if len(matrix) <= 1:
             return render_error(

@@ -1,4 +1,6 @@
 from collections import defaultdict
+from functools import lru_cache
+
 from src.utils.logging import log_error
 from src.utils.formatting import percentage
 
@@ -48,14 +50,25 @@ def reachable_node_counts(sources, neighbor_sets, total_count):
 
 
 # given set of sources and target nodes, calculates the pairwise distance matrix from any source to any target
-def distance_matrix(sources, targets, neighbor_sets):
+def distance_matrix(sources, targets, neuron_db, min_syn_count):
+    return _cached_distance_matrix(
+        sorted_sources_str=','.join([str(s) for s in sorted(sources)]),
+        sorted_targets_str=','.join([str(t) for t in sorted(targets)]),
+        neuron_db=neuron_db,
+        min_syn_count=min_syn_count
+    )
+
+@lru_cache
+def _cached_distance_matrix(sorted_sources_str, sorted_targets_str, neuron_db, min_syn_count):
+    sources = [int(s) for s in sorted_sources_str.split(',')]
+    targets = [int(t) for t in sorted_targets_str.split(',')]
+    neighbor_sets = neuron_db.output_sets(min_syn_count=min_syn_count)
     matrix = [["from \\ to"] + targets]
     for s in sources:
         reached = reachable_nodes(sources=[s], neighbor_sets=neighbor_sets)
         matrix.append([s] + [reached.get(t, -1) for t in targets])
         del reached
     return matrix
-
 
 # given a source and a target node, finds all nodes along shortest-path pathways from source to target
 # and their distance from source (or None if not reachable)
