@@ -216,7 +216,7 @@ class NeuronDataTest(TestCase):
 
     def test_downstream_upstream_queries(self):
         downstream = self.neuron_db.search("{downstream} 720575940611848362")
-        self.assertEqual(625, len(downstream))
+        self.assertEqual(622, len(downstream))
 
         upstream = self.neuron_db.search("{upstream} 720575940611848362")
         self.assertEqual(2, len(upstream))

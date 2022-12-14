@@ -11,7 +11,7 @@ gcloud run deploy --source . \
         --region us-east1 \
         --allow-unauthenticated \
         --min-instances 1 \
-        --cpu 4 \
+        --cpu 2 \
         --memory 8G \
         codex && \
 echo "Running post deploy smoke tests. Make sure env variable SMOKE_TEST_PROD_KEY is set to match the value stored in secret manager (GCP) in order to bypass auth" && \
