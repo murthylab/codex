@@ -20,8 +20,6 @@
    - '1'
    - '--memory'
    - '4G'
-   - '--execution-environment'
-   - 'gen2'
    - '--set-env-vars'
    - 'APP_ENVIRONMENT=STAGING'
    - '--set-env-vars'
