@@ -19,7 +19,7 @@
    - '--cpu'
    - '1'
    - '--memory'
-   - '2G'
+   - '4G'
    - '--execution-environment'
    - 'gen2'
    - '--set-env-vars'

@@ -491,6 +491,7 @@ def ngl_redirect_with_browser_check(ngl_url):
 def cell_details():
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    reachability_stats = request.args.get("reachability_stats", 0, type=int)
     neuron_db = neuron_data_factory.get(data_version)
 
     if request.method == "POST":
@@ -543,12 +544,13 @@ def cell_details():
         neuron_db=neuron_db,
         data_version=data_version,
         min_syn_cnt=min_syn_cnt,
+        reachability_stats=reachability_stats,
     )
 
 
 @lru_cache
 def _cached_cell_details(
-    cell_names_or_id, root_id, neuron_db, data_version, min_syn_cnt
+    cell_names_or_id, root_id, neuron_db, data_version, min_syn_cnt, reachability_stats
 ):
     nd = neuron_db.get_neuron_data(root_id=root_id)
     labels_data = neuron_db.get_label_data(root_id=root_id)
@@ -564,6 +566,7 @@ def _cached_cell_details(
     cell_attributes = {
         "Name": nd["name"],
         "FlyWire Root ID": f'{root_id}<br><small><a href="{nglui.url_for_root_ids([root_id], version=data_version, point_to_proofreading_flywire=True)}">Open in FlyWire <i class="fa-solid fa-up-right-from-square"></i> </a></small>',
+        "Classification": nd["class"],
         f'Labels<br><span style="font-size: 9px; color: purple;">Updated {neuron_db.labels_ingestion_timestamp()}</span>': concat_labels(
             tags
         ),
@@ -574,7 +577,6 @@ def _cached_cell_details(
             [f"{k}: {nd[f'{k.lower()}_avg']}" for k in sorted(NEURO_TRANSMITTER_NAMES)]
         )
         + "</small>",
-        "Classification": nd["class"],
         f"Label contributors": concat_labels(unames),
     }
 
@@ -746,7 +748,7 @@ def _cached_cell_details(
     related_cells = {k: v for k, v in related_cells.items() if v}
 
     cell_extra_data = {}
-    if neuron_db.connection_rows:
+    if neuron_db.connection_rows and reachability_stats:
         ins, outs = neuron_db.input_output_sets()
 
         reachable_counts = reachable_node_counts(
