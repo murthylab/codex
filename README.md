@@ -63,3 +63,6 @@ python3 -m src.etl.pickle_data
 ```
 ./deploy.sh
 ```
+
+### Latest revision URL:
+[latest---codex-yjsmm7mp3q-ue.a.run.app](https://latest---codex-yjsmm7mp3q-ue.a.run.app/)
