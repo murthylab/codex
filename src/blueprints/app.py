@@ -743,9 +743,23 @@ def _cached_cell_details(
         '<i class="fa-solid fa-arrows-turn-to-dots"></i>',
     )
 
+    # reachability analysis link
+    if connectivity_table and not reachability_stats:
+        rurl = url_for(
+            "app.cell_details",
+            cell_names_or_id=cell_names_or_id,
+            min_syn_cnt=min_syn_cnt,
+            data_version=data_version,
+            reachability_stats=1,
+        )
+        hlink = (
+            f'<a class="btn btn-link" onclick="loading();" href="{rurl}"><i class="fa-solid fa-gears"></i> &nbsp; Run downstream / '
+            f"upstream reachability analysis and reload</a>"
+        )
+        related_cells[hlink] = ""
+
     # remove empty items
     cell_attributes = {k: v for k, v in cell_attributes.items() if v}
-    related_cells = {k: v for k, v in related_cells.items() if v}
 
     cell_extra_data = {}
     if neuron_db.connection_rows and reachability_stats:
