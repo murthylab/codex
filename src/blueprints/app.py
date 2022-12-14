@@ -808,7 +808,7 @@ def _cached_cell_details(
 @request_wrapper
 @require_data_access
 def nblast():
-    sample_input = "720575940645542276,720575940626822533,720575940609037432,720575940624535554,720575940626158598"
+    sample_input = "720575940634139799, 720575940626843194, 720575940631740497, 720575940608893891"
     source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
     if not source_cell_names_or_ids and not target_cell_names_or_ids:
@@ -996,9 +996,7 @@ def pathways():
 @request_wrapper
 @require_data_access
 def path_length():
-    sample_input = (
-        "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
-    )
+    sample_input = "720575940626843194, 720575940631740497, 720575940608893891"
     source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
     min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
@@ -1124,9 +1122,7 @@ def path_length():
 @request_wrapper
 @require_data_access
 def connectivity():
-    sample_input = (
-        "720575940626822533, 720575940632905663, 720575940604373932, 720575940628289103"
-    )
+    sample_input = "720575940626843194, 720575940631740497, 720575940608893891"
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     nt_type = request.args.get("nt_type", None)
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
