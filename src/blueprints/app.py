@@ -721,28 +721,6 @@ def _cached_cell_details(
         '<i class="fa-regular fa-clone"></i>',
     )
 
-    similar_root_ids = [
-        i[0]
-        for i in zip(nd["similar_root_ids"], nd["similar_root_id_scores"])
-        if i[1] > 12 and i[0] != root_id
-    ]
-    insert_neuron_list_links(
-        "cells with similar neuropil projection",
-        similar_root_ids,
-        '<i class="fa-solid fa-arrows-turn-right"></i>',
-    )
-
-    symmetrical_root_ids = [
-        i[0]
-        for i in zip(nd["symmetrical_root_ids"], nd["symmetrical_root_id_scores"])
-        if i[1] > 12 and i[0] != root_id
-    ]
-    insert_neuron_list_links(
-        "cells with similar neuropil projection in opposite hemisphere",
-        symmetrical_root_ids,
-        '<i class="fa-solid fa-arrows-turn-to-dots"></i>',
-    )
-
     # reachability analysis link
     if connectivity_table and not reachability_stats:
         rurl = url_for(

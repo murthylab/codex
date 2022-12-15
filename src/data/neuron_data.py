@@ -5,7 +5,6 @@ from random import choice
 from src.data.brain_regions import neuropil_hemisphere, REGIONS
 from src.data.catalog import (
     get_neurons_file_columns,
-    get_similar_cells_file_columns,
     get_labels_file_columns,
     get_coordinates_file_columns,
     get_classes_file_columns,
@@ -55,11 +54,7 @@ NEURON_DATA_ATTRIBUTES = {
     "position": list,
     "root_id": int,
     "ser_avg": float,
-    "similar_root_id_scores": list,
-    "similar_root_ids": list,
     "supervoxel_id": list,
-    "symmetrical_root_id_scores": list,
-    "symmetrical_root_ids": list,
     "tag": list,
 }
 
@@ -73,7 +68,6 @@ class NeuronDB(object):
         labels_file_timestamp,
         coordinate_rows,
         classification_rows,
-        similar_cell_rows,
     ):
         self.neuron_data = {}
         self.label_data = {}
@@ -118,48 +112,7 @@ class NeuronDB(object):
                 "supervoxel_id": [],
                 "input_neuropils": [],
                 "output_neuropils": [],
-                "similar_root_ids": [],
-                "similar_root_id_scores": [],
-                "symmetrical_root_ids": [],
-                "symmetrical_root_id_scores": [],
             }
-
-        log(f"App initialization processing similar cells data..")
-        column_index = {}
-        for i, r in enumerate(similar_cell_rows):
-            if i == 0:
-                assert sorted(r) == sorted(get_similar_cells_file_columns())
-                column_index = {c: i for i, c in enumerate(r)}
-                continue
-
-            def _get_value(col, split=False, to_type=None):
-                def convert_type(v):
-                    return to_type(v) if to_type else v
-
-                val = r[column_index[col]]
-                if split:
-                    return [convert_type(v) for v in val.split(",")] if val else []
-                else:
-                    return convert_type(val) if val else ""
-
-            root_id = _get_value("root_id", to_type=int)
-
-            self.neuron_data[root_id].update(
-                {
-                    "similar_root_ids": _get_value(
-                        "similar_root_ids", split=True, to_type=int
-                    ),
-                    "similar_root_id_scores": _get_value(
-                        "similar_root_id_scores", split=True, to_type=float
-                    ),
-                    "symmetrical_root_ids": _get_value(
-                        "symmetrical_root_ids", split=True, to_type=int
-                    ),
-                    "symmetrical_root_id_scores": _get_value(
-                        "symmetrical_root_id_scores", split=True, to_type=float
-                    ),
-                }
-            )
 
         log(f"App initialization processing label data..")
         labels_file_columns = get_labels_file_columns()

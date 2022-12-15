@@ -35,15 +35,6 @@ _CODEX_DATA_SCHEMA = {
         "position",
         "supervoxel_id",
     ],
-    "similar_cells": [
-        "root_id",
-        "similar_root_ids",
-        "similar_root_id_scores",
-        "symmetrical_root_ids",
-        "symmetrical_root_id_scores",
-        "closest_nblast_root_ids",
-        "closest_nblast_scores",
-    ],
 }
 
 
@@ -66,6 +57,3 @@ def get_connections_file_columns():
 def get_coordinates_file_columns():
     return list(_CODEX_DATA_SCHEMA["coordinates"])
 
-
-def get_similar_cells_file_columns():
-    return list(_CODEX_DATA_SCHEMA["similar_cells"])

@@ -49,10 +49,6 @@ class NeuronDataTest(TestCase):
         check_num_values_present("nt_type", 63891)
         check_num_values_present("hemisphere_fingerprint", 66633)
         check_num_values_present("classes", 10782)
-        check_num_values_present("similar_root_ids", 0, 0)
-        check_num_values_present("similar_root_id_scores", 0, 0)
-        check_num_values_present("symmetrical_root_ids", 0, 0)
-        check_num_values_present("symmetrical_root_id_scores", 0, 0)
         check_num_values_present("input_neuropils", 63308)
         check_num_values_present("output_neuropils", 64302)
         check_num_values_present("supervoxel_id", 22155)
@@ -71,8 +67,6 @@ class NeuronDataTest(TestCase):
         for n in self.neuron_db.neuron_data.values():
             for col in [
                 "classes",
-                "similar_root_ids",
-                "symmetrical_root_ids",
                 "input_neuropils",
                 "output_neuropils",
                 "tag",
