@@ -90,6 +90,10 @@
         padding: 5px;
     }
 
+    body {
+        margin: 0px;
+    }
+
     </style>
 
 </head>
@@ -106,7 +110,7 @@
     <div class="legend-label">{{entry['label']}}</div>
     {% endfor %}
 </div>
-<div id="collapsebutton" onclick="collapseAll()"><i class="fa-solid fa-minimize"></i></div>
+<div id="collapsebutton" onclick="collapseAll()"><i class="fa-solid fa-minimize" title="Collapse All"></i></div>
 
 <script type="text/javascript">
 
@@ -324,10 +328,12 @@
         if (allCollapsed) {
             buttonCollapsed = true;
             document.querySelector("#collapsebutton > i").className = "fa-solid fa-maximize";
+            document.querySelector("#collapsebutton").title = "Expand All";
         }
         else {
             buttonCollapsed = false;
             document.querySelector("#collapsebutton > i").className = "fa-solid fa-minimize";
+            document.querySelector("#collapsebutton").title = "Collapse All";
         }
     }
 
