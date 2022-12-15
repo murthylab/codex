@@ -959,6 +959,10 @@ def pathways():
     min_syn_count = max(min_syn_count, MIN_SYN_COUNT)
     log_activity(f"Rendering pathways from {source} to {target} with {min_syn_count=}")
     neuron_db = neuron_data_factory.get()
+    for rid in [source, target]:
+        if not neuron_db.is_in_dataset(rid):
+            return render_error(message=f"Cell {rid} is not in the dataset.", title="Cell not found")
+
     plen, data_rows = pathway_chart_data_rows(
         source=source,
         target=target,
