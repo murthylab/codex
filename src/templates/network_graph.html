@@ -106,7 +106,7 @@
     <div class="legend-label">{{entry['label']}}</div>
     {% endfor %}
 </div>
-<div id="collapsebutton" onclick="collapseAll(this)"><i class="fa-solid fa-minimize"></i></div>
+<div id="collapsebutton" onclick="collapseAll()"><i class="fa-solid fa-minimize"></i></div>
 
 <script type="text/javascript">
 
@@ -141,6 +141,7 @@
         }
         cluster_data[node].collapsed = true;
         nodes.updateOnly({id: node, borderWidth: 3, shadow: true});
+        updateCollapseButton();
     }
 
     function uncluster(node) {
@@ -165,6 +166,7 @@
         }
         cluster_data[node].collapsed = false;
         nodes.updateOnly({id: node, borderWidth: 1, shadow: false});
+        updateCollapseButton();
     }
 
     // This method is responsible for drawing the graph, returns the drawn network
@@ -296,7 +298,22 @@
         mousePos = getMousePos(canvas, evt);
     }, false);
 
-    function collapseAll(collapseButton) {
+    var buttonCollapsed = false;
+
+    function collapseAll() {
+        if (buttonCollapsed) {
+            for (const node in cluster_data) {
+                uncluster(node);
+            }
+        }
+        else {
+            for (const node in cluster_data) {
+                cluster(node);
+            }
+        }
+    }
+
+    function updateCollapseButton() {
         let allCollapsed = true;
         for (const node in cluster_data) {
             if (!cluster_data[node].collapsed) {
@@ -305,16 +322,12 @@
             }
         }
         if (allCollapsed) {
-            for (const node in cluster_data) {
-                uncluster(node);
-            }
-            collapseButton.querySelector("i").className = "fa-solid fa-minimize";
+            buttonCollapsed = true;
+            document.querySelector("#collapsebutton > i").className = "fa-solid fa-maximize";
         }
         else {
-            for (const node in cluster_data) {
-                cluster(node);
-            }
-            collapseButton.querySelector("i").className = "fa-solid fa-maximize";
+            buttonCollapsed = false;
+            document.querySelector("#collapsebutton > i").className = "fa-solid fa-minimize";
         }
     }
 
