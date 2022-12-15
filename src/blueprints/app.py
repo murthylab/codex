@@ -1189,7 +1189,7 @@ def connectivity():
                 )
 
         network_html = make_graph_html(
-            connection_table=contable,
+            connection_table=[r for r in contable if r[2] in REGIONS],  # exclude unknown region connections,
             neuron_data_fetcher=lambda nid: neuron_db.get_neuron_data(nid),
             center_ids=root_ids,
             nodes_limit=nodes_limit,

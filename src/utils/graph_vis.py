@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from flask import render_template, url_for
 
-from src.data.brain_regions import neuropil_description, REGIONS
+from src.data.brain_regions import neuropil_description
 from src.utils.formatting import shorten_and_concat_labels, truncate
 
 INPUT_NEUROPIL_COLOR = "#97c2fc"
@@ -42,9 +42,6 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
     center_ids is the ids of the neurons that are being inspected
     """
     center_ids = center_ids or []
-    connection_table = [
-        r for r in connection_table if r[2] in REGIONS
-    ]  # exclude unknown region connections
 
     if len(center_ids) > nodes_limit:
         warning_msg = f"Top {nodes_limit} cells out of {len(center_ids)}"
