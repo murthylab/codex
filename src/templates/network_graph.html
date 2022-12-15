@@ -5,6 +5,7 @@
           type="text/css"/>
     <script type="text/javascript"
             src="https://cdn.jsdelivr.net/npm/vis-network@latest/dist/vis-network.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 
 
     <!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
@@ -79,6 +80,16 @@
         padding-bottom: 3px;
     }
 
+    #collapsebutton {
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        background-color: #eeeeee;
+        border-radius: 3px;
+        border: 1px solid black;
+        padding: 5px;
+    }
+
     </style>
 
 </head>
@@ -95,6 +106,7 @@
     <div class="legend-label">{{entry['label']}}</div>
     {% endfor %}
 </div>
+<div id="collapsebutton" onclick="collapseAll(this)"><i class="fa-solid fa-minimize"></i></div>
 
 <script type="text/javascript">
 
@@ -105,6 +117,55 @@
     var container;
     var options, data;
     var mousePos;
+
+    function cluster(node) {
+        if (!(node in cluster_data) || cluster_data[node].collapsed) {
+            return;
+        }
+        const c_edges = cluster_data[node].edges;
+        for (const c_edge of c_edges) {
+            if (!edges.get(c_edge.id).hidden) {
+                edges.updateOnly({id: c_edge.id, hidden: true});
+                active_edges[c_edge.from]--;
+                active_edges[c_edge.to]--;
+            }
+        }
+        const c_nodes = cluster_data[node].nodes;
+        for (const c_node of c_nodes) {
+            if (!nodes.get(c_node).hidden) {
+                cluster(c_node);
+                if (active_edges[c_node] === 0) {
+                    nodes.updateOnly({id: c_node, hidden: true});
+                }
+            }
+        }
+        cluster_data[node].collapsed = true;
+        nodes.updateOnly({id: node, borderWidth: 3, shadow: true});
+    }
+
+    function uncluster(node) {
+        if (!(node in cluster_data) || !cluster_data[node].collapsed) {
+            return;
+        }
+
+        const c_edges = cluster_data[node].edges;
+        for (const c_edge of c_edges) {
+            if (edges.get(c_edge.id).hidden) {
+                edges.updateOnly({id: c_edge.id, hidden: false});
+                active_edges[c_edge.from]++;
+                active_edges[c_edge.to]++;
+            }
+        }
+        const c_nodes = cluster_data[node].nodes;
+        for (const c_node of c_nodes) {
+            if (nodes.get(c_node).hidden) {
+                nodes.updateOnly({id: c_node, hidden: false});
+            }
+            uncluster(c_node);
+        }
+        cluster_data[node].collapsed = false;
+        nodes.updateOnly({id: node, borderWidth: 1, shadow: false});
+    }
 
     // This method is responsible for drawing the graph, returns the drawn network
     function drawGraph(solver) {
@@ -202,55 +263,6 @@
             popup.style.left = posDOM.x + "px";
         }
 
-        function cluster(node) {
-            if (!(node in cluster_data) || cluster_data[node].collapsed) {
-                return;
-            }
-            const c_edges = cluster_data[node].edges;
-            for (const c_edge of c_edges) {
-                if (!edges.get(c_edge.id).hidden) {
-                    edges.updateOnly({id: c_edge.id, hidden: true});
-                    active_edges[c_edge.from]--;
-                    active_edges[c_edge.to]--;
-                }
-            }
-            const c_nodes = cluster_data[node].nodes;
-            for (const c_node of c_nodes) {
-                if (!nodes.get(c_node).hidden) {
-                    cluster(c_node);
-                    if (active_edges[c_node] === 0) {
-                        nodes.updateOnly({id: c_node, hidden: true});
-                    }
-                }
-            }
-            cluster_data[node].collapsed = true;
-            nodes.updateOnly({id: node, borderWidth: 3, shadow: true});
-        }
-
-        function uncluster(node) {
-            if (!(node in cluster_data) || !cluster_data[node].collapsed) {
-                return;
-            }
-
-            const c_edges = cluster_data[node].edges;
-            for (const c_edge of c_edges) {
-                if (edges.get(c_edge.id).hidden) {
-                    edges.updateOnly({id: c_edge.id, hidden: false});
-                    active_edges[c_edge.from]++;
-                    active_edges[c_edge.to]++;
-                }
-            }
-            const c_nodes = cluster_data[node].nodes;
-            for (const c_node of c_nodes) {
-                if (nodes.get(c_node).hidden) {
-                    nodes.updateOnly({id: c_node, hidden: false});
-                }
-                uncluster(c_node);
-            }
-            cluster_data[node].collapsed = false;
-            nodes.updateOnly({id: node, borderWidth: 1, shadow: false});
-        }
-
         network.on("selectNode", function (params) {
             if (params.nodes.length == 1) {
                 const node = params.nodes[0];
@@ -284,6 +296,27 @@
         mousePos = getMousePos(canvas, evt);
     }, false);
 
+    function collapseAll(collapseButton) {
+        let allCollapsed = true;
+        for (const node in cluster_data) {
+            if (!cluster_data[node].collapsed) {
+                allCollapsed = false;
+                break;
+            }
+        }
+        if (allCollapsed) {
+            for (const node in cluster_data) {
+                uncluster(node);
+            }
+            collapseButton.querySelector("i").className = "fa-solid fa-minimize";
+        }
+        else {
+            for (const node in cluster_data) {
+                cluster(node);
+            }
+            collapseButton.querySelector("i").className = "fa-solid fa-maximize";
+        }
+    }
 
 </script>
 </body>
