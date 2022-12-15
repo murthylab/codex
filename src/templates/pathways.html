@@ -38,7 +38,30 @@
       ]);
 
       // Set chart options
-      var options = {width: '95%', height: '95%'};
+      var options = {
+         width: '95%',
+         height: '95%',
+         sankey: { node: {
+             label: {
+               fontName: 'Times-Roman',
+               fontSize: 10,
+               color: '#000',
+               bold: false,
+               italic: false
+             },
+             interactivity: true, // Allows you to select nodes.
+             labelPadding: 5,     // Horizontal distance between the label and the node.
+             nodePadding: 10,     // Vertical distance between nodes.
+             width: 5,            // Thickness of the node.
+             colors: [
+               '#a6cee3',         // Custom color palette for sankey nodes.
+               '#1f78b4',         // Nodes will cycle through this palette
+               '#b2df8a',         // giving each node its own color.
+               '#33a02c'
+             ]
+            }
+         },
+      };
 
       // Instantiate and draw the chart.
       var chart = new google.visualization.Sankey(document.getElementById('container'));

@@ -808,7 +808,9 @@ def _cached_cell_details(
 @request_wrapper
 @require_data_access
 def nblast():
-    sample_input = "720575940634139799, 720575940626843194, 720575940631740497, 720575940608893891"
+    sample_input = (
+        "720575940634139799, 720575940626843194, 720575940631740497, 720575940608893891"
+    )
     source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
     if not source_cell_names_or_ids and not target_cell_names_or_ids:
@@ -961,7 +963,9 @@ def pathways():
     neuron_db = neuron_data_factory.get()
     for rid in [source, target]:
         if not neuron_db.is_in_dataset(rid):
-            return render_error(message=f"Cell {rid} is not in the dataset.", title="Cell not found")
+            return render_error(
+                message=f"Cell {rid} is not in the dataset.", title="Cell not found"
+            )
 
     plen, data_rows = pathway_chart_data_rows(
         source=source,
