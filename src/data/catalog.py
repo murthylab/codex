@@ -56,4 +56,3 @@ def get_connections_file_columns():
 
 def get_coordinates_file_columns():
     return list(_CODEX_DATA_SCHEMA["coordinates"])
-
