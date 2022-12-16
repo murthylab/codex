@@ -1136,7 +1136,7 @@ def connectivity():
         "log_request", default=0 if headless else 1, type=int
     )
     if log_request:
-        log_activity(f"Generating network for '{cell_names_or_ids}' {download=}")
+        log_activity((f"Downloading {download}" if download else "Generating") + " network for '{cell_names_or_ids}'")
 
     root_ids = []
     message = None
@@ -1165,6 +1165,8 @@ def connectivity():
                 f"Generated connections table for {len(root_ids)} cells with {nodes_limit=}, {download=} {min_syn_cnt=} {nt_type=}"
             )
         if download:
+            if len(contable) > 100000:
+                return render_error(message=f"The network generetad for your query is too large to download ({len(contable)} connections). Please refine the query and try again.", title="Selected network is too large for download")
             if download.lower() == "json":
                 return Response(
                     json.dumps(

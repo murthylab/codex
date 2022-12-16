@@ -15,6 +15,7 @@ NT_COLORS = {
     "ser": "#ff99ff",
     "da": "#99ffff",
 }
+UNKNOWN_NT_COLOR = "#cccccc"
 UNSPECIFIED_COLOR = "#fafafa"
 
 
@@ -122,7 +123,7 @@ def make_graph_html(
         return f"{num} synapses"
 
     def nt_color(nt_type):
-        return NT_COLORS.get(nt_type.lower(), UNSPECIFIED_COLOR)
+        return NT_COLORS.get(nt_type.lower(), UNKNOWN_NT_COLOR)
 
     def edge_width(from_id):
         return 2 if from_id in center_ids else 1
@@ -150,7 +151,7 @@ def make_graph_html(
             added_cell_nodes.add(nid)
             nt_type = nt_type_getter(nid)
             if add_legend:
-                net.add_legend(nt_type.upper(), color=nt_color(nt_type))
+                net.add_legend(nt_type.upper() or "Unspecified NT type", color=nt_color(nt_type))
 
     added_pil_nodes = set()
 
