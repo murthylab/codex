@@ -1122,7 +1122,7 @@ def connectivity():
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     connections_cap = request.args.get("cap", 20, type=int)
     reduce = request.args.get("reduce", 0, type=int)
-    break_by_neuropils = request.args.get("break_by_neuropils", 1, type=int)
+    group_regions = request.args.get("group_regions", 0, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     if (
         request.args.get("with_sample_input", type=int, default=0)
@@ -1250,7 +1250,7 @@ def connectivity():
             tag_getter=tag_getter,
             class_getter=class_getter,
             nt_type_getter=nt_type_getter,
-            break_by_neuropils=break_by_neuropils,
+            group_regions=group_regions,
         )
         if headless:
             return network_html
@@ -1266,6 +1266,10 @@ def connectivity():
                 info_text=None,
                 sample_input=None,
                 message=message,
+                data_versions=neuron_data_factory.available_versions(),
+                data_version=data_version,
+                reduce=reduce,
+                group_regions=group_regions,
             )
     else:
         con_doc = FAQ_QA_KB["connectivity"]
@@ -1281,6 +1285,10 @@ def connectivity():
             f"{con_doc['a']}",
             sample_input=sample_input,
             message=None,
+            data_versions=neuron_data_factory.available_versions(),
+            data_version=data_version,
+            reduce=reduce,
+            group_regions=group_regions,
         )
 
 

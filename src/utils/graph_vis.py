@@ -32,7 +32,7 @@ def make_graph_html(
     tag_getter,
     class_getter,
     nt_type_getter,
-    break_by_neuropils,
+    group_regions,
 ):
     """
     connection_table has 4 columns: pre root id, post root id, neuropil, syn count
@@ -166,7 +166,7 @@ def make_graph_html(
                 net.add_legend("Output Neuropil", color=OUTPUT_NEUROPIL_COLOR)
         return node_name
 
-    if break_by_neuropils:
+    if not group_regions:
         cell_to_pil_counts = defaultdict(int)
         pil_to_cell_counts = defaultdict(int)
         for r in connection_table:

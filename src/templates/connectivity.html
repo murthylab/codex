@@ -17,20 +17,15 @@
                     elem.form.submit();
                 }
             </script>
+            {% include "network_settings.html" %}
+
             <a class="btn btn btn-outline-primary my-2 my-sm-0" style="margin: 5px;"
                onclick="download_data('csv');"><i class="fa-solid fa-download"></i> CSV</a>
             <a class="btn btn btn-outline-primary my-2 my-sm-0"
                 onclick="download_data('json');"><i class="fa-solid fa-download"></i> JSON</a>
 
-            {% if max_cap > 1 %}
-            <div style="margin-left: 5px; margin-right: 5px;">
-                <label for="cap" class="form-label"><small>top connections: {{cap}}</small></label>
-                <input type="range" class="form-range" min="1" max="{{max_cap}}" id="cap" name="cap" value="{{cap}}" onchange="loading(); this.form.submit();">
-            </div>
-            {% endif %}
-
-            <div class="dropdown">
-              <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <div style="margin-left: 5px;" class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fa-solid fa-repeat"></i>
               </button>
               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
