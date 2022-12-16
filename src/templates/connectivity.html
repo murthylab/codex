@@ -22,10 +22,10 @@
             <a class="btn btn btn-outline-primary my-2 my-sm-0"
                 onclick="download_data('json');"><i class="fa-solid fa-download"></i> JSON</a>
 
-            {% if max_nodes_limit > 1 %}
+            {% if max_cap > 1 %}
             <div style="margin-left: 5px; margin-right: 5px;">
-                <label for="nodes_limit" class="form-label"><small>detail level: {{nodes_limit}}</small></label>
-                <input type="range" class="form-range" min="1" max="{{max_nodes_limit}}" id="nodes_limit" name="nodes_limit" value="{{nodes_limit}}" onchange="loading(); this.form.submit();">
+                <label for="cap" class="form-label"><small>top connections: {{cap}}</small></label>
+                <input type="range" class="form-range" min="1" max="{{max_cap}}" id="cap" name="cap" value="{{cap}}" onchange="loading(); this.form.submit();">
             </div>
             {% endif %}
 

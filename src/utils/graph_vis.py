@@ -19,27 +19,14 @@ UNKNOWN_NT_COLOR = "#cccccc"
 UNSPECIFIED_COLOR = "#fafafa"
 
 
-def cap(connection_table, center_ids, nodes_limit):
-    node_to_syn_count = {n: 0 for n in center_ids}
-    for r in connection_table:
-        if r[0] in node_to_syn_count:
-            node_to_syn_count[r[0]] += r[3]
-        if r[1] in node_to_syn_count:
-            node_to_syn_count[r[1]] += r[3]
-    center_ids = [
-        t[0]
-        for t in sorted(node_to_syn_count.items(), key=lambda p: -p[1])[:nodes_limit]
-    ]
-    connection_table = [
-        r for r in connection_table if (r[0] in center_ids or r[1] in center_ids)
-    ]
-    return connection_table, center_ids
+def cap(connection_table, connections_cap):
+    return sorted(connection_table, key=lambda r: -r[3])[:connections_cap]
 
 
 def make_graph_html(
     connection_table,
     center_ids,
-    nodes_limit,
+    connections_cap,
     name_getter,
     caption_getter,
     tag_getter,
@@ -53,16 +40,18 @@ def make_graph_html(
     center_ids is the ids of the neurons that are being inspected
     """
     center_ids = center_ids or []
-
-    if len(center_ids) > nodes_limit:
-        warning_msg = f"Top {nodes_limit} cells out of {len(center_ids)}"
-        connection_table, center_ids = cap(
-            connection_table=connection_table,
-            center_ids=center_ids,
-            nodes_limit=nodes_limit,
+    warning_msg = None
+    if len(connection_table) > connections_cap:
+        warning_msg = (
+            f"Top {connections_cap} connections out of {len(connection_table)}"
         )
-    else:
-        warning_msg = None
+        connection_table = cap(
+            connection_table=connection_table,
+            connections_cap=connections_cap,
+        )
+    node_ids = set([r[0] for r in connection_table]).union(
+        [r[1] for r in connection_table]
+    )
 
     def node_size(nid):
         return 10 if nid in center_ids else 5
@@ -89,7 +78,7 @@ def make_graph_html(
         return node_id in center_ids
 
     def node_label(nid):
-        if nid in center_ids or nodes_limit < 10:
+        if nid in center_ids or len(node_ids) < 10:
             return caption_getter(nid)
         else:
             return " "
@@ -151,7 +140,9 @@ def make_graph_html(
             added_cell_nodes.add(nid)
             nt_type = nt_type_getter(nid)
             if add_legend:
-                net.add_legend(nt_type.upper() or "Unspecified NT type", color=nt_color(nt_type))
+                net.add_legend(
+                    nt_type.upper() or "Unspecified NT type", color=nt_color(nt_type)
+                )
 
     added_pil_nodes = set()
 
@@ -185,9 +176,7 @@ def make_graph_html(
             cell_to_pil_counts[(r[0], pil_name)] += r[3]
             pil_to_cell_counts[(pil_name, r[1])] += r[3]
 
-        for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[
-            : 2 * nodes_limit
-        ]:
+        for k, v in cell_to_pil_counts.items():
             add_cell_node(k[0])
             pnid = add_pil_node(k[1], is_input=k[0] not in center_ids)
             net.add_edge(
@@ -197,9 +186,7 @@ def make_graph_html(
                 label=str(v),
                 title=edge_title(v),
             )
-        for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[
-            : 2 * nodes_limit
-        ]:
+        for k, v in pil_to_cell_counts.items():
             add_cell_node(k[1])
             pnid = add_pil_node(k[0], is_input=k[1] in center_ids)
             net.add_edge(
@@ -218,9 +205,7 @@ def make_graph_html(
             else:
                 cell_loop_counts[r[0]] += r[3]
 
-        for k, v in sorted(cell_to_cell_counts.items(), key=lambda x: -x[1])[
-            : 2 * nodes_limit
-        ]:
+        for k, v in cell_to_cell_counts.items():
             add_cell_node(k[0], add_title=False, add_legend=False)
             add_cell_node(k[1], add_legend=False)
             net.add_edge(
