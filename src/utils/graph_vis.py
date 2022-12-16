@@ -3,7 +3,7 @@ from collections import defaultdict
 from flask import render_template, url_for
 
 from src.data.brain_regions import neuropil_description
-from src.utils.formatting import shorten_and_concat_labels, truncate
+from src.utils.formatting import shorten_and_concat_labels
 
 INPUT_NEUROPIL_COLOR = "#97c2fc"
 OUTPUT_NEUROPIL_COLOR = "#fcc297"
@@ -150,7 +150,7 @@ def make_graph_html(
             added_cell_nodes.add(nid)
             nt_type = nt_type_getter(nid)
             if add_legend:
-                net.add_legend(nt_type.upper(), color=nt_color(nt_type))
+                net.add_legend(nt_type.upper() or "Unknown", color=nt_color(nt_type))
 
     added_pil_nodes = set()
 
@@ -309,7 +309,7 @@ class Network(object):
             "arrowStrikethrough": True,
             "width": width,
             "dashes": False,
-            "selfReferenceSize": 20,
+            "selfReference": {"size": 20},
         }
         self.edges.append(edge)
 
