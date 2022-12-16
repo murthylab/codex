@@ -166,7 +166,30 @@ def make_graph_html(
                 net.add_legend("Output Neuropil", color=OUTPUT_NEUROPIL_COLOR)
         return node_name
 
-    if not group_regions:
+    if group_regions:
+        cell_to_cell_counts = defaultdict(int)
+        cell_loop_counts = defaultdict(int)
+        for r in connection_table:
+            if r[0] != r[1]:
+                cell_to_cell_counts[(r[0], r[1])] += r[3]
+            else:
+                cell_loop_counts[r[0]] += r[3]
+
+        for k, v in cell_to_cell_counts.items():
+            add_cell_node(k[0], add_title=False, add_legend=False)
+            add_cell_node(k[1], add_legend=False)
+            net.add_edge(
+                source=k[0],
+                target=k[1],
+                width=max(1, len(str(round(v / 1000)))),
+                label=str(round(v / 1000)) + "k",
+                title=edge_title(v),
+            )
+
+        net.add_legend(f"Intra class synapse counts", "white")
+        for k, v in sorted(cell_loop_counts.items(), key=lambda x: -x[1]):
+            net.add_legend(f"  {round(v/1000)}k in {k}", "white")
+    else:
         cell_to_pil_counts = defaultdict(int)
         pil_to_cell_counts = defaultdict(int)
         for r in connection_table:
@@ -196,29 +219,6 @@ def make_graph_html(
                 label=str(v),
                 title=edge_title(v),
             )
-    else:
-        cell_to_cell_counts = defaultdict(int)
-        cell_loop_counts = defaultdict(int)
-        for r in connection_table:
-            if r[0] != r[1]:
-                cell_to_cell_counts[(r[0], r[1])] += r[3]
-            else:
-                cell_loop_counts[r[0]] += r[3]
-
-        for k, v in cell_to_cell_counts.items():
-            add_cell_node(k[0], add_title=False, add_legend=False)
-            add_cell_node(k[1], add_legend=False)
-            net.add_edge(
-                source=k[0],
-                target=k[1],
-                width=max(1, len(str(round(v / 1000)))),
-                label=str(round(v / 1000)) + "k",
-                title=edge_title(v),
-            )
-
-        net.add_legend(f"Intra class synapse counts", "white")
-        for k, v in sorted(cell_loop_counts.items(), key=lambda x: -x[1]):
-            net.add_legend(f"  {round(v/1000)}k in {k}", "white")
 
     return net.generate_html(warning_msg=warning_msg)
 
