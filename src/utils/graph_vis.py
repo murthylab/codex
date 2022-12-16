@@ -35,7 +35,7 @@ def cap(connection_table, center_ids, nodes_limit):
     return connection_table, center_ids
 
 
-def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_limit):
+def make_graph_html(connection_table, center_ids, nodes_limit, name_getter, caption_getter, tag_getter, class_getter, nt_type_getter, break_by_neuropils):
     """
     connection_table has 4 columns: pre root id, post root id, neuropil, syn count
     neuron_data_fetcher is a lambda that returns neuron metadata given it's id
@@ -53,8 +53,8 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
     else:
         warning_msg = None
 
-    def node_size(ndata):
-        return 10 if ndata["root_id"] in center_ids else 5
+    def node_size(nid):
+        return 10 if nid in center_ids else 5
 
     def pil_size():
         return 5
@@ -65,39 +65,37 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
         else:
             return 3 if node_id in center_ids else 1
 
-    def node_shape(ndata):
-        return "ellipse" if ndata["root_id"] in center_ids else "dot"
+    def node_shape(nid):
+        return "ellipse" if nid in center_ids else "dot"
 
-    def node_position(ndata):
+    def node_position(nid):
         return None, None
 
-    def node_color(ndata):
-        return nt_color(ndata["nt_type"])
+    def node_color(nid):
+        return nt_color(nt_type_getter(nid))
 
     def node_clusterable(node_id):
         return node_id in center_ids
 
-    def node_label(nd):
-        if nd["root_id"] in center_ids or nodes_limit < 10:
-            labels = sorted(nd["tag"], key=lambda x: len(x))
-            lbl = labels[0] if labels else nd["name"]
-            return truncate(lbl, 15)
+    def node_label(nid):
+        if nid in center_ids or nodes_limit < 10:
+            return caption_getter(nid)
         else:
             return " "
 
-    def node_title(nd):
-        rid = nd["root_id"]
-        name = nd["name"]
-        class_and_annotations = nd["class"]
-        if nd["tag"]:
-            tags_str = shorten_and_concat_labels(nd["tag"])
+    def node_title(nid):
+        name = name_getter(nid)
+        class_and_annotations = class_getter(nid)
+        tags = tag_getter(nid)
+        if tags:
+            tags_str = shorten_and_concat_labels(tags)
             class_and_annotations += f"<br>{tags_str}"
 
-        prefix = "queried cell" if rid in center_ids else "connected cell"
-        cell_detail_url = url_for("app.cell_details", root_id=rid)
-        thumbnail_url = url_for("base.skeleton_thumbnail_url", root_id=rid)
+        prefix = "queried cell" if nid in center_ids else "connected cell"
+        cell_detail_url = url_for("app.cell_details", root_id=nid)
+        thumbnail_url = url_for("base.skeleton_thumbnail_url", root_id=nid)
         return (
-            f'<a href="{cell_detail_url}" target="_parent">{name}</a> [{prefix}]<br><small>{rid}'
+            f'<a href="{cell_detail_url}" target="_parent">{name}</a> [{prefix}]<br><small>{nid}'
             f"</small><br><small>{class_and_annotations}</small><br>"
             f'<a href="{cell_detail_url}" target="_parent">'
             f'<img src="{thumbnail_url}" width="200px" height="150px;" border="0px;"></a>'
@@ -116,42 +114,37 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
     def nt_color(nt_type):
         return NT_COLORS.get(nt_type.lower(), UNSPECIFIED_COLOR)
 
-    net = Network()
+    def edge_width(from_id):
+        return 2 if from_id in center_ids else 1
 
-    cell_to_pil_counts = defaultdict(int)
-    pil_to_cell_counts = defaultdict(int)
-    for r in connection_table:
-        pil_name = r[2]
-        if not pil_name or pil_name == "None":
-            pil_name = "Neuropil NA"
-        cell_to_pil_counts[(r[0], pil_name)] += r[3]
-        pil_to_cell_counts[(pil_name, r[1])] += r[3]
+    net = Network()
 
     added_cell_nodes = set()
 
-    def add_cell_node(nid):
+    def add_cell_node(nid, add_title=True, add_legend=True):
         if nid not in added_cell_nodes:
-            nd = neuron_data_fetcher(nid)
-            x, y = node_position(nd)
+            x, y = node_position(nid)
             net.add_node(
-                name=nd["root_id"],
-                label=node_label(nd),
-                title=node_title(nd),
-                color=node_color(nd),
-                shape=node_shape(nd),
-                size=node_size(nd),
-                mass=node_mass(nd["root_id"]),
+                name=nid,
+                label=node_label(nid),
+                title=node_title(nid) if add_title else '',
+                color=node_color(nid),
+                shape=node_shape(nid),
+                size=node_size(nid),
+                mass=node_mass(nid),
                 x=x,
                 y=y,
-                cluster_inputs=node_clusterable(nd["root_id"]),
-                cluster_outputs=node_clusterable(nd["root_id"]),
+                cluster_inputs=node_clusterable(nid),
+                cluster_outputs=node_clusterable(nid),
             )
             added_cell_nodes.add(nid)
-            net.add_legend(nd["nt_type"].upper(), color=nt_color(nd["nt_type"]))
+            nt_type = nt_type_getter(nid)
+            if add_legend:
+                net.add_legend(nt_type.upper(), color=nt_color(nt_type))
 
     added_pil_nodes = set()
 
-    def add_pil_node(pil, is_input):
+    def add_pil_node(pil, is_input, add_legend=True):
         node_name = f"{pil}_{'in' if is_input else 'out'}"
         if node_name not in added_pil_nodes:
             net.add_node(
@@ -166,35 +159,70 @@ def make_graph_html(connection_table, neuron_data_fetcher, center_ids, nodes_lim
                 cluster_outputs=not is_input,
             )
             added_pil_nodes.add(node_name)
-            net.add_legend("Input Neuropil", color=INPUT_NEUROPIL_COLOR)
-            net.add_legend("Output Neuropil", color=OUTPUT_NEUROPIL_COLOR)
+            if add_legend:
+                net.add_legend("Input Neuropil", color=INPUT_NEUROPIL_COLOR)
+                net.add_legend("Output Neuropil", color=OUTPUT_NEUROPIL_COLOR)
         return node_name
 
-    # add the most significant
-    for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[
-        : 2 * nodes_limit
-    ]:
-        add_cell_node(k[0])
-        pnid = add_pil_node(k[1], is_input=k[0] not in center_ids)
-        net.add_edge(
-            source=k[0],
-            target=pnid,
-            weak=k[0] not in center_ids,
-            label=str(v),
-            title=edge_title(v),
-        )
-    for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[
-        : 2 * nodes_limit
-    ]:
-        add_cell_node(k[1])
-        pnid = add_pil_node(k[0], is_input=k[1] in center_ids)
-        net.add_edge(
-            source=pnid,
-            target=k[1],
-            weak=k[1] not in center_ids,
-            label=str(v),
-            title=edge_title(v),
-        )
+    if break_by_neuropils:
+        cell_to_pil_counts = defaultdict(int)
+        pil_to_cell_counts = defaultdict(int)
+        for r in connection_table:
+            pil_name = r[2]
+            if not pil_name or pil_name == "None":
+                pil_name = "Neuropil NA"
+            cell_to_pil_counts[(r[0], pil_name)] += r[3]
+            pil_to_cell_counts[(pil_name, r[1])] += r[3]
+
+        for k, v in sorted(cell_to_pil_counts.items(), key=lambda x: -x[1])[
+            : 2 * nodes_limit
+        ]:
+            add_cell_node(k[0])
+            pnid = add_pil_node(k[1], is_input=k[0] not in center_ids)
+            net.add_edge(
+                source=k[0],
+                target=pnid,
+                width=edge_width(k[0]),
+                label=str(v),
+                title=edge_title(v),
+            )
+        for k, v in sorted(pil_to_cell_counts.items(), key=lambda x: -x[1])[
+            : 2 * nodes_limit
+        ]:
+            add_cell_node(k[1])
+            pnid = add_pil_node(k[0], is_input=k[1] in center_ids)
+            net.add_edge(
+                source=pnid,
+                target=k[1],
+                width=edge_width(k[1]),
+                label=str(v),
+                title=edge_title(v),
+            )
+    else:
+        cell_to_cell_counts = defaultdict(int)
+        cell_loop_counts = defaultdict(int)
+        for r in connection_table:
+            if r[0] != r[1]:
+                cell_to_cell_counts[(r[0], r[1])] += r[3]
+            else:
+                cell_loop_counts[r[0]] += r[3]
+
+        for k, v in sorted(cell_to_cell_counts.items(), key=lambda x: -x[1])[
+            : 2 * nodes_limit
+        ]:
+            add_cell_node(k[0], add_title=False, add_legend=False)
+            add_cell_node(k[1], add_legend=False)
+            net.add_edge(
+                source=k[0],
+                target=k[1],
+                width=v,
+                label=str(round(v / 1000)) + "k",
+                title=edge_title(v),
+            )
+
+        net.add_legend(f"Intra class synapse counts", "white")
+        for k, v in sorted(cell_loop_counts.items(), key=lambda x: -x[1]):
+            net.add_legend(f"  {round(v/1000)}k in {k}", "white")
 
     return net.generate_html(warning_msg=warning_msg)
 
@@ -254,7 +282,7 @@ class Network(object):
                 }
             self.active_edges[name] = 0
 
-    def add_edge(self, source, target, weak, label, title):
+    def add_edge(self, source, target, width, label, title):
         source = str(source)
         target = str(target)
         assert source in self.node_map, f"non existent node '{str(source)}'"
@@ -268,8 +296,10 @@ class Network(object):
             "label": label,
             "title": title,
             "arrows": "to",
-            "width": 1 if weak else 2,
+            "arrowStrikethrough": True,
+            "value": width,
             "dashes": False,
+            "selfReferenceSize": 20,
         }
         self.edges.append(edge)
 

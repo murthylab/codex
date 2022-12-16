@@ -19,7 +19,7 @@ from src.data.structured_search_filters import (
     parse_search_query,
 )
 from src.configuration import MIN_SYN_COUNT
-from src.utils.formatting import compact_tag, nanometer_to_flywire_coordinates
+from src.utils.formatting import compact_tag, nanometer_to_flywire_coordinates, truncate
 from src.utils.logging import log
 
 # Keywords will be matched against these attributes
@@ -447,6 +447,12 @@ class NeuronDB(object):
             log(f"No data exists for {root_id} in {len(self.neuron_data)} records")
             nd = {}
         return nd
+
+    def get_neuron_caption(self, root_id):
+        nd = self.get_neuron_data(root_id)
+        labels = sorted(nd["tag"], key=lambda x: len(x))
+        lbl = labels[0] if labels else nd["name"]
+        return truncate(lbl, 15)
 
     def get_label_data(self, root_id):
         root_id = int(root_id)

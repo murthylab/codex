@@ -1113,6 +1113,8 @@ def connectivity():
     nt_type = request.args.get("nt_type", None)
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     nodes_limit = request.args.get("nodes_limit", 10, type=int)
+    reduce = request.args.get("reduce", 0, type=int)
+    break_by_neuropils = request.args.get("break_by_neuropils", 1, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     if (
         request.args.get("with_sample_input", type=int, default=0)
@@ -1188,11 +1190,44 @@ def connectivity():
                     },
                 )
 
+        # exclude unknown region connections,
+        connection_table = [list(r) for r in contable if r[2] in REGIONS]
+        if reduce:
+            def node_projection(nid):
+                nd = neuron_db.get_neuron_data(nid)
+                return f"{nd['class']}".replace(' neuron', '')
+
+            def pil_projection(pil):
+                return neuropil_hemisphere(pil)
+
+            def project_row(row):
+                return [node_projection(row[0]), node_projection(row[1]), pil_projection(row[2])] + row[3:]
+
+            connection_table = [project_row(r) for r in connection_table]
+            name_getter = lambda x: x
+            caption_getter = lambda x: x
+            tag_getter = lambda x: []
+            class_getter = lambda x: x
+            nt_type_getter = lambda x: x
+            center_ids = list(set([r[0] for r in connection_table]).union([r[1] for r in connection_table]))
+        else:
+            name_getter = lambda x: neuron_db.get_neuron_data(x)["name"]
+            caption_getter = lambda x: neuron_db.get_neuron_caption(x)
+            tag_getter = lambda x: neuron_db.get_neuron_data(x)["tag"]
+            class_getter = lambda x: neuron_db.get_neuron_data(x)["class"]
+            nt_type_getter = lambda x: neuron_db.get_neuron_data(x)["nt_type"]
+            center_ids = root_ids
+
         network_html = make_graph_html(
-            connection_table=[r for r in contable if r[2] in REGIONS],  # exclude unknown region connections,
-            neuron_data_fetcher=lambda nid: neuron_db.get_neuron_data(nid),
-            center_ids=root_ids,
+            connection_table=connection_table,
+            center_ids=center_ids,
             nodes_limit=nodes_limit,
+            name_getter=name_getter,
+            caption_getter=caption_getter,
+            tag_getter=tag_getter,
+            class_getter=class_getter,
+            nt_type_getter=nt_type_getter,
+            break_by_neuropils=break_by_neuropils,
         )
         if headless:
             return network_html
