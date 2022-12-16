@@ -1193,15 +1193,20 @@ def connectivity():
         # exclude unknown region connections,
         connection_table = [list(r) for r in contable if r[2] in REGIONS]
         if reduce:
+
             def node_projection(nid):
                 nd = neuron_db.get_neuron_data(nid)
-                return f"{nd['class']}".replace(' neuron', '')
+                return f"{nd['class']}".replace(" neuron", "")
 
             def pil_projection(pil):
                 return neuropil_hemisphere(pil)
 
             def project_row(row):
-                return [node_projection(row[0]), node_projection(row[1]), pil_projection(row[2])] + row[3:]
+                return [
+                    node_projection(row[0]),
+                    node_projection(row[1]),
+                    pil_projection(row[2]),
+                ] + row[3:]
 
             connection_table = [project_row(r) for r in connection_table]
             name_getter = lambda x: x
@@ -1209,7 +1214,11 @@ def connectivity():
             tag_getter = lambda x: []
             class_getter = lambda x: x
             nt_type_getter = lambda x: x
-            center_ids = list(set([r[0] for r in connection_table]).union([r[1] for r in connection_table]))
+            center_ids = list(
+                set([r[0] for r in connection_table]).union(
+                    [r[1] for r in connection_table]
+                )
+            )
         else:
             name_getter = lambda x: neuron_db.get_neuron_data(x)["name"]
             caption_getter = lambda x: neuron_db.get_neuron_caption(x)

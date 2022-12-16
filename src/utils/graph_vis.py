@@ -35,7 +35,17 @@ def cap(connection_table, center_ids, nodes_limit):
     return connection_table, center_ids
 
 
-def make_graph_html(connection_table, center_ids, nodes_limit, name_getter, caption_getter, tag_getter, class_getter, nt_type_getter, break_by_neuropils):
+def make_graph_html(
+    connection_table,
+    center_ids,
+    nodes_limit,
+    name_getter,
+    caption_getter,
+    tag_getter,
+    class_getter,
+    nt_type_getter,
+    break_by_neuropils,
+):
     """
     connection_table has 4 columns: pre root id, post root id, neuropil, syn count
     neuron_data_fetcher is a lambda that returns neuron metadata given it's id
@@ -127,7 +137,7 @@ def make_graph_html(connection_table, center_ids, nodes_limit, name_getter, capt
             net.add_node(
                 name=nid,
                 label=node_label(nid),
-                title=node_title(nid) if add_title else '',
+                title=node_title(nid) if add_title else "",
                 color=node_color(nid),
                 shape=node_shape(nid),
                 size=node_size(nid),
@@ -215,7 +225,7 @@ def make_graph_html(connection_table, center_ids, nodes_limit, name_getter, capt
             net.add_edge(
                 source=k[0],
                 target=k[1],
-                width=v,
+                width=max(1, len(str(round(v / 1000)))),
                 label=str(round(v / 1000)) + "k",
                 title=edge_title(v),
             )
@@ -297,7 +307,7 @@ class Network(object):
             "title": title,
             "arrows": "to",
             "arrowStrikethrough": True,
-            "value": width,
+            "width": width,
             "dashes": False,
             "selfReferenceSize": 20,
         }
