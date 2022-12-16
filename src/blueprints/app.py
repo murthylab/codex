@@ -566,6 +566,14 @@ def _cached_cell_details(
     cell_attributes = {
         "Name": nd["name"],
         "FlyWire Root ID": f'{root_id}<br><small><a href="{nglui.url_for_root_ids([root_id], version=data_version, point_to_proofreading_flywire=True)}">Open in FlyWire <i class="fa-solid fa-up-right-from-square"></i> </a></small>',
+        "Partners<br><small>Synapses</small>": "{:,}".format(nd["input_cells"])
+        + " in, "
+        + "{:,}".format(nd["output_cells"])
+        + " out<br><small>"
+        + "{:,}".format(nd["input_synapses"])
+        + " in, "
+        + "{:,}".format(nd["output_synapses"])
+        + " out</small>",
         "Classification": nd["class"],
         f'Labels<br><span style="font-size: 9px; color: purple;">Updated {neuron_db.labels_ingestion_timestamp()}</span>': concat_labels(
             tags
