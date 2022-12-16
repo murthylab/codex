@@ -201,11 +201,52 @@ def summarize_csv(content):
     return content
 
 
-def compare_csvs(old_table, new_table, first_cols=999999):
-    old_row_set = set([",".join([str(d) for d in r[:first_cols]]) for r in old_table])
-    new_row_set = set([",".join([str(d) for d in r[:first_cols]]) for r in new_table])
-    print(f"Rows in old but not new: {len(old_row_set - new_row_set)}")
-    print(f"Rows in new but not old: {len(new_row_set - old_row_set)}")
+def compare_csvs(
+    old_table, new_table, summarize_diffs=True, print_diffs=0, first_cols=999999
+):
+    def summarize(hdr, diff_rows):
+        summarize_csv([hdr] + [r.split(",") for r in diff_rows])
+
+    def prntdiffs(diff_rows):
+        for i, r in enumerate(diff_rows):
+            if i >= print_diffs:
+                print(
+                    f"Reached limit, skipping {len(diff_rows) - print_diffs} of the remaining diffs"
+                )
+                break
+            print(f"   {r}")
+
+    hdr = old_table[0]
+    if hdr != new_table[0]:
+        print(f"Uncomparable tables:\n{hdr}\n{new_table[0]}")
+        return
+
+    old_row_set = set(
+        [
+            ",".join([str(d).replace(",", ";") for d in r[:first_cols]])
+            for r in old_table
+        ]
+    )
+    new_row_set = set(
+        [
+            ",".join([str(d).replace(",", ";") for d in r[:first_cols]])
+            for r in new_table
+        ]
+    )
+
+    dfset = old_row_set - new_row_set
+    print(f"Rows in old but not new: {len(dfset)}")
+    if summarize_diffs:
+        summarize(hdr, dfset)
+    if print_diffs:
+        prntdiffs(dfset)
+
+    dfset = new_row_set - old_row_set
+    print(f"Rows in new but not old: {len(dfset)}")
+    if summarize_diffs:
+        summarize(hdr, dfset)
+    if print_diffs:
+        prntdiffs(dfset)
 
 
 def update_cave_data_file(name, db_load_func, cave_client, version):
@@ -323,10 +364,23 @@ def remove_columns(version, columns_to_remove, filename):
         print(f"None of the columns {columns_to_remove} found in {fpath}.")
 
 
+def compare_with_backup(version, resource):
+    print(f"Comparing {resource} against backup, {version=}..")
+    fpath = compiled_data_file_path(version=version, filename=f"{resource}.csv.gz")
+    fpath_bkp = compiled_data_file_path(
+        version=version, filename=f"{resource}_bkp.csv.gz"
+    )
+
+    new_content = read_csv(fpath)
+    old_content = read_csv(fpath_bkp)
+    compare_csvs(old_content, new_content, print_diffs=10)
+
+
 if __name__ == "__main__":
     config = {
         "versions": DATA_SNAPSHOT_VERSIONS,
         "columns_to_remove": {},
+        "compare_with_backup": [],
         "update_coordinates": False,
         "update_classifications": False,
         "update_connections": False,
@@ -338,6 +392,8 @@ if __name__ == "__main__":
         print(
             f"#######################\nCompiling version {v}..\n#######################"
         )
+        for f in config["compare_with_backup"]:
+            compare_with_backup(resource=f, version=v)
         if config["columns_to_remove"]:
             for fname, cols in config["columns_to_remove"].items():
                 remove_columns(v, filename=fname, columns_to_remove=cols)
