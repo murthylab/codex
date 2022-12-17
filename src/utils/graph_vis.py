@@ -346,7 +346,7 @@ class Network(object):
             "arrowStrikethrough": True,
             "width": width,
             "dashes": False,
-            "selfReferenceSize": 20,
+            "selfReference": {"size": 20},
         }
         self.edges.append(edge)
 

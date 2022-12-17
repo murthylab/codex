@@ -110,7 +110,7 @@
     <div class="legend-label">{{entry['label']}}</div>
     {% endfor %}
 </div>
-<div id="collapsebutton" onclick="collapseAll()"><i class="fa-solid fa-minimize" title="Collapse All"></i></div>
+<div id="collapsebutton" onclick="toggleCollapseAll()"><i class="fa-solid fa-minimize" title="Collapse All"></i></div>
 
 <script type="text/javascript">
 
@@ -121,31 +121,41 @@
     var container;
     var options, data;
     var mousePos;
+    var cluster_data;
+    var active_edges;
+    var hidden_nodes;
+    var hidden_edges;
+    var active_edges_initial;
+    var buttonCollapsed = false;
+
+    function getNodeStyle(id, clustered) {
+        return {id: id, borderWidth: clustered ? 3 : 1, shadow: clustered};
+    }
 
     function cluster(node) {
         if (!(node in cluster_data) || cluster_data[node].collapsed) {
             return;
         }
+
         const c_edges = cluster_data[node].edges;
         for (const c_edge of c_edges) {
-            if (!edges.get(c_edge.id).hidden) {
-                edges.updateOnly({id: c_edge.id, hidden: true});
+            if (!hidden_edges[c_edge.id]) {
+                hidden_edges[c_edge.id] = true;
                 active_edges[c_edge.from]--;
                 active_edges[c_edge.to]--;
             }
         }
         const c_nodes = cluster_data[node].nodes;
         for (const c_node of c_nodes) {
-            if (!nodes.get(c_node).hidden) {
+            if (!hidden_nodes[c_node]) {
                 cluster(c_node);
                 if (active_edges[c_node] === 0) {
-                    nodes.updateOnly({id: c_node, hidden: true});
+                    hidden_nodes[c_node] = true;
                 }
             }
         }
         cluster_data[node].collapsed = true;
-        nodes.updateOnly({id: node, borderWidth: 3, shadow: true});
-        updateCollapseButton();
+        nodes.updateOnly(getNodeStyle(node, true));
     }
 
     function uncluster(node) {
@@ -155,35 +165,123 @@
 
         const c_edges = cluster_data[node].edges;
         for (const c_edge of c_edges) {
-            if (edges.get(c_edge.id).hidden) {
-                edges.updateOnly({id: c_edge.id, hidden: false});
+            if (hidden_edges[c_edge.id]) {
+                hidden_edges[c_edge.id] = false;
                 active_edges[c_edge.from]++;
                 active_edges[c_edge.to]++;
             }
         }
         const c_nodes = cluster_data[node].nodes;
         for (const c_node of c_nodes) {
-            if (nodes.get(c_node).hidden) {
-                nodes.updateOnly({id: c_node, hidden: false});
-            }
+            hidden_nodes[c_node] = false;
             uncluster(c_node);
         }
         cluster_data[node].collapsed = false;
-        nodes.updateOnly({id: node, borderWidth: 1, shadow: false});
+        nodes.updateOnly(getNodeStyle(node, false));
+    }
+
+    function updateVisibility() {
+        const nodeHideList = [];
+        for (const node in hidden_nodes) {
+            nodeHideList.push({id: node, hidden: hidden_nodes[node]});
+        }
+        nodes.updateOnly(nodeHideList);
+
+        const edgeHideList = [];
+        for (const edge in hidden_edges) {
+            edgeHideList.push({id: edge, hidden: hidden_edges[edge]});
+        }
+        edges.updateOnly(edgeHideList);
+
         updateCollapseButton();
+    }
+
+    function toggleCollapseAll() {
+        // For better performance, we iteratively collapse/expand each node manually,
+        // rather than calling cluster() or uncluster() and using recursion
+        if (buttonCollapsed) {
+            const wasClusterNodes = [];
+            for (const node in cluster_data) {
+                cluster_data[node].collapsed = false;
+                if (!hidden_nodes[node]) {
+                    wasClusterNodes.push(getNodeStyle(node, false));
+                }
+            }
+            nodes.updateOnly(wasClusterNodes);
+            for (const node in hidden_nodes) {
+                hidden_nodes[node] = false;
+            }
+            for (const edge in hidden_edges) {
+                hidden_edges[edge] = false;
+            }
+            active_edges = shallow_copy(active_edges_initial);
+        }
+        else {
+            for (const node in hidden_nodes) {
+                hidden_nodes[node] = true;
+                active_edges[node] = 0;
+            }
+            const clusterNodes = [];
+            for (const node in cluster_data) {
+                cluster_data[node].collapsed = true;
+                if (cluster_data[node].cluster_inputs && cluster_data[node].cluster_outputs) {
+                    clusterNodes.push(getNodeStyle(node, true));
+                    hidden_nodes[node] = false;
+                }
+            }
+            nodes.updateOnly(clusterNodes);
+            for (const edge in hidden_edges) {
+                hidden_edges[edge] = true;
+            }
+        }
+        updateVisibility();
+    }
+
+    function updateCollapseButton() {
+        let allCollapsed = true;
+        for (const node in cluster_data) {
+            if (!cluster_data[node].collapsed) {
+                allCollapsed = false;
+                break;
+            }
+        }
+        if (allCollapsed) {
+            buttonCollapsed = true;
+            document.querySelector("#collapsebutton > i").className = "fa-solid fa-maximize";
+            document.querySelector("#collapsebutton").title = "Expand All";
+        }
+        else {
+            buttonCollapsed = false;
+            document.querySelector("#collapsebutton > i").className = "fa-solid fa-minimize";
+            document.querySelector("#collapsebutton").title = "Collapse All";
+        }
+    }
+
+    function shallow_copy(o) {
+        return Object.assign({}, o);
     }
 
     // This method is responsible for drawing the graph, returns the drawn network
     function drawGraph(solver) {
         var container = document.getElementById("mynetwork");
 
-        nodeslist = {{nodes|tojson}};
-        edgeslist = {{edges|tojson}};
+        const nodeslist = {{nodes|tojson}};
+        const edgeslist = {{edges|tojson}};
         cluster_data = {{cluster_data|tojson}};
         active_edges = {{active_edges|tojson}};
+        active_edges_initial = shallow_copy(active_edges);
 
         nodes = new vis.DataSet(nodeslist);
         edges = new vis.DataSet(edgeslist);
+
+        hidden_nodes = {};
+        for (const node of nodeslist) {
+            hidden_nodes[node.id] = false;
+        }
+        hidden_edges = {};
+        for (const edge of edgeslist) {
+            hidden_edges[edge.id] = false;
+        }
 
         data = {nodes: nodes, edges: edges};
 
@@ -281,7 +379,12 @@
                     }
                 }
                 network.selectNodes([]);
+                updateVisibility();
             }
+        });
+
+        network.on("release", function(params) {
+            network.selectNodes([]);
         });
 
         return network;
@@ -301,41 +404,6 @@
     canvas.addEventListener("mousemove", function(evt) {
         mousePos = getMousePos(canvas, evt);
     }, false);
-
-    var buttonCollapsed = false;
-
-    function collapseAll() {
-        if (buttonCollapsed) {
-            for (const node in cluster_data) {
-                uncluster(node);
-            }
-        }
-        else {
-            for (const node in cluster_data) {
-                cluster(node);
-            }
-        }
-    }
-
-    function updateCollapseButton() {
-        let allCollapsed = true;
-        for (const node in cluster_data) {
-            if (!cluster_data[node].collapsed) {
-                allCollapsed = false;
-                break;
-            }
-        }
-        if (allCollapsed) {
-            buttonCollapsed = true;
-            document.querySelector("#collapsebutton > i").className = "fa-solid fa-maximize";
-            document.querySelector("#collapsebutton").title = "Expand All";
-        }
-        else {
-            buttonCollapsed = false;
-            document.querySelector("#collapsebutton > i").className = "fa-solid fa-minimize";
-            document.querySelector("#collapsebutton").title = "Collapse All";
-        }
-    }
 
 </script>
 </body>
