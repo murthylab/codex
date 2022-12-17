@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from flask import render_template, url_for
 
-from src.data.brain_regions import neuropil_description
+from src.data.brain_regions import neuropil_description, lookup_neuropil_set
 from src.utils.formatting import shorten_and_concat_labels, truncate
 
 INPUT_NEUROPIL_COLOR = "#97c2fc"
@@ -19,8 +19,34 @@ UNKNOWN_NT_COLOR = "#cccccc"
 UNSPECIFIED_COLOR = "#fafafa"
 
 
-def cap(connection_table, connections_cap):
-    return sorted(connection_table, key=lambda r: -r[3])[:connections_cap]
+def aggregate_and_cap(connection_table, connections_cap, group_regions):
+    def row_key(row):
+        if group_regions:
+            return row[0], row[1], None
+        else:
+            return row[0], row[1], row[2]
+
+    syn_counts = defaultdict(int)
+    aggregated_syn_count = 0
+    for r in connection_table:
+        syn_counts[row_key(r)] += r[3]
+        aggregated_syn_count += r[3]
+    aggregated_con_count = len(syn_counts)
+
+    connections_res = []
+    non_self_loop_connections = 0
+    for p in sorted(syn_counts.items(), key=lambda p: -p[1]):
+        connections_res.append([p[0][0], p[0][1], p[0][2], p[1]])
+        if p[0][0] != p[0][1]:
+            non_self_loop_connections += 1
+            if non_self_loop_connections == connections_cap:
+                break
+
+    return connections_res, aggregated_con_count, aggregated_syn_count
+
+
+def format_number(n):
+    return "{:,}".format(n)
 
 
 def make_graph_html(
@@ -33,6 +59,7 @@ def make_graph_html(
     class_getter,
     nt_type_getter,
     group_regions,
+    show_warnings,
 ):
     """
     connection_table has 4 columns: pre root id, post root id, neuropil, syn count
@@ -40,18 +67,28 @@ def make_graph_html(
     center_ids is the ids of the neurons that are being inspected
     """
     center_ids = center_ids or []
-    warning_msg = None
-    if len(connection_table) > connections_cap:
-        warning_msg = (
-            f"Top {connections_cap} connections out of {len(connection_table)}"
-        )
-        connection_table = cap(
-            connection_table=connection_table,
-            connections_cap=connections_cap,
-        )
+    connection_table, aggregated_con_count, aggregated_syn_count = aggregate_and_cap(
+        connection_table=connection_table,
+        connections_cap=connections_cap,
+        group_regions=group_regions,
+    )
+
     node_ids = set([r[0] for r in connection_table]).union(
         [r[1] for r in connection_table]
     )
+    total_syn_count = sum([r[3] for r in connection_table])
+    large_weights = total_syn_count >= 50000
+
+    if show_warnings:
+        if aggregated_con_count > connections_cap:
+            warning_msg = (
+                f"Top {format_number(connections_cap)} connections out of {format_number(aggregated_con_count)} "
+                f"({format_number(total_syn_count)} of {format_number(aggregated_syn_count)} syn.)"
+            )
+        else:
+            warning_msg = f"{format_number(len(connection_table))} connections ({format_number(total_syn_count)} syn.)"
+    else:
+        warning_msg = None
 
     def node_size(nid):
         return 10 if nid in center_ids else 5
@@ -72,7 +109,7 @@ def make_graph_html(
         return None, None
 
     def node_color(nid):
-        return nt_color(nt_type_getter(nid))
+        return nt_color(nt_type_getter(nid)) if nt_type_getter else UNSPECIFIED_COLOR
 
     def node_clusterable(node_id):
         return node_id in center_ids
@@ -85,6 +122,8 @@ def make_graph_html(
 
     def node_title(nid):
         name = name_getter(nid)
+        if not tag_getter or not class_getter:
+            return name
         class_and_annotations = class_getter(nid)
         tags = tag_getter(nid)
         if tags:
@@ -102,9 +141,11 @@ def make_graph_html(
         )
 
     def neuropil_title(pil):
-        npil_explorer_url = url_for("app.neuropils", selected=pil)
+        nset = lookup_neuropil_set(pil)
+        npil_explorer_url = url_for("app.neuropils", selected=",".join(nset))
+        description = neuropil_description(nset.pop()) if len(nset) == 1 else pil
         return (
-            f"Neuropil {pil}<br><small>{neuropil_description(pil)}</small>"
+            f"Brain Region: {pil}<br><small>{description}</small>"
             f'<br><a href="{npil_explorer_url}" target="_blank">see in neuropil explorer</a> '
         )
 
@@ -112,22 +153,31 @@ def make_graph_html(
         return f"{num} synapses"
 
     def nt_color(nt_type):
-        return NT_COLORS.get(nt_type.lower(), UNKNOWN_NT_COLOR)
+        return NT_COLORS.get(nt_type.lower() if nt_type else None, UNKNOWN_NT_COLOR)
 
-    def edge_width(from_id):
-        return 2 if from_id in center_ids else 1
+    def edge_label(weight):
+        if large_weights:
+            return format_number(round(weight / 1000)) + "K"
+        else:
+            return format_number(weight)
+
+    def edge_width(weight):
+        if large_weights:
+            return max(1, len(str(round(weight / 1000))))
+        else:
+            return len(str(weight))
 
     net = Network()
 
     added_cell_nodes = set()
 
-    def add_cell_node(nid, add_title=True, add_legend=True):
+    def add_cell_node(nid):
         if nid not in added_cell_nodes:
             x, y = node_position(nid)
             net.add_node(
                 name=nid,
                 label=node_label(nid),
-                title=node_title(nid) if add_title else "",
+                title=node_title(nid),
                 color=node_color(nid),
                 shape=node_shape(nid),
                 size=node_size(nid),
@@ -138,15 +188,16 @@ def make_graph_html(
                 cluster_outputs=node_clusterable(nid),
             )
             added_cell_nodes.add(nid)
-            nt_type = nt_type_getter(nid)
-            if add_legend:
+            if nt_type_getter:
+                nt_type = nt_type_getter(nid)
                 net.add_legend(
-                    nt_type.upper() or "Unspecified NT type", color=nt_color(nt_type)
+                    nt_type.upper() if nt_type else "Unspecified NT type",
+                    color=nt_color(nt_type),
                 )
 
     added_pil_nodes = set()
 
-    def add_pil_node(pil, is_input, add_legend=True):
+    def add_pil_node(pil, is_input):
         node_name = f"{pil}_{'in' if is_input else 'out'}"
         if node_name not in added_pil_nodes:
             net.add_node(
@@ -161,9 +212,8 @@ def make_graph_html(
                 cluster_outputs=not is_input,
             )
             added_pil_nodes.add(node_name)
-            if add_legend:
-                net.add_legend("Input Neuropil", color=INPUT_NEUROPIL_COLOR)
-                net.add_legend("Output Neuropil", color=OUTPUT_NEUROPIL_COLOR)
+            net.add_legend("Input Neuropil", color=INPUT_NEUROPIL_COLOR)
+            net.add_legend("Output Neuropil", color=OUTPUT_NEUROPIL_COLOR)
         return node_name
 
     if group_regions:
@@ -176,19 +226,20 @@ def make_graph_html(
                 cell_loop_counts[r[0]] += r[3]
 
         for k, v in cell_to_cell_counts.items():
-            add_cell_node(k[0], add_title=False, add_legend=False)
-            add_cell_node(k[1], add_legend=False)
+            add_cell_node(k[0])
+            add_cell_node(k[1])
             net.add_edge(
                 source=k[0],
                 target=k[1],
-                width=max(1, len(str(round(v / 1000)))),
-                label=str(round(v / 1000)) + "k",
+                width=edge_width(v),
+                label=edge_label(v),
                 title=edge_title(v),
             )
 
-        net.add_legend(f"Intra class synapse counts", "white")
-        for k, v in sorted(cell_loop_counts.items(), key=lambda x: -x[1]):
-            net.add_legend(f"  {round(v/1000)}k in {k}", "white")
+        if cell_loop_counts:
+            net.add_legend(f"Internal connections", "white")
+            for k, v in sorted(cell_loop_counts.items(), key=lambda x: -x[1]):
+                net.add_legend(f"- {edge_label(v)} in {k}", "white")
     else:
         cell_to_pil_counts = defaultdict(int)
         pil_to_cell_counts = defaultdict(int)
@@ -205,8 +256,8 @@ def make_graph_html(
             net.add_edge(
                 source=k[0],
                 target=pnid,
-                width=edge_width(k[0]),
-                label=str(v),
+                width=edge_width(v),
+                label=edge_label(v),
                 title=edge_title(v),
             )
         for k, v in pil_to_cell_counts.items():
@@ -215,8 +266,8 @@ def make_graph_html(
             net.add_edge(
                 source=pnid,
                 target=k[1],
-                width=edge_width(k[1]),
-                label=str(v),
+                width=edge_width(v),
+                label=edge_label(v),
                 title=edge_title(v),
             )
 

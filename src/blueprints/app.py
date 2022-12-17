@@ -1204,8 +1204,10 @@ def connectivity():
                     },
                 )
 
-        # exclude unknown region connections,
-        connection_table = [list(r) for r in contable if r[2] in REGIONS]
+        if not group_regions:  # exclude unknown region connections
+            connection_table = [list(r) for r in contable if r[2] in REGIONS]
+        else:
+            connection_table = contable
         if reduce:
 
             def node_projection(nid):
@@ -1223,11 +1225,11 @@ def connectivity():
                 ] + row[3:]
 
             connection_table = [project_row(r) for r in connection_table]
-            name_getter = lambda x: x
+            name_getter = lambda x: f"Class {x}"
             caption_getter = lambda x: x
-            tag_getter = lambda x: []
-            class_getter = lambda x: x
-            nt_type_getter = lambda x: x
+            tag_getter = None
+            class_getter = None
+            nt_type_getter = None
             center_ids = list(
                 set([r[0] for r in connection_table]).union(
                     [r[1] for r in connection_table]
@@ -1251,6 +1253,7 @@ def connectivity():
             class_getter=class_getter,
             nt_type_getter=nt_type_getter,
             group_regions=group_regions,
+            show_warnings=log_request,
         )
         if headless:
             return network_html
