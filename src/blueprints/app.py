@@ -1120,9 +1120,9 @@ def connectivity():
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     nt_type = request.args.get("nt_type", None)
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
-    nodes_limit = request.args.get("nodes_limit", 10, type=int)
+    connections_cap = request.args.get("cap", 20, type=int)
     reduce = request.args.get("reduce", 0, type=int)
-    break_by_neuropils = request.args.get("break_by_neuropils", 1, type=int)
+    group_regions = request.args.get("group_regions", 0, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     if (
         request.args.get("with_sample_input", type=int, default=0)
@@ -1136,7 +1136,10 @@ def connectivity():
         "log_request", default=0 if headless else 1, type=int
     )
     if log_request:
-        log_activity(f"Generating network for '{cell_names_or_ids}' {download=}")
+        log_activity(
+            (f"Downloading {download}" if download else "Generating")
+            + " network for '{cell_names_or_ids}'"
+        )
 
     root_ids = []
     message = None
@@ -1157,14 +1160,17 @@ def connectivity():
             return render_error(
                 f"Connections for {min_syn_cnt=}, {nt_type=} and Cell IDs {root_ids} are unavailable."
             )
-        max_nodes_limit = min(
-            len(set([r[0] for r in contable]).union(set([r[1] for r in contable]))), 100
-        )
+        max_cap = min(len(contable), 200)
         if log_request:
             log_activity(
-                f"Generated connections table for {len(root_ids)} cells with {nodes_limit=}, {download=} {min_syn_cnt=} {nt_type=}"
+                f"Generated connections table for {len(root_ids)} cells with {connections_cap=}, {download=} {min_syn_cnt=} {nt_type=}"
             )
         if download:
+            if len(contable) > 100000:
+                return render_error(
+                    message=f"The network generetad for your query is too large to download ({len(contable)} connections). Please refine the query and try again.",
+                    title="Selected network is too large for download",
+                )
             if download.lower() == "json":
                 return Response(
                     json.dumps(
@@ -1198,8 +1204,10 @@ def connectivity():
                     },
                 )
 
-        # exclude unknown region connections,
-        connection_table = [list(r) for r in contable if r[2] in REGIONS]
+        if not group_regions:  # exclude unknown region connections
+            connection_table = [list(r) for r in contable if r[2] in REGIONS]
+        else:
+            connection_table = contable
         if reduce:
 
             def node_projection(nid):
@@ -1217,11 +1225,11 @@ def connectivity():
                 ] + row[3:]
 
             connection_table = [project_row(r) for r in connection_table]
-            name_getter = lambda x: x
+            name_getter = lambda x: f"Class {x}"
             caption_getter = lambda x: x
-            tag_getter = lambda x: []
-            class_getter = lambda x: x
-            nt_type_getter = lambda x: x
+            tag_getter = None
+            class_getter = None
+            nt_type_getter = None
             center_ids = list(
                 set([r[0] for r in connection_table]).union(
                     [r[1] for r in connection_table]
@@ -1238,13 +1246,14 @@ def connectivity():
         network_html = make_graph_html(
             connection_table=connection_table,
             center_ids=center_ids,
-            nodes_limit=nodes_limit,
+            connections_cap=connections_cap,
             name_getter=name_getter,
             caption_getter=caption_getter,
             tag_getter=tag_getter,
             class_getter=class_getter,
             nt_type_getter=nt_type_getter,
-            break_by_neuropils=break_by_neuropils,
+            group_regions=group_regions,
+            show_warnings=log_request,
         )
         if headless:
             return network_html
@@ -1254,12 +1263,16 @@ def connectivity():
                 cell_names_or_ids=cell_names_or_ids,
                 min_syn_cnt=min_syn_cnt,
                 nt_type=nt_type,
-                nodes_limit=nodes_limit,
-                max_nodes_limit=max_nodes_limit,
+                cap=connections_cap,
+                max_cap=max_cap,
                 network_html=network_html,
                 info_text=None,
                 sample_input=None,
                 message=message,
+                data_versions=neuron_data_factory.available_versions(),
+                data_version=data_version,
+                reduce=reduce,
+                group_regions=group_regions,
             )
     else:
         con_doc = FAQ_QA_KB["connectivity"]
@@ -1268,13 +1281,17 @@ def connectivity():
             cell_names_or_ids=cell_names_or_ids,
             min_syn_cnt=min_syn_cnt,
             nt_type=nt_type,
-            nodes_limit=1,
-            max_nodes_limit=1,
+            cap=1,
+            max_cap=1,
             network_html=None,
             info_text="With this tool you can specify one or more cells and visualize their connectivity network.<br>"
             f"{con_doc['a']}",
             sample_input=sample_input,
             message=None,
+            data_versions=neuron_data_factory.available_versions(),
+            data_version=data_version,
+            reduce=reduce,
+            group_regions=group_regions,
         )
 
 
