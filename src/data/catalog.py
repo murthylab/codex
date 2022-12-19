@@ -35,6 +35,10 @@ _CODEX_DATA_SCHEMA = {
         "position",
         "supervoxel_id",
     ],
+    "nblast": [
+        "root_id",
+        "scores",
+    ],
 }
 
 
@@ -56,3 +60,7 @@ def get_connections_file_columns():
 
 def get_coordinates_file_columns():
     return list(_CODEX_DATA_SCHEMA["coordinates"])
+
+
+def get_nblast_file_columns():
+    return list(_CODEX_DATA_SCHEMA["nblast"])

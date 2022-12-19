@@ -415,6 +415,23 @@ def remove_columns(version, columns_to_remove, filename):
         print(f"None of the columns {columns_to_remove} found in {fpath}.")
 
 
+def add_header(version, filename, header):
+    fpath = compiled_data_file_path(version=version, filename=filename)
+    print(f"Adding header {header} to {fpath}..")
+    if not os.path.isfile(fpath):
+        print(f"File not found: {fpath}")
+        return
+    content = read_csv(fpath)
+    if len(content[0]) != len(header):
+        print(f"Length mismatch: {header} vs {content[0]} in {fpath}. Aborting.")
+        return
+    if content[0] == header:
+        print(f"Header {header} already present in {fpath}. Aborting.")
+        return
+    comp_backup_and_update_csv(fpath=fpath, content=[header] + content)
+    print("Done.")
+
+
 def compare_with_backup(version, resource):
     print(f"Comparing {resource} against backup, {version=}..")
     fpath = compiled_data_file_path(version=version, filename=f"{resource}.csv.gz")
@@ -431,12 +448,13 @@ if __name__ == "__main__":
     config = {
         "versions": DATA_SNAPSHOT_VERSIONS,
         "columns_to_remove": {},
+        "headers_to_add": {},
         "compare_with_backup": [],
         "update_coordinates": False,
         "update_classifications": False,
         "update_connections": False,
-        "update_labels": True,
         "update_nblast_scores": False,
+        "update_labels": True,
     }
 
     client = init_cave_client()
@@ -449,6 +467,9 @@ if __name__ == "__main__":
         if config["columns_to_remove"]:
             for fname, cols in config["columns_to_remove"].items():
                 remove_columns(v, filename=fname, columns_to_remove=cols)
+        if config["headers_to_add"]:
+            for fname, hdr in config["headers_to_add"].items():
+                add_header(v, filename=fname, header=hdr)
         if config["update_connections"]:
             process_synapse_table_file(version=v)
         if config["update_classifications"]:

@@ -9,6 +9,7 @@ from src.data.catalog import (
     get_coordinates_file_columns,
     get_classes_file_columns,
     get_connections_file_columns,
+    get_nblast_file_columns,
 )
 from src.data.neuron_collections import NEURON_COLLECTIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
@@ -251,15 +252,15 @@ class NeuronDB(object):
             )
 
         log(f"App initialization processing NBLAST data..")
-        # nblast_file_columns = get_nblast_file_columns()
-        rid_col_idx = 0  # nblast_file_columns.index("root_id")
-        scores_col_idx = 1  # nblast_file_columns.index("scores")
+        nblast_file_columns = get_nblast_file_columns()
+        rid_col_idx = nblast_file_columns.index("root_id")
+        scores_col_idx = nblast_file_columns.index("scores")
         not_found_rids = set()
         for i, r in enumerate(nblast_rows or []):
-            # if i == 0:
-            #    # check header
-            #    assert r == nblast_file_columns
-            #    continue
+            if i == 0:
+                # check header
+                assert r == nblast_file_columns
+                continue
             from_rid = int(r[rid_col_idx])
             if from_rid not in self.neuron_data:
                 not_found_rids.add(from_rid)
