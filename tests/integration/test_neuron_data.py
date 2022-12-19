@@ -16,7 +16,7 @@ class NeuronDataTest(TestCase):
     def setUp(self):
         # this allows to temporarily disable some checks when updating the schema of data files. should be kept empty
         # after the updates are tested and complete
-        self.exclude_keys = set()
+        self.exclude_keys = set([])
 
     def test_data_load_equals_pickled_db(self):
         def isnan(vl):

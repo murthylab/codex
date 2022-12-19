@@ -347,6 +347,7 @@ def process_synapse_table_file(version):
     )
     comp_backup_and_update_csv(fpath=connections_fpath, content=connections)
 
+
 def process_nblast_file(version):
     nblast_raw_filepath = raw_data_file_path(
         version=version, filename=f"{NBLAST_SCORES_FILE_NAME}"
@@ -379,11 +380,16 @@ def process_nblast_file(version):
         from_root_id = int(row[1].split(",")[0])
         similarity_dict[from_root_id] = similar_list
         if rows_scanned % 1000 == 0:
-            print(f"Rows scanned: {rows_scanned}, similar pairs: {sum([len(vals) for vals in similarity_dict.values()])}")
-    print(f"Rows scanned: {rows_scanned}, similar pairs: {sum([len(vals) for vals in similarity_dict.values()])}")
+            print(
+                f"Rows scanned: {rows_scanned}, similar pairs: {sum([len(vals) for vals in similarity_dict.values()])}"
+            )
+    print(
+        f"Rows scanned: {rows_scanned}, similar pairs: {sum([len(vals) for vals in similarity_dict.values()])}"
+    )
 
     def flatten(sim_pairs):
-        return ';'.join([f"{p[0]}:{str(p[1])[:5]}" for p in sim_pairs])
+        return ";".join([f"{p[0]}:{str(p[1])[:5]}" for p in sim_pairs])
+
     nblast_content = [[rid, flatten(sims)] for rid, sims in similarity_dict.items()]
 
     print(f"Sample rows: {nblast_content[:2]}")
@@ -463,4 +469,3 @@ if __name__ == "__main__":
             )
         if config["update_nblast_scores"]:
             process_nblast_file(version=v)
-

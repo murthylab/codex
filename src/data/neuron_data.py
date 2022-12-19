@@ -45,6 +45,7 @@ NEURON_DATA_ATTRIBUTES = {
     "input_neuropils": list,
     "input_synapses": int,
     "name": str,
+    "nblast_scores": list,
     "nt_type": str,
     "nt_type_score": float,
     "oct_avg": float,
@@ -68,6 +69,7 @@ class NeuronDB(object):
         labels_file_timestamp,
         coordinate_rows,
         classification_rows,
+        nblast_rows,
     ):
         self.neuron_data = {}
         self.label_data = {}
@@ -247,6 +249,40 @@ class NeuronDB(object):
             self.connection_rows.append(
                 [from_node, to_node, neuropil, syn_count, nt_type]
             )
+
+        log(f"App initialization processing NBLAST data..")
+        # nblast_file_columns = get_nblast_file_columns()
+        rid_col_idx = 0  # nblast_file_columns.index("root_id")
+        scores_col_idx = 1  # nblast_file_columns.index("scores")
+        not_found_rids = set()
+        for i, r in enumerate(nblast_rows or []):
+            # if i == 0:
+            #    # check header
+            #    assert r == nblast_file_columns
+            #    continue
+            from_rid = int(r[rid_col_idx])
+            if from_rid not in self.neuron_data:
+                not_found_rids.add(from_rid)
+                continue
+            scores_dict = {}
+            if r[scores_col_idx]:
+                for score_pair in r[scores_col_idx].split(";"):
+                    vals = score_pair.split(":")
+                    to_rid = int(vals[0])
+                    if to_rid in self.neuron_data:
+                        score = float(vals[1])
+                        assert 0.0 < score < 1.0
+                        scores_dict[to_rid] = score
+            self.neuron_data[from_rid]["nblast_scores"] = scores_dict
+        for nd in self.neuron_data.values():
+            if "nblast_scores" not in nd:
+                nd["nblast_scores"] = {}
+        log(
+            f"App initialization NBLAST scores loaded for all root ids. "
+            f"Not found rids: {len(not_found_rids)}, "
+            f"max list val: {max([len(nd['nblast_scores']) for nd in self.neuron_data.values()])}, "
+            f"neruons with matches: {len([1 for nd in self.neuron_data.values() if nd['nblast_scores']])}"
+        )
 
         log(f"App initialization augmenting..")
         for rid, nd in self.neuron_data.items():
