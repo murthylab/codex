@@ -251,11 +251,6 @@ class NeuronDataTest(TestCase):
             len(self.neuron_db.search("input_neuropil {in} medulla")), 10000
         )
 
-    def test_attributes(self):
-        for nd in self.neuron_db.neuron_data.values():
-            attribs = {k: type(v) for k, v in nd.items()}
-            self.assertEqual(NEURON_DATA_ATTRIBUTES, attribs)
-
     def test_not_connected_cells(self):
         connected_cells = set(self.neuron_db.input_sets().keys()).union(
             set(self.neuron_db.output_sets().keys())

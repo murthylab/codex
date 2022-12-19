@@ -5,6 +5,7 @@ from src.data.local_data_loader import (
     load_neuron_db,
     unpickle_neuron_db,
 )
+from src.data.neuron_data import NEURON_DATA_ATTRIBUTES
 from src.data.neuron_data_factory import NeuronDataFactory
 
 from src.data.versions import DATA_SNAPSHOT_VERSIONS
@@ -93,6 +94,12 @@ class NeuronDataTest(TestCase):
             )
             factory_db = neuron_data_factory.get(v)
             compare_neuron_dbs(tested=factory_db, golden=unpickled_db)
+
+            # check neuron attributes
+            for nd in unpickled_db.neuron_data.values():
+                attribs = {k: type(v) for k, v in nd.items()}
+                self.assertEqual(NEURON_DATA_ATTRIBUTES, attribs)
+
             del unpickled_db
             del factory_db
             print(f"Done testing version {v}")

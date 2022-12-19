@@ -46,7 +46,7 @@ NEURON_DATA_ATTRIBUTES = {
     "input_neuropils": list,
     "input_synapses": int,
     "name": str,
-    "nblast_scores": list,
+    "nblast_scores": dict,
     "nt_type": str,
     "nt_type_score": float,
     "oct_avg": float,
