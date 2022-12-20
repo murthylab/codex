@@ -22,7 +22,6 @@ from src.blueprints.base import (
     activity_suffix,
     MAX_NEURONS_FOR_DOWNLOAD,
     render_error,
-    render_info,
     warning_with_redirect,
 )
 from src.configuration import MIN_SYN_COUNT

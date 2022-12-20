@@ -33,7 +33,7 @@ from src.utils.cookies import (
     fetch_user_name,
     fetch_user_picture,
     delete_cookies,
-    store_user_info,
+    store_user_info, fetch_flywire_token,
 )
 from src.utils.formatting import truncate
 from src.utils.logging import (
@@ -455,6 +455,14 @@ def logout():
     return render_auth_page()
 
 
+@base.route("/auth_token", methods=["GET"])
+@request_wrapper
+def auth_token():
+    log_activity(f"Showing auth token")
+    token = fetch_flywire_token(session)
+    return render_info(title=f"Your auth token (don't share)", message=token)
+
+
 def render_error(
     message="No details available.", title="Something went wrong", back_button=1
 ):
@@ -462,9 +470,9 @@ def render_error(
     return redirect(f"/error?message={message}&title={title}&back_button={back_button}")
 
 
-def render_info(message="Operation complete."):
+def render_info(title="Info", message="Operation complete."):
     log_activity(f"Rendering info: {message}")
-    return render_template("info.html", message=f"{message}")
+    return render_template("info.html", title=title, message=message)
 
 
 @base.route("/todo_list", methods=["GET"])
