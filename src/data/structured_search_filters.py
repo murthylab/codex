@@ -132,6 +132,7 @@ OP_UPSTREAM = "{upstream}"
 OP_DOWNSTREAM = "{downstream}"
 OP_UPSTREAM_REGION = "{upstream_region}"
 OP_DOWNSTREAM_REGION = "{downstream_region}"
+OP_SIMILAR = "{similar}"
 OP_PATHWAYS = "{pathways}"
 OP_AND = "{and}"
 OP_OR = "{or}"
@@ -300,6 +301,13 @@ STRUCTURED_SEARCH_OPERATORS = [
         rhs_description="Cell ID",
         rhs_range=None,
     ),
+    UnarySearchOperator(
+        name=OP_SIMILAR,
+        shorthand="~~",
+        description="Unary, matches cells that are similar in shape to specified Cell ID",
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
     BinarySearchOperator(
         name=OP_PATHWAYS,
         shorthand="->",
@@ -427,7 +435,12 @@ def _make_has_predicate(rhs):
 
 
 def _make_predicate(
-    structured_term, input_sets, output_sets, connections_loader, case_sensitive
+    structured_term,
+    input_sets,
+    output_sets,
+    connections_loader,
+    similar_cells_loader,
+    case_sensitive,
 ):
     lhs = structured_term.get("lhs")  # lhs is optional e.g. for unary operators
     op = structured_term["op"]
@@ -489,6 +502,9 @@ def _make_predicate(
             if k in region_neuropil_set:
                 target_rid_set |= set(v)
         return lambda x: x["root_id"] in target_rid_set
+    elif op == OP_SIMILAR:
+        target_rid_set = set(similar_cells_loader(rhs))
+        return lambda x: x["root_id"] in target_rid_set
     elif op == OP_PATHWAYS:
         pathway_distance_map = pathways(
             source=lhs,
@@ -512,6 +528,7 @@ def make_structured_terms_predicate(
     input_sets,
     output_sets,
     connections_loader,
+    similar_cells_loader,
     case_sensitive,
 ):
     predicates = [
@@ -520,6 +537,7 @@ def make_structured_terms_predicate(
             input_sets=input_sets,
             output_sets=output_sets,
             connections_loader=connections_loader,
+            similar_cells_loader=similar_cells_loader,
             case_sensitive=case_sensitive,
         )
         for t in structured_terms

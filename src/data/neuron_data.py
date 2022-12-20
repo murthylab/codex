@@ -491,6 +491,20 @@ class NeuronDB(object):
         lbl = labels[0] if labels else nd["name"]
         return truncate(lbl, 15)
 
+    def get_similar_cells(
+        self, root_id, as_dict_with_scores=False, min_score=0.4, top_k=99999
+    ):
+        scores = [
+            (rid, score)
+            for rid, score in self.get_neuron_data(root_id)["nblast_scores"].items()
+            if score >= min_score
+        ]
+        scores = sorted(scores, key=lambda p: -p[1])[:top_k]
+        if as_dict_with_scores:
+            return {p[0]: p[1] for p in scores}
+        else:
+            return [p[0] for p in scores]
+
     def get_label_data(self, root_id):
         root_id = int(root_id)
         return self.label_data.get(root_id)
@@ -566,6 +580,7 @@ class NeuronDB(object):
                 input_sets=self.input_sets(),
                 output_sets=self.output_sets(),
                 connections_loader=self.connections_by_region,
+                similar_cells_loader=self.get_similar_cells,
                 case_sensitive=case_sensitive,
             )
             term_search_results.append(

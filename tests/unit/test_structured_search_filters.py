@@ -52,14 +52,27 @@ class Test(TestCase):
                 else:
                     return [], []
 
+            def mock_sim_loader(cell_id):
+                return []
+
             self.assertIsNotNone(
                 _make_predicate(
-                    st, {}, {}, connections_loader=mock_con_loader, case_sensitive=False
+                    st,
+                    {},
+                    {},
+                    connections_loader=mock_con_loader,
+                    similar_cells_loader=mock_sim_loader,
+                    case_sensitive=False,
                 )
             )
             self.assertIsNotNone(
                 _make_predicate(
-                    st, {}, {}, connections_loader=mock_con_loader, case_sensitive=True
+                    st,
+                    {},
+                    {},
+                    connections_loader=mock_con_loader,
+                    similar_cells_loader=mock_sim_loader,
+                    case_sensitive=True,
                 )
             )
 

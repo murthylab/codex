@@ -33,7 +33,8 @@ from src.utils.cookies import (
     fetch_user_name,
     fetch_user_picture,
     delete_cookies,
-    store_user_info, fetch_flywire_token,
+    store_user_info,
+    fetch_flywire_token,
 )
 from src.utils.formatting import truncate
 from src.utils.logging import (

@@ -38,6 +38,7 @@ from src.data.structured_search_filters import (
     OP_UPSTREAM,
     OP_PATHWAYS,
     parse_search_query,
+    OP_SIMILAR,
 )
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
 from src.data.sorting import sort_search_results, SORT_BY_OPTIONS
@@ -331,8 +332,8 @@ def search():
             + len(neuron_db.get_neuron_data(x)["output_neuropils"]),
             partner_count_getter=lambda x: len(neuron_db.output_sets()[x])
             + len(neuron_db.input_sets()[x]),
-            twin_count_getter=lambda x: len(
-                neuron_db.get_neuron_data(x)["nblast_scores"]
+            similarity_scores_getter=lambda x: neuron_db.get_similar_cells(
+                x, as_dict_with_scores=True
             ),
             connections_getter=lambda x: neuron_db.connections(ids=[x]),
             sort_by=sort_by,
@@ -715,12 +716,11 @@ def _cached_cell_details(
     else:
         charts = {}
 
-    top_nblast_matches = neuron_db.get_neuron_data(root_id)["nblast_scores"]
-    top_nblast_matches = list(top_nblast_matches.keys())
     insert_neuron_list_links(
         "cells with similar morphology (NBLAST based)",
-        top_nblast_matches,
+        neuron_db.get_similar_cells(root_id),
         '<i class="fa-regular fa-clone"></i>',
+        search_endpoint=url_for("app.search", filter_string=f"{OP_SIMILAR} {root_id}"),
     )
 
     # reachability analysis link

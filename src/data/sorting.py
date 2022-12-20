@@ -5,6 +5,7 @@ from src.data.structured_search_filters import (
     OP_UPSTREAM,
     parse_search_query,
     OP_PATHWAYS,
+    OP_SIMILAR,
 )
 from src.utils.graph_algos import reachable_nodes
 from src.utils.logging import log_error, log
@@ -12,12 +13,14 @@ from src.utils.logging import log_error, log
 DOWNSTREAM_SYNAPSE_COUNT = "downstream_synapse_count"
 UPSTREAM_SYNAPSE_COUNT = "upstream_synapse_count"
 DISTANCE_FROM = "distance_from"
+NBLAST_SCORE = "nblast_score"
 ITEM_COUNT = "item_count"
 
 SORTABLE_OPS = {
     OP_DOWNSTREAM: DOWNSTREAM_SYNAPSE_COUNT,
     OP_UPSTREAM: UPSTREAM_SYNAPSE_COUNT,
     OP_PATHWAYS: DISTANCE_FROM,
+    OP_SIMILAR: NBLAST_SCORE,
     None: ITEM_COUNT,
 }
 
@@ -41,7 +44,11 @@ def infer_sort_by(query):
         if len(sortable_terms) == 1:
             part = sortable_terms[0]
             sort_type = SORTABLE_OPS[part["op"]]
-            if sort_type in [DOWNSTREAM_SYNAPSE_COUNT, UPSTREAM_SYNAPSE_COUNT]:
+            if sort_type in [
+                DOWNSTREAM_SYNAPSE_COUNT,
+                UPSTREAM_SYNAPSE_COUNT,
+                NBLAST_SCORE,
+            ]:
                 target_cell_id = part["rhs"]
             else:
                 target_cell_id = part["lhs"]
@@ -60,7 +67,7 @@ def sort_search_results(
     label_count_getter,
     synapse_neuropil_count_getter,
     partner_count_getter,
-    twin_count_getter,
+    similarity_scores_getter,
     connections_getter,
     sort_by=None,
 ):
@@ -80,8 +87,8 @@ def sort_search_results(
                 ids = sorted(ids, key=lambda x: label_count_getter(x))
                 return ids, None
             if sort_by == "twin_cells":
-                ids = sorted(ids, key=lambda x: -twin_count_getter(x))
-                dct = {rid: twin_count_getter(rid) for rid in ids}
+                ids = sorted(ids, key=lambda x: -len(similarity_scores_getter(x)))
+                dct = {rid: len(similarity_scores_getter(rid)) for rid in ids}
                 extra_data = {
                     "title": "Number of morphologically similar cells",
                     "column_name": "Twins",
@@ -143,6 +150,14 @@ def sort_search_results(
                     "values_dict": distance_map,
                 }
                 ids = sorted(ids, key=lambda x: distance_map[x])
+            elif parts[0] == NBLAST_SCORE:
+                sim_scores = similarity_scores_getter(sort_by_target_cell_rid)
+                extra_data = {
+                    "title": "Morphological Similarity Score",
+                    "column_name": "NBLAST",
+                    "values_dict": sim_scores,
+                }
+                ids = sorted(ids, key=lambda x: -sim_scores[x])
             else:
                 raise ValueError(f"Unsupported sort_by parameter: {sort_by}")
 
