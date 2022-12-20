@@ -43,7 +43,7 @@ def compile_nt_scores_data(syn_table_content):
 
 def infer_nt_type_and_score(scores):
     scores = sorted([(sc, k) for k, sc in scores.items()], reverse=True)
-    if scores[0][0] > 0.2 and scores[0][0] > scores[1][0] + 0.1:
+    if scores and scores[0][0] > 0.2 and scores[0][0] > scores[1][0] + 0.1:
         nt_type = scores[0][1].replace("_avg", "").upper()
         assert nt_type in NEURO_TRANSMITTER_NAMES
         return nt_type, scores[0][0]
@@ -56,13 +56,13 @@ def assign_names_and_groups(
 ):
     def make_group_name(root_id):
         def max_pil(counts):
-            if counts:
-                return max([(kk, vv) for kk, vv in counts.items()], key=lambda p: p[1])[
-                    0
-                ]
+            return max([(kk, vv) for kk, vv in counts.items()], key=lambda p: p[1])[0] if counts else None
 
-        prom_in = max_pil(input_neuropill_counts.get(root_id)) or "NO_IN"
-        prom_out = max_pil(output_neuropill_counts.get(root_id)) or "NO_OUT"
+        prom_in = max_pil(input_neuropill_counts.get(root_id))
+        prom_out = max_pil(output_neuropill_counts.get(root_id))
+        assert prom_in or prom_out
+        prom_in = prom_in or "NO_IN"
+        prom_out = prom_out or "NO_OUT"
         return f"{prom_in}.{prom_out}"
 
     group_lists = defaultdict(list)
@@ -88,47 +88,41 @@ def assign_names_and_groups(
     return names, groups
 
 
-def compile_neuron_rows(syn_table_content, min_syn_count):
-    columns = syn_table_content[0]
+def compile_neuron_rows(filtered_syn_table_content, columns):
     from_col_id = columns.index("pre_pt_root_id")
     to_col_id = columns.index("post_pt_root_id")
     pil_col_id = columns.index("neuropil")
     syn_cnt_col_id = columns.index("syn_count")
 
     all_neurons_set = set()
-    connected_neurons_set = set()
     input_neuropill_counts = {}
     output_neuropill_counts = {}
 
-    syn_threshold_row_count = 0
-    missing_pil_count = 0
-    for i, r in enumerate(syn_table_content[1:]):
-        syn_cnt = int(r[syn_cnt_col_id])
+    for i, r in enumerate(filtered_syn_table_content):
+        if i == 0:
+            assert r == columns
+            continue
+        syn_cnt = r[syn_cnt_col_id]
         from_rid = r[from_col_id]
         to_rid = r[to_col_id]
         pil = r[pil_col_id]
+        assert isinstance(syn_cnt, int)
+        assert isinstance(from_rid, int)
+        assert isinstance(to_rid, int)
+        assert pil in REGIONS
 
         all_neurons_set.add(from_rid)
         all_neurons_set.add(to_rid)
 
-        if syn_cnt >= min_syn_count:
-            syn_threshold_row_count += 1
-            connected_neurons_set.add(from_rid)
-            connected_neurons_set.add(to_rid)
-            if pil in REGIONS:
-                if from_rid not in output_neuropill_counts:
-                    output_neuropill_counts[from_rid] = defaultdict(int)
-                output_neuropill_counts[from_rid][pil] += syn_cnt
-                if to_rid not in input_neuropill_counts:
-                    input_neuropill_counts[to_rid] = defaultdict(int)
-                input_neuropill_counts[to_rid][pil] += syn_cnt
-            else:
-                missing_pil_count += 1
+        if from_rid not in output_neuropill_counts:
+            output_neuropill_counts[from_rid] = defaultdict(int)
+        output_neuropill_counts[from_rid][pil] += syn_cnt
+        if to_rid not in input_neuropill_counts:
+            input_neuropill_counts[to_rid] = defaultdict(int)
+        input_neuropill_counts[to_rid][pil] += syn_cnt
 
     print(
-        f"Processed {syn_threshold_row_count} rows out of {len(syn_table_content) - 1}, "
-        f"all neurons: {len(all_neurons_set)}, connected neurons: {len(connected_neurons_set)}, "
-        f"missing pils: {missing_pil_count}"
+        f"Processed {len(filtered_syn_table_content) - 1} rows with neurons: {len(all_neurons_set)}"
     )
 
     # assign names and groups based on in/out neuropils
@@ -137,7 +131,7 @@ def compile_neuron_rows(syn_table_content, min_syn_count):
     )
 
     # compute nt type info
-    rid_to_nt_scores = compile_nt_scores_data(syn_table_content=syn_table_content)
+    rid_to_nt_scores = compile_nt_scores_data(syn_table_content=filtered_syn_table_content)
     rid_to_nt_type = {
         rid: infer_nt_type_and_score(scores) for rid, scores in rid_to_nt_scores.items()
     }
@@ -173,7 +167,7 @@ def compile_neuron_rows(syn_table_content, min_syn_count):
     return neuron_rows
 
 
-def compile_connection_rows(syn_table_content, columns, min_syn_count):
+def compile_connection_rows(filtered_syn_table_content, columns):
     connections = []
     from_col_id = columns.index("pre_pt_root_id")
     to_col_id = columns.index("post_pt_root_id")
@@ -183,21 +177,37 @@ def compile_connection_rows(syn_table_content, columns, min_syn_count):
         nt_type: columns.index(f"{nt_type.lower()}_avg")
         for nt_type in NEURO_TRANSMITTER_NAMES
     }
-    for i, r in enumerate(syn_table_content):
+    for i, r in enumerate(filtered_syn_table_content):
         if i == 0:
             assert r == columns
             connections.append(
                 ["pre_root_id", "post_root_id", "neuropil", "syn_count", "nt_type"]
             )
         else:
-            syn_cnt = int(r[syn_cnt_col_id])
-            if syn_cnt >= min_syn_count:
-                nt_scores = [
-                    (float(r[nt_score_col_indices[ntt]]), ntt)
-                    for ntt in NEURO_TRANSMITTER_NAMES
-                ]
-                nt_type = max(nt_scores)[1]
-                connections.append(
-                    [r[from_col_id], r[to_col_id], r[pil_col_id], syn_cnt, nt_type]
-                )
+            syn_cnt = r[syn_cnt_col_id]
+            assert isinstance(syn_cnt, int)
+            nt_scores = [
+                (float(r[nt_score_col_indices[ntt]]), ntt)
+                for ntt in NEURO_TRANSMITTER_NAMES
+            ]
+            nt_type = max(nt_scores)[1]
+            connections.append(
+                [r[from_col_id], r[to_col_id], r[pil_col_id], syn_cnt, nt_type]
+            )
     return connections
+
+def filter_connection_rows(syn_table_content, columns, min_syn_count):
+    filtered_rows = []
+    pil_col_id = columns.index("neuropil")
+    syn_cnt_col_id = columns.index("syn_count")
+    for i, r in enumerate(syn_table_content):
+        if i == 0:
+            assert r == columns
+            filtered_rows.append(r)
+        else:
+            syn_cnt = r[syn_cnt_col_id]
+            region = r[pil_col_id]
+            if syn_cnt >= min_syn_count and region in REGIONS:
+                filtered_rows.append(r)
+    print(f"Filtered out {len(syn_table_content) - len(filtered_rows)} rows out of {len(syn_table_content)}")
+    return filtered_rows

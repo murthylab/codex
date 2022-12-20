@@ -20,7 +20,7 @@ from src.data.local_data_loader import read_csv, write_csv
 # and store it in this file (no quotes)
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.versions import DATA_SNAPSHOT_VERSIONS
-from src.etl.synapse_table_processor import compile_connection_rows, compile_neuron_rows
+from src.etl.synapse_table_processor import compile_connection_rows, compile_neuron_rows, filter_connection_rows
 
 CAVE_AUTH_TOKEN_FILE_NAME = f"static/secrets/cave_auth_token.txt"
 CAVE_DATASTACK_NAME = "flywire_fafb_production"
@@ -328,19 +328,17 @@ def process_synapse_table_file(version):
     print(f"Loading synapse table from {st_nt_filepath}")
     st_nt_content = load_feather_data_to_table(st_nt_filepath)
 
+    filtered_rows = filter_connection_rows(syn_table_content=st_nt_content, columns=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES, min_syn_count=MIN_SYN_COUNT)
+
     # compile neuron rows
-    neurons = compile_neuron_rows(
-        syn_table_content=st_nt_content,
-        min_syn_count=MIN_SYN_COUNT,
-    )
+    neurons = compile_neuron_rows(filtered_syn_table_content=filtered_rows, columns=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES)
     neurons_fpath = compiled_data_file_path(version=version, filename="neurons.csv.gz")
     comp_backup_and_update_csv(fpath=neurons_fpath, content=neurons)
 
     # compile connection rows
     connections = compile_connection_rows(
-        syn_table_content=st_nt_content,
-        columns=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES,
-        min_syn_count=MIN_SYN_COUNT,
+        filtered_syn_table_content=filtered_rows,
+        columns=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES
     )
     connections_fpath = compiled_data_file_path(
         version=version, filename="connections.csv.gz"
