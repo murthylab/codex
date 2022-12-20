@@ -239,12 +239,11 @@ class NeuronDB(object):
             assert from_node in self.neuron_data and to_node in self.neuron_data
             assert syn_count >= MIN_SYN_COUNT
             assert nt_type in NEURO_TRANSMITTER_NAMES
-            assert neuropil == "NONE" or neuropil in REGIONS.keys()
+            assert neuropil in REGIONS
             input_cells[to_node].add(from_node)
             output_cells[from_node].add(to_node)
-            if neuropil != "NONE":
-                input_neuropils[to_node].add(neuropil)
-                output_neuropils[from_node].add(neuropil)
+            input_neuropils[to_node].add(neuropil)
+            output_neuropils[from_node].add(neuropil)
             input_synapses[to_node] += syn_count
             output_synapses[from_node] += syn_count
             self.connection_rows.append(

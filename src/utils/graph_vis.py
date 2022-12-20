@@ -245,8 +245,6 @@ def make_graph_html(
         pil_to_cell_counts = defaultdict(int)
         for r in connection_table:
             pil_name = r[2]
-            if not pil_name or pil_name == "None":
-                pil_name = "Neuropil NA"
             cell_to_pil_counts[(r[0], pil_name)] += r[3]
             pil_to_cell_counts[(pil_name, r[1])] += r[3]
 
