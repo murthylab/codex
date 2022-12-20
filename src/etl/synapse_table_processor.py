@@ -56,7 +56,11 @@ def assign_names_and_groups(
 ):
     def make_group_name(root_id):
         def max_pil(counts):
-            return max([(kk, vv) for kk, vv in counts.items()], key=lambda p: p[1])[0] if counts else None
+            return (
+                max([(kk, vv) for kk, vv in counts.items()], key=lambda p: p[1])[0]
+                if counts
+                else None
+            )
 
         prom_in = max_pil(input_neuropill_counts.get(root_id))
         prom_out = max_pil(output_neuropill_counts.get(root_id))
@@ -131,7 +135,9 @@ def compile_neuron_rows(filtered_syn_table_content, columns):
     )
 
     # compute nt type info
-    rid_to_nt_scores = compile_nt_scores_data(syn_table_content=filtered_syn_table_content)
+    rid_to_nt_scores = compile_nt_scores_data(
+        syn_table_content=filtered_syn_table_content
+    )
     rid_to_nt_type = {
         rid: infer_nt_type_and_score(scores) for rid, scores in rid_to_nt_scores.items()
     }
@@ -196,6 +202,7 @@ def compile_connection_rows(filtered_syn_table_content, columns):
             )
     return connections
 
+
 def filter_connection_rows(syn_table_content, columns, min_syn_count):
     filtered_rows = []
     pil_col_id = columns.index("neuropil")
@@ -209,5 +216,7 @@ def filter_connection_rows(syn_table_content, columns, min_syn_count):
             region = r[pil_col_id]
             if syn_cnt >= min_syn_count and region in REGIONS:
                 filtered_rows.append(r)
-    print(f"Filtered out {len(syn_table_content) - len(filtered_rows)} rows out of {len(syn_table_content)}")
+    print(
+        f"Filtered out {len(syn_table_content) - len(filtered_rows)} rows out of {len(syn_table_content)}"
+    )
     return filtered_rows
