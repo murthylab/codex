@@ -40,12 +40,17 @@
 </div>
 
 <script type="text/javascript">
-        function loading() {
-            document.getElementById("contentBody").hidden='true';
-            document.getElementById("loadingSpinner").hidden='';
-            window.onunload = function(){
-              clear_loading();
-            };
+        function loading(evnt = false) {
+            console.log(evnt);
+            if (evnt && (evnt.ctrlKey || evnt.metaKey)) {
+                clear_loading();
+            } else {
+                document.getElementById("contentBody").hidden='true';
+                document.getElementById("loadingSpinner").hidden='';
+                window.onunload = function(){
+                    clear_loading();
+                };
+             }
         }
         function clear_loading() {
             document.getElementById("contentBody").hidden='';

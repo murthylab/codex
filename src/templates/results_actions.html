@@ -4,25 +4,25 @@
 {% if num_items %}
 <div class="row flex-row flex-nowrap" style="overflow-x: auto; padding-left: 20px;">
     {% if num_items == 1%}
-    <a class="btn btn-link" onclick="loading();"
+    <a class="btn btn-link" onclick="loading(event);"
        href="{{url_for('app.cell_details', cell_names_or_id=filter_string, data_version=data_version)}}">
         <i class="fa-solid fa-file-contract"></i> &nbsp; Cell Details
     </a>
     {% else %}
 
     {% if request.endpoint == 'app.stats' %}
-    <a class="btn btn-link" onclick="loading();"
+    <a class="btn btn-link" onclick="loading(event);"
        href="{{url_for('app.search', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
         <i class="fa-solid fa-list"></i> &nbsp; List
     </a>
     {% else %}
-    <a class="btn btn-link" onclick="loading();"
+    <a class="btn btn-link" onclick="loading(event);"
        href="{{url_for('app.stats', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
         <i class="fa-solid fa-chart-pie"></i> &nbsp; Stats
     </a>
     {% endif %}
 
-    <a class="btn btn-link" onclick="loading();"
+    <a class="btn btn-link" onclick="loading(event);"
        href="{{url_for('app.connectivity', cell_names_or_ids=filter_string)}}" >
         <i class="fa-solid fa-circle-nodes"></i> &nbsp; Network
     </a>
@@ -44,12 +44,12 @@
       }
     </script>
 
-    <a class="btn btn-link" onclick="loading();"
+    <a class="btn btn-link" onclick="loading(event);"
        href="{{url_for('app.nblast', source_cell_names_or_ids=filter_string, target_cell_names_or_ids=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
         <i class="fa-solid fa-table-cells"></i> &nbsp; NBLAST
     </a>
 
-    <a class="btn btn-link" onclick="loading();"
+    <a class="btn btn-link" onclick="loading(event);"
        href="{{url_for('app.path_length', source_cell_names_or_ids=filter_string, target_cell_names_or_ids=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
         <i class="fa-solid fa-route"></i> &nbsp; Pathways
     </a>

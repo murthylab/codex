@@ -16,7 +16,7 @@
    <input type="hidden" id="source_cell_id" name="source_cell_id" value="{{source_cell_id}}"/>
    <input type="hidden" id="target_cell_id" name="target_cell_id" value="{{target_cell_id}}"/>
    <h6 style="text-align:center;">{{caption|safe}}
-      <input type="number" style="width: 50px;" id="min_syn_count" name="min_syn_count" value="{{min_syn_count}}" onchange="loading(); this.form.submit();">
+      <input type="number" style="width: 50px;" id="min_syn_count" name="min_syn_count" value="{{min_syn_count}}" onchange="loading(event); this.form.submit();">
    {% if list_url %}
    <br><button type="button" class="btn btn-outline-primary" style="text-align:center;"> <a href="{{list_url}}"> See all cells along these pathways as a list</a></button>
    {% endif %}

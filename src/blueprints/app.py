@@ -733,7 +733,7 @@ def _cached_cell_details(
             reachability_stats=1,
         )
         hlink = (
-            f'<a class="btn btn-link" onclick="loading();" href="{rurl}"><i class="fa-solid fa-gears"></i> &nbsp; Run downstream / '
+            f'<a class="btn btn-link" onclick="loading(event);" href="{rurl}"><i class="fa-solid fa-gears"></i> &nbsp; Run downstream / '
             f"upstream reachability analysis and reload</a>"
         )
         related_cells[hlink] = ""
