@@ -29,6 +29,7 @@ SORT_BY_OPTIONS = {
     "synapse_neuropils": "# Synapse Regions (low -> high)",
     "-labels": "# Labels (high -> low)",
     "labels": "# Labels (low -> high)",
+    "twin_cells": "# Twin cells (high -> low)",
 }
 
 
@@ -59,6 +60,7 @@ def sort_search_results(
     label_count_getter,
     synapse_neuropil_count_getter,
     partner_count_getter,
+    twin_count_getter,
     connections_getter,
     sort_by=None,
 ):
@@ -77,6 +79,15 @@ def sort_search_results(
             if sort_by == "labels":
                 ids = sorted(ids, key=lambda x: label_count_getter(x))
                 return ids, None
+            if sort_by == "twin_cells":
+                ids = sorted(ids, key=lambda x: -twin_count_getter(x))
+                dct = {rid: twin_count_getter(rid) for rid in ids}
+                extra_data = {
+                    "title": "Number of morphologically similar cells",
+                    "column_name": "Twins",
+                    "values_dict": dct,
+                }
+                return ids, extra_data
             if sort_by in ["synapse_neuropils", "-synapse_neuropils"]:
                 dct = {rid: synapse_neuropil_count_getter(rid) for rid in ids}
                 extra_data = {

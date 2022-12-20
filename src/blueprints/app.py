@@ -332,6 +332,9 @@ def search():
             + len(neuron_db.get_neuron_data(x)["output_neuropils"]),
             partner_count_getter=lambda x: len(neuron_db.output_sets()[x])
             + len(neuron_db.input_sets()[x]),
+            twin_count_getter=lambda x: len(
+                neuron_db.get_neuron_data(x)["nblast_scores"]
+            ),
             connections_getter=lambda x: neuron_db.connections(ids=[x]),
             sort_by=sort_by,
         )
@@ -713,16 +716,8 @@ def _cached_cell_details(
     else:
         charts = {}
 
-    top_nblast_matches = [
-        i[0]
-        for i in (
-            gcs_data_loader.load_nblast_scores_for_root_id(
-                root_id, sort_highest_score=True, limit=10
-            )
-            or []
-        )
-        if i[1] > 0.4 and i[0] != root_id and neuron_db.is_in_dataset(i[0])
-    ]
+    top_nblast_matches = neuron_db.get_neuron_data(root_id)["nblast_scores"]
+    top_nblast_matches = list(top_nblast_matches.keys())
     insert_neuron_list_links(
         "cells with similar morphology (NBLAST based)",
         top_nblast_matches,
