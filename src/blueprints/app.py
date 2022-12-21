@@ -1345,16 +1345,14 @@ def synapse_density():
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     normalized = request.args.get("normalized", type=int, default=0)
     directed = request.args.get("directed", type=int, default=0)
-    group_by = request.args.get("group_by", default="Neuron Class")
+    group_by = request.args.get("group_by")
     neuron_db = neuron_data_factory.get(data_version)
 
-    print(f"+++ {request.args}")
-
     num_cells = len(neuron_db.neuron_data)
-    class_to_rids = defaultdict(set)
+    group_to_rids = defaultdict(set)
     rid_to_class = {}
 
-    def short_class_name(nd):
+    def class_group_name(nd):
         assert 1 == len(nd["classes"])
         return (
             nd["classes"][0]
@@ -1367,12 +1365,23 @@ def synapse_density():
             .replace("Visual", "Vis")
         )
 
-    all_classes = "All"
+    def nt_type_group_name(nd):
+        return NEURO_TRANSMITTER_NAMES.get(nd["nt_type"], "unknown").capitalize()
+
+    group_by_options = {
+        "Neuron Class": class_group_name,
+        "NT Type": nt_type_group_name,
+    }
+    if not group_by:
+        group_by = list(group_by_options.keys())[0]
+    group_func = group_by_options[group_by]
+
+    all_groups = "All"
     for v in neuron_db.neuron_data.values():
-        cl = short_class_name(v)
+        cl = group_func(v)
         rid = v["root_id"]
-        class_to_rids[cl].add(rid)
-        class_to_rids[all_classes].add(rid)
+        group_to_rids[cl].add(rid)
+        group_to_rids[all_groups].add(rid)
         rid_to_class[rid] = cl
 
     tot_syn_cnt = 0
@@ -1380,9 +1389,9 @@ def synapse_density():
 
     def update_syn_counts(cf, ct, syn):
         class_to_class_syn_cnt[f"{cf}:{ct}"] += syn
-        class_to_class_syn_cnt[f"{all_classes}:{ct}"] += syn
-        class_to_class_syn_cnt[f"{cf}:{all_classes}"] += syn
-        class_to_class_syn_cnt[f"{all_classes}:{all_classes}"] += syn
+        class_to_class_syn_cnt[f"{all_groups}:{ct}"] += syn
+        class_to_class_syn_cnt[f"{cf}:{all_groups}"] += syn
+        class_to_class_syn_cnt[f"{all_groups}:{all_groups}"] += syn
 
     for r in neuron_db.connection_rows:
         assert r[0] != r[1]
@@ -1403,10 +1412,10 @@ def synapse_density():
         if normalized:
             parts = k.split(":")
             sizefrom = (
-                len(class_to_rids[parts[0]]) if parts[0] != all_classes else num_cells
+                len(group_to_rids[parts[0]]) if parts[0] != all_groups else num_cells
             )
             sizeto = (
-                len(class_to_rids[parts[1]]) if parts[1] != all_classes else num_cells
+                len(group_to_rids[parts[1]]) if parts[1] != all_groups else num_cells
             )
             density = v / (sizefrom * sizeto)
             density /= tot_density
@@ -1442,10 +1451,10 @@ def synapse_density():
         else:
             return "#FFFFFF"
 
-    classes = sorted(class_to_rids.keys(), key=lambda x: -len(class_to_rids[x]))
+    classes = sorted(group_to_rids.keys(), key=lambda x: -len(group_to_rids[x]))
 
     def class_caption(cln):
-        return f"<b>{cln}</b>&nbsp;<small>{round(100 * len(class_to_rids[cln]) / num_cells)}%</small>"
+        return f"<b>{cln}</b>&nbsp;<small>{round(100 * len(group_to_rids[cln]) / num_cells)}%</small>"
 
     def density_caption(d):
         if normalized:
