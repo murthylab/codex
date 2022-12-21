@@ -1346,6 +1346,11 @@ def synapse_density():
     normalized = request.args.get("normalized", type=int, default=0)
     directed = request.args.get("directed", type=int, default=0)
     group_by = request.args.get("group_by")
+    return _synapse_density_cached(data_version=data_version, normalized=normalized, directed=directed, group_by=group_by)
+
+
+@lru_cache
+def _synapse_density_cached(data_version, normalized, directed, group_by):
     neuron_db = neuron_data_factory.get(data_version)
 
     num_cells = len(neuron_db.neuron_data)
@@ -1477,5 +1482,5 @@ def synapse_density():
         directed=directed,
         normalized=normalized,
         group_by=group_by,
-        group_by_options=["Neuron Class", "NT Type"],
+        group_by_options=list(group_by_options.keys()),
     )
