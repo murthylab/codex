@@ -1346,7 +1346,12 @@ def synapse_density():
     normalized = request.args.get("normalized", type=int, default=0)
     directed = request.args.get("directed", type=int, default=0)
     group_by = request.args.get("group_by")
-    return _synapse_density_cached(data_version=data_version, normalized=normalized, directed=directed, group_by=group_by)
+    return _synapse_density_cached(
+        data_version=data_version,
+        normalized=normalized,
+        directed=directed,
+        group_by=group_by,
+    )
 
 
 @lru_cache
@@ -1390,13 +1395,13 @@ def _synapse_density_cached(data_version, normalized, directed, group_by):
         rid_to_class[rid] = cl
 
     tot_syn_cnt = 0
-    class_to_class_syn_cnt = defaultdict(int)
+    group_to_group_syn_cnt = defaultdict(int)
 
     def update_syn_counts(cf, ct, syn):
-        class_to_class_syn_cnt[f"{cf}:{ct}"] += syn
-        class_to_class_syn_cnt[f"{all_groups}:{ct}"] += syn
-        class_to_class_syn_cnt[f"{cf}:{all_groups}"] += syn
-        class_to_class_syn_cnt[f"{all_groups}:{all_groups}"] += syn
+        group_to_group_syn_cnt[f"{cf}:{ct}"] += syn
+        group_to_group_syn_cnt[f"{all_groups}:{ct}"] += syn
+        group_to_group_syn_cnt[f"{cf}:{all_groups}"] += syn
+        group_to_group_syn_cnt[f"{all_groups}:{all_groups}"] += syn
 
     for r in neuron_db.connection_rows:
         assert r[0] != r[1]
@@ -1407,13 +1412,13 @@ def _synapse_density_cached(data_version, normalized, directed, group_by):
         if not directed:
             update_syn_counts(clto, clfrom, r[3])
     if not directed:  # reverse double counting
-        class_to_class_syn_cnt = {
-            k: round(v / 2) for k, v in class_to_class_syn_cnt.items()
+        group_to_group_syn_cnt = {
+            k: round(v / 2) for k, v in group_to_group_syn_cnt.items()
         }
 
     tot_density = tot_syn_cnt / (num_cells * (num_cells - 1))
-    class_to_class_density = {}
-    for k, v in class_to_class_syn_cnt.items():
+    group_to_group_density = {}
+    for k, v in group_to_group_syn_cnt.items():
         if normalized:
             parts = k.split(":")
             sizefrom = (
@@ -1426,35 +1431,22 @@ def _synapse_density_cached(data_version, normalized, directed, group_by):
             density /= tot_density
         else:
             density = v
-        class_to_class_density[k] = density
+        group_to_group_density[k] = density
 
-    def density_color(d):
-        if d < 0.01:
-            return "#990000"
-        elif d < 0.1:
-            return "#990000BB"
-        elif d < 0.2:
-            return "#99000099"
-        elif d < 0.3:
-            return "#99000066"
-        elif d < 0.5:
-            return "#99000033"
-        elif d < 0.9:
-            return "#99000011"
-        elif d > 100:
-            return "#009900"
-        elif d > 40:
-            return "#009900BB"
-        elif d > 10:
-            return "#00990099"
-        elif d > 3:
-            return "#00990066"
-        elif d > 1.5:
-            return "#00990033"
-        elif d > 1.1:
-            return "#00990011"
-        else:
+    def heatmap_color(value, min_value, mid_value, max_value):
+        if not normalized:
             return "#FFFFFF"
+        cold_color = "#990000"
+        hot_color = "#009900"
+        if value <= mid_value:
+            color = cold_color
+            offset = (mid_value - value) / (mid_value - min_value)
+        else:
+            color = hot_color
+            offset = (value - mid_value) / (max_value - mid_value)
+
+        opacity = round(max(0, min(99, offset * 100)))
+        return f"{color}{opacity}"
 
     classes = sorted(group_to_rids.keys(), key=lambda x: -len(group_to_rids[x]))
 
@@ -1465,14 +1457,28 @@ def _synapse_density_cached(data_version, normalized, directed, group_by):
         if normalized:
             return str(round(density, 3))
         else:
-            return "{:,}".format(d)
+            pct = round(100 * d / tot_syn_cnt)
+            return "{:,}".format(d) + f"<br><small>{pct}%</small>"
 
     table = [["from \\ to"] + [class_caption(c) for c in classes]]
+    min_density = min(group_to_group_density.values())
+    max_density = max(group_to_group_density.values())
+    mid_density = 1 if normalized else tot_syn_cnt / len(group_to_group_density)
     for c1 in classes:
         row = [(class_caption(c1), 0)]
         for c2 in classes:
-            density = class_to_class_density.get(f"{c1}:{c2}", 0)
-            row.append((density_caption(density), density_color(density)))
+            density = group_to_group_density.get(f"{c1}:{c2}", 0)
+            row.append(
+                (
+                    density_caption(density),
+                    heatmap_color(
+                        value=density,
+                        min_value=min_density,
+                        mid_value=mid_density,
+                        max_value=max_density,
+                    ),
+                )
+            )
         table.append(row)
 
     return render_template(
