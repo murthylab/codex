@@ -1343,12 +1343,15 @@ def neuropils():
 @require_data_access
 def synapse_density():
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    normalized = request.args.get("normalized", type=int, default=1)
+    directed = request.args.get("directed", type=int, default=1)
     neuron_db = neuron_data_factory.get(data_version)
+
     num_cells = len(neuron_db.neuron_data)
     class_to_rids = defaultdict(set)
     rid_to_class = {}
 
-    def get_class(nd):
+    def short_class_name(nd):
         assert 1 == len(nd["classes"])
         return nd["classes"][0]\
             .replace(' neuron', '')\
@@ -1361,31 +1364,43 @@ def synapse_density():
 
     all_classes = 'All'
     for v in neuron_db.neuron_data.values():
-        cl = get_class(v)
-        class_to_rids[cl].add(v["root_id"])
-        class_to_rids[all_classes].add(v["root_id"])
-        rid_to_class[v["root_id"]] = cl
+        cl = short_class_name(v)
+        rid = v["root_id"]
+        class_to_rids[cl].add(rid)
+        class_to_rids[all_classes].add(rid)
+        rid_to_class[rid] = cl
 
-    all_classes = 'All'
     tot_syn_cnt = 0
     class_to_class_syn_cnt = defaultdict(int)
+
+    def update_syn_counts(cf, ct, syn):
+        class_to_class_syn_cnt[f"{cf}:{ct}"] += syn
+        class_to_class_syn_cnt[f"{all_classes}:{ct}"] += syn
+        class_to_class_syn_cnt[f"{cf}:{all_classes}"] += syn
+        class_to_class_syn_cnt[f"{all_classes}:{all_classes}"] += syn
+
     for r in neuron_db.connection_rows:
         assert r[0] != r[1]
-        tot_syn_cnt += r[3]
         clfrom = rid_to_class[r[0]]
         clto = rid_to_class[r[1]]
-        class_to_class_syn_cnt[f"{clfrom}:{clto}"] += r[3]
-        class_to_class_syn_cnt[f"{all_classes}:{clto}"] += r[3]
-        class_to_class_syn_cnt[f"{clfrom}:{all_classes}"] += r[3]
-        class_to_class_syn_cnt[f"{all_classes}:{all_classes}"] += r[3]
+        tot_syn_cnt += r[3]
+        update_syn_counts(clfrom, clto, r[3])
+        if not directed:
+            update_syn_counts(clto, clfrom, r[3])
+    if not directed:  # reverse double counting
+        class_to_class_syn_cnt = {k: round(v/2) for k, v in class_to_class_syn_cnt.items()}
 
     tot_density = tot_syn_cnt / (num_cells * (num_cells - 1))
     class_to_class_density = {}
     for k, v in class_to_class_syn_cnt.items():
-        parts = k.split(':')
-        sizefrom = len(class_to_rids[parts[0]]) if parts[0] != all_classes else num_cells
-        sizeto = len(class_to_rids[parts[1]]) if parts[1] != all_classes else num_cells
-        density = v / (sizefrom * sizeto)
+        if normalized:
+            parts = k.split(':')
+            sizefrom = len(class_to_rids[parts[0]]) if parts[0] != all_classes else num_cells
+            sizeto = len(class_to_rids[parts[1]]) if parts[1] != all_classes else num_cells
+            density = v / (sizefrom * sizeto)
+            density /= tot_density
+        else:
+            density = v
         class_to_class_density[k] = density
 
     def density_color(d):
@@ -1416,18 +1431,23 @@ def synapse_density():
         else:
             return '#FFFFFF'
 
-    classes = sorted(class_to_rids.keys())
+    classes = sorted(class_to_rids.keys(), key=lambda x: -len(class_to_rids[x]))
 
     def class_caption(cln):
         return f"<b>{cln}</b>&nbsp;<small>{round(100 * len(class_to_rids[cln]) / num_cells)}%</small>"
+
+    def density_caption(d):
+        if normalized:
+            return str(round(density, 3))
+        else:
+            return '{:,}'.format(d)
 
     table = [["from \\ to"] + [class_caption(c) for c in classes]]
     for c1 in classes:
         row = [(class_caption(c1), 0)]
         for c2 in classes:
             density = class_to_class_density.get(f"{c1}:{c2}", 0)
-            density = density / tot_density
-            row.append((str(round(density, 3)), density_color(density)))
+            row.append((density_caption(density), density_color(density)))
         table.append(row)
 
     return render_template("synapse_density.html", table=table, total_density=tot_density)
