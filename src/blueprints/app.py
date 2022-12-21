@@ -1343,9 +1343,12 @@ def neuropils():
 @require_data_access
 def synapse_density():
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
-    normalized = request.args.get("normalized", type=int, default=1)
-    directed = request.args.get("directed", type=int, default=1)
+    normalized = request.args.get("normalized", type=int, default=0)
+    directed = request.args.get("directed", type=int, default=0)
+    group_by = request.args.get("group_by", default="Neuron Class")
     neuron_db = neuron_data_factory.get(data_version)
+
+    print(f"+++ {request.args}")
 
     num_cells = len(neuron_db.neuron_data)
     class_to_rids = defaultdict(set)
@@ -1353,16 +1356,18 @@ def synapse_density():
 
     def short_class_name(nd):
         assert 1 == len(nd["classes"])
-        return nd["classes"][0]\
-            .replace(' neuron', '')\
-            .replace('ending', '')\
-            .replace('ection', '')\
-            .replace('Optic', 'O') \
-            .replace('Central', 'C')\
-            .replace('Bilateral', 'Bi') \
-            .replace('Visual', 'Vis')
+        return (
+            nd["classes"][0]
+            .replace(" neuron", "")
+            .replace("ending", "")
+            .replace("ection", "")
+            .replace("Optic", "O")
+            .replace("Central", "C")
+            .replace("Bilateral", "Bi")
+            .replace("Visual", "Vis")
+        )
 
-    all_classes = 'All'
+    all_classes = "All"
     for v in neuron_db.neuron_data.values():
         cl = short_class_name(v)
         rid = v["root_id"]
@@ -1388,15 +1393,21 @@ def synapse_density():
         if not directed:
             update_syn_counts(clto, clfrom, r[3])
     if not directed:  # reverse double counting
-        class_to_class_syn_cnt = {k: round(v/2) for k, v in class_to_class_syn_cnt.items()}
+        class_to_class_syn_cnt = {
+            k: round(v / 2) for k, v in class_to_class_syn_cnt.items()
+        }
 
     tot_density = tot_syn_cnt / (num_cells * (num_cells - 1))
     class_to_class_density = {}
     for k, v in class_to_class_syn_cnt.items():
         if normalized:
-            parts = k.split(':')
-            sizefrom = len(class_to_rids[parts[0]]) if parts[0] != all_classes else num_cells
-            sizeto = len(class_to_rids[parts[1]]) if parts[1] != all_classes else num_cells
+            parts = k.split(":")
+            sizefrom = (
+                len(class_to_rids[parts[0]]) if parts[0] != all_classes else num_cells
+            )
+            sizeto = (
+                len(class_to_rids[parts[1]]) if parts[1] != all_classes else num_cells
+            )
             density = v / (sizefrom * sizeto)
             density /= tot_density
         else:
@@ -1405,31 +1416,31 @@ def synapse_density():
 
     def density_color(d):
         if d < 0.01:
-            return '#990000'
+            return "#990000"
         elif d < 0.1:
-            return '#990000BB'
+            return "#990000BB"
         elif d < 0.2:
-            return '#99000099'
+            return "#99000099"
         elif d < 0.3:
-            return '#99000066'
+            return "#99000066"
         elif d < 0.5:
-            return '#99000033'
+            return "#99000033"
         elif d < 0.9:
-            return '#99000011'
+            return "#99000011"
         elif d > 100:
-            return '#009900'
+            return "#009900"
         elif d > 40:
-            return '#009900BB'
+            return "#009900BB"
         elif d > 10:
-            return '#00990099'
+            return "#00990099"
         elif d > 3:
-            return '#00990066'
+            return "#00990066"
         elif d > 1.5:
-            return '#00990033'
+            return "#00990033"
         elif d > 1.1:
-            return '#00990011'
+            return "#00990011"
         else:
-            return '#FFFFFF'
+            return "#FFFFFF"
 
     classes = sorted(class_to_rids.keys(), key=lambda x: -len(class_to_rids[x]))
 
@@ -1440,7 +1451,7 @@ def synapse_density():
         if normalized:
             return str(round(density, 3))
         else:
-            return '{:,}'.format(d)
+            return "{:,}".format(d)
 
     table = [["from \\ to"] + [class_caption(c) for c in classes]]
     for c1 in classes:
@@ -1450,6 +1461,12 @@ def synapse_density():
             row.append((density_caption(density), density_color(density)))
         table.append(row)
 
-    return render_template("synapse_density.html", table=table, total_density=tot_density)
-
-
+    return render_template(
+        "synapse_density.html",
+        table=table,
+        total_density=tot_density,
+        directed=directed,
+        normalized=normalized,
+        group_by=group_by,
+        group_by_options=["Neuron Class", "NT Type"],
+    )
