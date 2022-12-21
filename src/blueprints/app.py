@@ -1336,3 +1336,100 @@ def neuropils():
         caption=caption,
         landing=landing,
     )
+
+
+@app.route("/synapse_density")
+@request_wrapper
+@require_data_access
+def synapse_density():
+    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    neuron_db = neuron_data_factory.get(data_version)
+    num_cells = len(neuron_db.neuron_data)
+    class_to_rids = defaultdict(set)
+    rid_to_class = {}
+
+    def get_class(nd):
+        assert 1 == len(nd["classes"])
+        return nd["classes"][0]\
+            .replace(' neuron', '')\
+            .replace('ending', '')\
+            .replace('ection', '')\
+            .replace('Optic', 'O') \
+            .replace('Central', 'C')\
+            .replace('Bilateral', 'Bi') \
+            .replace('Visual', 'Vis')
+
+    all_classes = 'All'
+    for v in neuron_db.neuron_data.values():
+        cl = get_class(v)
+        class_to_rids[cl].add(v["root_id"])
+        class_to_rids[all_classes].add(v["root_id"])
+        rid_to_class[v["root_id"]] = cl
+
+    all_classes = 'All'
+    tot_syn_cnt = 0
+    class_to_class_syn_cnt = defaultdict(int)
+    for r in neuron_db.connection_rows:
+        assert r[0] != r[1]
+        tot_syn_cnt += r[3]
+        clfrom = rid_to_class[r[0]]
+        clto = rid_to_class[r[1]]
+        class_to_class_syn_cnt[f"{clfrom}:{clto}"] += r[3]
+        class_to_class_syn_cnt[f"{all_classes}:{clto}"] += r[3]
+        class_to_class_syn_cnt[f"{clfrom}:{all_classes}"] += r[3]
+        class_to_class_syn_cnt[f"{all_classes}:{all_classes}"] += r[3]
+
+    tot_density = tot_syn_cnt / (num_cells * (num_cells - 1))
+    class_to_class_density = {}
+    for k, v in class_to_class_syn_cnt.items():
+        parts = k.split(':')
+        sizefrom = len(class_to_rids[parts[0]]) if parts[0] != all_classes else num_cells
+        sizeto = len(class_to_rids[parts[1]]) if parts[1] != all_classes else num_cells
+        density = v / (sizefrom * sizeto)
+        class_to_class_density[k] = density
+
+    def density_color(d):
+        if d < 0.01:
+            return '#990000'
+        elif d < 0.1:
+            return '#990000BB'
+        elif d < 0.2:
+            return '#99000099'
+        elif d < 0.3:
+            return '#99000066'
+        elif d < 0.5:
+            return '#99000033'
+        elif d < 0.9:
+            return '#99000011'
+        elif d > 100:
+            return '#009900'
+        elif d > 40:
+            return '#009900BB'
+        elif d > 10:
+            return '#00990099'
+        elif d > 3:
+            return '#00990066'
+        elif d > 1.5:
+            return '#00990033'
+        elif d > 1.1:
+            return '#00990011'
+        else:
+            return '#FFFFFF'
+
+    classes = sorted(class_to_rids.keys())
+
+    def class_caption(cln):
+        return f"<b>{cln}</b>&nbsp;<small>{round(100 * len(class_to_rids[cln]) / num_cells)}%</small>"
+
+    table = [["from \\ to"] + [class_caption(c) for c in classes]]
+    for c1 in classes:
+        row = [(class_caption(c1), 0)]
+        for c2 in classes:
+            density = class_to_class_density.get(f"{c1}:{c2}", 0)
+            density = density / tot_density
+            row.append((str(round(density, 3)), density_color(density)))
+        table.append(row)
+
+    return render_template("synapse_density.html", table=table, total_density=tot_density)
+
+

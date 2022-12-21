@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %} Synapse Density {% endblock title %}
+{% block content %}
+
+<div style="overflow-x:auto;">
+    <table class="table">
+        <thead>
+        <tr>
+            {% for hv in table[0] %}
+            <th scope="col">{{hv|safe}}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in table[1:] %}
+        <tr>
+            {% for dv in row %}
+            <td style="background: {{dv[1]}};">{{dv[0]|safe}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock content %}
