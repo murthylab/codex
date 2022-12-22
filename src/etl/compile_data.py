@@ -467,6 +467,9 @@ def inspect_feather(version, fname):
     fpath = raw_data_file_path(
         version=version, filename=fname
     )
+    if not os.path.isfile(fpath):
+        print(f"File {fpath} does not exit.")
+        return
 
     print(f"Loading feather file from {fpath}")
     content = load_feather_data_to_table(fpath)
@@ -479,7 +482,7 @@ if __name__ == "__main__":
         "columns_to_remove": {},
         "headers_to_add": {},
         "compare_with_backup": [],
-        "inspect_feather": "",
+        "inspect_feather": ["cell_stats.feather", "classes/nerve_anno.feather", "classes/coarse_anno.feather", "classes/side_anno.feather"],
         "update_coordinates": False,
         "update_classifications": False,
         "update_connections": False,
@@ -494,8 +497,8 @@ if __name__ == "__main__":
         )
         for f in config["compare_with_backup"]:
             compare_with_backup(resource=f, version=v)
-        if config["inspect_feather"]:
-            inspect_feather(version=v, fname=config["inspect_feather"])
+        for f in config["inspect_feather"]:
+            inspect_feather(version=v, fname=f)
         if config["columns_to_remove"]:
             for fname, cols in config["columns_to_remove"].items():
                 remove_columns(v, filename=fname, columns_to_remove=cols)

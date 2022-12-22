@@ -1,4 +1,5 @@
 _CODEX_DATA_SCHEMA = {
+    # one row per id
     "neurons": [
         "root_id",
         "name",
@@ -12,7 +13,9 @@ _CODEX_DATA_SCHEMA = {
         "ach_avg",
         "oct_avg",
     ],
+    # one row per id
     "classes": ["root_id", "class"],
+    # multiple rows per id
     "labels": [
         "root_id",
         "tag",
@@ -23,6 +26,7 @@ _CODEX_DATA_SCHEMA = {
         "user_name",
         "user_affiliation",
     ],
+    # one row per (pre_root_id,post_root_id,neuropil) tuple
     "connections": [
         "pre_root_id",
         "post_root_id",
@@ -30,11 +34,13 @@ _CODEX_DATA_SCHEMA = {
         "syn_count",
         "nt_type",
     ],
+    # multiple rows per id
     "coordinates": [
         "root_id",
         "position",
         "supervoxel_id",
     ],
+    # multiple rows per id
     "nblast": [
         "root_id",
         "scores",
