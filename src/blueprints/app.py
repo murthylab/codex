@@ -1117,6 +1117,7 @@ def connectivity():
     connections_cap = request.args.get("cap", 20, type=int)
     reduce = request.args.get("reduce", 0, type=int)
     group_regions = request.args.get("group_regions", 0, type=int)
+    hide_weights = request.args.get("hide_weights", 0, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     if (
         request.args.get("with_sample_input", type=int, default=0)
@@ -1247,6 +1248,7 @@ def connectivity():
             class_getter=class_getter,
             nt_type_getter=nt_type_getter,
             group_regions=group_regions,
+            show_edge_weights=not hide_weights,
             show_warnings=log_request,
         )
         if headless:
@@ -1267,6 +1269,7 @@ def connectivity():
                 data_version=data_version,
                 reduce=reduce,
                 group_regions=group_regions,
+                hide_weights=hide_weights,
             )
     else:
         con_doc = FAQ_QA_KB["connectivity"]
@@ -1286,6 +1289,7 @@ def connectivity():
             data_version=data_version,
             reduce=reduce,
             group_regions=group_regions,
+            hide_weights=hide_weights,
         )
 
 
@@ -1346,6 +1350,9 @@ def synapse_density():
     normalized = request.args.get("normalized", type=int, default=0)
     directed = request.args.get("directed", type=int, default=0)
     group_by = request.args.get("group_by")
+    log_activity(
+        f"Rendering synapse_density page with {data_version=} {normalized=} {directed=} {group_by=}"
+    )
     return _synapse_density_cached(
         data_version=data_version,
         normalized=normalized,

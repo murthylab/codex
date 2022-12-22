@@ -1,3 +1,4 @@
+import math
 from collections import defaultdict
 
 from flask import render_template, url_for
@@ -59,6 +60,7 @@ def make_graph_html(
     class_getter,
     nt_type_getter,
     group_regions,
+    show_edge_weights,
     show_warnings,
 ):
     """
@@ -77,6 +79,7 @@ def make_graph_html(
         [r[1] for r in connection_table]
     )
     total_syn_count = sum([r[3] for r in connection_table])
+    max_syn_count = max([r[3] for r in connection_table])
     large_weights = total_syn_count >= 50000
 
     if show_warnings:
@@ -150,24 +153,25 @@ def make_graph_html(
         )
 
     def edge_title(num):
-        return f"{num} synapses"
+        return f"{format_number(num)} synapses"
 
     def nt_color(nt_type):
         return NT_COLORS.get(nt_type.lower() if nt_type else None, UNKNOWN_NT_COLOR)
 
     def edge_label(weight):
         if large_weights:
-            return format_number(round(weight / 1000)) + "K"
+            rk = round(weight / 1000)
+            return format_number(rk) + "K" if rk > 0 else format_number(weight)
         else:
             return format_number(weight)
 
     def edge_width(weight):
         if large_weights:
-            return max(1, len(str(round(weight / 1000))))
+            return 50 * weight / max_syn_count
         else:
             return len(str(weight))
 
-    net = Network()
+    net = Network(show_edge_weights=show_edge_weights)
 
     added_cell_nodes = set()
 
@@ -235,10 +239,14 @@ def make_graph_html(
                 label=edge_label(v),
                 title=edge_title(v),
             )
+        if not show_edge_weights:
+            net.add_legend(f"Top Cross Synapse Counts", "white")
+            for k, v in sorted(cell_to_cell_counts.items(), key=lambda x: -x[1])[:5]:
+                net.add_legend(f"- {edge_label(v)} from {k[0]} to {k[1]}", "white")
 
         if cell_loop_counts:
-            net.add_legend(f"Internal connections", "white")
-            for k, v in sorted(cell_loop_counts.items(), key=lambda x: -x[1]):
+            net.add_legend(f"Top Internal Synapse Counts", "white")
+            for k, v in sorted(cell_loop_counts.items(), key=lambda x: -x[1])[:5]:
                 net.add_legend(f"- {edge_label(v)} in {k}", "white")
     else:
         cell_to_pil_counts = defaultdict(int)
@@ -273,10 +281,11 @@ def make_graph_html(
 
 
 class Network(object):
-    def __init__(self, edge_physics=True, node_physics=False):
+    def __init__(self, show_edge_weights, edge_physics=True, node_physics=False):
         self.edges = []
         self.node_map = {}
         self.legend = []
+        self.show_edge_weights = show_edge_weights
         self.edge_physics = edge_physics
         self.node_physics = node_physics
         self.cluster_data = {}
@@ -338,7 +347,7 @@ class Network(object):
             "from": source,
             "to": target,
             "physics": self.edge_physics,
-            "label": label,
+            "label": label if self.show_edge_weights else "",
             "title": title,
             "arrows": "to",
             "arrowStrikethrough": True,
