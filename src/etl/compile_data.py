@@ -193,17 +193,27 @@ def load_proofreading_info_from_cave(client, version):
 def val_counts(table):
     unique_counts = {}
     missing_counts = {}
+    types = {}
+    bounds = {}
     for i, c in enumerate(table[0]):
-        unique_counts[c] = len(set([r[i] for r in table[1:] if r[i]]))
+        uvals = list(set([r[i] for r in table[1:] if r[i]]))
+        unique_counts[c] = (len(uvals), uvals if len(uvals) < 20 else '')
         missing_counts[c] = len([r[i] for r in table[1:] if not r[i]])
-    return unique_counts, missing_counts
+        types[c] = list(set([type(r[i]) for r in table[1:]]))
+        try:
+            bounds[c] = (min([r[i] for r in table[1:]]), max([r[i] for r in table[1:]]))
+        except:
+            pass
+    return unique_counts, missing_counts, types, bounds
 
 
 def summarize_csv(content):
     print(f"- header: {content[0]}")
-    uniq_counts, miss_counts = val_counts(content)
+    uniq_counts, miss_counts, types, bounds = val_counts(content)
     print(f"- unique val counts: {uniq_counts}")
     print(f"- missing val counts: {miss_counts}")
+    print(f"- data types: {types}")
+    print(f"- numeral type bounds: {bounds}")
     return content
 
 
@@ -453,17 +463,28 @@ def compare_with_backup(version, resource):
     compare_csvs(old_content, new_content, print_diffs=10)
 
 
+def inspect_feather(version, fname):
+    fpath = raw_data_file_path(
+        version=version, filename=fname
+    )
+
+    print(f"Loading feather file from {fpath}")
+    content = load_feather_data_to_table(fpath)
+    summarize_csv(content)
+    print(f"Sample:\n{content[1]}\n{content[2]}")
+
 if __name__ == "__main__":
     config = {
         "versions": DATA_SNAPSHOT_VERSIONS,
         "columns_to_remove": {},
         "headers_to_add": {},
         "compare_with_backup": [],
+        "inspect_feather": "",
         "update_coordinates": False,
         "update_classifications": False,
         "update_connections": False,
         "update_nblast_scores": False,
-        "update_labels": True,
+        "update_labels": False,
     }
 
     client = init_cave_client()
@@ -473,6 +494,8 @@ if __name__ == "__main__":
         )
         for f in config["compare_with_backup"]:
             compare_with_backup(resource=f, version=v)
+        if config["inspect_feather"]:
+            inspect_feather(version=v, fname=config["inspect_feather"])
         if config["columns_to_remove"]:
             for fname, cols in config["columns_to_remove"].items():
                 remove_columns(v, filename=fname, columns_to_remove=cols)
