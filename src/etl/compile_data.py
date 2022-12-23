@@ -542,17 +542,12 @@ if __name__ == "__main__":
         "columns_to_remove": {},
         "headers_to_add": {},
         "compare_with_backup": [],
-        "inspect_feather": [
-            "cell_stats.feather",
-            "classes/nerve_anno.feather",
-            "classes/coarse_anno.feather",
-            "classes/side_anno.feather",
-        ],
+        "inspect_feather": [],
         # INGEST
         "update_connectome": False,
         "update_coordinates": False,
         "update_nblast_scores": False,
-        "update_labels": False,
+        "update_labels": True,
     }
 
     client = init_cave_client()

@@ -97,7 +97,9 @@ class NeuronDataTest(TestCase):
             # check neuron attributes
             for nd in unpickled_db.neuron_data.values():
                 attribs = {k: type(v) for k, v in nd.items()}
-                self.assertEqual(NEURON_DATA_ATTRIBUTES, attribs, f"Mismatch in types for {nd}")
+                self.assertEqual(
+                    NEURON_DATA_ATTRIBUTES, attribs, f"Mismatch in types for {nd}"
+                )
 
             del unpickled_db
             del factory_db

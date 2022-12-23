@@ -40,7 +40,11 @@ class NeuronDataTest(TestCase):
             num_missing = len(
                 [1 for nd in self.neuron_db.neuron_data.values() if not nd[attrib]]
             )
-            self.assertLessEqual(num_missing, upper_bound, f"Too many missing values for attribute: {attrib}")
+            self.assertLessEqual(
+                num_missing,
+                upper_bound,
+                f"Too many missing values for attribute: {attrib}",
+            )
 
         expected_missing_value_bounds = {
             "tag": 70000,
