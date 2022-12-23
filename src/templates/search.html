@@ -46,6 +46,7 @@
                 <th scope="col" title="{{extra_data.title}}">{{extra_data.column_name}}</th>
             {% endif %}
             <th scope="col" title="Neurotransmitter Type & Confidence Score">NT</th>
+            <th scope="col" title="Length / Area / Volume in Nanometers">Size</th>
             <th scope="col" title="Upstream/Downstream partners and synapse hemispheres">Up/Dn</th>
             <th scope="col"></th>
         </tr>
@@ -60,38 +61,54 @@
             <td><a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);">{{neuron.name}}</a><br><small>{{neuron.root_id}}</small>
             </td>
             <td style="color:#3A3A3A;">
-                {% if neuron.classes %}
-                    <span style="color: teal">Classification</span>
-                    {% for cl in neuron.classes %}
+                {% if neuron.tag %}
+                    <span style="color: teal">Labels</span>
+                    {% for tg in neuron.tag %}
                     <div>
-                        <small><b>&#x2022;</b> &nbsp;{{cl|safe}}</small>
-                        {% if 'class' in multi_val_attrs %}
+                        <small><b>&#x2022;</b> &nbsp;{{highlighted_tags[tg]|safe}}</small>
                         <span class="td_filter_buttons">
-                            <button title="Exclude {{cl}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class != {{cl}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
-                            <button title="Show only {{cl}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class == {{cl}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                            <button title="Exclude {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label != {{tg}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                            <button title="Show only {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label == {{tg}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
                         </span>
                         <span class="td_filter_buttons_caption">
                             filter out/in
                         </span>
-                        {% endif %}
                     </div>
                     {% endfor %}
                 {% endif %}
 
-                {% if neuron.tag %}
-                <span style="color: teal">Labels</span>
-                {% for tg in neuron.tag %}
+                {% if neuron.class %}
                 <div>
-                    <small><b>&#x2022;</b> &nbsp;{{highlighted_tags[tg]|safe}}</small>
+                    <span style="color: teal">Classification</span>
+                    <small><b>&#x2022;</b> &nbsp;{{neuron.class|safe}}</small>
+                    {% if 'class' in multi_val_attrs %}
                     <span class="td_filter_buttons">
-                        <button title="Exclude {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label != {{tg}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
-                        <button title="Show only {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label == {{tg}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                        <button title="Exclude {{cl}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class != {{cl}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{cl}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class == {{cl}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
                     </span>
                     <span class="td_filter_buttons_caption">
                         filter out/in
                     </span>
+                    {% endif %}
                 </div>
-                {% endfor %}
+                {% endif %}
+                {% if neuron.side %}
+                <div>
+                    <span style="color: teal">Side</span>
+                    <small><b>&#x2022;</b> &nbsp;{{neuron.side|safe}}</small>
+                </div>
+                {% endif %}
+                {% if neuron.nerve_type %}
+                <div>
+                    <span style="color: teal">Nerve Type</span>
+                    <small><b>&#x2022;</b> &nbsp;{{neuron.nerve_type|safe}}</small>
+                </div>
+                {% endif %}
+                {% if neuron.flow %}
+                <div>
+                    <span style="color: teal">Flow</span>
+                    <small><b>&#x2022;</b> &nbsp;{{neuron.flow|safe}}</small>
+                </div>
                 {% endif %}
             </td>
             {% if extra_data %}
@@ -112,6 +129,10 @@
                 </span>
                 {% endif %}
             </td>
+            <td style="color:purple;"><small>{{'{:.2E}'.format(neuron.length_nm)}}(nm)
+                <br>{{'{:.2E}'.format(neuron.area_nm)}}(nm<sup>2</sup>)
+                <br>{{'{:.2E}'.format(neuron.size_nm)}}(nm<sup>3</sup>)
+            </small></td>
             <td style="color:purple;"><small>{{neuron.input_cells}}:{{neuron.output_cells}}<br>{{neuron.hemisphere_fingerprint|safe}}</small></td>
             <td><a class="btn btn-outline-primary" href="{{url_for('app.flywire_url', data_version=data_version, root_ids=[neuron.root_id])}}"
                    target="_blank" role="button" title="Render in 3D"><i class="fa-solid fa-cube"></i></a></td>

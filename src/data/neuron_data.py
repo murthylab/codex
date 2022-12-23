@@ -7,7 +7,6 @@ from src.data.catalog import (
     get_neurons_file_columns,
     get_labels_file_columns,
     get_coordinates_file_columns,
-    get_classes_file_columns,
     get_connections_file_columns,
     get_nblast_file_columns,
 )
@@ -58,6 +57,12 @@ NEURON_DATA_ATTRIBUTES = {
     "ser_avg": float,
     "supervoxel_id": list,
     "tag": list,
+    "flow": str,
+    "nerve_type": str,
+    "side": str,
+    "length_nm": int,
+    "area_nm": int,
+    "size_nm": int,
 }
 
 
@@ -69,7 +74,6 @@ class NeuronDB(object):
         label_rows,
         labels_file_timestamp,
         coordinate_rows,
-        classification_rows,
         nblast_rows,
     ):
         self.neuron_data = {}
@@ -84,15 +88,17 @@ class NeuronDB(object):
                 column_index = {c: i for i, c in enumerate(r)}
                 continue
 
-            def _get_value(col, split=False, to_type=None):
+            def _get_value(col, split=False, to_type=None, default=None):
                 def convert_type(v):
+                    if v == "" and default is not None:
+                        v = default
                     return to_type(v) if to_type else v
 
                 val = r[column_index[col]]
                 if split:
                     return [convert_type(v) for v in val.split(",")] if val else []
                 else:
-                    return convert_type(val) if val else ""
+                    return convert_type(val)
 
             root_id = _get_value("root_id", to_type=int)
             assert root_id not in self.neuron_data
@@ -108,8 +114,14 @@ class NeuronDB(object):
                 "oct_avg": _get_value("oct_avg", to_type=float),
                 "ser_avg": _get_value("ser_avg", to_type=float),
                 "da_avg": _get_value("da_avg", to_type=float),
+                "class": _get_value("class"),
+                "flow": _get_value("flow"),
+                "nerve_type": _get_value("nerve_type"),
+                "side": _get_value("side"),
+                "length_nm": _get_value("length_nm", to_type=int, default=0),
+                "area_nm": _get_value("area_nm", to_type=int, default=0),
+                "size_nm": _get_value("size_nm", to_type=int, default=0),
                 # clean
-                "classes": [],
                 "tag": [],
                 "position": [],
                 "supervoxel_id": [],
@@ -190,33 +202,6 @@ class NeuronDB(object):
             f"not found rids: {len(not_found_rids)}, max list val: {max([(len(nd['position']), nd['root_id']) for nd in self.neuron_data.values()])}"
         )
 
-        log(f"App initialization processing classification data..")
-        classes_file_columns = get_classes_file_columns()
-        rid_col_idx = classes_file_columns.index("root_id")
-        cls_col_idx = classes_file_columns.index("class")
-        not_found_rids = set()
-        all_classes = set()
-        for i, r in enumerate(classification_rows or []):
-            if i == 0:
-                # check header
-                assert r == classes_file_columns
-                continue
-            rid = int(r[rid_col_idx])
-            if rid not in self.neuron_data:
-                not_found_rids.add(rid)
-                continue
-            cl = r[cls_col_idx]
-            if cl not in self.neuron_data[rid]["classes"]:
-                all_classes.add(cl)
-                self.neuron_data[rid]["classes"].append(cl)
-        len([nd for nd in self.neuron_data.values() if not nd["classes"]])
-        log(
-            f"App initialization classes loaded for all root ids."
-            f"not found rids: {len(not_found_rids)}, "
-            f"max list val: {max([len(nd['classes']) for nd in self.neuron_data.values()])}, "
-            f"classes: {all_classes}"
-        )
-
         log(f"App initialization loading connections..")
         self.connection_rows = []
         input_neuropils = defaultdict(set)
@@ -293,7 +278,7 @@ class NeuronDB(object):
             nd["hemisphere_fingerprint"] = NeuronDB.hemisphere_fingerprint(
                 nd["input_neuropils"], nd["output_neuropils"]
             )
-            nd["class"] = ", ".join([c for c in nd["classes"]])
+            nd["classes"] = [nd["class"]]  # TODO: get rid of this +++
             nd["input_cells"] = len(input_cells[rid])
             nd["output_cells"] = len(output_cells[rid])
 

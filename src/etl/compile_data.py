@@ -70,6 +70,9 @@ SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES = [
 
 NBLAST_SCORES_FILE_NAME = "nblast_scores.feather"
 
+NA_STR = ""
+NA_INT = 0
+
 
 def load_feather_data_to_table(filepath, columns_to_read=None):
     df_data = pandas.read_feather(filepath)
@@ -197,7 +200,7 @@ def val_counts(table):
     bounds = {}
     for i, c in enumerate(table[0]):
         uvals = list(set([r[i] for r in table[1:] if r[i]]))
-        unique_counts[c] = (len(uvals), uvals if len(uvals) < 20 else '')
+        unique_counts[c] = (len(uvals), uvals if len(uvals) < 20 else "")
         missing_counts[c] = len([r[i] for r in table[1:] if not r[i]])
         types[c] = list(set([type(r[i]) for r in table[1:]]))
         try:
@@ -275,10 +278,24 @@ def update_cave_data_file(name, db_load_func, cave_client, version):
     comp_backup_and_update_csv(fpath, content=new_content)
 
 
-def process_classification_file(version, summarize_files=False):
-    dirpath = raw_data_file_path(version=version, filename=f"classes")
+def compile_neuron_metadata_table(version, summarize_files=False):
+    # Produces these columns:
+    new_content = [
+        [
+            "root_id",
+            "flow",
+            "class",
+            "side",
+            "nerve_type",
+            "length_nm",
+            "area_nm",
+            "size_nm",
+        ]
+    ]
+
+    dirpath = raw_data_file_path(version=version, filename=f"meta")
     files = os.listdir(dirpath)
-    print(f"Loading coarse labels from {dirpath}: {files}")
+    print(f"Loading metadata files from {dirpath}: {files}")
 
     def summarize(rows):
         res = ""
@@ -290,10 +307,17 @@ def process_classification_file(version, summarize_files=False):
             res += f"{c}: {len(vals)} {vals_str}\n"
         return res
 
-    new_content = [["root_id", "class"]]
+    class_dict = {}
+    flow_dict = {}
+    nerve_dict = {}
+    side_dict = {}
+    length_dict = {}
+    area_dict = {}
+    size_dict = {}
+    all_root_ids = set()
 
     for f in files:
-        fpath = raw_data_file_path(version=version, filename=f"classes/{f}")
+        fpath = os.path.join(dirpath, f)
         f_content = load_feather_data_to_table(fpath)
         if summarize_files:
             print(
@@ -301,40 +325,54 @@ def process_classification_file(version, summarize_files=False):
                 f"{f}, {len(f_content)}:\n{f_content[:2]}\n{summarize(f_content)}\n"
                 f"------------------"
             )
+
+        def load(dct, tbl, col):
+            for r in tbl[1:]:
+                assert r[0] not in dct
+                dct[r[0]] = r[col]
+                all_root_ids.add(r[0])
+
         if f == "coarse_cell_classes.feather":
-            assert f_content[0] == new_content[0]
-            new_content.extend(f_content[1:])
-        elif f in [
-            "coarse_anno_BOL_526.feather",
-            "coarse_anno_endocrine_526.feather",
-            "coarse_anno_sensory_526.feather",
-            "coarse_anno_DN_526.feather",
-            "coarse_anno_BVP_526.feather",
-            "coarse_anno_VP_526.feather",
-            "coarse_anno_motor_526.feather",
-            "coarse_anno_VC_526.feather",
-            "coarse_anno_AN_526.feather",
-        ]:
-            assert f_content[0] == ["x", "y", "z", "supervoxel_id", "root_id", "label"]
-            new_content.extend([[r[4], r[5]] for r in f_content[1:]])
-        elif f in ["coarse_anno_cb_526.feather"]:
-            assert f_content[0] == ["root_id", "label", "x", "y", "z", "supervoxel_id"]
-            new_content.extend([[r[0], r[1]] for r in f_content[1:]])
-        elif f in ["coarse_anno_ol_526.feather"]:
-            assert f_content[0] == ["root_id", "label", "x", "y", "z", "supervoxel_id"]
-            new_content.extend([[r[0], "Optic Lobe"] for r in f_content[1:]])
-        elif f in ["coarse_anno_nerve_type_526.feather", "coarse_anno_526.feather"]:
-            print(f"Skipping {f}")
+            assert f_content[0] == ["root_id", "class"]
+            load(dct=class_dict, tbl=f_content, col=1)
+        elif f == "coarse_anno.feather":
+            assert f_content[0] == ["root_id", "flow", "super_class"]
+            load(dct=flow_dict, tbl=f_content, col=1)
+            load(dct=class_dict, tbl=f_content, col=2)
+        elif f == "nerve_anno.feather":
+            assert f_content[0] == ["root_id", "nerve"]
+            load(dct=nerve_dict, tbl=f_content, col=1)
+        elif f == "side_anno.feather":
+            assert f_content[0] == ["root_id", "side"]
+            load(dct=side_dict, tbl=f_content, col=1)
+        elif f == "cell_stats.feather":
+            assert f_content[0] == ["root_id", "area_nm2", "size_nm3", "path_length_nm"]
+            load(dct=area_dict, tbl=f_content, col=1)
+            load(dct=size_dict, tbl=f_content, col=2)
+            load(dct=length_dict, tbl=f_content, col=3)
         else:
             assert f"Unknown file: {f}" is None
 
         print(f"Class rows after processing {f}: {len(new_content)}")
 
-    fpath = compiled_data_file_path(version=version, filename="classification.csv.gz")
-    comp_backup_and_update_csv(fpath=fpath, content=new_content)
+    for rid in all_root_ids:
+        new_content.append(
+            [
+                rid,
+                flow_dict.get(rid, NA_STR),
+                class_dict.get(rid, NA_STR),
+                side_dict.get(rid, NA_STR),
+                nerve_dict.get(rid, NA_STR),
+                round(float(length_dict.get(rid, NA_INT))),
+                round(float(area_dict.get(rid, NA_INT))),
+                round(float(size_dict.get(rid, NA_INT))),
+            ]
+        )
+
+    return new_content
 
 
-def process_synapse_table_file(version):
+def update_connectome_files(version):
     st_nt_filepath = raw_data_file_path(
         version=version, filename=f"{SYNAPSE_TABLE_WITH_NT_TYPES_FILE_NAME}"
     )
@@ -353,6 +391,28 @@ def process_synapse_table_file(version):
         filtered_syn_table_content=filtered_rows,
         columns=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES,
     )
+    neuron_metadata = compile_neuron_metadata_table(version=version)
+    assert [
+        "root_id",
+        "flow",
+        "class",
+        "side",
+        "nerve_type",
+        "length_nm",
+        "area_nm",
+        "size_nm",
+    ] == neuron_metadata[0]
+    assert len(set([r[0] for r in neuron_metadata])) == len(neuron_metadata)
+    rid_to_row = {r[0]: i for i, r in enumerate(neuron_metadata)}
+    meta_columns = len(neuron_metadata[0])
+    for i, r in enumerate(neurons):
+        meta_row_idx = rid_to_row.get(r[0])
+        meta_row = (
+            [NA_STR] * meta_columns
+            if meta_row_idx is None
+            else neuron_metadata[meta_row_idx]
+        )
+        r.extend(meta_row[1:])
     neurons_fpath = compiled_data_file_path(version=version, filename="neurons.csv.gz")
     comp_backup_and_update_csv(fpath=neurons_fpath, content=neurons)
 
@@ -464,9 +524,7 @@ def compare_with_backup(version, resource):
 
 
 def inspect_feather(version, fname):
-    fpath = raw_data_file_path(
-        version=version, filename=fname
-    )
+    fpath = raw_data_file_path(version=version, filename=fname)
     if not os.path.isfile(fpath):
         print(f"File {fpath} does not exit.")
         return
@@ -476,16 +534,23 @@ def inspect_feather(version, fname):
     summarize_csv(content)
     print(f"Sample:\n{content[1]}\n{content[2]}")
 
+
 if __name__ == "__main__":
     config = {
         "versions": DATA_SNAPSHOT_VERSIONS,
+        # UTILS
         "columns_to_remove": {},
         "headers_to_add": {},
         "compare_with_backup": [],
-        "inspect_feather": ["cell_stats.feather", "classes/nerve_anno.feather", "classes/coarse_anno.feather", "classes/side_anno.feather"],
+        "inspect_feather": [
+            "cell_stats.feather",
+            "classes/nerve_anno.feather",
+            "classes/coarse_anno.feather",
+            "classes/side_anno.feather",
+        ],
+        # INGEST
+        "update_connectome": False,
         "update_coordinates": False,
-        "update_classifications": False,
-        "update_connections": False,
         "update_nblast_scores": False,
         "update_labels": False,
     }
@@ -495,6 +560,8 @@ if __name__ == "__main__":
         print(
             f"#######################\nCompiling version {v}..\n#######################"
         )
+
+        # Utils
         for f in config["compare_with_backup"]:
             compare_with_backup(resource=f, version=v)
         for f in config["inspect_feather"]:
@@ -505,10 +572,10 @@ if __name__ == "__main__":
         if config["headers_to_add"]:
             for fname, hdr in config["headers_to_add"].items():
                 add_header(v, filename=fname, header=hdr)
-        if config["update_connections"]:
-            process_synapse_table_file(version=v)
-        if config["update_classifications"]:
-            process_classification_file(version=v, summarize_files=True)
+
+        # Ingest
+        if config["update_connectome"]:
+            update_connectome_files(version=v)
         if config["update_coordinates"]:
             update_cave_data_file(
                 name="coordinates",

@@ -58,7 +58,6 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         LABELS_FILE_NAME, with_timestamp=True
     )
     coordinate_rows = _read_data(COORDINATES_FILE_NAME)
-    classification_rows = _read_data(CLASSIFICATIONS_FILE_NAME)
     nblast_rows = _read_data(NBLAST_FILE_NAME)
 
     log(
@@ -67,7 +66,6 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         f"   {len(connection_rows)} connection rows\n"
         f"   {len(label_rows)} label rows ({labels_file_timestamp})\n"
         f"   {len(coordinate_rows)} coordinate rows\n"
-        f"   {len(classification_rows)} classification rows\n"
         f"   {len(nblast_rows)} nblast rows\n"
     )
     neuron_db = NeuronDB(
@@ -76,7 +74,6 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         label_rows=label_rows,
         labels_file_timestamp=labels_file_timestamp,
         coordinate_rows=coordinate_rows,
-        classification_rows=classification_rows,
         nblast_rows=nblast_rows,
     )
     # free mem
@@ -84,7 +81,6 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     del connection_rows
     del label_rows
     del coordinate_rows
-    del classification_rows
     return neuron_db
 
 
