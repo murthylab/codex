@@ -12,9 +12,14 @@ _CODEX_DATA_SCHEMA = {
         "glut_avg",
         "ach_avg",
         "oct_avg",
+        "flow",
+        "class",
+        "side",
+        "nerve_type",
+        "length_nm",
+        "area_nm",
+        "size_nm",
     ],
-    # one row per id
-    "classes": ["root_id", "class"],
     # multiple rows per id
     "labels": [
         "root_id",
@@ -43,7 +48,7 @@ _CODEX_DATA_SCHEMA = {
     # multiple rows per id
     "nblast": [
         "root_id",
-        "scores",
+        "scores",  # +++ split this TODO
     ],
 }
 

@@ -4,7 +4,7 @@ from src.utils.graph_vis import Network
 
 class Test(TestCase):
     def test_clusters(self):
-        net = Network()
+        net = Network(show_edge_weights=True)
         net.add_node(
             "center",
             1,

@@ -1,7 +1,6 @@
 from unittest import TestCase
 
 from src.data.local_data_loader import (
-    unpickle_all_neuron_db_versions,
     load_neuron_db,
     unpickle_neuron_db,
 )

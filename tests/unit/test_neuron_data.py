@@ -34,26 +34,39 @@ class NeuronDataTest(TestCase):
             )
 
     def test_index_data(self):
-        assert 60000 < len(self.neuron_db.neuron_data)
+        self.assertGreater(len(self.neuron_db.neuron_data), 100000)
 
-        def check_num_values_present(attrib, lower_bound, upper_bound=None):
-            num_present = len(
-                [1 for nd in self.neuron_db.neuron_data.values() if nd[attrib]]
+        def check_num_values_missing(attrib, upper_bound):
+            num_missing = len(
+                [1 for nd in self.neuron_db.neuron_data.values() if not nd[attrib]]
             )
-            if lower_bound is not None:
-                self.assertGreaterEqual(num_present, lower_bound)
-            if upper_bound is not None:
-                self.assertLessEqual(num_present, upper_bound)
+            self.assertLessEqual(num_missing, upper_bound, f"Too many missing values for attribute: {attrib}")
 
-        check_num_values_present("name", 66812)
-        check_num_values_present("nt_type", 63891)
-        check_num_values_present("hemisphere_fingerprint", 66633)
-        check_num_values_present("classes", 10782)
-        check_num_values_present("input_neuropils", 63308)
-        check_num_values_present("output_neuropils", 64302)
-        check_num_values_present("supervoxel_id", 22155)
-        check_num_values_present("tag", 28000)
-        check_num_values_present("position", 68375)
+        expected_missing_value_bounds = {
+            "tag": 70000,
+            "class": 150,
+            "flow": 150,
+            "side": 14000,
+            "nerve_type": 94000,
+            "input_cells": 4000,
+            "input_neuropils": 4000,
+            "input_synapses": 4000,
+            "output_cells": 4000,
+            "output_neuropils": 4000,
+            "output_synapses": 4000,
+            "nblast_scores": 60000,
+            "nt_type": 10000,
+            "nt_type_score": 10000,
+            "ach_avg": 3500,
+            "da_avg": 8500,
+            "gaba_avg": 5000,
+            "glut_avg": 6000,
+            "oct_avg": 35000,
+            "ser_avg": 50000,
+        }
+
+        for k in NEURON_DATA_ATTRIBUTES.keys():
+            check_num_values_missing(k, expected_missing_value_bounds.get(k, 0))
 
     def test_annotations(self):
         neurons_with_tags = [n for n in self.neuron_db.neuron_data.values() if n["tag"]]
@@ -151,11 +164,11 @@ class NeuronDataTest(TestCase):
     def test_structured_search_case(self):
         # case sensitive vs insensitive search
         class_matches = self.neuron_db.search(
-            "class == descending", case_sensitive=True
+            "class == Descending", case_sensitive=True
         )
         self.assertEqual(len(class_matches), 0)
-        class_matches = self.neuron_db.search("class == descending neuron")
-        self.assertGreater(len(class_matches), 800)
+        class_matches = self.neuron_db.search("class == descending")
+        self.assertGreater(len(class_matches), 1000)
 
         # starts with op
         self.assertGreater(len(self.neuron_db.search("label {starts_with} LC")), 350)
@@ -295,19 +308,32 @@ class NeuronDataTest(TestCase):
 
     def test_classes(self):
         expected_list = [
-            "Ascending neuron",
-            "Bilateral Optic Lobe neuron",
-            "Bilateral visual projection neuron",
-            "Central Brain",
-            "Descending neuron",
-            "Endocrine neuron",
-            "Motor neuron",
-            "Optic Lobe",
-            "Sensory neuron",
-            "Visual centrifugal neuron",
-            "Visual projection neuron",
+            "ascending",
+            "central",
+            "descending",
+            "endocrine",
+            "motor",
+            "optic",
+            "sensory",
+            "visual_centrifugal",
+            "visual_projection",
         ]
         self.assertEqual(expected_list, self.neuron_db.classes())
+        rids_without_class = []
+        for nd in self.neuron_db.neuron_data.values():
+            self.assertEqual(nd["classes"], [nd["class"]])
+            if not nd["class"]:
+                rids_without_class.append(nd["root_id"])
+        self.assertGreater(200, len(rids_without_class))
+
+    def test_sizes(self):
+        for nd in self.neuron_db.neuron_data.values():
+            len = nd["length_nm"]
+            area = nd["area_nm"]
+            volume = nd["size_nm"]
+            self.assertGreater(len, 10000)
+            self.assertGreater(area, len)
+            self.assertGreater(volume, area + len)
 
     def test_hemisphere_fingerprint(self):
         self.assertEqual(
