@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %} Download Data {% endblock title %}
+{% block content %}
+
+
+<div class="card bg-light mb-3" style="margin: 10px;" id="info">
+    <div class="card-header" style="color: purple; font-size: 18px;">
+         Download Data
+    </div>
+    <div class="card-body">
+        <p> Dear <b>{{user_name}}</b>, recall
+            that FlyWire data has not been published yet.
+            <br>
+            <br>
+            <i style="margin-right: 5px; color: orange;" class="fa-solid fa-warning"></i>
+            Do not share or forward the data to anyone without written permission from <b>flywire@princeton.edu</b>
+            <i style="margin-left: 5px; color: orange;" class="fa-solid fa-warning"></i>
+        </p>
+        <form class="form-inline">
+            <label style="margin: 20px;">Data version</label>
+            <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                    aria-label="Data Version" name="data_version">
+                {% for v in data_versions %}
+                <option value="{{v}}" {{
+                'selected' if data_version==v}}>{{v}}</option>
+                {% endfor %}
+            </select>
+            <label style="margin: 20px;">Data product</label>
+            <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                    aria-label="Data Product" name="data_product">
+                {% for product, description in data_products.items() %}
+                <option value="{{product}}" {{
+                'selected' if data_product==v}}>{{description}}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn btn-link my-2 my-sm-0" type="submit"><i class="fa-solid fa-download"></i>
+                </button>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock content %}

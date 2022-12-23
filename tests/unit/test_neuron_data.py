@@ -319,6 +319,7 @@ class NeuronDataTest(TestCase):
             "motor",
             "optic",
             "sensory",
+            "unspecified",
             "visual_centrifugal",
             "visual_projection",
         ]

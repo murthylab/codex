@@ -114,7 +114,7 @@ class NeuronDB(object):
                 "oct_avg": _get_value("oct_avg", to_type=float),
                 "ser_avg": _get_value("ser_avg", to_type=float),
                 "da_avg": _get_value("da_avg", to_type=float),
-                "class": _get_value("class"),
+                "class": _get_value("class", default="unspecified"),
                 "flow": _get_value("flow"),
                 "nerve_type": _get_value("nerve_type"),
                 "side": _get_value("side"),
