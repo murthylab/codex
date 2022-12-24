@@ -96,6 +96,7 @@ def _post_to_slk(username, access_granted, text, real_user_activity, extra_hk):
                 "FullStoryBot",
                 "Googlebot",
                 "AhrefsBot",
+                "Other / Other / Other",
             ]
         ]
     ):
