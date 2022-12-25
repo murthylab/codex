@@ -26,6 +26,8 @@ SORTABLE_OPS = {
 
 SORT_BY_OPTIONS = {
     "": "Default",
+    "-size": "Cell Volume (high -> low)",
+    "size": "Cell Volume (low -> high)",
     "-partners": "# Partners (high -> low)",
     "partners": "# Partners (low -> high)",
     "-synapse_neuropils": "# Synapse Regions (high -> low)",
@@ -66,6 +68,7 @@ def sort_search_results(
     output_sets,
     label_count_getter,
     synapse_neuropil_count_getter,
+    size_getter,
     partner_count_getter,
     similarity_scores_getter,
     connections_getter,
@@ -108,6 +111,15 @@ def sort_search_results(
                     else sorted(ids, key=lambda x: dct[x])
                 )
                 return ids, extra_data
+
+            if sort_by in ["size", "-size"]:
+                dct = {rid: size_getter(rid) for rid in ids}
+                ids = (
+                    sorted(ids, key=lambda x: -dct[x])
+                    if sort_by.startswith("-")
+                    else sorted(ids, key=lambda x: dct[x])
+                )
+                return ids, None
 
             parts = sort_by.split(":")
             if len(parts) != 2 or parts[0] not in SORTABLE_OPS.values():

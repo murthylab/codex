@@ -330,6 +330,7 @@ def search():
                 neuron_db.get_neuron_data(x)["input_neuropils"]
             )
             + len(neuron_db.get_neuron_data(x)["output_neuropils"]),
+            size_getter=lambda x: neuron_db.get_neuron_data(x)["size_nm"],
             partner_count_getter=lambda x: len(neuron_db.output_sets()[x])
             + len(neuron_db.input_sets()[x]),
             similarity_scores_getter=lambda x: neuron_db.get_similar_cells(

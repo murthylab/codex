@@ -46,7 +46,7 @@
                 <th scope="col" title="{{extra_data.title}}">{{extra_data.column_name}}</th>
             {% endif %}
             <th scope="col" title="Neurotransmitter Type & Confidence Score">NT</th>
-            <th scope="col" title="Length / Area / Volume in Nanometers">Size</th>
+            <th scope="col" title="Length / Area / Volume (in micrometers)">Size</th>
             <th scope="col" title="Upstream/Downstream partners and synapse hemispheres">Up/Dn</th>
             <th scope="col"></th>
         </tr>
@@ -129,9 +129,9 @@
                 </span>
                 {% endif %}
             </td>
-            <td style="color:purple;"><small>{{'{:.2E}'.format(neuron.length_nm)}}(nm)
-                <br>{{'{:.2E}'.format(neuron.area_nm)}}(nm<sup>2</sup>)
-                <br>{{'{:.2E}'.format(neuron.size_nm)}}(nm<sup>3</sup>)
+            <td style="color:purple;"><small>{{'{:,}'.format(neuron.length_nm // 1000)}}&#181;m
+                <br>{{'{:,}'.format(neuron.area_nm // 1000000)}}&#181;m<sup>2</sup>
+                <br>{{'{:,}'.format(neuron.size_nm // 1000000000)}}&#181;m<sup>3</sup>
             </small></td>
             <td style="color:purple;"><small>{{neuron.input_cells}}:{{neuron.output_cells}}<br>{{neuron.hemisphere_fingerprint|safe}}</small></td>
             <td><a class="btn btn-outline-primary" href="{{url_for('app.flywire_url', data_version=data_version, root_ids=[neuron.root_id])}}"
