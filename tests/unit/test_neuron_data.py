@@ -333,12 +333,14 @@ class NeuronDataTest(TestCase):
 
     def test_sizes(self):
         for nd in self.neuron_db.neuron_data.values():
-            len = nd["length_nm"]
+            ln = nd["length_nm"]
             area = nd["area_nm"]
             volume = nd["size_nm"]
-            self.assertGreater(len, 10000)
-            self.assertGreater(area, len)
-            self.assertGreater(volume, area + len)
+            self.assertGreater(ln, 1000)
+            self.assertGreater(area, 1000 * 1000)
+            self.assertGreater(volume, 1000 * 1000 * 1000)
+            self.assertGreater(area, ln)
+            self.assertGreater(volume, area + ln)
 
     def test_hemisphere_fingerprint(self):
         self.assertEqual(
