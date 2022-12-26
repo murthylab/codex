@@ -390,23 +390,22 @@ class NeuronDB(object):
 
     @lru_cache
     def categories(self):
-        classes = {}
-        labels = {}
-        groups = {}
-        input_neuropils = {}
-        output_neuropils = {}
+        classes = defaultdict(int)
+        flows = defaultdict(int)
+        nerves = defaultdict(int)
+        labels = defaultdict(int)
+        groups = defaultdict(int)
         for nd in self.neuron_data.values():
             for c in nd.get("classes", []):
-                classes[c] = classes.get(c, 0) + 1
+                classes[c] += 1
             for c in nd.get("tag", []):
-                labels[c] = labels.get(c, 0) + 1
-            group = nd.get("group")
-            if group:
-                groups[group] = groups.get(group, 0) + 1
-            for c in nd.get("input_neuropils", []):
-                input_neuropils[c] = input_neuropils.get(c, 0) + 1
-            for c in nd.get("output_neuropils", []):
-                output_neuropils[c] = output_neuropils.get(c, 0) + 1
+                labels[c] += 1
+            if nd.get("flow"):
+                flows[nd.get("flow")] += 1
+            if nd.get("nerve_type"):
+                nerves[nd.get("nerve_type")] += 1
+            if nd.get("group"):
+                groups[nd.get("group")] += 1
 
         # Limit to most common categories.
         CATEGORY_LIMIT = 100
@@ -430,6 +429,16 @@ class NeuronDB(object):
                 "counts": _sorted_counts(classes),
             },
             {
+                "caption": _caption("Flows", len(flows)),
+                "key": "flow",
+                "counts": _sorted_counts(flows),
+            },
+            {
+                "caption": _caption("Nerve Types", len(nerves)),
+                "key": "nerve",
+                "counts": _sorted_counts(nerves),
+            },
+            {
                 # curated neuron lists (not a neuron attribute)
                 "caption": "Collections",
                 "key": "collection",
@@ -439,16 +448,6 @@ class NeuronDB(object):
                 "caption": _caption("Labels", len(labels)),
                 "key": "label",
                 "counts": _sorted_counts(labels),
-            },
-            {
-                "caption": _caption("Input Neuropils", len(input_neuropils)),
-                "key": "input_neuropil",
-                "counts": _sorted_counts(input_neuropils),
-            },
-            {
-                "caption": _caption("Output Neuropils", len(output_neuropils)),
-                "key": "output_neuropil",
-                "counts": _sorted_counts(output_neuropils),
             },
             {
                 "caption": _caption("Max In/Out Neuropil Groups", len(groups)),
