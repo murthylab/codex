@@ -30,7 +30,7 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "nt_type",
     "class",
     "flow",
-    "nerve_type"
+    "nerve_type",
 ]
 
 NEURON_DATA_ATTRIBUTES = {
@@ -376,7 +376,10 @@ class NeuronDB(object):
     @lru_cache
     def num_annotations(self):
         return sum(
-            [len(nd["tag"]) + (1 if nd["class"] else 0) for nd in self.neuron_data.values()]
+            [
+                len(nd["tag"]) + (1 if nd["class"] else 0)
+                for nd in self.neuron_data.values()
+            ]
         )
 
     @lru_cache
