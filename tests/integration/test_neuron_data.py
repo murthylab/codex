@@ -95,10 +95,11 @@ class NeuronDataTest(TestCase):
             compare_neuron_dbs(tested=factory_db, golden=unpickled_db)
 
             # check neuron attributes
+            expected_attribs = {k:v for k, v in NEURON_DATA_ATTRIBUTES.items() if k not in self.exclude_keys}
             for nd in unpickled_db.neuron_data.values():
-                attribs = {k: type(v) for k, v in nd.items()}
+                attribs = {k: type(v) for k, v in nd.items() if k not in self.exclude_keys}
                 self.assertEqual(
-                    NEURON_DATA_ATTRIBUTES, attribs, f"Mismatch in types for {nd}"
+                    expected_attribs, attribs, f"Mismatch in types for {nd}"
                 )
 
             del unpickled_db

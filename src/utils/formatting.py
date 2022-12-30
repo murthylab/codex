@@ -9,7 +9,7 @@ def synapse_table_to_csv_string(table):
 def neuron_json(ndata):
     return {
         attrib: ndata[attrib]
-        for attrib in ["name", "nt_type", "root_id", "classes"]
+        for attrib in ["name", "nt_type", "root_id", "class"]
         if ndata[attrib]
     }
 

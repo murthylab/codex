@@ -1371,9 +1371,8 @@ def _synapse_density_cached(data_version, normalized, directed, group_by):
     rid_to_class = {}
 
     def class_group_name(nd):
-        assert 1 == len(nd["classes"])
         return (
-            nd["classes"][0]
+            nd["class"]
             .replace(" neuron", "")
             .replace("ending", "")
             .replace("ection", "")

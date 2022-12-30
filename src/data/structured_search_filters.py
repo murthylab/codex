@@ -108,7 +108,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
     ),
     SearchAttribute(
         name="class",
-        value_getter=lambda nd: nd["classes"],
+        value_getter=lambda nd: nd["class"],
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Cell typing attribute. Indicates function or other property of the cell. Each cell can belong to zero or more classes.",

@@ -83,7 +83,6 @@ class NeuronDataTest(TestCase):
 
         for n in self.neuron_db.neuron_data.values():
             for col in [
-                "classes",
                 "input_neuropils",
                 "output_neuropils",
                 "tag",
@@ -160,7 +159,7 @@ class NeuronDataTest(TestCase):
                 [
                     nd["root_id"]
                     for nd in self.neuron_db.neuron_data.values()
-                    if nd["classes"]
+                    if nd["class"]
                 ]
             ),
         )
@@ -326,7 +325,6 @@ class NeuronDataTest(TestCase):
         self.assertEqual(expected_list, self.neuron_db.classes())
         rids_without_class = []
         for nd in self.neuron_db.neuron_data.values():
-            self.assertEqual(nd["classes"], [nd["class"]])
             if not nd["class"]:
                 rids_without_class.append(nd["root_id"])
         self.assertGreater(200, len(rids_without_class))

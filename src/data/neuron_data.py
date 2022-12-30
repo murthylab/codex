@@ -28,14 +28,14 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "name",
     "group",
     "nt_type",
-    "classes",
-    "hemisphere_fingerprint",
+    "class",
+    "flow",
+    "nerve_type"
 ]
 
 NEURON_DATA_ATTRIBUTES = {
     "ach_avg": float,
     "class": str,
-    "classes": list,
     "da_avg": float,
     "gaba_avg": float,
     "glut_avg": float,
@@ -278,7 +278,6 @@ class NeuronDB(object):
             nd["hemisphere_fingerprint"] = NeuronDB.hemisphere_fingerprint(
                 nd["input_neuropils"], nd["output_neuropils"]
             )
-            nd["classes"] = [nd["class"]]  # TODO: get rid of this +++
             nd["input_cells"] = len(input_cells[rid])
             nd["output_cells"] = len(output_cells[rid])
 
@@ -377,15 +376,14 @@ class NeuronDB(object):
     @lru_cache
     def num_annotations(self):
         return sum(
-            [len(nd["tag"]) + len(nd["classes"]) for nd in self.neuron_data.values()]
+            [len(nd["tag"]) + (1 if nd["class"] else 0) for nd in self.neuron_data.values()]
         )
 
     @lru_cache
     def classes(self):
         res = set()
         for nd in self.neuron_data.values():
-            for p in nd["classes"]:
-                res.add(p)
+            res.add(nd["class"])
         return sorted(list([p for p in res if p]))
 
     @lru_cache
@@ -396,8 +394,7 @@ class NeuronDB(object):
         labels = defaultdict(int)
         groups = defaultdict(int)
         for nd in self.neuron_data.values():
-            for c in nd.get("classes", []):
-                classes[c] += 1
+            classes[nd["class"]] += 1
             for c in nd.get("tag", []):
                 labels[c] += 1
             if nd.get("flow"):

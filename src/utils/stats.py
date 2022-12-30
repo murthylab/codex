@@ -93,7 +93,7 @@ def _make_data_charts(data_list):
         input_output_regions.append(d["hemisphere_fingerprint"] or unknown_key)
         input_neuropils.extend(d["input_neuropils"] or [unknown_key])
         output_neuropils.extend(d["output_neuropils"] or [unknown_key])
-        classes.extend(d["classes"])
+        classes.append(d["class"] or unknown_key)
 
     result = {}
     if classes:
@@ -153,7 +153,7 @@ def _make_data_stats(neuron_data, label_data):
             labeled_neurons += 1
             for t in nd["tag"]:
                 anno_counts[t] += 1
-        if nd["classes"]:
+        if nd["class"]:
             classified_neurons += 1
 
     result = {
