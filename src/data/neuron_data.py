@@ -591,7 +591,7 @@ class NeuronDB(object):
         # This is used for deciding when to allow "include / exclude" filters.
 
         attr_vals = defaultdict(set)
-        candidate_attr_names = {"class", "nt_type"}
+        candidate_attr_names = {"class", "flow", "side", "nt_type", "nerve_type"}
         multi_val_attr_names = set()
 
         for cell_id in ids:

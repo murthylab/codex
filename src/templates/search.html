@@ -83,8 +83,8 @@
                     <small><b>&#x2022;</b> &nbsp;{{neuron.class|safe}}</small>
                     {% if 'class' in multi_val_attrs %}
                     <span class="td_filter_buttons">
-                        <button title="Exclude {{cl}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class != {{cl}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
-                        <button title="Show only {{cl}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class == {{cl}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                        <button title="Exclude {{neuron.class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class != {{neuron.class}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{neuron.class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class == {{neuron.class}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
                     </span>
                     <span class="td_filter_buttons_caption">
                         filter out/in
@@ -96,18 +96,48 @@
                 <div>
                     <span style="color: teal">Side</span>
                     <small><b>&#x2022;</b> &nbsp;{{neuron.side|safe}}</small>
+                    {% if 'side' in multi_val_attrs %}
+                    <span class="td_filter_buttons">
+                        <button title="Exclude {{neuron.side}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('side != {{neuron.side}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{neuron.side}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('side == {{neuron.side}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                    </span>
+                    <span class="td_filter_buttons_caption">
+                        filter out/in
+                    </span>
+                    {% endif %}
+
                 </div>
                 {% endif %}
                 {% if neuron.nerve_type %}
                 <div>
                     <span style="color: teal">Nerve Type</span>
                     <small><b>&#x2022;</b> &nbsp;{{neuron.nerve_type|safe}}</small>
+                    {% if 'nerve_type' in multi_val_attrs %}
+                    <span class="td_filter_buttons">
+                        <button title="Exclude {{neuron.nerve_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nerve != {{neuron.nerve_type}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{neuron.nerve_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nerve == {{neuron.nerve_type}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                    </span>
+                    <span class="td_filter_buttons_caption">
+                        filter out/in
+                    </span>
+                    {% endif %}
+
                 </div>
                 {% endif %}
                 {% if neuron.flow %}
                 <div>
                     <span style="color: teal">Flow</span>
                     <small><b>&#x2022;</b> &nbsp;{{neuron.flow|safe}}</small>
+                    {% if 'flow' in multi_val_attrs %}
+                    <span class="td_filter_buttons">
+                        <button title="Exclude {{neuron.flow}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('flow != {{neuron.flow}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{neuron.flow}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('flow == {{neuron.flow}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                    </span>
+                    <span class="td_filter_buttons_caption">
+                        filter out/in
+                    </span>
+                    {% endif %}
+
                 </div>
                 {% endif %}
             </td>
