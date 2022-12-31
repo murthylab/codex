@@ -65,7 +65,7 @@
                     <span style="color: teal">Labels</span>
                     {% for tg in neuron.tag %}
                     <div>
-                        <small><b>&#x2022;</b> &nbsp;{{highlighted_tags[tg]|safe}}</small>
+                        <small><b>&#x2022;</b> &nbsp;{{highlighted_tags[tg]}}</small>
                         <span class="td_filter_buttons">
                             <button title="Exclude {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label != {{tg}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
                             <button title="Show only {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label == {{tg}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
@@ -80,7 +80,7 @@
                 {% if neuron.class %}
                 <div>
                     <span style="color: teal">Classification</span>
-                    <small><b>&#x2022;</b> &nbsp;{{neuron.class|safe}}</small>
+                    <small><b>&#x2022;</b> &nbsp;{{neuron.class}}</small>
                     {% if 'class' in multi_val_attrs %}
                     <span class="td_filter_buttons">
                         <button title="Exclude {{neuron.class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class != {{neuron.class}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
@@ -95,7 +95,7 @@
                 {% if neuron.side %}
                 <div>
                     <span style="color: teal">Side</span>
-                    <small><b>&#x2022;</b> &nbsp;{{neuron.side|safe}}</small>
+                    <small><b>&#x2022;</b> &nbsp;{{neuron.side}}</small>
                     {% if 'side' in multi_val_attrs %}
                     <span class="td_filter_buttons">
                         <button title="Exclude {{neuron.side}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('side != {{neuron.side}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
@@ -111,7 +111,7 @@
                 {% if neuron.nerve_type %}
                 <div>
                     <span style="color: teal">Nerve Type</span>
-                    <small><b>&#x2022;</b> &nbsp;{{neuron.nerve_type|safe}}</small>
+                    <small><b>&#x2022;</b> &nbsp;{{neuron.nerve_type}}</small>
                     {% if 'nerve_type' in multi_val_attrs %}
                     <span class="td_filter_buttons">
                         <button title="Exclude {{neuron.nerve_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nerve != {{neuron.nerve_type}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
@@ -127,7 +127,7 @@
                 {% if neuron.flow %}
                 <div>
                     <span style="color: teal">Flow</span>
-                    <small><b>&#x2022;</b> &nbsp;{{neuron.flow|safe}}</small>
+                    <small><b>&#x2022;</b> &nbsp;{{neuron.flow}}</small>
                     {% if 'flow' in multi_val_attrs %}
                     <span class="td_filter_buttons">
                         <button title="Exclude {{neuron.flow}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('flow != {{neuron.flow}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
@@ -163,7 +163,7 @@
                 <br>{{'{:,}'.format(neuron.area_nm // 1000000)}}&#181;m<sup>2</sup>
                 <br>{{'{:,}'.format(neuron.size_nm // 1000000000)}}&#181;m<sup>3</sup>
             </small></td>
-            <td style="color:purple;"><small>{{neuron.input_cells}}:{{neuron.output_cells}}<br>{{neuron.hemisphere_fingerprint|safe}}</small></td>
+            <td style="color:purple;"><small>{{neuron.input_cells}}:{{neuron.output_cells}}<br>{{neuron.hemisphere_fingerprint}}</small></td>
             <td><a class="btn btn-outline-primary" href="{{url_for('app.flywire_url', data_version=data_version, root_ids=[neuron.root_id])}}"
                    target="_blank" role="button" title="Render in 3D"><i class="fa-solid fa-cube"></i></a></td>
         </tr>
