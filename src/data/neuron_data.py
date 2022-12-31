@@ -31,6 +31,7 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "class",
     "flow",
     "nerve_type",
+    "side"
 ]
 
 NEURON_DATA_ATTRIBUTES = {
