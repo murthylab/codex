@@ -606,6 +606,21 @@ class NeuronDB(object):
 
         return multi_val_attr_names
 
+    def non_uniform_labels(self, page_ids, all_ids):
+        # Returns the labels for cells in page_ids such that some cells from all_ids have them while others don't.
+        # This is used for deciding when to allow "include / exclude" filters.
+        page_labels = set()
+        for cell_id in page_ids:
+            for lbl in self.neuron_data[cell_id]["tag"]:
+                page_labels.add(lbl)
+        non_uniform_set = set()
+        for i, cell_id in enumerate(all_ids):
+            lbl_set = set(self.neuron_data[cell_id]["tag"])
+            non_uniform_set |= (page_labels - lbl_set)
+            if len(non_uniform_set) == len(page_labels):
+                break
+        return non_uniform_set
+
     # Private helpers
     @staticmethod
     def _row_to_dict(columns, row, exclude, to_int):
