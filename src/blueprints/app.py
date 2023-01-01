@@ -294,7 +294,9 @@ def render_neuron_list(
         sort_by_options=SORT_BY_OPTIONS,
         advanced_search_data=get_advanced_search_data(current_query=filter_string),
         multi_val_attrs=neuron_db.multi_val_attrs(filtered_root_id_list),
-        non_uniform_labels=neuron_db.non_uniform_labels(page_ids=display_data_ids, all_ids=filtered_root_id_list)
+        non_uniform_labels=neuron_db.non_uniform_labels(
+            page_ids=display_data_ids, all_ids=filtered_root_id_list
+        ),
     )
 
 

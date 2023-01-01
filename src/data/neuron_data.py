@@ -616,7 +616,7 @@ class NeuronDB(object):
         non_uniform_set = set()
         for i, cell_id in enumerate(all_ids):
             lbl_set = set(self.neuron_data[cell_id]["tag"])
-            non_uniform_set |= (page_labels - lbl_set)
+            non_uniform_set |= page_labels - lbl_set
             if len(non_uniform_set) == len(page_labels):
                 break
         return non_uniform_set
