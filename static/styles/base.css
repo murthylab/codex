@@ -16,6 +16,8 @@ th, td {
   padding: 8px;
 }
 
+.spotfilter{}
+
 .td_filter_buttons {
   opacity: 0.1;
 }
@@ -26,11 +28,11 @@ th, td {
   opacity: 0.0;
 }
 
-td:hover .td_filter_buttons {
+div.spotfilter:hover .td_filter_buttons {
   opacity: 1;
 }
 
-td:hover .td_filter_buttons_caption {
+div.spotfilter:hover .td_filter_buttons_caption {
   opacity: 1;
 }
 

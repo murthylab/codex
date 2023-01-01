@@ -64,8 +64,8 @@
                 {% if neuron.tag %}
                     <span style="color: teal">Labels</span>
                     {% for tg in neuron.tag %}
-                    <div>
-                        <small><b>&#x2022;</b> &nbsp;{{highlighted_tags[tg]}}</small>
+                    <div class="spotfilter">
+                        <small><b>&#x2022;</b> &nbsp;{{highlighted_tags[tg]|safe}}</small>
                         <span class="td_filter_buttons">
                             <button title="Exclude {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label != {{tg}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
                             <button title="Show only {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label == {{tg}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
@@ -78,7 +78,7 @@
                 {% endif %}
 
                 {% if neuron.class %}
-                <div>
+                <div class="spotfilter">
                     <span style="color: teal">Classification</span>
                     <small><b>&#x2022;</b> &nbsp;{{neuron.class}}</small>
                     {% if 'class' in multi_val_attrs %}
@@ -93,7 +93,7 @@
                 </div>
                 {% endif %}
                 {% if neuron.side %}
-                <div>
+                <div class="spotfilter">
                     <span style="color: teal">Side</span>
                     <small><b>&#x2022;</b> &nbsp;{{neuron.side}}</small>
                     {% if 'side' in multi_val_attrs %}
@@ -109,7 +109,7 @@
                 </div>
                 {% endif %}
                 {% if neuron.nerve_type %}
-                <div>
+                <div class="spotfilter">
                     <span style="color: teal">Nerve Type</span>
                     <small><b>&#x2022;</b> &nbsp;{{neuron.nerve_type}}</small>
                     {% if 'nerve_type' in multi_val_attrs %}
@@ -125,7 +125,7 @@
                 </div>
                 {% endif %}
                 {% if neuron.flow %}
-                <div>
+                <div class="spotfilter">
                     <span style="color: teal">Flow</span>
                     <small><b>&#x2022;</b> &nbsp;{{neuron.flow}}</small>
                     {% if 'flow' in multi_val_attrs %}
