@@ -389,10 +389,11 @@ def _raise_invalid_value_for_structured_search(attr_name, value, valid_values):
     raise_malformed_structured_search_query(msg)
 
 
-def raise_malformed_structured_search_query(msg="Malformed structured search query"):
+def raise_malformed_structured_search_query(msg="Malformed structured search query."):
     raise ValueError(
-        f"{msg}<br>See info about structured search on the FAQ page, "
-        f"or wrap your query in double quotes to run a free form search."
+        f"{msg}<br>You can click the <b>advanced search</b> button to build structured search queries, or read "
+        f"about the query format on the FAQ page.<br>"
+        f"If you are not trying to run structured search just wrap your query in double quotes."
     )
 
 
