@@ -20,16 +20,6 @@ DOWNLOADABLE_PRODUCTS = {
 }
 
 
-@api.route("/")
-@request_wrapper
-@require_data_access
-def index():
-    log_activity(f"Rendering API")
-    return render_error(
-        message=f"Programmatic access coming soon.", title="Coming soon"
-    )
-
-
 @api.route("/download")
 @request_wrapper
 @require_data_access

@@ -360,10 +360,10 @@ def index(path):
                 "url": "app.path_length",
             },
             {
-                "header": "API [coming soon]",
-                "body": "Programmatic access to the data and analysis tools",
-                "asset_filename": "card-api.jpg",
-                "url": "api.index",
+                "header": "Download Data",
+                "body": "Export raw data for analysis with other tools / programs",
+                "asset_filename": "card-data.png",
+                "url": "api.download",
             },
         ]
         neuron_db = neuron_data_factory.get()
