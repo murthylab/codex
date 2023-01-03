@@ -24,6 +24,7 @@ from src.etl.synapse_table_processor import (
     compile_connection_rows,
     compile_neuron_rows,
     filter_connection_rows,
+    compile_neuropil_synapse_rows,
 )
 
 CAVE_AUTH_TOKEN_FILE_NAME = f"static/secrets/cave_auth_token.txt"
@@ -425,6 +426,18 @@ def update_connectome_files(version):
         version=version, filename="connections.csv.gz"
     )
     comp_backup_and_update_csv(fpath=connections_fpath, content=connections)
+
+    # compile neuropil synapse tables
+    neuropil_synapse_table = compile_neuropil_synapse_rows(
+        filtered_syn_table_content=filtered_rows,
+        columns=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES,
+    )
+    neuropil_synapse_table_fpath = compiled_data_file_path(
+        version=version, filename="neuropil_synapse_table.csv.gz"
+    )
+    comp_backup_and_update_csv(
+        fpath=neuropil_synapse_table_fpath, content=neuropil_synapse_table
+    )
 
 
 def process_nblast_file(version):

@@ -203,6 +203,64 @@ def compile_connection_rows(filtered_syn_table_content, columns):
     return connections
 
 
+def compile_neuropil_synapse_rows(filtered_syn_table_content, columns):
+    print("Compiling neuropil synapse table...")
+    rid_to_counts = {}
+    from_col_id = columns.index("pre_pt_root_id")
+    to_col_id = columns.index("post_pt_root_id")
+    pil_col_id = columns.index("neuropil")
+    syn_cnt_col_id = columns.index("syn_count")
+
+    neuropils = sorted(REGIONS.keys())
+    neuropil_syn_table_columns = (
+        ["root_id"]
+        + [f"input synapses {p}" for p in neuropils]
+        + [f"input partners {p}" for p in neuropils]
+        + [f"output synapses {p}" for p in neuropils]
+        + [f"output partners {p}" for p in neuropils]
+    )
+
+    def col_idx(flow, count_type, neuropil):
+        return neuropil_syn_table_columns.index(f"{flow} {count_type} {neuropil}")
+
+    for i, r in enumerate(filtered_syn_table_content):
+        if i == 0:
+            assert r == columns
+        else:
+            pil = r[pil_col_id]
+            if pil not in REGIONS:
+                print(f"!! Unknown neuropil: {pil}")
+                continue
+            syn_cnt = r[syn_cnt_col_id]
+            from_rid = r[from_col_id]
+            to_rid = r[to_col_id]
+            if from_rid not in rid_to_counts:
+                rid_to_counts[from_rid] = [0] * len(neuropil_syn_table_columns)
+                rid_to_counts[from_rid][0] = from_rid
+            rid_to_counts[from_rid][
+                col_idx(flow="output", count_type="synapses", neuropil=pil)
+            ] += syn_cnt
+            rid_to_counts[from_rid][
+                col_idx(flow="output", count_type="partners", neuropil=pil)
+            ] += 1
+
+            if to_rid not in rid_to_counts:
+                rid_to_counts[to_rid] = [0] * len(neuropil_syn_table_columns)
+                rid_to_counts[to_rid][0] = to_rid
+            rid_to_counts[to_rid][
+                col_idx(flow="input", count_type="synapses", neuropil=pil)
+            ] += syn_cnt
+            rid_to_counts[to_rid][
+                col_idx(flow="input", count_type="partners", neuropil=pil)
+            ] += 1
+
+    res = [neuropil_syn_table_columns] + sorted(rid_to_counts.values())
+    assert len(res) == len(rid_to_counts) + 1
+    assert all([len(r) == len(neuropil_syn_table_columns) for r in res])
+    assert all([len(r) == 4 * len(REGIONS) + 1 for r in res])
+    return res
+
+
 def filter_connection_rows(syn_table_content, columns, min_syn_count):
     filtered_rows = []
     pil_col_id = columns.index("neuropil")
