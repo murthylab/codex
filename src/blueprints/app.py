@@ -1389,14 +1389,16 @@ def _synapse_density_cached(data_version, normalized, directed, group_by):
 
     def class_group_name(nd):
         return (
-            nd["class"]
+            nd["class"].lower()
             .replace(" neuron", "")
             .replace("ending", "")
             .replace("ection", "")
-            .replace("Optic", "O")
-            .replace("Central", "C")
-            .replace("Bilateral", "Bi")
-            .replace("Visual", "Vis")
+            .replace("optic", "opt")
+            .replace("central", "centr")
+            .replace("bilateral", "bi")
+            .replace("visual", "vis")
+            .replace("_", " ")
+            .capitalize()
         )
 
     def nt_type_group_name(nd):
@@ -1458,16 +1460,14 @@ def _synapse_density_cached(data_version, normalized, directed, group_by):
         group_to_group_density[k] = density
 
     def heatmap_color(value, min_value, mid_value, max_value):
-        if not normalized:
-            return "#FFFFFF"
-        cold_color = "#990000"
-        hot_color = "#009900"
+        cold_color = "#AAAAAA"
+        hot_color = "#00FF00"
         if value <= mid_value:
             color = cold_color
-            offset = (mid_value - value) / (mid_value - min_value)
+            offset = math.sqrt((mid_value - value) / (mid_value - min_value))
         else:
             color = hot_color
-            offset = (value - mid_value) / (max_value - mid_value)
+            offset = math.sqrt((value - mid_value) / (max_value - mid_value))
 
         opacity = round(max(0, min(99, offset * 100)))
         return f"{color}{opacity}"
@@ -1479,7 +1479,10 @@ def _synapse_density_cached(data_version, normalized, directed, group_by):
 
     def density_caption(d):
         if normalized:
-            return str(round(density, 3))
+            pct_diff = round(100 * (density - 1))
+            if pct_diff == 0:
+                return "+0% (baseline)"
+            return ("+" if pct_diff >= 0 else "") + "{:,}".format(pct_diff) + "%"
         else:
             pct = round(100 * d / tot_syn_cnt)
             return "{:,}".format(d) + f"<br><small>{pct}%</small>"
