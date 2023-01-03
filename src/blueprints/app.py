@@ -1209,17 +1209,28 @@ def connectivity():
             connection_table = contable
         if reduce:
 
-            def node_projection(nid):
-                nd = neuron_db.get_neuron_data(nid)
-                return f"{nd['class']}".replace(" neuron", "")
+            def node_projection(nd):
+                return f"{nd['class']}".replace(" neuron", "").replace("_", " ")
+
+            projection_sets = defaultdict(set)
+            for rid, nd in neuron_db.neuron_data.items():
+                projection_sets[node_projection(nd)].add(rid)
+            projection_set_fractions = {
+                k: round(100 * len(v) / len(neuron_db.neuron_data))
+                for k, v in projection_sets.items()
+            }
+            projections = {
+                rid: f"{node_projection(nd)} {projection_set_fractions[node_projection(nd)]}%"
+                for rid, nd in neuron_db.neuron_data.items()
+            }
 
             def pil_projection(pil):
                 return neuropil_hemisphere(pil)
 
             def project_row(row):
                 return [
-                    node_projection(row[0]),
-                    node_projection(row[1]),
+                    projections[row[0]],
+                    projections[row[1]],
                     pil_projection(row[2]),
                 ] + row[3:]
 
@@ -1229,6 +1240,7 @@ def connectivity():
             tag_getter = None
             class_getter = None
             nt_type_getter = None
+            size_getter = lambda x: 1 + int(x.replace("%", "").split()[-1])
             center_ids = list(
                 set([r[0] for r in connection_table]).union(
                     [r[1] for r in connection_table]
@@ -1240,6 +1252,7 @@ def connectivity():
             tag_getter = lambda x: neuron_db.get_neuron_data(x)["tag"]
             class_getter = lambda x: neuron_db.get_neuron_data(x)["class"]
             nt_type_getter = lambda x: neuron_db.get_neuron_data(x)["nt_type"]
+            size_getter = lambda x: 1
             center_ids = root_ids
 
         network_html = make_graph_html(
@@ -1251,6 +1264,7 @@ def connectivity():
             tag_getter=tag_getter,
             class_getter=class_getter,
             nt_type_getter=nt_type_getter,
+            size_getter=size_getter,
             group_regions=group_regions,
             show_edge_weights=not hide_weights,
             show_warnings=log_request,

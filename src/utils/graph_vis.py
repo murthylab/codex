@@ -59,6 +59,7 @@ def make_graph_html(
     tag_getter,
     class_getter,
     nt_type_getter,
+    size_getter,
     group_regions,
     show_edge_weights,
     show_warnings,
@@ -94,7 +95,9 @@ def make_graph_html(
         warning_msg = None
 
     def node_size(nid):
-        return 10 if nid in center_ids else 5
+        nsz = size_getter(nid)
+        res = (10 if nid in center_ids else 5) * math.sqrt(math.sqrt(nsz))
+        return round(res)
 
     def pil_size():
         return 5
@@ -316,6 +319,7 @@ class Network(object):
                 "mass": mass,
                 "color": color,
                 "title": title,
+                "font": f"{max(14, size)}px arial black",
             }
             if x is not None:
                 node["x"] = x
