@@ -16,6 +16,7 @@ DOWNLOADABLE_PRODUCTS = {
     "connections": "Connectivity table",
     "labels": "Labels (free form annotations)",
     "coordinates": "Marked neuron coordinates",
+    "neuropil_synapse_table": "Neurons input/output synapse and partner counts in each neuropil",
 }
 
 
