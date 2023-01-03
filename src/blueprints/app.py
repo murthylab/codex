@@ -1389,7 +1389,8 @@ def _synapse_density_cached(data_version, normalized, directed, group_by):
 
     def class_group_name(nd):
         return (
-            nd["class"].lower()
+            nd["class"]
+            .lower()
             .replace(" neuron", "")
             .replace("ending", "")
             .replace("ection", "")
