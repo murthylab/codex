@@ -1210,18 +1210,37 @@ def connectivity():
         if reduce:
 
             def node_projection(nd):
-                return f"{nd['class']}".replace(" neuron", "").replace("_", " ")
+                if not nd["class"] or nd["class"].lower() in [
+                    "na",
+                    "undefined",
+                    "unspecified",
+                    "none",
+                ]:
+                    return None
+                res = f"{nd['class']}".replace(" neuron", "").replace("_", " ")
+                if nd["side"] and nd["side"].lower() not in [
+                    "na",
+                    "undefined",
+                    "unspecified",
+                    "none",
+                ]:
+                    res += f"/{nd['side']}"
+                return res
 
             projection_sets = defaultdict(set)
+            projections = defaultdict(str)
             for rid, nd in neuron_db.neuron_data.items():
-                projection_sets[node_projection(nd)].add(rid)
+                proj = node_projection(nd)
+                if proj:
+                    projection_sets[proj].add(rid)
+                    projections[rid] = proj
             projection_set_fractions = {
                 k: round(100 * len(v) / len(neuron_db.neuron_data))
                 for k, v in projection_sets.items()
             }
             projections = {
-                rid: f"{node_projection(nd)} {projection_set_fractions[node_projection(nd)]}%"
-                for rid, nd in neuron_db.neuron_data.items()
+                rid: f"{proj} {projection_set_fractions[proj] or '<1'}%"
+                for rid, proj in projections.items()
             }
 
             def pil_projection(pil):
@@ -1234,13 +1253,19 @@ def connectivity():
                     pil_projection(row[2]),
                 ] + row[3:]
 
-            connection_table = [project_row(r) for r in connection_table]
+            connection_table = [
+                project_row(r)
+                for r in connection_table
+                if r[0] in projections and r[1] in projections
+            ]
             name_getter = lambda x: f"Class {x}"
             caption_getter = lambda x: x
             tag_getter = None
             class_getter = None
             nt_type_getter = None
-            size_getter = lambda x: 1 + int(x.replace("%", "").split()[-1])
+            size_getter = lambda x: 1 + int(
+                x.replace("<1", "0").replace("%", "").split()[-1]
+            )
             center_ids = list(
                 set([r[0] for r in connection_table]).union(
                     [r[1] for r in connection_table]
