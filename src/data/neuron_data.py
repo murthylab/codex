@@ -115,7 +115,7 @@ class NeuronDB(object):
                 "oct_avg": _get_value("oct_avg", to_type=float),
                 "ser_avg": _get_value("ser_avg", to_type=float),
                 "da_avg": _get_value("da_avg", to_type=float),
-                "class": _get_value("class", default="unspecified"),
+                "class": _get_value("class"),
                 "flow": _get_value("flow"),
                 "nerve_type": _get_value("nerve_type"),
                 "side": _get_value("side"),
@@ -395,6 +395,7 @@ class NeuronDB(object):
         classes = defaultdict(int)
         flows = defaultdict(int)
         nerves = defaultdict(int)
+        sides = defaultdict(int)
         labels = defaultdict(int)
         groups = defaultdict(int)
         for nd in self.neuron_data.values():
@@ -405,6 +406,8 @@ class NeuronDB(object):
                 flows[nd.get("flow")] += 1
             if nd.get("nerve_type"):
                 nerves[nd.get("nerve_type")] += 1
+            if nd.get("side"):
+                sides[nd.get("side")] += 1
             if nd.get("group"):
                 groups[nd.get("group")] += 1
 
@@ -438,6 +441,11 @@ class NeuronDB(object):
                 "caption": _caption("Nerve Types", len(nerves)),
                 "key": "nerve",
                 "counts": _sorted_counts(nerves),
+            },
+            {
+                "caption": _caption("Cell Body Side", len(sides)),
+                "key": "side",
+                "counts": _sorted_counts(sides),
             },
             {
                 # curated neuron lists (not a neuron attribute)

@@ -204,7 +204,14 @@ def val_counts(table):
         uvals = list(set([r[i] for r in table[1:] if r[i]]))
         unique_counts[c] = (len(uvals), uvals if len(uvals) < 20 else "")
         missing_counts[c] = len([r[i] for r in table[1:] if not r[i]])
-        undefined_counts[c] = len([r[i] for r in table[1:] if str(r[i]).lower() in ["na", "none", "undefined", "unspecified", "unknown"]])
+        undefined_counts[c] = len(
+            [
+                r[i]
+                for r in table[1:]
+                if str(r[i]).lower()
+                in ["na", "none", "undefined", "unspecified", "unknown"]
+            ]
+        )
         types[c] = list(set([type(r[i]) for r in table[1:]]))
         try:
             bounds[c] = (min([r[i] for r in table[1:]]), max([r[i] for r in table[1:]]))
@@ -343,24 +350,78 @@ def compile_neuron_metadata_table(version, summarize_files=False):
 
         if f == "coarse_cell_classes.feather":
             assert f_content[0] == ["root_id", "class"]
-            load(dct=cell_class_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("class"))
+            load(
+                dct=cell_class_dict,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("class"),
+            )
         elif f == "coarse_anno.feather":
-            assert all([col in f_content[0] for col in ["root_id", "flow", "super_class", "cell_class"]])
-            load(dct=flow_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("flow"))
-            load(dct=super_class_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("super_class"))
-            load(dct=cell_class_dict, tbl=f_content, rid_col=f_content[0].index("root_id"),
-                 val_col=f_content[0].index("cell_class"))
+            assert all(
+                [
+                    col in f_content[0]
+                    for col in ["root_id", "flow", "super_class", "cell_class"]
+                ]
+            )
+            load(
+                dct=flow_dict,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("flow"),
+            )
+            load(
+                dct=super_class_dict,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("super_class"),
+            )
+            load(
+                dct=cell_class_dict,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("cell_class"),
+            )
         elif f == "nerve_anno.feather":
             assert all([col in f_content[0] for col in ["root_id", "nerve"]])
-            load(dct=nerve_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("nerve"))
+            load(
+                dct=nerve_dict,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("nerve"),
+            )
         elif f == "side_anno.feather":
             assert all([col in f_content[0] for col in ["root_id", "side"]])
-            load(dct=side_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("side"))
+            load(
+                dct=side_dict,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("side"),
+            )
         elif f == "cell_stats.feather":
-            assert all([col in f_content[0] for col in ["root_id", "area_nm2", "size_nm3", "path_length_nm"]])
-            load(dct=area_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("area_nm2"))
-            load(dct=size_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("size_nm3"))
-            load(dct=length_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("path_length_nm"))
+            assert all(
+                [
+                    col in f_content[0]
+                    for col in ["root_id", "area_nm2", "size_nm3", "path_length_nm"]
+                ]
+            )
+            load(
+                dct=area_dict,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("area_nm2"),
+            )
+            load(
+                dct=size_dict,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("size_nm3"),
+            )
+            load(
+                dct=length_dict,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("path_length_nm"),
+            )
         else:
             assert f"Unknown file: {f}" is None
 
