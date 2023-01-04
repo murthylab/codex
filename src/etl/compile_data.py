@@ -197,25 +197,28 @@ def load_proofreading_info_from_cave(client, version):
 def val_counts(table):
     unique_counts = {}
     missing_counts = {}
+    undefined_counts = {}
     types = {}
     bounds = {}
     for i, c in enumerate(table[0]):
         uvals = list(set([r[i] for r in table[1:] if r[i]]))
         unique_counts[c] = (len(uvals), uvals if len(uvals) < 20 else "")
         missing_counts[c] = len([r[i] for r in table[1:] if not r[i]])
+        undefined_counts[c] = len([r[i] for r in table[1:] if str(r[i]).lower() in ["na", "none", "undefined", "unspecified", "unknown"]])
         types[c] = list(set([type(r[i]) for r in table[1:]]))
         try:
             bounds[c] = (min([r[i] for r in table[1:]]), max([r[i] for r in table[1:]]))
         except:
             pass
-    return unique_counts, missing_counts, types, bounds
+    return unique_counts, missing_counts, undefined_counts, types, bounds
 
 
 def summarize_csv(content):
     print(f"- header: {content[0]}")
-    uniq_counts, miss_counts, types, bounds = val_counts(content)
+    uniq_counts, miss_counts, undefined_counts, types, bounds = val_counts(content)
     print(f"- unique val counts: {uniq_counts}")
     print(f"- missing val counts: {miss_counts}")
+    print(f"- undefined val counts: {undefined_counts}")
     print(f"- data types: {types}")
     print(f"- numeral type bounds: {bounds}")
     return content
@@ -308,7 +311,8 @@ def compile_neuron_metadata_table(version, summarize_files=False):
             res += f"{c}: {len(vals)} {vals_str}\n"
         return res
 
-    class_dict = {}
+    super_class_dict = {}
+    cell_class_dict = {}
     flow_dict = {}
     nerve_dict = {}
     side_dict = {}
@@ -318,6 +322,10 @@ def compile_neuron_metadata_table(version, summarize_files=False):
     all_root_ids = set()
 
     for f in files:
+        if not f.endswith(".feather"):
+            print(f"Skipping unknown file: {f}")
+            continue
+        print(f"Processing file: {f}..")
         fpath = os.path.join(dirpath, f)
         f_content = load_feather_data_to_table(fpath)
         if summarize_files:
@@ -327,41 +335,49 @@ def compile_neuron_metadata_table(version, summarize_files=False):
                 f"------------------"
             )
 
-        def load(dct, tbl, col):
+        def load(dct, tbl, rid_col, val_col):
             for r in tbl[1:]:
-                assert r[0] not in dct
-                dct[r[0]] = r[col]
-                all_root_ids.add(r[0])
+                assert r[rid_col] not in dct
+                dct[r[rid_col]] = r[val_col]
+                all_root_ids.add(r[rid_col])
 
         if f == "coarse_cell_classes.feather":
             assert f_content[0] == ["root_id", "class"]
-            load(dct=class_dict, tbl=f_content, col=1)
+            load(dct=cell_class_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("class"))
         elif f == "coarse_anno.feather":
-            assert f_content[0] == ["root_id", "flow", "super_class"]
-            load(dct=flow_dict, tbl=f_content, col=1)
-            load(dct=class_dict, tbl=f_content, col=2)
+            assert all([col in f_content[0] for col in ["root_id", "flow", "super_class", "cell_class"]])
+            load(dct=flow_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("flow"))
+            load(dct=super_class_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("super_class"))
+            load(dct=cell_class_dict, tbl=f_content, rid_col=f_content[0].index("root_id"),
+                 val_col=f_content[0].index("cell_class"))
         elif f == "nerve_anno.feather":
-            assert f_content[0] == ["root_id", "nerve"]
-            load(dct=nerve_dict, tbl=f_content, col=1)
+            assert all([col in f_content[0] for col in ["root_id", "nerve"]])
+            load(dct=nerve_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("nerve"))
         elif f == "side_anno.feather":
-            assert f_content[0] == ["root_id", "side"]
-            load(dct=side_dict, tbl=f_content, col=1)
+            assert all([col in f_content[0] for col in ["root_id", "side"]])
+            load(dct=side_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("side"))
         elif f == "cell_stats.feather":
-            assert f_content[0] == ["root_id", "area_nm2", "size_nm3", "path_length_nm"]
-            load(dct=area_dict, tbl=f_content, col=1)
-            load(dct=size_dict, tbl=f_content, col=2)
-            load(dct=length_dict, tbl=f_content, col=3)
+            assert all([col in f_content[0] for col in ["root_id", "area_nm2", "size_nm3", "path_length_nm"]])
+            load(dct=area_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("area_nm2"))
+            load(dct=size_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("size_nm3"))
+            load(dct=length_dict, tbl=f_content, rid_col=f_content[0].index("root_id"), val_col=f_content[0].index("path_length_nm"))
         else:
             assert f"Unknown file: {f}" is None
 
         print(f"Class rows after processing {f}: {len(new_content)}")
+
+    def make_class(sclass, cclass):
+        res = sclass or NA_STR
+        if cclass and not cclass.startswith("unknown"):
+            res += f"/{cclass}"
+        return res
 
     for rid in all_root_ids:
         new_content.append(
             [
                 rid,
                 flow_dict.get(rid, NA_STR),
-                class_dict.get(rid, NA_STR),
+                make_class(super_class_dict.get(rid), cell_class_dict.get(rid)),
                 side_dict.get(rid, NA_STR),
                 nerve_dict.get(rid, NA_STR),
                 round(float(length_dict.get(rid, NA_INT))),
