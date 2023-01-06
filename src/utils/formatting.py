@@ -98,7 +98,7 @@ def highlight_annotations(free_form_search_terms, tags):
 
 
 def not_intersecting(list_of_ranges, start, end):
-    if list_of_ranges == []:
+    if not list_of_ranges:
         return True
     for r in list_of_ranges:
         if r[1] <= start <= r[2] or r[1] <= end <= r[2]:

@@ -421,7 +421,9 @@ def data_access_token():
             access_payload = resp.json()
             log(f"Auth payload: {access_payload}")
         except Exception as e:
-            log_error(f"Could not parse auth response: {access_token=} {url=} {resp=}")
+            log_error(
+                f"Could not parse auth response: {access_token=} {url=} {resp=} {e=}"
+            )
 
         if access_payload and "view" in access_payload.get("permissions_v2", {}).get(
             "fafb", {}

@@ -1,4 +1,7 @@
 # TODO: Get rid of these once data is published
+from src.utils.logging import log_error
+
+
 def extract_access_token(raw_text):
     try:
         raw_text = raw_text.replace("'", '"')

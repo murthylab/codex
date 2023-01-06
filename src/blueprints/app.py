@@ -23,7 +23,6 @@ from src.blueprints.base import (
 from src.configuration import MIN_SYN_COUNT, MAX_NEURONS_FOR_DOWNLOAD
 from src.data import gcs_data_loader
 from src.data.brain_regions import (
-    neuropil_hemisphere,
     REGIONS,
     NEUROPIL_DESCRIPTIONS,
     REGIONS_JSON,

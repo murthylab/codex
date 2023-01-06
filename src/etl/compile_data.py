@@ -18,7 +18,6 @@ from src.data.local_data_loader import read_csv, write_csv
 #  - download it into RAW_DATA_ROOT_FOLDER and name it as NEURON_NT_TYPES_FILE_NAME below
 # Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
 # and store it in this file (no quotes)
-from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.versions import DATA_SNAPSHOT_VERSIONS
 from src.etl.synapse_table_processor import (
     compile_connection_rows,

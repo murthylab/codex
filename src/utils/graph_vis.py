@@ -4,7 +4,7 @@ from collections import defaultdict
 from flask import render_template, url_for
 
 from src.data.brain_regions import neuropil_description, lookup_neuropil_set
-from src.utils.formatting import shorten_and_concat_labels, truncate
+from src.utils.formatting import shorten_and_concat_labels
 
 INPUT_NEUROPIL_COLOR = "#97c2fc"
 OUTPUT_NEUROPIL_COLOR = "#fcc297"

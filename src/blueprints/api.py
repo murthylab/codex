@@ -7,7 +7,7 @@ from src.data.versions import (
     LATEST_DATA_SNAPSHOT_VERSION,
 )
 from src.utils.cookies import fetch_user_name
-from src.utils.logging import log_activity, log_user_help, log_error
+from src.utils.logging import log_user_help
 
 api = Blueprint("api", __name__, url_prefix="/api")
 

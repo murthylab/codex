@@ -112,7 +112,7 @@ def url_for_random_sample(root_ids, version, sample_size=50):
 def can_be_flywire_root_id(txt):
     try:
         return len(txt) == 18 and txt.startswith("72") and int(txt)
-    except Exception as e:
+    except Exception:
         return False
 
 

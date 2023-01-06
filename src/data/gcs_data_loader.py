@@ -1,8 +1,7 @@
 import csv
 import gzip
 import io
-from collections import defaultdict
-from functools import lru_cache, partial
+from functools import lru_cache
 from multiprocessing import Pool
 
 import requests
