@@ -93,7 +93,7 @@ def compile_network_html(
         size_getter = lambda x: 1
         center_ids = root_ids
 
-    network_html = make_graph_html(
+    return make_graph_html(
         connection_table=connection_table,
         center_ids=center_ids,
         connections_cap=connections_cap,
