@@ -42,6 +42,7 @@ from src.data.structured_search_filters import (
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES, lookup_nt_type_name
 from src.data.sorting import sort_search_results, SORT_BY_OPTIONS
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
+from src.service.stats import stats_cached
 from src.service.synapse import synapse_density_cached
 from src.utils import nglui, stats as stats_utils
 from src.utils.cookies import fetch_flywire_user_id
@@ -57,7 +58,6 @@ from src.utils.graph_algos import reachable_node_counts, distance_matrix
 from src.utils.graph_vis import make_graph_html
 from src.utils.logging import (
     log_activity,
-    log_error,
     format_link,
     user_agent,
     log,
@@ -83,7 +83,7 @@ def stats():
     whole_word = request.args.get("whole_word", 0, type=int)
 
     log_activity(f"Generating stats {activity_suffix(filter_string, data_version)}")
-    filtered_root_id_list, num_items, hint, data_stats, data_charts = _stats_cached(
+    filtered_root_id_list, num_items, hint, data_stats, data_charts = stats_cached(
         filter_string=filter_string,
         data_version=data_version,
         case_sensitive=case_sensitive,
@@ -116,56 +116,6 @@ def stats():
         case_sensitive=case_sensitive,
         whole_word=whole_word,
         advanced_search_data=get_advanced_search_data(current_query=filter_string),
-    )
-
-
-@lru_cache
-def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
-    neuron_db = NeuronDataFactory.instance().get(data_version)
-    filtered_root_id_list = neuron_db.search(
-        search_query=filter_string, case_sensitive=case_sensitive, word_match=whole_word
-    )
-    if filtered_root_id_list:
-        hint = None
-    else:
-        hint, edist = neuron_db.closest_token(
-            filter_string, case_sensitive=case_sensitive
-        )
-        log_warning(
-            f"No stats results for {filter_string}. Sending hint '{hint}' {edist=}"
-        )
-
-    neuron_data = [neuron_db.get_neuron_data(i) for i in filtered_root_id_list]
-    label_data = [neuron_db.get_label_data(i) for i in filtered_root_id_list]
-    caption, data_stats, data_charts = stats_utils.compile_data(
-        neuron_data=neuron_data,
-        label_data=label_data,
-        search_query=filter_string,
-        case_sensitive=case_sensitive,
-        match_words=whole_word,
-        data_version=data_version,
-    )
-    if neuron_db.connection_rows:
-        reachable_counts = reachable_node_counts(
-            sources=filtered_root_id_list,
-            neighbor_sets=neuron_db.output_sets(),
-            total_count=neuron_db.num_cells(),
-        )
-        if reachable_counts:
-            data_stats["Downstream Reachable Cells (5+ syn)"] = reachable_counts
-        reachable_counts = reachable_node_counts(
-            sources=filtered_root_id_list,
-            neighbor_sets=neuron_db.input_sets(),
-            total_count=neuron_db.num_cells(),
-        )
-        if reachable_counts:
-            data_stats["Upstream Reachable Cells (5+ syn)"] = reachable_counts
-    return (
-        filtered_root_id_list,
-        len(filtered_root_id_list),
-        hint,
-        data_stats,
-        data_charts,
     )
 
 
