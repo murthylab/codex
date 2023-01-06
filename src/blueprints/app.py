@@ -1,9 +1,7 @@
 import json
 import math
 import re
-from collections import defaultdict
 from datetime import datetime
-from functools import lru_cache
 
 from flask import (
     render_template,
@@ -39,9 +37,10 @@ from src.data.structured_search_filters import (
 from src.data.sorting import sort_search_results, SORT_BY_OPTIONS
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.service.cell_details import cached_cell_details
+from src.service.network import compile_network_html
 from src.service.stats import stats_cached, leaderboard_cached
 from src.service.synapse import synapse_density_cached
-from src.utils import nglui, stats as stats_utils
+from src.utils import nglui
 from src.utils.cookies import fetch_flywire_user_id
 from src.utils.formatting import (
     synapse_table_to_csv_string,
@@ -50,7 +49,6 @@ from src.utils.formatting import (
     trim_long_tokens,
 )
 from src.utils.graph_algos import distance_matrix
-from src.utils.graph_vis import make_graph_html
 from src.utils.logging import (
     log_activity,
     format_link,
@@ -907,96 +905,15 @@ def connectivity():
                     },
                 )
 
-        if not group_regions:  # exclude unknown region connections
-            connection_table = [list(r) for r in contable if r[2] in REGIONS]
-        else:
-            connection_table = contable
-        if reduce:
-
-            def node_projection(nd):
-                if not nd["class"] or nd["class"].lower() in [
-                    "na",
-                    "undefined",
-                    "unspecified",
-                    "none",
-                ]:
-                    return None
-                res = f"{nd['class']}".replace(" neuron", "").replace("_", " ")
-                if nd["side"] and nd["side"].lower() not in [
-                    "na",
-                    "undefined",
-                    "unspecified",
-                    "none",
-                ]:
-                    res += f"/{nd['side']}"
-                return res
-
-            projection_sets = defaultdict(set)
-            projections = defaultdict(str)
-            for rid, nd in neuron_db.neuron_data.items():
-                proj = node_projection(nd)
-                if proj:
-                    projection_sets[proj].add(rid)
-                    projections[rid] = proj
-            projection_set_fractions = {
-                k: round(100 * len(v) / len(neuron_db.neuron_data))
-                for k, v in projection_sets.items()
-            }
-            projections = {
-                rid: f"{proj} {projection_set_fractions[proj] or '<1'}%"
-                for rid, proj in projections.items()
-            }
-
-            def pil_projection(pil):
-                return neuropil_hemisphere(pil)
-
-            def project_row(row):
-                return [
-                    projections[row[0]],
-                    projections[row[1]],
-                    pil_projection(row[2]),
-                ] + row[3:]
-
-            connection_table = [
-                project_row(r)
-                for r in connection_table
-                if r[0] in projections and r[1] in projections
-            ]
-            name_getter = lambda x: f"Class {x}"
-            caption_getter = lambda x: x
-            tag_getter = None
-            class_getter = None
-            nt_type_getter = None
-            size_getter = lambda x: 1 + int(
-                x.replace("<1", "0").replace("%", "").split()[-1]
-            )
-            center_ids = list(
-                set([r[0] for r in connection_table]).union(
-                    [r[1] for r in connection_table]
-                )
-            )
-        else:
-            name_getter = lambda x: neuron_db.get_neuron_data(x)["name"]
-            caption_getter = lambda x: neuron_db.get_neuron_caption(x)
-            tag_getter = lambda x: neuron_db.get_neuron_data(x)["tag"]
-            class_getter = lambda x: neuron_db.get_neuron_data(x)["class"]
-            nt_type_getter = lambda x: neuron_db.get_neuron_data(x)["nt_type"]
-            size_getter = lambda x: 1
-            center_ids = root_ids
-
-        network_html = make_graph_html(
-            connection_table=connection_table,
-            center_ids=center_ids,
-            connections_cap=connections_cap,
-            name_getter=name_getter,
-            caption_getter=caption_getter,
-            tag_getter=tag_getter,
-            class_getter=class_getter,
-            nt_type_getter=nt_type_getter,
-            size_getter=size_getter,
+        network_html = compile_network_html(
+            root_ids=root_ids,
+            contable=contable,
+            data_version=data_version,
             group_regions=group_regions,
-            show_edge_weights=not hide_weights,
-            show_warnings=log_request,
+            reduce=reduce,
+            connections_cap=connections_cap,
+            hide_weights=hide_weights,
+            log_request=log_request,
         )
         if headless:
             return network_html
