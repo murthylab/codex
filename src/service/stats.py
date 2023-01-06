@@ -54,3 +54,15 @@ def stats_cached(filter_string, data_version, case_sensitive, whole_word):
         data_stats,
         data_charts,
     )
+
+
+@lru_cache
+def leaderboard_cached():
+    res = {}
+    stats_utils.fill_in_leaderboard_data(
+        label_data=NeuronDataFactory.instance().get().all_label_data(),
+        top_n=20,
+        include_lab_leaderboard=True,
+        destination=res,
+    )
+    return stats_utils.format_for_display(res)

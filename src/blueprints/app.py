@@ -39,7 +39,7 @@ from src.data.structured_search_filters import (
 from src.data.sorting import sort_search_results, SORT_BY_OPTIONS
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.service.cell_details import cached_cell_details
-from src.service.stats import stats_cached
+from src.service.stats import stats_cached, leaderboard_cached
 from src.service.synapse import synapse_density_cached
 from src.utils import nglui, stats as stats_utils
 from src.utils.cookies import fetch_flywire_user_id
@@ -119,19 +119,7 @@ def stats():
 @require_data_access
 def leaderboard():
     log_activity(f"Loading Leaderboard")
-    return render_template("leaderboard.html", data_stats=_leaderboard_cached())
-
-
-@lru_cache
-def _leaderboard_cached():
-    res = {}
-    stats_utils.fill_in_leaderboard_data(
-        label_data=NeuronDataFactory.instance().get().all_label_data(),
-        top_n=20,
-        include_lab_leaderboard=True,
-        destination=res,
-    )
-    return stats_utils.format_for_display(res)
+    return render_template("leaderboard.html", data_stats=leaderboard_cached())
 
 
 @app.route("/explore")
@@ -1050,17 +1038,6 @@ def connectivity():
             group_regions=group_regions,
             hide_weights=hide_weights,
         )
-
-
-@app.route("/activity_log")
-@request_wrapper
-def activity_log():
-    log_activity(f"Rendering Activity Log")
-    return render_error(
-        message=f"Activity log feature coming soon. It will list a history of recent searches / queries with "
-        f"links to results.",
-        title="Coming soon",
-    )
 
 
 @app.route("/flywire_neuropil_url")
