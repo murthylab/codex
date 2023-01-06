@@ -54,5 +54,3 @@ def stats_cached(filter_string, data_version, case_sensitive, whole_word):
         data_stats,
         data_charts,
     )
-
-
