@@ -1,20 +1,14 @@
 import datetime
 import json
 import os
-import socket
-import uuid
 from multiprocessing import Process
 
 import requests
 from flask import session, request, has_request_context
 from user_agents import parse as parse_ua
 
+from src.configuration import proc_id, host_name, APP_ENVIRONMENT
 from src.utils.cookies import fetch_user_name, fetch_user_email, is_granted_data_access
-
-APP_ENVIRONMENT = str(os.environ.get("APP_ENVIRONMENT", "PROD"))
-
-proc_id = str(uuid.uuid4())[-4:] + f"-{APP_ENVIRONMENT[:1]}"
-host_name = socket.gethostname()
 
 startup_time = datetime.datetime.now()
 

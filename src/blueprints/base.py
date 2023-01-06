@@ -18,8 +18,9 @@ from google.auth.transport import requests
 from google.oauth2 import id_token
 from requests import get as get_request
 
+from src.configuration import BUILD_GIT_SHA, BUILD_TIMESTAMP, GOOGLE_CLIENT_ID, SUPPORT_EMAIL
 from src.data.faq_qa_kb import FAQ_QA_KB
-from src.data.neuron_data_factory import NeuronDataFactory
+from src.data.neuron_data_factory import NEURON_DATA_FACTORY
 from src.data.versions import (
     LATEST_DATA_SNAPSHOT_VERSION,
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
@@ -54,19 +55,9 @@ from src.utils.thumbnails import url_for_skeleton
 
 base = Blueprint("base", __name__)
 
-GOOGLE_CLIENT_ID = (
-    "356707763910-l9ovf7f2at2vc23f3u2j356aokr4eb99.apps.googleusercontent.com"
-)
-SUPPORT_EMAIL = "arie@princeton.edu"
-BUILD_GIT_SHA = os.environ.get("BUILD_GIT_SHA", "na")
-BUILD_TIMESTAMP = os.environ.get("BUILD_TIMESTAMP", "na")
-MAX_NEURONS_FOR_DOWNLOAD = 50
-
 num_requests_processed = 0
 num_request_errors = 0
 total_request_serving_time_millis = 0.0
-neuron_data_factory = NeuronDataFactory()
-
 
 def current_milli_time():
     return round(time.time() * 1000)
@@ -366,7 +357,7 @@ def index(path):
                 "url": "api.download",
             },
         ]
-        neuron_db = neuron_data_factory.get()
+        neuron_db = NEURON_DATA_FACTORY.get()
         return render_template(
             "index.html",
             card_data=card_data,

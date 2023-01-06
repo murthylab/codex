@@ -88,10 +88,9 @@ class NeuronDataTest(TestCase):
             del loaded_db
 
             # check the same for data factory
-            neuron_data_factory = NeuronDataFactory(
+            factory_db = NeuronDataFactory(
                 data_root_path=TEST_DATA_ROOT_PATH, preload_latest=False
-            )
-            factory_db = neuron_data_factory.get(v)
+            ).get()
             compare_neuron_dbs(tested=factory_db, golden=unpickled_db)
 
             # check neuron attributes
