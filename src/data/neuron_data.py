@@ -10,7 +10,6 @@ from src.data.catalog import (
     get_connections_file_columns,
     get_nblast_file_columns,
 )
-from src.data.neuron_collections import NEURON_COLLECTIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.search_index import SearchIndex
 from src.data.structured_search_filters import (
@@ -448,12 +447,6 @@ class NeuronDB(object):
                 "counts": _sorted_counts(sides),
             },
             {
-                # curated neuron lists (not a neuron attribute)
-                "caption": "Collections",
-                "key": "collection",
-                "counts": [(k, len(v)) for k, v in NEURON_COLLECTIONS.items()],
-            },
-            {
                 "caption": _caption("Labels", len(labels)),
                 "key": "label",
                 "counts": _sorted_counts(labels),
@@ -524,19 +517,12 @@ class NeuronDB(object):
 
     @lru_cache
     def search(self, search_query, case_sensitive=False, word_match=False):
-        # TODO: Find a more elegant solution for curated collections
-        def _intersect(rid_list):
-            return [rid for rid in rid_list if rid in self.neuron_data]
-
-        if search_query.startswith("collection == "):
-            return _intersect(
-                NEURON_COLLECTIONS[search_query.replace("collection == ", "")]
-            )
         if not search_query:
-            res = _intersect(NEURON_COLLECTIONS["Dominating Set"])
-            res += list(set(self.neuron_data.keys()) - set(res))
-            assert set(res) == set(self.neuron_data.keys())
-            return res
+            return sorted(
+                self.neuron_data.keys(),
+                key=lambda rid: self.neuron_data[rid]["area_nm"],
+                reverse=True,
+            )
 
         # The basic search query term can be either "free form" or "structured".
         # - Free form is when user types in a keyword, or a sentence, and the goal is to find all items that match

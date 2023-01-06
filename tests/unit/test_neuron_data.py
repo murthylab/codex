@@ -569,3 +569,19 @@ class NeuronDataTest(TestCase):
             self.assertEqual(
                 [], [r for r in self.neuron_db.neuron_data.keys() if r not in content]
             )
+
+    def test_twins(self):
+        for nd in self.neuron_db.neuron_data.values():
+            side = nd["side"]
+            size_nm = nd["size_nm"]
+            if size_nm < 1097185208320:
+                continue
+            if len(nd["nblast_scores"]) > 50000:
+                continue
+            for k, v in nd["nblast_scores"].items():
+                if v > 0.6:
+                    twin_side = self.neuron_db.neuron_data[k]["side"]
+                    if twin_side != side:
+                        print(
+                            f"{nd['root_id']}, {k}  score={v}, {nd['size_nm']} side={side}, twin_side={twin_side}"
+                        )
