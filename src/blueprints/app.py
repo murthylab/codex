@@ -23,7 +23,7 @@ from src.blueprints.base import (
     warning_with_redirect,
 )
 from src.configuration import MIN_SYN_COUNT, MAX_NEURONS_FOR_DOWNLOAD
-from src.data import gcs_data_loader, neuron_data_factory
+from src.data import gcs_data_loader
 from src.data.brain_regions import (
     neuropil_hemisphere,
     REGIONS,
@@ -810,7 +810,7 @@ def nblast():
     message = None
 
     if source_cell_names_or_ids or target_cell_names_or_ids:
-        neuron_db = neuron_data_factory.get()
+        neuron_db = NEURON_DATA_FACTORY.get()
         root_ids = set()
         if source_cell_names_or_ids:
             root_ids |= set(neuron_db.search(search_query=source_cell_names_or_ids))
