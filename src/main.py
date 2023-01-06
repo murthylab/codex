@@ -5,7 +5,7 @@ from flask import Flask
 from src.blueprints.api import api
 from src.blueprints.app import app
 from src.blueprints.base import base
-from src.data.neuron_data_factory import NEURON_DATA_FACTORY
+from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils.logging import log
 
 log("App initialization started")
@@ -20,7 +20,7 @@ codex.register_blueprint(
     app
 )  # Web application (search/stats/cell details, other tools)
 log(
-    f"App initialization complete. Loaded data versions {NEURON_DATA_FACTORY.loaded_versions()}"
+    f"App initialization complete. Loaded data versions {NeuronDataFactory.instance().loaded_versions()}"
 )
 
 if __name__ == "__main__":

@@ -25,7 +25,7 @@ from src.configuration import (
     SUPPORT_EMAIL,
 )
 from src.data.faq_qa_kb import FAQ_QA_KB
-from src.data.neuron_data_factory import NEURON_DATA_FACTORY
+from src.data.neuron_data_factory import NeuronDataFactory
 from src.data.versions import (
     LATEST_DATA_SNAPSHOT_VERSION,
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
@@ -363,7 +363,7 @@ def index(path):
                 "url": "api.download",
             },
         ]
-        neuron_db = NEURON_DATA_FACTORY.get()
+        neuron_db = NeuronDataFactory.instance().get()
         return render_template(
             "index.html",
             card_data=card_data,

@@ -31,7 +31,7 @@ from src.data.brain_regions import (
     REGIONS_JSON,
 )
 from src.data.faq_qa_kb import FAQ_QA_KB
-from src.data.neuron_data_factory import NEURON_DATA_FACTORY
+from src.data.neuron_data_factory import NeuronDataFactory
 from src.data.structured_search_filters import (
     OP_DOWNSTREAM,
     OP_UPSTREAM,
@@ -111,7 +111,7 @@ def stats():
         else [],
         filter_string=filter_string,
         hint=hint,
-        data_versions=NEURON_DATA_FACTORY.available_versions(),
+        data_versions=NeuronDataFactory.instance().available_versions(),
         data_version=data_version,
         case_sensitive=case_sensitive,
         whole_word=whole_word,
@@ -121,7 +121,7 @@ def stats():
 
 @lru_cache
 def _stats_cached(filter_string, data_version, case_sensitive, whole_word):
-    neuron_db = NEURON_DATA_FACTORY.get(data_version)
+    neuron_db = NeuronDataFactory.instance().get(data_version)
     filtered_root_id_list = neuron_db.search(
         search_query=filter_string, case_sensitive=case_sensitive, word_match=whole_word
     )
@@ -181,7 +181,7 @@ def leaderboard():
 def _leaderboard_cached():
     res = {}
     stats_utils.fill_in_leaderboard_data(
-        label_data=NEURON_DATA_FACTORY.get().all_label_data(),
+        label_data=NeuronDataFactory.instance().get().all_label_data(),
         top_n=20,
         include_lab_leaderboard=True,
         destination=res,
@@ -197,10 +197,10 @@ def explore():
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     return render_template(
         "categories.html",
-        data_versions=NEURON_DATA_FACTORY.available_versions(),
+        data_versions=NeuronDataFactory.instance().available_versions(),
         data_version=data_version,
         key="class",
-        categories=NEURON_DATA_FACTORY.get(data_version).categories(),
+        categories=NeuronDataFactory.instance().get(data_version).categories(),
     )
 
 
@@ -216,7 +216,7 @@ def render_neuron_list(
     hint,
     extra_data,
 ):
-    neuron_db = NEURON_DATA_FACTORY.get(data_version)
+    neuron_db = NeuronDataFactory.instance().get(data_version)
     num_items = len(filtered_root_id_list)
 
     if num_items > 20:
@@ -285,7 +285,7 @@ def render_neuron_list(
         pagination_info=pagination_info,
         filter_string=filter_string,
         hint=hint,
-        data_versions=NEURON_DATA_FACTORY.available_versions(),
+        data_versions=NeuronDataFactory.instance().available_versions(),
         data_version=data_version,
         case_sensitive=case_sensitive,
         whole_word=whole_word,
@@ -310,7 +310,7 @@ def search():
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
     sort_by = request.args.get("sort_by")
-    neuron_db = NEURON_DATA_FACTORY.get(data_version)
+    neuron_db = NeuronDataFactory.instance().get(data_version)
     hint = None
     extra_data = None
     log(
@@ -370,7 +370,7 @@ def download_search_results():
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
-    neuron_db = NEURON_DATA_FACTORY.get(data_version)
+    neuron_db = NeuronDataFactory.instance().get(data_version)
 
     log_activity(
         f"Downloading search results {activity_suffix(filter_string, data_version)}"
@@ -414,7 +414,7 @@ def root_ids_from_search_results():
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
-    neuron_db = NEURON_DATA_FACTORY.get(data_version)
+    neuron_db = NeuronDataFactory.instance().get(data_version)
 
     log_activity(f"Listing Cell IDs {activity_suffix(filter_string, data_version)}")
     filtered_root_id_list = neuron_db.search(
@@ -439,7 +439,7 @@ def search_results_flywire_url():
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
-    neuron_db = NEURON_DATA_FACTORY.get(data_version)
+    neuron_db = NeuronDataFactory.instance().get(data_version)
 
     log_activity(
         f"Generating URL search results {activity_suffix(filter_string, data_version)}"
@@ -499,7 +499,7 @@ def cell_details():
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     reachability_stats = request.args.get("reachability_stats", 0, type=int)
-    neuron_db = NEURON_DATA_FACTORY.get(data_version)
+    neuron_db = NeuronDataFactory.instance().get(data_version)
 
     if request.method == "POST":
         annotation_text = request.form.get("annotation_text")
@@ -810,7 +810,7 @@ def nblast():
     message = None
 
     if source_cell_names_or_ids or target_cell_names_or_ids:
-        neuron_db = NEURON_DATA_FACTORY.get()
+        neuron_db = NeuronDataFactory.instance().get()
         root_ids = set()
         if source_cell_names_or_ids:
             root_ids |= set(neuron_db.search(search_query=source_cell_names_or_ids))
@@ -944,7 +944,7 @@ def pathways():
     min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
     min_syn_count = max(min_syn_count, MIN_SYN_COUNT)
     log_activity(f"Rendering pathways from {source} to {target} with {min_syn_count=}")
-    neuron_db = NEURON_DATA_FACTORY.get()
+    neuron_db = NeuronDataFactory.instance().get()
     for rid in [source, target]:
         if not neuron_db.is_in_dataset(rid):
             return render_error(
@@ -1007,7 +1007,7 @@ def path_length():
     message = None
 
     if source_cell_names_or_ids or target_cell_names_or_ids:
-        neuron_db = NEURON_DATA_FACTORY.get()
+        neuron_db = NeuronDataFactory.instance().get()
         root_ids = set()
         if source_cell_names_or_ids:
             root_ids |= set(neuron_db.search(search_query=source_cell_names_or_ids))
@@ -1144,7 +1144,7 @@ def connectivity():
     message = None
 
     if cell_names_or_ids:
-        neuron_db = NEURON_DATA_FACTORY.get(data_version)
+        neuron_db = NeuronDataFactory.instance().get(data_version)
         root_ids = neuron_db.search(search_query=cell_names_or_ids)
         if not root_ids:
             return render_error(
@@ -1308,7 +1308,7 @@ def connectivity():
                 info_text=None,
                 sample_input=None,
                 message=message,
-                data_versions=NEURON_DATA_FACTORY.available_versions(),
+                data_versions=NeuronDataFactory.instance().available_versions(),
                 data_version=data_version,
                 reduce=reduce,
                 group_regions=group_regions,
@@ -1328,7 +1328,7 @@ def connectivity():
             f"{con_doc['a']}",
             sample_input=sample_input,
             message=None,
-            data_versions=NEURON_DATA_FACTORY.available_versions(),
+            data_versions=NeuronDataFactory.instance().available_versions(),
             data_version=data_version,
             reduce=reduce,
             group_regions=group_regions,

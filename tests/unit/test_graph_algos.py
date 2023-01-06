@@ -1,6 +1,5 @@
 from unittest import TestCase
 
-from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils.graph_algos import pathways, reachable_node_counts
 from tests import TEST_NEURON_DATA_FACTORY
 

@@ -2,13 +2,13 @@ import math
 from collections import defaultdict
 from functools import lru_cache
 
-from src.data.neuron_data_factory import NEURON_DATA_FACTORY
+from src.data.neuron_data_factory import NeuronDataFactory
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
 
 @lru_cache
 def synapse_density_cached(data_version, normalized, directed, group_by):
-    neuron_db = NEURON_DATA_FACTORY.get(data_version)
+    neuron_db = NeuronDataFactory.instance().get(data_version)
 
     num_cells = len(neuron_db.neuron_data)
     group_to_rids = defaultdict(set)

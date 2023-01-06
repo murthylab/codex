@@ -2,16 +2,18 @@ from src.data.local_data_loader import unpickle_neuron_db, DATA_ROOT_PATH
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSION
 from src.utils.logging import log
 
-num_instances = 0
+# Singleton
+_instance = None
 
 
 class NeuronDataFactory(object):
     def __init__(self, data_root_path=DATA_ROOT_PATH, preload_latest=True):
+        log(f"Initializing NeuronDataFactory with {data_root_path=}...")
         # enforce singleton for app (allow for tests)
         if data_root_path == DATA_ROOT_PATH:
-            global num_instances
-            assert num_instances == 0
-            num_instances += 1
+            global _instance
+            assert _instance is None
+            _instance = self
 
         self._data_root_path = data_root_path
         self._available_versions = DATA_SNAPSHOT_VERSIONS
@@ -34,6 +36,9 @@ class NeuronDataFactory(object):
     def loaded_versions(self):
         return list(self._version_to_data.keys())
 
-
-# Singleton
-NEURON_DATA_FACTORY = NeuronDataFactory()
+    @classmethod
+    def instance(cls):
+        global _instance
+        if _instance is None:
+            _instance = NeuronDataFactory()
+        return _instance
