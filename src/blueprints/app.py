@@ -1404,7 +1404,4 @@ def synapse_density():
         group_by=group_by,
     )
 
-    return render_template(
-        "synapse_density.html",
-        **dct
-    )
+    return render_template("synapse_density.html", **dct)

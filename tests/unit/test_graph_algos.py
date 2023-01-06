@@ -2,13 +2,13 @@ from unittest import TestCase
 
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils.graph_algos import pathways, reachable_node_counts
-from tests import TEST_DATA_ROOT_PATH
+from tests import TEST_NEURON_DATA_FACTORY
 
 
 class TestGraphAlgos(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.neuron_db = NeuronDataFactory(data_root_path=TEST_DATA_ROOT_PATH).get()
+        cls.neuron_db = TEST_NEURON_DATA_FACTORY.get()
 
     def test_reachable_node_counts(self):
         num_cells = len(self.neuron_db.neuron_data)

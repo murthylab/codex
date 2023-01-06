@@ -5,10 +5,9 @@ from src.data.local_data_loader import (
     unpickle_neuron_db,
 )
 from src.data.neuron_data import NEURON_DATA_ATTRIBUTES
-from src.data.neuron_data_factory import NeuronDataFactory
 
 from src.data.versions import DATA_SNAPSHOT_VERSIONS
-from tests import TEST_DATA_ROOT_PATH
+from tests import TEST_DATA_ROOT_PATH, TEST_NEURON_DATA_FACTORY
 from collections import defaultdict
 
 
@@ -28,7 +27,10 @@ class NeuronDataTest(TestCase):
                 set(tested.neuron_data.keys()), set(tested.search_index.all_doc_ids())
             )
             self.assertEqual(
-                set(tested.neuron_data.keys()), set(golden.neuron_data.keys())
+                set(tested.neuron_data.keys()),
+                set(golden.neuron_data.keys()),
+                f"Left minus right: {len(set(tested.neuron_data.keys()) - set(golden.neuron_data.keys()))}, "
+                f"Right minus left: {len(set(golden.neuron_data.keys()) - set(tested.neuron_data.keys()))}",
             )
 
             diff_keys = defaultdict(int)
@@ -88,9 +90,7 @@ class NeuronDataTest(TestCase):
             del loaded_db
 
             # check the same for data factory
-            factory_db = NeuronDataFactory(
-                data_root_path=TEST_DATA_ROOT_PATH, preload_latest=False
-            ).get()
+            factory_db = TEST_NEURON_DATA_FACTORY.get(version=v)
             compare_neuron_dbs(tested=factory_db, golden=unpickled_db)
 
             # check neuron attributes

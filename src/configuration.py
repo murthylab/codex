@@ -17,6 +17,3 @@ APP_ENVIRONMENT = str(os.environ.get("APP_ENVIRONMENT", "PROD"))
 
 proc_id = str(uuid.uuid4())[-4:] + f"-{APP_ENVIRONMENT[:1]}"
 host_name = socket.gethostname()
-
-
-

@@ -18,7 +18,12 @@ from google.auth.transport import requests
 from google.oauth2 import id_token
 from requests import get as get_request
 
-from src.configuration import BUILD_GIT_SHA, BUILD_TIMESTAMP, GOOGLE_CLIENT_ID, SUPPORT_EMAIL
+from src.configuration import (
+    BUILD_GIT_SHA,
+    BUILD_TIMESTAMP,
+    GOOGLE_CLIENT_ID,
+    SUPPORT_EMAIL,
+)
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data_factory import NEURON_DATA_FACTORY
 from src.data.versions import (
@@ -58,6 +63,7 @@ base = Blueprint("base", __name__)
 num_requests_processed = 0
 num_request_errors = 0
 total_request_serving_time_millis = 0.0
+
 
 def current_milli_time():
     return round(time.time() * 1000)
