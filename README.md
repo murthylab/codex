@@ -40,6 +40,15 @@ Then print the generated `profile` file:
 python3 -m src.utils.print_profiling_data
 ```
 
+## Code coverage
+```
+pip install coverage
+coverage run -m pytest tests/unit
+coverage report
+```
+Optionally, generate an HTML version of the report (in `htmlcov/index.html`):
+```coverage html```
+
 ## Downloading and packaging static data
 ### Compile raw data from cloud (set version and access tokens within)
 ```
