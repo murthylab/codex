@@ -87,7 +87,7 @@ def compile_network_html(
     else:
         name_getter = lambda x: neuron_db.get_neuron_data(x)["name"]
         caption_getter = lambda x: neuron_db.get_neuron_caption(x)
-        tag_getter = lambda x: neuron_db.get_neuron_data(x)["tag"]
+        tag_getter = lambda x: neuron_db.get_neuron_data(x)["label"]
         class_getter = lambda x: neuron_db.get_neuron_data(x)["class"]
         nt_type_getter = lambda x: neuron_db.get_neuron_data(x)["nt_type"]
         size_getter = lambda x: 1

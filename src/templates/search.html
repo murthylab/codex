@@ -61,11 +61,11 @@
             <td><a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);">{{neuron.name}}</a><br><small>{{neuron.root_id}}</small>
             </td>
             <td style="color:#3A3A3A;">
-                {% if neuron.tag %}
+                {% if neuron.label %}
                     <span style="color: teal">Labels</span>
-                    {% for tg in neuron.tag %}
+                    {% for tg in neuron.label %}
                     <div class="spotfilter">
-                        <small><b>&#x2022;</b> &nbsp;{{highlighted_tags[tg]|safe}}</small>
+                        <small><b>&#x2022;</b> &nbsp;{{highlighted_labels[tg]|safe}}</small>
                         {% if tg in non_uniform_labels %}
                         <span class="td_filter_buttons">
                             <button title="Exclude {{tg}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label != {{tg}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>

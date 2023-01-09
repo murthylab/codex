@@ -34,7 +34,7 @@ class SearchAttribute(object):
 STRUCTURED_SEARCH_ATTRIBUTES = [
     SearchAttribute(
         name="label",
-        value_getter=lambda nd: nd["tag"],
+        value_getter=lambda nd: nd["label"],
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Human readable label assigned during cell identification process. Each cell can have zero or more labels.",

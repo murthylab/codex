@@ -18,7 +18,7 @@ def cached_cell_details(
 ):
     nd = neuron_db.get_neuron_data(root_id=root_id)
     labels_data = neuron_db.get_label_data(root_id=root_id)
-    tags = sorted(set([ld["tag"] for ld in labels_data or []]))
+    tags = sorted(set([ld["label"] for ld in labels_data or []]))
     unames = sorted(
         set(
             [

@@ -149,9 +149,9 @@ def _make_data_stats(neuron_data, label_data):
     classified_neurons = 0
     anno_counts = defaultdict(int)
     for nd in neuron_data:
-        if nd["tag"]:
+        if nd["label"]:
             labeled_neurons += 1
-            for t in nd["tag"]:
+            for t in nd["label"]:
                 anno_counts[t] += 1
         if nd["class"]:
             classified_neurons += 1

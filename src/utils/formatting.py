@@ -78,22 +78,22 @@ def highlight_annotations(free_form_search_terms, tags):
                                 )
                             )
 
-        # now highlight the tag string
-        highlighted_tag_string = ""
+        # now highlight the label string
+        highlighted_label_string = ""
         if not highlight_locations:
-            highlighted_tag_string = tag_string
+            highlighted_label_string = tag_string
 
         else:
             for i, (color, start, end) in enumerate(highlight_locations):
                 if i == 0:
-                    highlighted_tag_string += tag_string[:start]
+                    highlighted_label_string += tag_string[:start]
                 else:
-                    highlighted_tag_string += tag_string[
+                    highlighted_label_string += tag_string[
                         highlight_locations[i - 1][2] : start
                     ]
-                highlighted_tag_string += f'<span style="padding:1px;border-radius:5px;background-color:{color}">{tag_string[start:end]}</span>'
-            highlighted_tag_string += tag_string[end:]
-        highlighted_annotations.append(highlighted_tag_string)
+                highlighted_label_string += f'<span style="padding:1px;border-radius:5px;background-color:{color}">{tag_string[start:end]}</span>'
+            highlighted_label_string += tag_string[end:]
+        highlighted_annotations.append(highlighted_label_string)
     return highlighted_annotations
 
 
@@ -127,9 +127,9 @@ def shorten_and_concat_labels(labels):
     return concat_labels([trim_long_tokens(t) for t in labels])
 
 
-def compact_tag(anno_tag):
+def compact_label(label):
     # TODO: get rid of this
-    return anno_tag.replace(
+    return label.replace(
         "; Part of comprehensive neck connective tracing, contact Connectomics Group Cambridge for more detailed "
         "information on descending/ascending neurons",
         "",

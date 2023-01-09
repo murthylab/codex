@@ -18,7 +18,7 @@ from src.data.structured_search_filters import (
     parse_search_query,
 )
 from src.configuration import MIN_SYN_COUNT
-from src.utils.formatting import compact_tag, nanometer_to_flywire_coordinates, truncate
+from src.utils.formatting import compact_label, nanometer_to_flywire_coordinates, truncate
 from src.utils.logging import log
 
 # Keywords will be matched against these attributes
@@ -56,7 +56,7 @@ NEURON_DATA_ATTRIBUTES = {
     "root_id": int,
     "ser_avg": float,
     "supervoxel_id": list,
-    "tag": list,
+    "label": list,
     "flow": str,
     "nerve_type": str,
     "side": str,
@@ -122,7 +122,7 @@ class NeuronDB(object):
                 "area_nm": _get_value("area_nm", to_type=int, default=0),
                 "size_nm": _get_value("size_nm", to_type=int, default=0),
                 # clean
-                "tag": [],
+                "label": [],
                 "position": [],
                 "supervoxel_id": [],
                 "input_neuropils": [],
@@ -132,7 +132,7 @@ class NeuronDB(object):
         log(f"App initialization processing label data..")
         labels_file_columns = get_labels_file_columns()
         rid_col_idx = labels_file_columns.index("root_id")
-        tag_col_idx = labels_file_columns.index("tag")
+        tag_col_idx = labels_file_columns.index("label")
         not_found_rids = set()
         not_found_tags = defaultdict(int)
         for i, r in enumerate(label_rows or []):
@@ -156,9 +156,9 @@ class NeuronDB(object):
                 to_int={"user_id", "supervoxel_id", "tag_id"},
             )
             label_data_list.append(label_dict)
-            ctag = compact_tag(label_dict["tag"])
-            if ctag and ctag not in self.neuron_data[rid]["tag"]:
-                self.neuron_data[rid]["tag"].append(compact_tag(ctag))
+            clabel = compact_label(label_dict["label"])
+            if clabel and clabel not in self.neuron_data[rid]["label"]:
+                self.neuron_data[rid]["label"].append(clabel)
         log(
             f"App initialization labels loaded for {len(self.label_data)} root ids, "
             f"not found rids: {len(not_found_rids)}"
@@ -296,7 +296,7 @@ class NeuronDB(object):
 
         self.search_index = SearchIndex(
             [
-                (nd["tag"], searchable_labels(nd), k)
+                (nd["label"], searchable_labels(nd), k)
                 for k, nd in self.neuron_data.items()
             ]
         )
@@ -377,7 +377,7 @@ class NeuronDB(object):
     def num_annotations(self):
         return sum(
             [
-                len(nd["tag"]) + (1 if nd["class"] else 0)
+                len(nd["label"]) + (1 if nd["class"] else 0)
                 for nd in self.neuron_data.values()
             ]
         )
@@ -399,7 +399,7 @@ class NeuronDB(object):
         groups = defaultdict(int)
         for nd in self.neuron_data.values():
             classes[nd["class"]] += 1
-            for c in nd.get("tag", []):
+            for c in nd.get("label", []):
                 labels[c] += 1
             if nd.get("flow"):
                 flows[nd.get("flow")] += 1
@@ -472,7 +472,7 @@ class NeuronDB(object):
 
     def get_neuron_caption(self, root_id):
         nd = self.get_neuron_data(root_id)
-        labels = sorted(nd["tag"], key=lambda x: len(x))
+        labels = sorted(nd["label"], key=lambda x: len(x))
         lbl = labels[0] if labels else nd["name"]
         return truncate(lbl, 15)
 
@@ -605,11 +605,11 @@ class NeuronDB(object):
         # This is used for deciding when to allow "include / exclude" filters.
         page_labels = set()
         for cell_id in page_ids:
-            for lbl in self.neuron_data[cell_id]["tag"]:
+            for lbl in self.neuron_data[cell_id]["label"]:
                 page_labels.add(lbl)
         non_uniform_set = set()
         for i, cell_id in enumerate(all_ids):
-            lbl_set = set(self.neuron_data[cell_id]["tag"])
+            lbl_set = set(self.neuron_data[cell_id]["label"])
             non_uniform_set |= page_labels - lbl_set
             if len(non_uniform_set) == len(page_labels):
                 break

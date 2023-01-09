@@ -189,21 +189,21 @@ def render_neuron_list(
         nd["root_id"]: url_for_skeleton(nd["root_id"], data_version=data_version)
         for nd in display_data
     }
-    highlighted_tags = {}
+    highlighted_labels = {}
     for nd in display_data:
         # Only highlight free-form search tokens (and not structured search attributes)
         psq = parse_search_query(filter_string)
         search_terms = psq[1] + [stq["rhs"] for stq in psq[2] or []]
-        highlighted_tag_list = highlight_annotations(
-            search_terms, [trim_long_tokens(t) for t in nd["tag"]]
+        highlighted_label_list = highlight_annotations(
+            search_terms, [trim_long_tokens(t) for t in nd["label"]]
         )
-        for t, highlighted_tag in enumerate(highlighted_tag_list):
-            highlighted_tags[nd["tag"][t]] = highlighted_tag
+        for t, highlighted_label in enumerate(highlighted_label_list):
+            highlighted_labels[nd["label"][t]] = highlighted_label
 
     return render_template(
         template_name_or_list=template_name,
         display_data=display_data,
-        highlighted_tags=highlighted_tags,
+        highlighted_labels=highlighted_labels,
         skeleton_thumbnail_urls=skeleton_thumbnail_urls,
         # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
         # Otherwise it will be available as downloadable file.
@@ -258,7 +258,7 @@ def search():
             query=filter_string,
             ids=filtered_root_id_list,
             output_sets=neuron_db.output_sets(),
-            label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["tag"]),
+            label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["label"]),
             synapse_neuropil_count_getter=lambda x: len(
                 neuron_db.get_neuron_data(x)["input_neuropils"]
             )
@@ -314,7 +314,7 @@ def download_search_results():
 
     cols = [
         "root_id",
-        "tag",
+        "label",
         "name",
         "nt_type",
         "class",

@@ -23,7 +23,7 @@ _CODEX_DATA_SCHEMA = {
     # multiple rows per id
     "labels": [
         "root_id",
-        "tag",
+        "label",
         "user_id",
         "position",
         "supervoxel_id",

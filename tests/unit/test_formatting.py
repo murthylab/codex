@@ -45,9 +45,9 @@ class TestHighlighting(TestCase):
             ),
         ]
         for case in cases:
-            tag = case[0]
+            label = case[0]
             expected = case[1]
-            actual = tokenize_and_fold_for_highlight(tag)
+            actual = tokenize_and_fold_for_highlight(label)
             self.assertGreater(len(actual), 0)
             self.assertEqual(actual, expected)
 

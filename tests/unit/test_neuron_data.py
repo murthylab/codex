@@ -11,7 +11,7 @@ from src.data.local_data_loader import (
     read_csv,
 )
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSION
-from src.utils.formatting import compact_tag
+from src.utils.formatting import compact_label
 from src.utils.graph_algos import neighbors
 from tests import TEST_DATA_ROOT_PATH
 
@@ -47,7 +47,7 @@ class NeuronDataTest(TestCase):
             )
 
         expected_missing_value_bounds = {
-            "tag": 70000,
+            "label": 70000,
             "class": 150,
             "flow": 150,
             "side": 14000,
@@ -73,11 +73,11 @@ class NeuronDataTest(TestCase):
             check_num_values_missing(k, expected_missing_value_bounds.get(k, 0))
 
     def test_annotations(self):
-        neurons_with_tags = [n for n in self.neuron_db.neuron_data.values() if n["tag"]]
+        neurons_with_tags = [n for n in self.neuron_db.neuron_data.values() if n["label"]]
         self.assertGreater(len(neurons_with_tags), 25000)
 
         neurons_with_annotations = [
-            n for n in self.neuron_db.neuron_data.values() if n["tag"]
+            n for n in self.neuron_db.neuron_data.values() if n["label"]
         ]
         self.assertEqual(len(neurons_with_tags), len(neurons_with_annotations))
 
@@ -85,7 +85,7 @@ class NeuronDataTest(TestCase):
             for col in [
                 "input_neuropils",
                 "output_neuropils",
-                "tag",
+                "label",
                 "position",
             ]:
                 self.assertEqual(len(set(n[col])), len(n[col]))
@@ -373,9 +373,9 @@ class NeuronDataTest(TestCase):
         neuron_data = self.neuron_db.neuron_data
         mismatch = 0
         for rid, nd in neuron_data.items():
-            ld = [compact_tag(l["tag"]) for l in label_data.get(rid, [])]
-            if sorted(set(nd["tag"])) != sorted(set(ld)):
-                print(f'{sorted(set(nd["tag"]))} -> {sorted(set(ld))}')
+            ld = [compact_label(l["label"]) for l in label_data.get(rid, [])]
+            if sorted(set(nd["label"])) != sorted(set(ld)):
+                print(f'{sorted(set(nd["label"]))} -> {sorted(set(ld))}')
                 mismatch += 1
         self.assertLess(mismatch, 10)
 
