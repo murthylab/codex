@@ -73,7 +73,7 @@ def compile_network_html(
         ]
         name_getter = lambda x: f"Class {x}"
         caption_getter = lambda x: x
-        tag_getter = None
+        label_getter = None
         class_getter = None
         nt_type_getter = None
         size_getter = lambda x: 1 + int(
@@ -87,7 +87,7 @@ def compile_network_html(
     else:
         name_getter = lambda x: neuron_db.get_neuron_data(x)["name"]
         caption_getter = lambda x: neuron_db.get_neuron_caption(x)
-        tag_getter = lambda x: neuron_db.get_neuron_data(x)["label"]
+        label_getter = lambda x: neuron_db.get_neuron_data(x)["label"]
         class_getter = lambda x: neuron_db.get_neuron_data(x)["class"]
         nt_type_getter = lambda x: neuron_db.get_neuron_data(x)["nt_type"]
         size_getter = lambda x: 1
@@ -99,7 +99,7 @@ def compile_network_html(
         connections_cap=connections_cap,
         name_getter=name_getter,
         caption_getter=caption_getter,
-        tag_getter=tag_getter,
+        label_getter=label_getter,
         class_getter=class_getter,
         nt_type_getter=nt_type_getter,
         size_getter=size_getter,

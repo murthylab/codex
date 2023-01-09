@@ -18,7 +18,11 @@ from src.data.structured_search_filters import (
     parse_search_query,
 )
 from src.configuration import MIN_SYN_COUNT
-from src.utils.formatting import compact_label, nanometer_to_flywire_coordinates, truncate
+from src.utils.formatting import (
+    compact_label,
+    nanometer_to_flywire_coordinates,
+    truncate,
+)
 from src.utils.logging import log
 
 # Keywords will be matched against these attributes
@@ -132,9 +136,9 @@ class NeuronDB(object):
         log(f"App initialization processing label data..")
         labels_file_columns = get_labels_file_columns()
         rid_col_idx = labels_file_columns.index("root_id")
-        tag_col_idx = labels_file_columns.index("label")
+        label_col_idx = labels_file_columns.index("label")
         not_found_rids = set()
-        not_found_tags = defaultdict(int)
+        not_found_labels = defaultdict(int)
         for i, r in enumerate(label_rows or []):
             if i == 0:
                 # check header
@@ -143,7 +147,7 @@ class NeuronDB(object):
             rid = int(r[rid_col_idx])
             if rid not in self.neuron_data:
                 not_found_rids.add(rid)
-                not_found_tags[r[tag_col_idx]] += 1
+                not_found_labels[r[label_col_idx]] += 1
                 continue
             label_data_list = self.label_data.get(rid)
             if not label_data_list:
@@ -153,7 +157,7 @@ class NeuronDB(object):
                 columns=labels_file_columns,
                 row=r,
                 exclude={"root_id"},
-                to_int={"user_id", "supervoxel_id", "tag_id"},
+                to_int={"user_id", "supervoxel_id", "label_id"},
             )
             label_data_list.append(label_dict)
             clabel = compact_label(label_dict["label"])
@@ -163,9 +167,9 @@ class NeuronDB(object):
             f"App initialization labels loaded for {len(self.label_data)} root ids, "
             f"not found rids: {len(not_found_rids)}"
         )
-        if not_found_tags:
-            log("Top 10 not found tags:")
-            for p in sorted(not_found_tags.items(), key=lambda x: -x[1])[:10]:
+        if not_found_labels:
+            log("Top 10 not found labels:")
+            for p in sorted(not_found_labels.items(), key=lambda x: -x[1])[:10]:
                 log(f"  {p}")
 
         log(f"App initialization processing coordinates data..")

@@ -56,7 +56,7 @@ def make_graph_html(
     connections_cap,
     name_getter,
     caption_getter,
-    tag_getter,
+    label_getter,
     class_getter,
     nt_type_getter,
     size_getter,
@@ -128,13 +128,13 @@ def make_graph_html(
 
     def node_title(nid):
         name = name_getter(nid)
-        if not tag_getter or not class_getter:
+        if not label_getter or not class_getter:
             return name
         class_and_annotations = class_getter(nid)
-        tags = tag_getter(nid)
-        if tags:
-            tags_str = shorten_and_concat_labels(tags)
-            class_and_annotations += f"<br>{tags_str}"
+        labels = label_getter(nid)
+        if labels:
+            labels_str = shorten_and_concat_labels(labels)
+            class_and_annotations += f"<br>{labels_str}"
 
         prefix = "queried cell" if nid in center_ids else "connected cell"
         cell_detail_url = url_for("app.cell_details", root_id=nid)

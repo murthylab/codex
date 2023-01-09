@@ -212,18 +212,18 @@ def compile_data(
 
 
 def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destination):
-    all_tags = []
+    all_labels = []
     for ld in label_data:
         if ld:
-            all_tags.extend(ld)
-    recent_tags = sorted(all_tags, key=lambda t: t["tag_id"])[-500:]
+            all_labels.extend(ld)
+    recent_labels = sorted(all_labels, key=lambda t: t["label_id"])[-500:]
 
     if include_lab_leaderboard:
         contributors_by_lab = defaultdict(set)
-        for t in all_tags:
+        for t in all_labels:
             contributors_by_lab[t["user_affiliation"]].add(t["user_name"])
         lab_lb = defaultdict(int)
-        for ld_item in all_tags:
+        for ld_item in all_labels:
             lab_name = ld_item["user_affiliation"]
             if lab_name:
                 lab_lb[lab_name] += 1
@@ -241,9 +241,9 @@ def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destina
             )[:top_n]
         }
 
-    def user_cred_counts(tags_list):
+    def user_cred_counts(labels_list):
         res = defaultdict(int)
-        for ld_item in tags_list:
+        for ld_item in labels_list:
             if ld_item["user_name"] and "members" not in ld_item["user_name"].lower():
                 caption = ld_item["user_name"]
                 if ld_item["user_affiliation"]:
@@ -251,7 +251,7 @@ def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destina
                 res[caption] += 1
         return res
 
-    user_credit_counts_all = user_cred_counts(all_tags)
+    user_credit_counts_all = user_cred_counts(all_labels)
     if user_credit_counts_all:
         destination["Top Labelers (all time)"] = {
             k: user_credit_counts_all[k]
@@ -260,9 +260,9 @@ def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destina
             )[:top_n]
         }
 
-    user_credit_counts_recent = user_cred_counts(recent_tags)
+    user_credit_counts_recent = user_cred_counts(recent_labels)
     if user_credit_counts_recent:
-        destination[f"Top Labelers (last {len(recent_tags)})"] = {
+        destination[f"Top Labelers (last {len(recent_labels)})"] = {
             k: user_credit_counts_recent[k]
             for k in sorted(
                 user_credit_counts_recent,

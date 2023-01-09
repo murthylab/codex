@@ -27,7 +27,7 @@ _CODEX_DATA_SCHEMA = {
         "user_id",
         "position",
         "supervoxel_id",
-        "tag_id",
+        "label_id",
         "user_name",
         "user_affiliation",
     ],

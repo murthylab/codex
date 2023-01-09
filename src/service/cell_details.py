@@ -18,7 +18,7 @@ def cached_cell_details(
 ):
     nd = neuron_db.get_neuron_data(root_id=root_id)
     labels_data = neuron_db.get_label_data(root_id=root_id)
-    tags = sorted(set([ld["label"] for ld in labels_data or []]))
+    labels = sorted(set([ld["label"] for ld in labels_data or []]))
     unames = sorted(
         set(
             [
@@ -40,7 +40,7 @@ def cached_cell_details(
         + " out</small>",
         "Classification": nd["class"],
         f'Labels<br><span style="font-size: 9px; color: purple;">Updated {neuron_db.labels_ingestion_timestamp()}</span>': concat_labels(
-            tags
+            labels
         ),
         "NT Type": nd["nt_type"]
         + f' ({lookup_nt_type_name(nd["nt_type"])})'

@@ -6,8 +6,8 @@ from src.utils.parsing import tokenize
 
 class SearchIndex(object):
     def __init__(self, texts_labels_id_tuples):
-        self.CS_tag_to_row_id = {}
-        self.ci_tag_to_row_id = {}
+        self.CS_label_to_row_id = {}
+        self.ci_label_to_row_id = {}
         self.CS_token_to_row_id = {}
         self.ci_token_to_row_id = {}
         self.lc_labels = {}
@@ -15,8 +15,8 @@ class SearchIndex(object):
         log(f"App initialization creating search index")
         for text_list, label_list, i in texts_labels_id_tuples:
             for txt in text_list:
-                self.add_to_index(txt, i, self.CS_tag_to_row_id)
-                self.add_to_index(txt.lower(), i, self.ci_tag_to_row_id)
+                self.add_to_index(txt, i, self.CS_label_to_row_id)
+                self.add_to_index(txt.lower(), i, self.ci_label_to_row_id)
 
                 tokens = tokenize(txt)
                 for t in tokens:
@@ -28,7 +28,7 @@ class SearchIndex(object):
 
         log(
             f"App initialization search index created: {len(self.CS_token_to_row_id)=} {len(self.ci_token_to_row_id)=}"
-            f" {len(self.CS_tag_to_row_id)=} {len(self.ci_tag_to_row_id)=}"
+            f" {len(self.CS_label_to_row_id)=} {len(self.ci_label_to_row_id)=}"
         )
 
     @staticmethod
@@ -90,11 +90,11 @@ class SearchIndex(object):
 
             # lastly, try to match substrings
             if case_sensitive:
-                for k, v in self.CS_tag_to_row_id.items():
+                for k, v in self.CS_label_to_row_id.items():
                     if term in k:
                         collect(v)
             else:
-                for k, v in self.ci_tag_to_row_id.items():
+                for k, v in self.ci_label_to_row_id.items():
                     if term_lower in k:
                         collect(v)
 
@@ -177,8 +177,8 @@ class SearchIndex(object):
     def all_doc_ids(self):
         res_set = set()
         res_list = []
-        # collect ids of neurons with tags firs, then the rest
-        for indx in [self.CS_tag_to_row_id, self.lc_labels]:
+        # collect ids of neurons with labels first, then the rest
+        for indx in [self.CS_label_to_row_id, self.lc_labels]:
             for ids in indx.values():
                 for rid in ids:
                     if rid not in res_set:

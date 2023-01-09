@@ -38,22 +38,23 @@ def percentage(part, whole):
     return f"{max(0, min(100, int(100 * float(part) / float(whole))))}%"
 
 
-def highlight_annotations(free_form_search_terms, tags):
+def highlight_annotations(free_form_search_terms, labels):
     search_tokens = []
     for free_from_search_term in free_form_search_terms:
         search_tokens.extend(tokenize(free_from_search_term))
     folded_search_tokens = set([t.lower() for t in search_tokens])
 
-    parsed_tags = [
-        (tag_string, tokenize_and_fold_for_highlight(tag_string)) for tag_string in tags
+    parsed_labels = [
+        (label_string, tokenize_and_fold_for_highlight(label_string))
+        for label_string in labels
     ]
     highlighted_annotations = []
-    for tag_string, tag_tokens in parsed_tags:
+    for label_string, label_tokens in parsed_labels:
 
         # looks like this: [(color, start, end), (color, start, end), ...]
         highlight_locations = []
-        for tag_token in tag_tokens:
-            token, start, end = tag_token
+        for label_token in label_tokens:
+            token, start, end = label_token
             if token in folded_search_tokens:
                 # mark for green highlighting
 
@@ -81,18 +82,18 @@ def highlight_annotations(free_form_search_terms, tags):
         # now highlight the label string
         highlighted_label_string = ""
         if not highlight_locations:
-            highlighted_label_string = tag_string
+            highlighted_label_string = label_string
 
         else:
             for i, (color, start, end) in enumerate(highlight_locations):
                 if i == 0:
-                    highlighted_label_string += tag_string[:start]
+                    highlighted_label_string += label_string[:start]
                 else:
-                    highlighted_label_string += tag_string[
+                    highlighted_label_string += label_string[
                         highlight_locations[i - 1][2] : start
                     ]
-                highlighted_label_string += f'<span style="padding:1px;border-radius:5px;background-color:{color}">{tag_string[start:end]}</span>'
-            highlighted_label_string += tag_string[end:]
+                highlighted_label_string += f'<span style="padding:1px;border-radius:5px;background-color:{color}">{label_string[start:end]}</span>'
+            highlighted_label_string += label_string[end:]
         highlighted_annotations.append(highlighted_label_string)
     return highlighted_annotations
 

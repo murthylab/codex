@@ -53,7 +53,7 @@ class TestHighlighting(TestCase):
 
     def test_highlight_annotations(self):
         self.maxDiff = None
-        input = [  # (filter_string, tags, expected)
+        input = [  # (filter_string, labels, expected)
             (
                 "Kenyon cell KC",
                 ["Mushroom Body Kenyon cell KC"],
@@ -109,9 +109,9 @@ class TestHighlighting(TestCase):
                 ],
             ),
         ]
-        for filter_string, tags, expected in input:
+        for filter_string, labels, expected in input:
             free_form_search_terms = parse_search_query(filter_string)[1]
-            actual = highlight_annotations(free_form_search_terms, tags)
+            actual = highlight_annotations(free_form_search_terms, labels)
             self.assertEqual(expected, actual, filter_string)
 
     def test_truncate(self):

@@ -73,13 +73,15 @@ class NeuronDataTest(TestCase):
             check_num_values_missing(k, expected_missing_value_bounds.get(k, 0))
 
     def test_annotations(self):
-        neurons_with_tags = [n for n in self.neuron_db.neuron_data.values() if n["label"]]
-        self.assertGreater(len(neurons_with_tags), 25000)
+        neurons_with_labels = [
+            n for n in self.neuron_db.neuron_data.values() if n["label"]
+        ]
+        self.assertGreater(len(neurons_with_labels), 25000)
 
         neurons_with_annotations = [
             n for n in self.neuron_db.neuron_data.values() if n["label"]
         ]
-        self.assertEqual(len(neurons_with_tags), len(neurons_with_annotations))
+        self.assertEqual(len(neurons_with_labels), len(neurons_with_annotations))
 
         for n in self.neuron_db.neuron_data.values():
             for col in [
