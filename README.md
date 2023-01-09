@@ -20,10 +20,10 @@ Navigate to [localhost:5000](http://localhost:5000)
 ## Testing before posting a PR or merging
 ### Manual UI testing (Required)
 run service locally and click around in all pages
-### Unit tests (Required)
-You may need to first run `pip install pytest`
+### Unit tests & code coverage (Required)
+You may need to first run `pip install pytest && pip install coverage`
 
-`python3 -m pytest tests/unit`
+`python3 tests/run_tests.py`
 ### Integration/perf tests (Optional, requires setup)
 `python3 -m pytest tests/integration`
 
@@ -39,15 +39,6 @@ Then print the generated `profile` file:
 ```
 python3 -m src.utils.print_profiling_data
 ```
-
-## Code coverage
-```
-pip install coverage
-coverage run -m pytest tests/unit
-coverage report
-```
-Optionally, generate an HTML version of the report (in `htmlcov/index.html`):
-```coverage html```
 
 ## Downloading and packaging static data
 ### Compile raw data from cloud (set version and access tokens within)
