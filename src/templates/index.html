@@ -56,7 +56,7 @@
             <form id="searchForm">
                 <input class="form-control mr-sm-2" autocomplete="off" autofocus type="search"
                        id="filter_string" name="filter_string" placeholder="search cells and annotations"
-                       aria-label="Filter" value="{{filter_string}}">
+                       aria-label="Filter" value="{{filter_string}}" onchange="loading(event)">
             </form>
 
             <hr class="my-4" align="left">
@@ -88,5 +88,5 @@
     </div>
 
     <h3 class="made_by">One &#129712; was harmed in the making of this data</h3>
-
-    {% endblock content %}
+</div>
+{% endblock content %}
