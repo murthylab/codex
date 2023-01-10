@@ -528,8 +528,14 @@ def _make_predicate(
                 target_rid_set |= set(v)
         return lambda x: x["root_id"] in target_rid_set
     elif op == OP_SIMILAR:
-        target_rid_set = set(similar_cells_loader(rhs))
-        return lambda x: x["root_id"] in target_rid_set
+        try:
+            cell_id = int(rhs)
+            target_rid_set = set(similar_cells_loader(cell_id))
+            return lambda x: x["root_id"] in target_rid_set
+        except ValueError as e:
+            raise_malformed_structured_search_query(
+                f"Invalid cell id '{rhs}' in operator '{op}'"
+            )
     elif op == OP_PATHWAYS:
         pathway_distance_map = pathways(
             source=lhs,

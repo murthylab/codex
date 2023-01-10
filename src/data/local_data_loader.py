@@ -15,7 +15,6 @@ NEURON_FILE_NAME = "neurons.csv.gz"
 CONNECTIONS_FILE_NAME = "connections.csv.gz"
 LABELS_FILE_NAME = "labels.csv.gz"
 COORDINATES_FILE_NAME = "coordinates.csv.gz"
-CLASSIFICATIONS_FILE_NAME = "classification.csv.gz"
 NBLAST_FILE_NAME = "nblast.csv.gz"
 
 
