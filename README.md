@@ -23,7 +23,7 @@ run service locally and click around in all pages
 ### Unit tests & code coverage (Required)
 You may need to first run `pip install pytest && pip install coverage`
 
-`python3 tests/run_tests.py`
+`python3 tests/run_unit_tests_with_coverage.py`
 ### Integration/perf tests (Optional, requires setup)
 `python3 -m pytest tests/integration`
 
