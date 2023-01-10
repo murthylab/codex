@@ -20,10 +20,10 @@ Navigate to [localhost:5000](http://localhost:5000)
 ## Testing before posting a PR or merging
 ### Manual UI testing (Required)
 run service locally and click around in all pages
-### Unit tests (Required)
-You may need to first run `pip install pytest`
+### Unit tests & code coverage (Required)
+You may need to first run `pip install pytest && pip install coverage`
 
-`python3 -m pytest tests/unit`
+`python3 tests/run_unit_tests_with_coverage.py`
 ### Integration/perf tests (Optional, requires setup)
 `python3 -m pytest tests/integration`
 
