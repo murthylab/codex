@@ -306,22 +306,32 @@ class NeuronDB(object):
         )
 
     def input_sets(self, min_syn_count=5):
-        return self.input_output_sets(min_syn_count)[0]
+        return self.input_output_partner_sets(min_syn_count)[0]
 
     def output_sets(self, min_syn_count=5):
-        return self.input_output_sets(min_syn_count)[1]
+        return self.input_output_partner_sets(min_syn_count)[1]
 
     @lru_cache
-    def input_output_sets(self, min_syn_count=5):
+    def input_output_partner_sets(self, min_syn_count=MIN_SYN_COUNT):
         ins = defaultdict(set)
         outs = defaultdict(set)
         for r in self.connection_rows:
-            if r[3] >= min_syn_count:
+            if not min_syn_count or r[3] >= min_syn_count:
                 ins[r[1]].add(r[0])
                 outs[r[0]].add(r[1])
         return ins, outs
 
-    def connections(self, ids, min_syn_count=5, nt_type=None):
+    @lru_cache
+    def input_output_neuropil_sets(self, min_syn_count=MIN_SYN_COUNT):
+        ins = defaultdict(set)
+        outs = defaultdict(set)
+        for r in self.connection_rows:
+            if not min_syn_count or r[3] >= min_syn_count:
+                ins[r[1]].add(r[2])
+                outs[r[0]].add(r[2])
+        return ins, outs
+
+    def connections(self, ids, min_syn_count=MIN_SYN_COUNT, nt_type=None):
         idset = set(ids)
         cons = []
         if self.connection_rows:  # avail in mem cache

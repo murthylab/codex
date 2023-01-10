@@ -587,3 +587,29 @@ class NeuronDataTest(TestCase):
                         print(
                             f"{nd['root_id']}, {k}  score={v}, {nd['size_nm']} side={side}, twin_side={twin_side}"
                         )
+
+    def test_epsilon_nets(self):
+        in_pil_sets, out_pil_sets = self.neuron_db.input_output_neuropil_sets()
+
+        all_pils = set(REGIONS.keys())
+        covered_in_pils = set()
+        covered_out_pils = set()
+
+        remaining_rids = sorted(self.neuron_db.neuron_data.keys())
+        epsilon_net = []
+
+        def pick_best():
+            return max(remaining_rids, key=lambda rid: len(in_pil_sets[rid] - covered_in_pils) + len(out_pil_sets[rid] - covered_out_pils))
+
+        for i in range(100):
+            bst = pick_best()
+            covered_in_pils |= in_pil_sets[bst]
+            covered_out_pils |= out_pil_sets[bst]
+            epsilon_net.append(bst)
+            remaining_rids.remove(bst)
+            print(f"{i}: {len(covered_in_pils)=} {len(covered_out_pils)=}")
+            if len(covered_in_pils) == len(all_pils) and len(covered_out_pils) == len(all_pils):
+                break
+
+        self.assertLess(len(epsilon_net), 14)
+

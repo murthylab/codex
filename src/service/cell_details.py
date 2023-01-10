@@ -204,7 +204,7 @@ def cached_cell_details(
 
     cell_extra_data = {}
     if neuron_db.connection_rows and reachability_stats:
-        ins, outs = neuron_db.input_output_sets()
+        ins, outs = neuron_db.input_output_partner_sets()
 
         reachable_counts = reachable_node_counts(
             sources={root_id},
