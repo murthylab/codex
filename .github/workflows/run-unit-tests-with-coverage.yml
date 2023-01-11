@@ -17,3 +17,25 @@ jobs:
       - name: Run tests
         run: |
           python tests/run_unit_tests_with_coverage.py
+      - name: Create coverage badge
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: a442efe7b753f00d0f7a1cfceff87f61
+          filename: codex_badge_coverage.json
+          label: Coverage
+          message: ${{ env.COVERAGE }}%
+          valColorRange: ${{ env.COVERAGE }}
+          minColorRange: 50
+          maxColorRange: 90
+      - name: Create tests badge
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: a442efe7b753f00d0f7a1cfceff87f61
+          filename: codex_badge_tests.json
+          label: Tests
+          message: ${{ env.TESTS_MESSAGE }}%
+          valColorRange: ${{ env.TESTS_VALUE }}
+          minColorRange: 0
+          maxColorRange: 1
