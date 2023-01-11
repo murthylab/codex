@@ -1,7 +1,7 @@
 # Codex - Connectome Data Explorer for FlyWire
 
-![Coverage](badge_coverage.svg)
-![Tests](badge_tests.svg)
+![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/kaikue/a442efe7b753f00d0f7a1cfceff87f61/raw/codex_badge_coverage.json)
+![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/kaikue/a442efe7b753f00d0f7a1cfceff87f61/raw/codex_badge_tests.json)
 
 ## Description
 Flask web app for finding and analyzing neurons/cells proofread by the
