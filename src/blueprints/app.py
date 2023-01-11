@@ -962,7 +962,11 @@ def neuropils():
     if selected:
         selected = selected.strip(",")
         selected_ids = [r for r in selected.split(",") if r]
-        if len(selected_ids) > 1:
+        if len(selected_ids) == 1:
+            if selected_ids[0] not in NEUROPIL_DESCRIPTIONS:
+                selected_id = selected_ids[0]
+                selected_ids = [f"{selected_id}_L", f"{selected_id}_R"]
+        if len(selected_ids)  > 1:
             caption = ", ".join([NEUROPIL_DESCRIPTIONS[r] for r in selected_ids])
         else:
             caption = NEUROPIL_DESCRIPTIONS[selected_ids[0]]
@@ -1009,6 +1013,4 @@ def synapse_density():
 def genetic_lines():
     selected = request.args.get("selected")
     lines = load_genetic_lines(selected)
-    print(lines)
-    log_activity(f"Rendering genetic_lines page")
     return render_template("genetic_lines.html", lines=lines, selected=selected)
