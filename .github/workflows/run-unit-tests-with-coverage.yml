@@ -35,7 +35,7 @@ jobs:
           gistID: a442efe7b753f00d0f7a1cfceff87f61
           filename: codex_badge_tests.json
           label: Tests
-          message: ${{ env.TESTS_MESSAGE }}%
+          message: ${{ env.TESTS_MESSAGE }}
           valColorRange: ${{ env.TESTS_VALUE }}
           minColorRange: 0
           maxColorRange: 1
