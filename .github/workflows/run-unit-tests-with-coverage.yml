@@ -16,7 +16,7 @@ jobs:
           pip install -r requirements.txt
       - name: Run tests
         run: |
-          python tests/run_unit_tests_with_coverage.py
+          python tests/run_unit_tests_with_coverage.py i
       - name: Create coverage badge
         uses: schneegans/dynamic-badges-action@v1.6.0
         with:
