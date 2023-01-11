@@ -302,7 +302,7 @@ def index(path):
             )
             return render_error(message=message, title="Use updated URL", back_button=0)
         else:
-            if "favicon" not in path:
+            if not any([bt in path for bt in ["favicon", "robots"]]):
                 log_error(f"No destination found for {path=}, redirecting to home page")
             return redirect("/")
     elif request.args.get("filter_string"):

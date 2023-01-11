@@ -599,7 +599,11 @@ class NeuronDataTest(TestCase):
         epsilon_net = []
 
         def pick_best():
-            return max(remaining_rids, key=lambda rid: len(in_pil_sets[rid] - covered_in_pils) + len(out_pil_sets[rid] - covered_out_pils))
+            return max(
+                remaining_rids,
+                key=lambda rid: len(in_pil_sets[rid] - covered_in_pils)
+                + len(out_pil_sets[rid] - covered_out_pils),
+            )
 
         for i in range(100):
             bst = pick_best()
@@ -608,8 +612,53 @@ class NeuronDataTest(TestCase):
             epsilon_net.append(bst)
             remaining_rids.remove(bst)
             print(f"{i}: {len(covered_in_pils)=} {len(covered_out_pils)=}")
-            if len(covered_in_pils) == len(all_pils) and len(covered_out_pils) == len(all_pils):
+            if len(covered_in_pils) == len(all_pils) and len(covered_out_pils) == len(
+                all_pils
+            ):
                 break
 
         self.assertLess(len(epsilon_net), 14)
 
+    def test_bridge_neurons(self):
+        in_pil_sets, out_pil_sets = self.neuron_db.input_output_neuropil_sets()
+
+        rids = sorted(self.neuron_db.neuron_data.keys())
+        region_pairs_to_bridges = defaultdict(list)
+
+        def is_bridge(rid):
+            if (
+                len(in_pil_sets[rid]) != 1
+                or len(out_pil_sets[rid]) != 1
+                or in_pil_sets[rid] == out_pil_sets[rid]
+            ):
+                return False
+            region_pairs_to_bridges[
+                (next(iter(in_pil_sets[rid])), next(iter(out_pil_sets[rid])))
+            ].append(rid)
+            return True
+
+        def is_mirror_bridge(rid):
+            if (
+                len(in_pil_sets[rid]) != 1
+                or len(out_pil_sets[rid]) != 1
+                or in_pil_sets[rid] == out_pil_sets[rid]
+            ):
+                return False
+            pil_in = list(in_pil_sets[rid])[0]
+            if pil_in[-2] != "_":
+                return False
+            pil_out = list(out_pil_sets[rid])[0]
+            if pil_out[-2] != "_":
+                return False
+            return pil_in[:-2] == pil_out[:-2]
+
+        bridges = [rid for rid in rids if is_bridge(rid)]
+
+        bset = set()
+        for k, v in region_pairs_to_bridges.items():
+            bset.add(k[0])
+            bset.add(k[1])
+            print(f"{k}: {v}")
+
+        self.assertLess(60, len(bset))
+        self.assertLess(1000, len(bridges))
