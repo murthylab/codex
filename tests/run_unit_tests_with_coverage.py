@@ -26,6 +26,6 @@ if percent < WARN_PERCENT:
 env_file = os.getenv("GITHUB_ENV")
 if env_file is not None:
     with open(env_file, "a") as file:
-        file.write(f"COVERAGE={round(percent)}")
-        file.write(f"TESTS_MESSAGE={'passing' if retcode == 0 else 'failing'}")
+        file.write(f"COVERAGE={round(percent)}\n")
+        file.write(f"TESTS_MESSAGE={'passing' if retcode == 0 else 'failing'}\n")
         file.write(f"TESTS_VALUE={'1' if retcode == 0 else '0'}")
