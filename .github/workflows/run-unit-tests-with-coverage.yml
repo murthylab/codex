@@ -1,5 +1,8 @@
 name: Run unit tests with coverage
-on: push
+on:
+  push:
+    branches:
+    - main
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,7 +19,7 @@ jobs:
           pip install -r requirements.txt
       - name: Run tests
         run: |
-          python tests/run_unit_tests_with_coverage.py i
+          python tests/run_unit_tests_with_coverage.py
       - name: Create coverage badge
         uses: schneegans/dynamic-badges-action@v1.6.0
         with:

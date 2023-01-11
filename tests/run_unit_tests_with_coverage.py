@@ -33,4 +33,4 @@ if env_file is not None:
     with open(env_file, "a") as file:
         file.write(f"COVERAGE={round(percent)}\n")
         file.write(f"TESTS_MESSAGE={'passing' if passing else 'failing'}\n")
-        file.write(f"TESTS_VALUE={'1' if retcode == 0 else '0'}")
+        file.write(f"TESTS_VALUE={'1' if passing else '0'}")
