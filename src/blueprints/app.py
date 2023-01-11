@@ -37,6 +37,7 @@ from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
 )
+from src.data.genetic_lines import load_genetic_lines
 from src.service.cell_details import cached_cell_details
 from src.service.network import compile_network_html
 from src.service.search import pagination_data, DEFAULT_PAGE_SIZE
@@ -1000,3 +1001,13 @@ def synapse_density():
     )
 
     return render_template("synapse_density.html", **dct)
+
+
+@app.route("/genetic_lines")
+@request_wrapper
+@require_data_access
+def genetic_lines():
+    lines = load_genetic_lines()
+    print(lines)
+    log_activity(f"Rendering genetic_lines page")
+    return render_template("genetic_lines.html")
