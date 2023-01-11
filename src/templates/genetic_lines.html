@@ -2,7 +2,18 @@
 {% block title %} Genetic Lines {% endblock title %}
 {% block content %}
 
-Hello world
+{% if selected %}
+	<h1>{{selected}}</h1>
+	<p><a href="https://flweb.janelia.org/cgi-bin/view_flew_imagery.cgi?line=R{{selected}}">View in Flyweb</a></p>
+	{% for line in lines %}
+		<p>Expresses in {{line[0]}} with intensity={{line[-2]}} and distribution={{line[-1]}}</p>
+	{% endfor %}
+	{% else %}
+		<h1>Genetic Lines</h1>
+		{% for line in lines %}
+			<p><a href="/app/genetic_lines?selected={{line[1]}}">{{line[1]}}</a></p>
+		{% endfor %}
+{% endif %}
 
 
 {% endblock content %}
