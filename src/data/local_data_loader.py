@@ -21,6 +21,9 @@ NBLAST_FILE_NAME = "nblast.csv.gz"
 NEURON_DB_PICKLE_FILE_NAME = "neuron_db.pickle.gz"
 
 GCS_PICKLE_URL_TEMPLATE = "https://storage.googleapis.com/flywire-data/codex/data/{version}/neuron_db.pickle.gz"
+GCS_RAW_DATA_URL_TEMPLATE = (
+    "https://storage.googleapis.com/flywire-data/codex/data/{version}/{filename}"
+)
 
 
 def data_file_path_for_version(version, data_root_path=DATA_ROOT_PATH):
@@ -37,6 +40,21 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
 
     def _read_data(filename, with_timestamp=False):
         fname = f"{data_file_path}/{filename}"
+        if not os.path.exists(fname):
+            log(
+                f"App initialization downloading raw data file {filename} for version {version}.."
+            )
+            ok = download(
+                url=GCS_RAW_DATA_URL_TEMPLATE.format(
+                    version=version, filename=filename
+                ),
+                dest_folder=data_file_path,
+            )
+            if not ok:
+                log(
+                    f"WARNING: Raw data file {filename} for version {version} could not be downloaded"
+                )
+
         if os.path.exists(fname):
             rows = read_csv(fname)
             if with_timestamp:

@@ -131,4 +131,4 @@ class Test(TestCase):
         self.assertEqual(len(sample_root_ids), len(pscores))
         for scores in pscores.values():
             self.assertEqual(49231, len(scores))
-        self.assertLess((datetime.datetime.now() - start_time).total_seconds(), 10)
+        self.assertLess((datetime.datetime.now() - start_time).total_seconds(), 20)
