@@ -2,7 +2,7 @@ import os
 
 import requests
 
-from src.utils.logging import log, log_error
+from src.utils.logging import log, log_warning
 
 
 def download(url: str, dest_folder: str):
@@ -25,5 +25,5 @@ def download(url: str, dest_folder: str):
                     os.fsync(f.fileno())
         return True
     else:
-        log_error("Download failed: status code {}\n{}".format(r.status_code, r.text))
+        log_warning("Download failed: status code {}\n{}".format(r.status_code, r.text))
         return False
