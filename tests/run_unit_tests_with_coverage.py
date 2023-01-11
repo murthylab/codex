@@ -1,6 +1,7 @@
 import coverage
 import pytest
 import os
+import sys
 
 WARN_TEXT_COLOR = "\033[93m"
 
@@ -10,6 +11,10 @@ cov = coverage.Coverage()
 cov.start()
 
 retcode = pytest.main(["tests/unit"])
+passing = retcode == 0
+if len(sys.argv) > 1 and sys.argv[1] == "i":
+    retcode = pytest.main(["tests/integration"])
+    passing = passing and retcode == 0
 
 cov.stop()
 cov.save()
@@ -27,5 +32,5 @@ env_file = os.getenv("GITHUB_ENV")
 if env_file is not None:
     with open(env_file, "a") as file:
         file.write(f"COVERAGE={round(percent)}\n")
-        file.write(f"TESTS_MESSAGE={'passing' if retcode == 0 else 'failing'}\n")
+        file.write(f"TESTS_MESSAGE={'passing' if passing else 'failing'}\n")
         file.write(f"TESTS_VALUE={'1' if retcode == 0 else '0'}")
