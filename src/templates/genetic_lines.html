@@ -1,4 +1,7 @@
 {% extends "base.html" %} {% block title %} Genetic Lines {% endblock title %}
+
+
+
 {% block content %}
 
 <div class="container">
@@ -6,7 +9,7 @@
   <h1>{{selected}}</h1>
   <p>
     <a
-      href="https://flweb.janelia.org/cgi-bin/view_flew_imagery.cgi?line=R{{selected}}"
+      href="https://flweb.janelia.org/cgi-bin/view_flew_imagery.cgi?line={{selected}}"
       >View in Flyweb <i class="fa fa-external-link" aria-hidden="true"></i>
     </a>
   </p>
@@ -19,8 +22,13 @@
   </p>
   {% endfor %} {% else %}
   <h1>Genetic Lines</h1>
+  <h6>GAL4-Driver Lines from <a href="https://doi.org/10.1016%2Fj.celrep.2012.09.011">(Jenett et al., 2012)<i class="fa fa-external-link" aria-hidden="true"></i></a></h6>
+  <ul>
   {% for line in lines %}
-  <p><a href="/app/genetic_lines?selected={{line}}">{{line}}</a></p>
-  {% endfor %} {% endif %}
+  <li><a href="/app/genetic_lines?selected={{line}}">{{line}}</a>
+  </li>
+  {% endfor %}
+  </ul>
+  {% endif %}
   <div class="container">{% endblock content %}</div>
 </div>

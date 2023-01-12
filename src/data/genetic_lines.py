@@ -7,7 +7,7 @@ def load_genetic_lines(tsv_filename="Jenett.2012.9.24.tsv"): # TODO: store this 
     with open(tsv_filename) as file:
         reader = csv.DictReader(file, delimiter="\t")
         for row in reader:
-            line = row["Sample"].split("_")[1]  ## sample name to line name
+            line = f"R{row['Sample'].split('_')[1]}"  ## sample name to line name
             line_data = lines.get(line, {})
             neuropil = row["Compartment"]
             line_data[neuropil] = { "intensity": row["Intensity"], \
