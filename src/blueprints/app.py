@@ -962,7 +962,7 @@ def neuropils():
     if selected:
         selected = selected.strip(",")
         selected_ids = [r for r in selected.split(",") if r]
-        if len(selected_ids)  > 1:
+        if len(selected_ids) > 1:
             caption = ", ".join([NEUROPIL_DESCRIPTIONS[r] for r in selected_ids])
         else:
             caption = NEUROPIL_DESCRIPTIONS[selected_ids[0]]
@@ -1007,7 +1007,9 @@ def synapse_density():
 @request_wrapper
 @require_data_access
 def genetic_lines():
-    lines =load_genetic_lines()
+    lines = load_genetic_lines()
     selected = request.args.get("selected")
     expressions = lines.get(selected, {})
-    return render_template("genetic_lines.html", lines = lines, selected=selected, expressions=expressions)
+    return render_template(
+        "genetic_lines.html", lines=lines, selected=selected, expressions=expressions
+    )

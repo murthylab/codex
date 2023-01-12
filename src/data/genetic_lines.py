@@ -2,8 +2,11 @@ import csv
 from functools import lru_cache
 from src.data.brain_regions import REGIONS, REGION_CATEGORIES
 
+
 @lru_cache
-def load_genetic_lines(tsv_filename="Jenett.2012.9.24.tsv"): # TODO: store this somewhere sensible
+def load_genetic_lines(
+    tsv_filename="Jenett.2012.9.24.tsv",
+):  # TODO: store this somewhere sensible
     lines = {}
     with open(tsv_filename) as file:
         reader = csv.DictReader(file, delimiter="\t")
@@ -13,11 +16,12 @@ def load_genetic_lines(tsv_filename="Jenett.2012.9.24.tsv"): # TODO: store this 
             compartment = row["Compartment"]
             line_data[compartment] = {
                 "intensity": row["Intensity"],
-				"distribution": row["Distribution"],
-                "neuropils": jennet_compartment_to_neuropils(compartment)
+                "distribution": row["Distribution"],
+                "neuropils": jennet_compartment_to_neuropils(compartment),
             }
             lines[line] = line_data
     return lines
+
 
 def jennet_compartment_to_neuropils(compartment):
     if compartment in REGIONS:
@@ -29,7 +33,7 @@ def jennet_compartment_to_neuropils(compartment):
     if substr := [n for n in REGIONS if compartment in n]:
         return substr
 
-    if compartment == 'OL':
+    if compartment == "OL":
         return REGION_CATEGORIES["optic lobe"]
 
     return []
