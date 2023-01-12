@@ -965,7 +965,9 @@ def neuropils():
         if len(selected_ids) == 1:
             if selected_ids[0] not in NEUROPIL_DESCRIPTIONS:
                 selected_id = selected_ids[0]
-                selected_ids = [f"{selected_id}_L", f"{selected_id}_R"]
+                selected_ids = [k for k in REGIONS.keys() if k.startswith(selected_id)]
+                if len(selected_ids) == 0:
+                    selected_ids = [k for k in REGIONS.keys() if selected_id in k]
         if len(selected_ids)  > 1:
             caption = ", ".join([NEUROPIL_DESCRIPTIONS[r] for r in selected_ids])
         else:

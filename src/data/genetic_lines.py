@@ -2,7 +2,7 @@ import csv
 from functools import lru_cache
 
 @lru_cache
-def load_genetic_lines(tsv_filename="Jenett.2012.9.24.tsv"):
+def load_genetic_lines(tsv_filename="Jenett.2012.9.24.tsv"): # TODO: store this somewhere sensible
     lines = {}
     with open(tsv_filename) as file:
         reader = csv.DictReader(file, delimiter="\t")
