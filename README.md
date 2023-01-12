@@ -1,5 +1,8 @@
 # Codex - Connectome Data Explorer for FlyWire
 
+![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/kaikue/a442efe7b753f00d0f7a1cfceff87f61/raw/codex_badge_coverage.json)
+![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/kaikue/a442efe7b753f00d0f7a1cfceff87f61/raw/codex_badge_tests.json)
+
 ## Description
 Flask web app for finding and analyzing neurons/cells proofread by the
 FlyWire community (see flywire.ai). See [demo clips](https://codex.flywire.ai/demo_clip).
@@ -21,11 +24,13 @@ Navigate to [localhost:5000](http://localhost:5000)
 ### Manual UI testing (Required)
 run service locally and click around in all pages
 ### Unit tests & code coverage (Required)
-You may need to first run `pip install pytest && pip install coverage`
+Note: If running for the first time, first run `pip install -r requirements_dev.txt`
 
 `python3 tests/run_unit_tests_with_coverage.py`
 ### Integration/perf tests (Optional, requires setup)
 `python3 -m pytest tests/integration`
+
+`python3 tests/run_unit_tests_with_coverage.py i` will run unit tests, integration tests, and coverage for both.
 
 
 ## Linting / code formatting
