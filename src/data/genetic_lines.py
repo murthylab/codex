@@ -4,9 +4,9 @@ from src.data.brain_regions import REGIONS, REGION_CATEGORIES
 
 
 @lru_cache
-def load_genetic_lines(
-    tsv_filename="Jenett.2012.9.24.tsv",
-):  # TODO: store this somewhere sensible
+def load_genetic_lines(tsv_filename="Jenett.2012.9.24.tsv"):
+    # TODO: move data somewhere sensible
+    # sourced from https://flybase.org/reports/FBrf0219498.html
     lines = {}
     with open(tsv_filename) as file:
         reader = csv.DictReader(file, delimiter="\t")
