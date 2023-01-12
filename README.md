@@ -24,9 +24,13 @@ Navigate to [localhost:5000](http://localhost:5000)
 ### Manual UI testing (Required)
 run service locally and click around in all pages
 ### Unit tests & code coverage (Required)
+Note: If running for the first time, first run `pip install -r requirements_dev.txt`
+
 `python3 tests/run_unit_tests_with_coverage.py`
 ### Integration/perf tests (Optional, requires setup)
 `python3 -m pytest tests/integration`
+
+`python3 tests/run_unit_tests_with_coverage.py i` will run unit tests, integration tests, and coverage for both.
 
 
 ## Linting / code formatting
