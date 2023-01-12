@@ -1,14 +1,16 @@
 import csv
+from functools import lru_cache
 
-def load_genetic_lines(line=None):
-	lines = []
-	with open("Jenett.2012.9.24.tsv") as file: # TODO: move this file and cache it
-		tsv_file = csv.reader(file, delimiter="\t")
-		for row in tsv_file:
-			row[1] = row[1].split("_")[1]
-			if line is None or line in row[1]:
-				lines.append(row)
-	return lines
-
-
-
+@lru_cache
+def load_genetic_lines(tsv_filename="Jenett.2012.9.24.tsv"):
+    lines = {}
+    with open(tsv_filename) as file:
+        reader = csv.DictReader(file, delimiter="\t")
+        for row in reader:
+            line = row["Sample"].split("_")[1]  ## sample name to line name
+            line_data = lines.get(line, {})
+            neuropil = row["Compartment"]
+            line_data[neuropil] = { "intensity": row["Intensity"], \
+				"distribution": row["Distribution"] }
+            lines[line] = line_data
+    return lines

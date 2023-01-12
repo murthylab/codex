@@ -1011,6 +1011,7 @@ def synapse_density():
 @request_wrapper
 @require_data_access
 def genetic_lines():
+    lines =load_genetic_lines()
     selected = request.args.get("selected")
-    lines = load_genetic_lines(selected)
-    return render_template("genetic_lines.html", lines=lines, selected=selected)
+    expressions = lines.get(selected, {})
+    return render_template("genetic_lines.html", lines = lines, selected=selected, expressions=expressions)
