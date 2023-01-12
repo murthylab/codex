@@ -11,29 +11,34 @@
       <a
         href="https://flweb.janelia.org/cgi-bin/view_flew_imagery.cgi?line={{selected}}"
         target="_blank"
-        >View in Flyweb <i class="fa fa-external-link" aria-hidden="true"></i>
+        >View in FlyLight <i class="fa fa-external-link" aria-hidden="true"></i>
       </a>
     </p>
     {% for neuropil in expressions %}
-    <p>
-      Expresses in
-      {% if expressions[neuropil]['neuropils'] %}
-        <a href="/app/neuropils?selected={{','.join(expressions[neuropil]['neuropils'])}}">{{neuropil}}</a>
-      {% else %}
-        {{neuropil}}
-      {% endif %}
-      with
-      intensity={{expressions[neuropil]["intensity"]}} and
-      distribution={{expressions[neuropil]["distribution"]}}
-    </p>
+      <p>
+        Expresses in
+        {% if expressions[neuropil]['neuropils'] %}
+          <a href="/app/neuropils?selected={{','.join(expressions[neuropil]['neuropils'])}}">
+          {{neuropil}}
+          </a>
+        {% else %}
+          {{neuropil}}
+        {% endif %}
+        with
+        intensity={{expressions[neuropil]["intensity"]}} and
+        distribution={{expressions[neuropil]["distribution"]}}
+      </p>
     {% endfor %}
   {% else %}
     <h1>Genetic Lines</h1>
     <h6>GAL4-Driver Lines from <a href="https://doi.org/10.1016%2Fj.celrep.2012.09.011" target="_blank">(Jenett et al., 2012)<i class="fa fa-external-link" aria-hidden="true"></i></a></h6>
     <ul>
     {% for line in lines %}
-    <li><a href="/app/genetic_lines?selected={{line}}">{{line}}</a>
-    </li>
+      <li>
+        <a href="/app/genetic_lines?selected={{line}}">
+          {{line}}
+        </a>
+      </li>
     {% endfor %}
     </ul>
   {% endif %}
