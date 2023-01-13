@@ -555,12 +555,15 @@ def process_nblast_file(version):
         else:
             scores_dict[from_root_id] = similar_pairs
         if rows_scanned % 1000 == 0 or rows_scanned == len(df_data):
-            print(
-                f"Rows scanned: {rows_scanned}, score dict len: {len(scores_dict)}"
-            )
+            print(f"Rows scanned: {rows_scanned}, score dict len: {len(scores_dict)}")
 
     scores_table = ["root_id", "scores"]
-    scores_table.extend([[rid, ";".join([f"{p[0]}:{p[1]}" for p in score_pairs])] for rid, score_pairs in scores_dict.items()])
+    scores_table.extend(
+        [
+            [rid, ";".join([f"{p[0]}:{p[1]}" for p in score_pairs])]
+            for rid, score_pairs in scores_dict.items()
+        ]
+    )
     print(f"Sample rows: {scores_table[:5]}")
     nblast_fpath = compiled_data_file_path(version=version, filename="nblast.csv.gz")
     comp_backup_and_update_csv(fpath=nblast_fpath, content=scores_table)
