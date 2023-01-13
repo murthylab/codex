@@ -48,7 +48,7 @@ _CODEX_DATA_SCHEMA = {
     # multiple rows per id
     "nblast": [
         "root_id",
-        "scores",  # +++ split this TODO
+        "scores",
     ],
 }
 

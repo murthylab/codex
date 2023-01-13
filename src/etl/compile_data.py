@@ -533,36 +533,37 @@ def process_nblast_file(version):
     df_column_index = {i: int(c.split(",")[0]) for i, c in enumerate(columns[1:])}
     print(f"Reading {len(columns)} columns: {columns[:5]}...")
 
-    similarity_dict = {}
+    scores_dict = {}
     rows_scanned = 0
     for row in df_data.itertuples():
         rows_scanned += 1
         if rows_scanned == 1:
             continue
-        similar_list = []
+        similar_pairs = []
         for i, score in enumerate(row[2:]):
             if i == rows_scanned - 1:
                 assert score == 1.0
-            elif score > 0.3:
-                similar_list.append((df_column_index[i], score))
+            else:
+                assert 0 <= score < 1
+                if score >= 0.1:
+                    simple_score = int(str(score)[2])
+                    assert 1 <= simple_score <= 9
+                    similar_pairs.append([df_column_index[i], simple_score])
         from_root_id = int(row[1].split(",")[0])
-        similarity_dict[from_root_id] = similar_list
-        if rows_scanned % 1000 == 0:
+        if from_root_id in scores_dict:
+            print(f"Warning: more than one rows for {from_root_id}. Ignoring.")
+        else:
+            scores_dict[from_root_id] = similar_pairs
+        if rows_scanned % 1000 == 0 or rows_scanned == len(df_data):
             print(
-                f"Rows scanned: {rows_scanned}, similar pairs: {sum([len(vals) for vals in similarity_dict.values()])}"
+                f"Rows scanned: {rows_scanned}, score dict len: {len(scores_dict)}"
             )
-    print(
-        f"Rows scanned: {rows_scanned}, similar pairs: {sum([len(vals) for vals in similarity_dict.values()])}"
-    )
 
-    def flatten(sim_pairs):
-        return ";".join([f"{p[0]}:{str(p[1])[:5]}" for p in sim_pairs])
-
-    nblast_content = [[rid, flatten(sims)] for rid, sims in similarity_dict.items()]
-
-    print(f"Sample rows: {nblast_content[:2]}")
+    scores_table = ["root_id", "scores"]
+    scores_table.extend([[rid, ";".join([f"{p[0]}:{p[1]}" for p in score_pairs])] for rid, score_pairs in scores_dict.items()])
+    print(f"Sample rows: {scores_table[:5]}")
     nblast_fpath = compiled_data_file_path(version=version, filename="nblast.csv.gz")
-    comp_backup_and_update_csv(fpath=nblast_fpath, content=nblast_content)
+    comp_backup_and_update_csv(fpath=nblast_fpath, content=scores_table)
 
 
 def remove_columns(version, columns_to_remove, filename):
