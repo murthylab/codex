@@ -21,7 +21,8 @@ from src.configuration import MIN_SYN_COUNT, MIN_NBLAST_SCORE_SIMILARITY
 from src.utils.formatting import (
     compact_label,
     nanometer_to_flywire_coordinates,
-    truncate, make_web_safe,
+    truncate,
+    make_web_safe,
 )
 from src.utils.logging import log
 
@@ -169,7 +170,10 @@ class NeuronDB(object):
                 self.label_data[rid] = label_data_list
             label_dict = label_row_to_dict(r)
             label_data_list.append(label_dict)
-            if label_dict["label"] and label_dict["label"] not in self.neuron_data[rid]["label"]:
+            if (
+                label_dict["label"]
+                and label_dict["label"] not in self.neuron_data[rid]["label"]
+            ):
                 self.neuron_data[rid]["label"].append(label_dict["label"])
         log(
             f"App initialization labels loaded for {len(self.label_data)} root ids, "
@@ -276,13 +280,12 @@ class NeuronDB(object):
             self.neuron_data[from_rid]["nblast_scores"] = scores_dict
         for nd in self.neuron_data.values():
             if "nblast_scores" not in nd:
-                nd["nblast_scores"] = None
+                nd["nblast_scores"] = {}
         log(
             f"App initialization NBLAST scores loaded for all root ids. "
             f"Not found rids: {len(not_found_rids)}, "
             f"max list val: {max([0] + [len(nd['nblast_scores']) for nd in self.neuron_data.values() if nd['nblast_scores']])}, "
-            f"neruons with nblast score above threshold: {len([1 for nd in self.neuron_data.values() if nd['nblast_scores']])}"            
-            f"neruons for which nblast scores were provided (might be empty after thresholding): {len([1 for nd in self.neuron_data.values() if nd['nblast_scores'] is not None])}"
+            f"neruons with similar cells: {len([1 for nd in self.neuron_data.values() if nd['nblast_scores']])}"
         )
 
         log(f"App initialization augmenting..")
@@ -503,13 +506,21 @@ class NeuronDB(object):
         return truncate(lbl, 15)
 
     def get_similar_cells(
-        self, root_id, as_dict_with_scores=False, min_score=MIN_NBLAST_SCORE_SIMILARITY, top_k=99999
+        self,
+        root_id,
+        as_dict_with_scores=False,
+        min_score=MIN_NBLAST_SCORE_SIMILARITY,
+        top_k=99999,
     ):
-        scores = [
-            (rid, score)
-            for rid, score in self.get_neuron_data(root_id)["nblast_scores"].items()
-            if score >= min_score
-        ] if self.get_neuron_data(root_id)["nblast_scores"] else []
+        scores = (
+            [
+                (rid, score)
+                for rid, score in self.get_neuron_data(root_id)["nblast_scores"].items()
+                if score >= min_score
+            ]
+            if self.get_neuron_data(root_id)["nblast_scores"]
+            else []
+        )
         scores = sorted(scores, key=lambda p: -p[1])[:top_k]
         if as_dict_with_scores:
             return {p[0]: p[1] for p in scores}

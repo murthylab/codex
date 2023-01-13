@@ -20,28 +20,41 @@ class NeuronDataTest(TestCase):
     def test_content(self):
         loaded_db = load_neuron_db(data_root_path=TEST_DATA_ROOT_PATH)
         self.assertEqual(
-            sorted(['neuron_data', 'label_data', 'labels_file_timestamp', 'connection_rows', 'search_index']),
-            sorted(loaded_db.__dict__.keys()))
+            sorted(
+                [
+                    "neuron_data",
+                    "label_data",
+                    "labels_file_timestamp",
+                    "connection_rows",
+                    "search_index",
+                ]
+            ),
+            sorted(loaded_db.__dict__.keys()),
+        )
 
         expected_sizes = {
-            'neuron_db': 1294676288,
-            'connection_rows': 646403800,
-            'neuron_data': 470992368,
-            'search_index': 151385432,
-            'label_data': 49286928,
-            'labels_file_timestamp': 64
+            "connection_rows": 593720440,
+            "label_data": 48755760,
+            "labels_file_timestamp": 64,
+            "neuron_data": 356311568,
+            "neuron_db": 1093449336,
+            "search_index": 121301744,
         }
 
         actual_sizes = {
-            'neuron_db': asizeof.asizeof(loaded_db),
-            'connection_rows': asizeof.asizeof(loaded_db.connection_rows),
-            'neuron_data': asizeof.asizeof(loaded_db.neuron_data),
-            'search_index': asizeof.asizeof(loaded_db.search_index),
-            'label_data': asizeof.asizeof(loaded_db.label_data),
-            'labels_file_timestamp': asizeof.asizeof(loaded_db.labels_file_timestamp)
+            "neuron_db": asizeof.asizeof(loaded_db),
+            "connection_rows": asizeof.asizeof(loaded_db.connection_rows),
+            "neuron_data": asizeof.asizeof(loaded_db.neuron_data),
+            "search_index": asizeof.asizeof(loaded_db.search_index),
+            "label_data": asizeof.asizeof(loaded_db.label_data),
+            "labels_file_timestamp": asizeof.asizeof(loaded_db.labels_file_timestamp),
         }
 
-        self.assertEqual(expected_sizes, actual_sizes, "Unexpected DB size, makes sure it's not outdated. To update: rm -r static/data/* then run the service.")
+        self.assertEqual(
+            expected_sizes,
+            actual_sizes,
+            "Unexpected DB size, makes sure it's not outdated. To update: rm -r static/data/* then run the service.",
+        )
 
     def test_data_load_equals_pickled_db(self):
         def isnan(vl):

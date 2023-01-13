@@ -83,7 +83,9 @@ class NeuronDataTest(TestCase):
                     set_of_all_annotations |= set(v)
                 else:
                     set_of_all_annotations.add(v)
-        self.assertEqual(set([type(a) for a in set_of_all_annotations]), {str, int, float})
+        self.assertEqual(
+            set([type(a) for a in set_of_all_annotations]), {str, int, float}
+        )
 
         for anno in set_of_all_annotations:
             if type(anno) != str:

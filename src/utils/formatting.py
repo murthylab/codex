@@ -7,9 +7,10 @@ WHITE_SPACES = set(string.whitespace)
 # replaces all newline/return/tab chars with plain whitespace
 def make_web_safe(txt):
     def make_safe(c):
-        return c if c not in WHITE_SPACES else ' '
+        return c if c not in WHITE_SPACES else " "
+
     safe_chars = [make_safe(c) for c in txt]
-    return ''.join(safe_chars)
+    return "".join(safe_chars)
 
 
 def synapse_table_to_csv_string(table):
