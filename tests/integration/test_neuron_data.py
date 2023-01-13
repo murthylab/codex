@@ -6,7 +6,7 @@ from src.data.local_data_loader import (
 )
 from src.data.neuron_data import NEURON_DATA_ATTRIBUTES
 
-from src.data.versions import DATA_SNAPSHOT_VERSIONS
+from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSION
 from tests import TEST_DATA_ROOT_PATH, TEST_NEURON_DATA_FACTORY
 from collections import defaultdict
 
@@ -18,7 +18,9 @@ class NeuronDataTest(TestCase):
         self.exclude_keys = set([])
 
     def test_content(self):
-        loaded_db = unpickle_neuron_db(data_root_path=TEST_DATA_ROOT_PATH)
+        loaded_db = unpickle_neuron_db(
+            version=LATEST_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
+        )
         self.assertEqual(
             sorted(
                 [
@@ -33,28 +35,26 @@ class NeuronDataTest(TestCase):
         )
 
         expected_sizes = {
-            "connection_rows": "594M",
-            "label_data": "49M",
-            "labels_file_timestamp": "64B",
-            "neuron_data": "360M",
-            "neuron_db": "1G",
-            "search_index": "122M",
+            "connection_rows": "646 M",
+            "label_data": "50 M",
+            "labels_file_timestamp": "64 B",
+            "neuron_data": "365 M",
+            "search_index": "152 M",
         }
 
         def approx_size(ob):
             sz_bytes = asizeof.asizeof(ob)
             num_digs = len(str(sz_bytes))
             if num_digs > 9:
-                return f"{round(sz_bytes / 1000000000)}G"
+                return f"{round(sz_bytes / 1000000000)} G"
             elif num_digs > 6:
-                return f"{round(sz_bytes / 1000000)}M"
+                return f"{round(sz_bytes / 1000000)} M"
             elif num_digs > 3:
-                return f"{round(sz_bytes / 1000)}K"
+                return f"{round(sz_bytes / 1000)} K"
             else:
-                return f"{sz_bytes}B"
+                return f"{sz_bytes} B"
 
         actual_sizes = {
-            "neuron_db": approx_size(loaded_db),
             "connection_rows": approx_size(loaded_db.connection_rows),
             "neuron_data": approx_size(loaded_db.neuron_data),
             "search_index": approx_size(loaded_db.search_index),
