@@ -58,7 +58,7 @@ class NeuronDataTest(TestCase):
             "output_cells": 4000,
             "output_neuropils": 4000,
             "output_synapses": 4000,
-            "nblast_scores": 60000,
+            "similar_cell_scores": 60000,
             "nt_type": 10000,
             "nt_type_score": 10000,
             "ach_avg": 3500,
@@ -598,9 +598,9 @@ class NeuronDataTest(TestCase):
             size_nm = nd["size_nm"]
             if size_nm < 1097185208320:
                 continue
-            if len(nd["nblast_scores"]) > 50000:
+            if len(nd["similar_cell_scores"]) > 50000:
                 continue
-            for k, v in nd["nblast_scores"].items():
+            for k, v in nd["similar_cell_scores"].items():
                 if v > 0.6:
                     twin_side = self.neuron_db.neuron_data[k]["side"]
                     if twin_side != side:

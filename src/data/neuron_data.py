@@ -50,7 +50,7 @@ NEURON_DATA_ATTRIBUTES = {
     "input_neuropils": list,
     "input_synapses": int,
     "name": str,
-    "nblast_scores": dict,
+    "similar_cell_scores": dict,
     "nt_type": str,
     "nt_type_score": float,
     "oct_avg": float,
@@ -277,15 +277,15 @@ class NeuronDB(object):
                             scores_dict[to_rid] = score
                     else:
                         not_found_rids.add(to_rid)
-            self.neuron_data[from_rid]["nblast_scores"] = scores_dict
+            self.neuron_data[from_rid]["similar_cell_scores"] = scores_dict
         for nd in self.neuron_data.values():
-            if "nblast_scores" not in nd:
-                nd["nblast_scores"] = {}
+            if "similar_cell_scores" not in nd:
+                nd["similar_cell_scores"] = {}
         log(
             f"App initialization NBLAST scores loaded for all root ids. "
             f"Not found rids: {len(not_found_rids)}, "
-            f"max list val: {max([0] + [len(nd['nblast_scores']) for nd in self.neuron_data.values() if nd['nblast_scores']])}, "
-            f"neruons with similar cells: {len([1 for nd in self.neuron_data.values() if nd['nblast_scores']])}"
+            f"max list val: {max([0] + [len(nd['similar_cell_scores']) for nd in self.neuron_data.values() if nd['similar_cell_scores']])}, "
+            f"neruons with similar cells: {len([1 for nd in self.neuron_data.values() if nd['similar_cell_scores']])}"
         )
 
         log(f"App initialization augmenting..")
@@ -515,10 +515,12 @@ class NeuronDB(object):
         scores = (
             [
                 (rid, score)
-                for rid, score in self.get_neuron_data(root_id)["nblast_scores"].items()
+                for rid, score in self.get_neuron_data(root_id)[
+                    "similar_cell_scores"
+                ].items()
                 if score >= min_score
             ]
-            if self.get_neuron_data(root_id)["nblast_scores"]
+            if self.get_neuron_data(root_id)["similar_cell_scores"]
             else []
         )
         scores = sorted(scores, key=lambda p: -p[1])[:top_k]
