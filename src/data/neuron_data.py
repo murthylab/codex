@@ -451,7 +451,7 @@ class NeuronDB(object):
                 return name
 
         def _sorted_counts(d):
-            lst_all = sorted([(k, v) for k, v in d.items()], key=lambda p: -p[1])
+            lst_all = sorted([(k, v) for k, v in d.items() if k], key=lambda p: -p[1])
             return lst_all[:CATEGORY_LIMIT]
 
         return [
@@ -486,6 +486,15 @@ class NeuronDB(object):
                 "counts": _sorted_counts(groups),
             },
         ]
+
+    # Returns value ranges for all attributes with not too many different values. Used for advanced search dropdowns.
+    @lru_cache
+    def dynamic_ranges(self):
+        res = {}
+        for dct in self.categories():
+            if len(dct["counts"]) < 20:
+                res[f"data_{dct['key']}_range"] = [p[0] for p in dct["counts"]]
+        return res
 
     def is_in_dataset(self, root_id):
         root_id = int(root_id)

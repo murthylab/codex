@@ -75,7 +75,14 @@ def stats():
     whole_word = request.args.get("whole_word", 0, type=int)
 
     log_activity(f"Generating stats {activity_suffix(filter_string, data_version)}")
-    filtered_root_id_list, num_items, hint, data_stats, data_charts = stats_cached(
+    (
+        filtered_root_id_list,
+        num_items,
+        hint,
+        data_stats,
+        data_charts,
+        dynamic_ranges,
+    ) = stats_cached(
         filter_string=filter_string,
         data_version=data_version,
         case_sensitive=case_sensitive,
@@ -107,7 +114,9 @@ def stats():
         data_version=data_version,
         case_sensitive=case_sensitive,
         whole_word=whole_word,
-        advanced_search_data=get_advanced_search_data(current_query=filter_string),
+        advanced_search_data=get_advanced_search_data(
+            current_query=filter_string, dynamic_ranges=dynamic_ranges
+        ),
     )
 
 
@@ -222,7 +231,9 @@ def render_neuron_list(
         extra_data=extra_data,
         sort_by=sort_by,
         sort_by_options=SORT_BY_OPTIONS,
-        advanced_search_data=get_advanced_search_data(current_query=filter_string),
+        advanced_search_data=get_advanced_search_data(
+            current_query=filter_string, dynamic_ranges=neuron_db.dynamic_ranges()
+        ),
         multi_val_attrs=neuron_db.multi_val_attrs(filtered_root_id_list),
         non_uniform_labels=neuron_db.non_uniform_labels(
             page_ids=display_data_ids, all_ids=filtered_root_id_list

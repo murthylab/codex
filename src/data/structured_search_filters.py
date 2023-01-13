@@ -28,7 +28,7 @@ class SearchAttribute(object):
         self.value_convertor = value_convertor
         self.list_convertor = list_convertor
         self.description = description
-        self.value_range = sorted(value_range) if value_range is not None else None
+        self.value_range = value_range
 
 
 STRUCTURED_SEARCH_ATTRIBUTES = [
@@ -46,7 +46,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=lambda x: lookup_nt_type(x),
         list_convertor=lambda x: tokenize(x),
         description="Neuro-transmitter type",
-        value_range=NEURO_TRANSMITTER_NAMES,
+        value_range=sorted(NEURO_TRANSMITTER_NAMES),
     ),
     SearchAttribute(
         name="nerve",
@@ -54,7 +54,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Nerve type",
-        value_range=None,
+        value_range="data_nerve_range",
     ),
     SearchAttribute(
         name="side",
@@ -62,7 +62,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Neuron side / hemisphere",
-        value_range=None,
+        value_range="data_side_range",
     ),
     SearchAttribute(
         name="flow",
@@ -70,7 +70,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Flow classification",
-        value_range=None,
+        value_range="data_flow_range",
     ),
     SearchAttribute(
         name="input_neuropil",
@@ -78,7 +78,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=lambda x: match_to_neuropil(x),
         list_convertor=lambda x: _match_list_of_neuropils(x),
         description="Brain region / neuropil with upstream synaptic connections.",
-        value_range=REGIONS.keys(),
+        value_range=sorted(REGIONS.keys()),
     ),
     SearchAttribute(
         name="output_neuropil",
@@ -86,7 +86,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=lambda x: match_to_neuropil(x),
         list_convertor=lambda x: _match_list_of_neuropils(x),
         description="Brain region / neuropil with downstream synaptic connections.",
-        value_range=REGIONS.keys(),
+        value_range=sorted(REGIONS.keys()),
     ),
     SearchAttribute(
         name="input_hemisphere",
@@ -94,7 +94,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Brain hemisphere / side with upstream synaptic connections.",
-        value_range=HEMISPHERES,
+        value_range=sorted(HEMISPHERES),
     ),
     SearchAttribute(
         name="output_hemisphere",
@@ -104,7 +104,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Brain hemisphere / side with downstream synaptic connections.",
-        value_range=HEMISPHERES,
+        value_range=sorted(HEMISPHERES),
     ),
     SearchAttribute(
         name="class",
@@ -112,7 +112,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Cell typing attribute. Indicates function or other property of the cell. Each cell can belong to zero or more classes.",
-        value_range=None,
+        value_range="data_class_range",
     ),
     SearchAttribute(
         name="group",
@@ -689,7 +689,7 @@ def parse_search_query(search_query):
     return chaining_rule, free_form, structured
 
 
-def get_advanced_search_data(current_query):
+def get_advanced_search_data(current_query, dynamic_ranges):
     def clean(dct):
         clean_dict = {}
         for k, v in dct.items():
@@ -699,6 +699,17 @@ def get_advanced_search_data(current_query):
                 clean_dict[k] = v
         return clean_dict
 
+    def assign_dynamic_ranges(dct):
+        # check if range should be pulled from data
+        if "value_range" in dct and isinstance(dct["value_range"], str):
+            # if range was provided, assign it (it should be a list)
+            if dct["value_range"] in dynamic_ranges:
+                dct["value_range"] = sorted(dynamic_ranges[dct["value_range"]])
+            # else remove range entry from the dict
+            else:
+                dct["value_range"] = None
+        return dct
+
     current_query = parse_search_query(current_query)
     res = {
         "operators": {
@@ -707,7 +718,8 @@ def get_advanced_search_data(current_query):
             + STRUCTURED_SEARCH_UNARY_OPERATORS
         },
         "attributes": {
-            sa.name: clean(sa.__dict__) for sa in STRUCTURED_SEARCH_ATTRIBUTES
+            sa.name: assign_dynamic_ranges(clean(sa.__dict__))
+            for sa in STRUCTURED_SEARCH_ATTRIBUTES
         },
         "current_query": {"chaining": current_query[0], "terms": current_query[2]},
     }

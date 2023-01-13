@@ -53,6 +53,7 @@ def stats_cached(filter_string, data_version, case_sensitive, whole_word):
         hint,
         data_stats,
         data_charts,
+        neuron_db.dynamic_ranges(),
     )
 
 
