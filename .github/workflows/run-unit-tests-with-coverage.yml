@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - main
+    - kai-actions-improvements
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -44,7 +45,7 @@ jobs:
           minColorRange: 0
           maxColorRange: 1
       - name: Verify action status
-        if: ${{ env.TESTS_VALUE }} != 1
+        if: ${{ env.TESTS_VALUE }} != 0
         uses: actions/github-script@v3
         with:
           script: |
