@@ -13,30 +13,29 @@
             <ul>
                 {% for category in REGIONS_JSON[hemisphere] %}
                     <li>
-                        <a href="/app/neuropils?selected={{ category['regions'] | map(attribute='id') | list | join(',') }}">
+                        <a href={{ url_for('app.neuropils', selected=category['regions'] | map(attribute='id') | list | join(',')) }}>
                             {{ category["name"] | title }}
                         </a>
                     </li>
                     <ul>
                         {% for region in category["regions"] %}
                             <li><small>
-
-                            
-                            {% if region["id"] in selected.split(',') and not landing %}
-                                <a title="Remove from current view" href="/app/neuropils?selected={{selected.replace(region['id'], '')}}">
-                                    <i class="fa-solid fa-circle-minus"></i>
-                                </a>
-                            {%  elif not landing %} 
-                                <a title="Add to current view" href="/app/neuropils?selected={{selected}},{{ region["id"] }}">
-                                    <i class="fa-solid fa-circle-plus"></i>
-                                </a>
-                            {% endif %}
+                                {% if region["id"] in selected.split(',') and not landing %}
+                                    <a title="Remove from current view"
+                                       href={{ url_for('app.neuropils', selected=selected.replace(region['id'],'')) }}>
+                                        <i class="fa-solid fa-circle-minus"></i>
+                                    </a>
+                                {% elif not landing %}
+                                    <a title="Add to current view"
+                                       href={{ url_for('app.neuropils', selected=selected + ',' + region['id']) }}>
+                                        <i class="fa-solid fa-circle-plus"></i>
+                                    </a>
+                                {% endif %}
                                 <a {% if not landing and selected and region['id'] in selected.split(',') %}
                                     style="padding:1px; border-radius:5px; background-color:#C5FCB8"
                                 {% endif %}
-                                    href="/app/neuropils?selected={{ region["id"] }}"
+                                    href={{ url_for('app.neuropils', selected=region['id']) }}>
 
-                                >
                                     {{ region['id'] }} - {{ region["description"] }}
                                 </a>
                             </small></li>
@@ -70,7 +69,8 @@
                         <iframe style="height: 100%"
                                 id="neuroglancer" title="neuroglancer"
                                 loading="lazy"
-                                src="/app/flywire_neuropil_url?selected={{ selected }}"></iframe>
+                                src={{ url_for('app.flywire_neuropil_url', selected=selected) }}>
+                        </iframe>
 
                         <div class="d-inline-flex justify-content-center">
                             <h6 style="color: green;">{{ caption | title }}</h6>
@@ -78,20 +78,20 @@
                         {% if not landing %}
                             <div class="d-inline-flex justify-content-center">
                                 <a class="btn-sm btn-outline-primary m-1"
-                                   href="/app/search?filter_string=output_neuropil+%7Bin%7D+{{ selected }}">
+                                   href={{ url_for('app.search', filter_string='output_neuropil in ' + selected) }}>
                                     <i class="fa-solid fa-list"></i> Neurons with outputs in {{ this_or_these }}
                                 </a>
                                 <a class="btn-sm btn-outline-primary m-1"
-                                   href="/app/search?filter_string=input_neuropil+%7Bin%7D+{{ selected }}">
+                                   href={{ url_for('app.search', filter_string='input_neuropil in ' + selected) }}>
                                     <i class="fa-solid fa-list"></i> Neurons with inputs in {{ this_or_these }}
                                 </a>
                                 <a class="btn-sm btn-outline-primary m-1"
-                                   href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{ selected }}">
+                                   href={{ url_for('app.stats', filter_string='input_neuropil in ' + selected) }}>
                                     <i class="fa-solid fa-chart-pie"></i> Stats for neurons with outputs
                                     in {{ this_or_these }}
                                 </a>
                                 <a class="btn-sm btn-outline-primary m-1"
-                                   href="/app/stats?filter_string=input_neuropil+%7Bin%7D+{{ selected }}">
+                                   href={{ url_for('app.stats', filter_string='input_neuropil in ' + selected) }}>
                                     <i class="fa-solid fa-chart-pie"></i> Stats for neurons with inputs
                                     in {{ this_or_these }}
                                 </a>

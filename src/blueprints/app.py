@@ -33,11 +33,16 @@ from src.data.structured_search_filters import (
     parse_search_query,
 )
 from src.data.sorting import sort_search_results, SORT_BY_OPTIONS
+<<<<<<< HEAD
 from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
 )
 from src.data.genetic_lines import load_genetic_lines
+=======
+from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
+from src.data.genetic_lines import LINES
+>>>>>>> 6dc0ec2 (reactor, use url_for)
 from src.service.cell_details import cached_cell_details
 from src.service.network import compile_network_html
 from src.service.search import pagination_data, DEFAULT_PAGE_SIZE
@@ -1007,9 +1012,8 @@ def synapse_density():
 @request_wrapper
 @require_data_access
 def genetic_lines():
-    lines = load_genetic_lines()
     selected = request.args.get("selected")
-    expressions = lines.get(selected, {})
+    expressions = LINES.get(selected, {})
     return render_template(
-        "genetic_lines.html", lines=lines, selected=selected, expressions=expressions
+        "genetic_lines.html", lines=LINES, selected=selected, expressions=expressions
     )
