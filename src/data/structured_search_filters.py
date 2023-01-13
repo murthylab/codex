@@ -148,6 +148,7 @@ OP_EQUAL = "{equal}"
 OP_NOT_EQUAL = "{not_equal}"
 OP_STARTS_WITH = "{starts_with}"
 OP_CONTAINS = "{contains}"
+OP_NOT_CONTAINS = "{not_contains}"
 OP_IN = "{in}"
 OP_NOT_IN = "{not_in}"
 OP_HAS = "{has}"
@@ -256,6 +257,15 @@ STRUCTURED_SEARCH_OPERATORS = [
         name=OP_CONTAINS,
         shorthand=">>",
         description="Binary, LHS attribute of the cell contains RHS value (e.g., label {contains} dsx)",
+        lhs_description="Attribute",
+        lhs_range=SEARCH_ATTRIBUTE_NAMES,
+        rhs_description="Substring",
+        rhs_range=None,
+    ),
+    BinarySearchOperator(
+        name=OP_NOT_CONTAINS,
+        shorthand="!>",
+        description="Binary, LHS attribute of the cell does not contain RHS value (e.g., label {not_contains} dsx)",
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Substring",
@@ -483,6 +493,14 @@ def _make_predicate(
             lhs=lhs,
             rhs=rhs,
             op=OP_EQUAL,
+            case_sensitive=case_sensitive,
+        )
+        return lambda x: not eq_p(x)
+    elif op == OP_NOT_CONTAINS:
+        eq_p = _make_comparison_predicate(
+            lhs=lhs,
+            rhs=rhs,
+            op=OP_CONTAINS,
             case_sensitive=case_sensitive,
         )
         return lambda x: not eq_p(x)

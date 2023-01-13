@@ -289,6 +289,33 @@ class NeuronDataTest(TestCase):
             len(self.neuron_db.search("input_neuropil {in} medulla")), 10000
         )
 
+    def test_contains_queries(self):
+        self.assertGreater(len(self.neuron_db.search("label {contains} dsx")), 100)
+        self.assertEqual(
+            len(
+                self.neuron_db.search(
+                    "label {contains} dsx && label {not_contains} dsx"
+                )
+            ),
+            0,
+        )
+        self.assertGreater(
+            len(
+                self.neuron_db.search(
+                    "label {contains} dsx && label {not_contains} fru"
+                )
+            ),
+            80,
+        )
+        self.assertLess(
+            len(
+                self.neuron_db.search(
+                    "label {contains} dsx && label {not_contains} dsx"
+                )
+            ),
+            100,
+        )
+
     def test_not_connected_cells(self):
         connected_cells = set(self.neuron_db.input_sets().keys()).union(
             set(self.neuron_db.output_sets().keys())
