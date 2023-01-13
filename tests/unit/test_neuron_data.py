@@ -11,7 +11,7 @@ from src.data.local_data_loader import (
     read_csv,
 )
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSION
-from src.utils.formatting import compact_label
+from src.utils.formatting import compact_label, make_web_safe
 from src.utils.graph_algos import neighbors
 from tests import TEST_DATA_ROOT_PATH
 
@@ -71,6 +71,24 @@ class NeuronDataTest(TestCase):
 
         for k in NEURON_DATA_ATTRIBUTES.keys():
             check_num_values_missing(k, expected_missing_value_bounds.get(k, 0))
+
+    def test_annotations_web_safe(self):
+        set_of_all_annotations = set()
+        for nd in self.neuron_db.neuron_data.values():
+            for v in nd.values():
+                if isinstance(v, dict):
+                    set_of_all_annotations |= set(v.keys())
+                    set_of_all_annotations |= set(v.values())
+                elif isinstance(v, list) or isinstance(v, set):
+                    set_of_all_annotations |= set(v)
+                else:
+                    set_of_all_annotations.add(v)
+        self.assertEqual(set([type(a) for a in set_of_all_annotations]), {str, int, float})
+
+        for anno in set_of_all_annotations:
+            if type(anno) != str:
+                continue
+            self.assertEqual(anno, make_web_safe(anno))
 
     def test_annotations(self):
         neurons_with_labels = [
