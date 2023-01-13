@@ -16,6 +16,10 @@ def jennet_compartment_to_neuropils(compartment):
     if compartment == "OL":
         return REGION_CATEGORIES["optic lobe"]
 
+    if compartment == "SEG":
+        # "subesophageal ganglion" -> “gnathal ganglia”
+        return ["GNG"]
+
     return []
 
 @lru_cache
