@@ -11,7 +11,7 @@
         dropdownBase.querySelector("button").innerText = elem.childNodes[0].textContent.trim();
     }
 
-    function populateDropdown(dropdownElem, values, isAttributes, shouldUpdateRHS = false) {
+    function populateDropdown(dropdownElem, values, isAttributes, shouldUpdateRHS = false, rhsForceText = false) {
         const menuElem = dropdownElem.querySelector(".dropdown > .dropdown-menu");
         menuElem.replaceChildren();
         const searchTermElem = dropdownElem.parentElement;
@@ -28,7 +28,7 @@
                 node.appendChild(description);
                 if (shouldUpdateRHS) {
                     node.addEventListener("click", () => {
-                        updateRHS(v[1]["value_range"], searchTermElem);
+                        updateRHS(rhsForceText ? null : v[1]["value_range"], searchTermElem);
                     });
                 }
             }
@@ -97,11 +97,13 @@
                 lhsDropdownElem.removeAttribute("hidden");
                 lhsDropdownElem.querySelector(".search-label").innerText = operator["lhs_description"];
                 if (operator["lhs_range"] === "attributes") {
-                    populateDropdown(lhsDropdownElem, Object.entries(attributes), true, shouldUpdateRHS = true);
+                    populateDropdown(lhsDropdownElem, Object.entries(attributes), true, shouldUpdateRHS = true, rhsForceText = operator["rhs_force_text"]);
+                    
                 }
                 else {
                     populateDropdown(lhsDropdownElem, operator["lhs_range"], false);
-                    updateRHS(operator["rhs_range"], searchTermElem);
+                    const range = operator["rhs_force_text"] ? null : operator["rhs_range"];
+                    updateRHS(range, searchTermElem);
                 }
             }
             else {
@@ -358,6 +360,19 @@
                 <div class="search-terms">
                     <div class="search-term-template" hidden>
                         <div class="search-term-grid">
+                            <div class="search-component search-operator">
+                                <div class="search-label">Operator</div>
+                                <div class="dropdown">
+                                    <button type="button" id="operatorDropdownButton" class="btn btn-light dropdown-toggle"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="operatorDropdownButton">
+                                        {% for (k, v) in advanced_search_data.operators.items() %}
+                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); chooseOperator(this);" value="{{k}}">{{k}}
+                                            <div class="dropdown-description">{{v["description"]}}</div></a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
                             <div class="search-component search-input-lhs" hidden>
                                 <div class="search-label"></div>
                                 <input class="form-control" type="text">
@@ -372,19 +387,6 @@
                                 </div>
                             </div>
                             <div class="search-unary-placeholder" hidden></div>
-                            <div class="search-component search-operator">
-                                <div class="search-label">Operator</div>
-                                <div class="dropdown">
-                                    <button type="button" id="operatorDropdownButton" class="btn btn-light dropdown-toggle"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="operatorDropdownButton">
-                                        {% for (k, v) in advanced_search_data.operators.items() %}
-                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); chooseOperator(this);" value="{{k}}">{{k}}
-                                            <div class="dropdown-description">{{v["description"]}}</div></a>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
                             <div class="search-component search-input-rhs" hidden>
                                 <div class="search-label"></div>
                                 <input class="form-control" type="text">

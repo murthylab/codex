@@ -190,6 +190,7 @@ class BinarySearchOperator(SearchOperator):
         lhs_range,
         rhs_description,
         rhs_range,
+        rhs_force_text=None,
     ):
         super().__init__(
             name=name,
@@ -201,6 +202,7 @@ class BinarySearchOperator(SearchOperator):
         self.lhs_range = lhs_range
         self.rhs_description = rhs_description
         self.rhs_range = rhs_range
+        self.rhs_force_text = rhs_force_text
 
 
 class UnarySearchOperator(SearchOperator):
@@ -252,6 +254,7 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Prefix",
         rhs_range=None,
+        rhs_force_text="true",
     ),
     BinarySearchOperator(
         name=OP_CONTAINS,
@@ -261,6 +264,7 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Substring",
         rhs_range=None,
+        rhs_force_text="true",
     ),
     BinarySearchOperator(
         name=OP_NOT_CONTAINS,
@@ -270,6 +274,7 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Substring",
         rhs_range=None,
+        rhs_force_text="true",
     ),
     BinarySearchOperator(
         name=OP_IN,
