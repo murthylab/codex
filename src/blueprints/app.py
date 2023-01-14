@@ -37,6 +37,7 @@ from src.data.sorting import sort_search_results, SORT_BY_OPTIONS
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.service.cell_details import cached_cell_details
 from src.service.network import compile_network_html
+from src.service.search import pagination_data
 from src.service.stats import stats_cached, leaderboard_cached
 from src.service.synapse import synapse_density_cached
 from src.utils import nglui
@@ -156,44 +157,11 @@ def render_neuron_list(
     extra_data,
 ):
     neuron_db = NeuronDataFactory.instance().get(data_version)
-    num_items = len(filtered_root_id_list)
+    pagination_info, page_ids, page_size_options = pagination_data(
+        items_list=filtered_root_id_list, page_number=page_number
+    )
 
-    if num_items > 20:
-        num_pages = math.ceil(num_items / 20)
-        page_number = max(page_number, 1)
-        page_number = min(page_number, num_pages)
-        pagination_info = [
-            {
-                "label": "Prev",
-                "number": page_number - 1,
-                "status": ("disabled" if page_number == 1 else ""),
-            }
-        ]
-        for i in [-3, -2, -1, 0, 1, 2, 3]:
-            page_idx = page_number + i
-            if 1 <= page_idx <= num_pages:
-                pagination_info.append(
-                    {
-                        "label": page_idx,
-                        "number": page_idx,
-                        "status": ("active" if page_number == page_idx else ""),
-                    }
-                )
-        pagination_info.append(
-            {
-                "label": "Next",
-                "number": page_number + 1,
-                "status": ("disabled" if page_number == num_pages else ""),
-            }
-        )
-        display_data_ids = filtered_root_id_list[
-            (page_number - 1) * 20 : page_number * 20
-        ]
-    else:
-        pagination_info = []
-        display_data_ids = filtered_root_id_list
-
-    display_data = [neuron_db.get_neuron_data(i) for i in display_data_ids]
+    display_data = [neuron_db.get_neuron_data(i) for i in page_ids]
     skeleton_thumbnail_urls = {
         nd["root_id"]: url_for_skeleton(nd["root_id"], data_version=data_version)
         for nd in display_data
@@ -219,7 +187,7 @@ def render_neuron_list(
         root_ids_str=",".join([str(ddi) for ddi in filtered_root_id_list])
         if len(filtered_root_id_list) <= MAX_NEURONS_FOR_DOWNLOAD
         else [],
-        num_items=num_items,
+        num_items=len(filtered_root_id_list),
         searched_for_root_id=can_be_flywire_root_id(filter_string),
         pagination_info=pagination_info,
         filter_string=filter_string,
@@ -236,7 +204,7 @@ def render_neuron_list(
         ),
         multi_val_attrs=neuron_db.multi_val_attrs(filtered_root_id_list),
         non_uniform_labels=neuron_db.non_uniform_labels(
-            page_ids=display_data_ids, all_ids=filtered_root_id_list
+            page_ids=page_ids, all_ids=filtered_root_id_list
         ),
     )
 
