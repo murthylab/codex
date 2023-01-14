@@ -36,6 +36,18 @@
                     </select>
                 </div>
                 {% endif %}
+                {% if page_size_options %}
+                <div class="form-group">
+                    <label style="margin: 20px;">Page size</label>
+                    <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                            aria-label="Number of results per page" name="page_size">
+                        {% for v in page_size_options %}
+                        <option value="{{v}}" {{'selected' if page_size==v}}>{{v}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
                 <div class="form-group">
                     <label style="margin: 20px;">Data version</label>
                     <select style="margin: 20px;" class="form-select form-select-lg mb-3"

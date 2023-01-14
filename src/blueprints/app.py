@@ -37,7 +37,7 @@ from src.data.sorting import sort_search_results, SORT_BY_OPTIONS
 from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
 from src.service.cell_details import cached_cell_details
 from src.service.network import compile_network_html
-from src.service.search import pagination_data
+from src.service.search import pagination_data, DEFAULT_PAGE_SIZE
 from src.service.stats import stats_cached, leaderboard_cached
 from src.service.synapse import synapse_density_cached
 from src.utils import nglui
@@ -152,13 +152,14 @@ def render_neuron_list(
     case_sensitive,
     whole_word,
     page_number,
+    page_size,
     sort_by,
     hint,
     extra_data,
 ):
     neuron_db = NeuronDataFactory.instance().get(data_version)
-    pagination_info, page_ids, page_size_options = pagination_data(
-        items_list=filtered_root_id_list, page_number=page_number
+    pagination_info, page_ids, page_size, page_size_options = pagination_data(
+        items_list=filtered_root_id_list, page_number=page_number, page_size=page_size
     )
 
     display_data = [neuron_db.get_neuron_data(i) for i in page_ids]
@@ -190,6 +191,8 @@ def render_neuron_list(
         num_items=len(filtered_root_id_list),
         searched_for_root_id=can_be_flywire_root_id(filter_string),
         pagination_info=pagination_info,
+        page_size=page_size,
+        page_size_options=page_size_options,
         filter_string=filter_string,
         hint=hint,
         data_versions=NeuronDataFactory.instance().available_versions(),
@@ -215,6 +218,7 @@ def render_neuron_list(
 def search():
     filter_string = request.args.get("filter_string", "")
     page_number = int(request.args.get("page_number", 1))
+    page_size = int(request.args.get("page_size", DEFAULT_PAGE_SIZE))
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
@@ -265,6 +269,7 @@ def search():
         case_sensitive=case_sensitive,
         whole_word=whole_word,
         page_number=page_number,
+        page_size=page_size,
         sort_by=sort_by,
         hint=hint,
         extra_data=extra_data,

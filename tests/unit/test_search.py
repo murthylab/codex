@@ -1,22 +1,17 @@
 from unittest import TestCase
 
-from src.service.search import page_size_options, pagination_data
+from src.service.search import pagination_data
 
 
 class TestSearch(TestCase):
-    def test_page_size_options(self):
-        self.assertEqual([20], page_size_options(0))
-        self.assertEqual([20], page_size_options(1))
-        self.assertEqual([20], page_size_options(20))
-        self.assertEqual([20, 50], page_size_options(21))
-        self.assertEqual([20, 50], page_size_options(50))
-        self.assertEqual([20, 50, 100], page_size_options(51))
-        self.assertEqual([20, 50, 100], page_size_options(5001))
-
     def test_pagination_data(self):
         self.assertEqual(
-            ([], [1, 2, 3], [20]),
+            ([], [1, 2, 3], 20, [20, 50, 100]),
             pagination_data(items_list=[1, 2, 3], page_number=1, page_size=20),
+        )
+        self.assertEqual(
+            ([], [1, 2, 3], 20, [20, 50, 100]),
+            pagination_data(items_list=[1, 2, 3], page_number=1, page_size=-5),
         )
         self.assertEqual(
             (
@@ -28,6 +23,7 @@ class TestSearch(TestCase):
                     {"label": 5, "number": 5, "status": ""},
                 ],
                 range(20),
+                20,
                 [20, 50, 100],
             ),
             pagination_data(items_list=range(100), page_number=1, page_size=20),
@@ -42,6 +38,7 @@ class TestSearch(TestCase):
                     {"label": 5, "number": 5, "status": ""},
                 ],
                 range(20, 40),
+                20,
                 [20, 50, 100],
             ),
             pagination_data(items_list=range(100), page_number=2, page_size=20),
@@ -60,6 +57,7 @@ class TestSearch(TestCase):
                     {"label": ".. 50", "number": 50, "status": ""},
                 ],
                 range(380, 400),
+                20,
                 [20, 50, 100],
             ),
             pagination_data(items_list=range(1000), page_number=20, page_size=20),
@@ -78,6 +76,7 @@ class TestSearch(TestCase):
                     {"label": 20, "number": 20, "status": ""},
                 ],
                 range(750, 800),
+                50,
                 [20, 50, 100],
             ),
             pagination_data(items_list=range(1000), page_number=16, page_size=50),

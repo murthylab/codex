@@ -9,16 +9,9 @@ PAGE_SIZE_OPTIONS = [
 PAGE_LINKS_RANGE = [-3, -2, -1, 0, 1, 2, 3]
 
 
-def page_size_options(num_items):
-    res = []
-    for s in PAGE_SIZE_OPTIONS:
-        res.append(s)
-        if s >= num_items:
-            break
-    return res
-
-
-def pagination_data(items_list, page_number, page_size=DEFAULT_PAGE_SIZE):
+def pagination_data(items_list, page_number, page_size):
+    if page_size not in PAGE_SIZE_OPTIONS:
+        page_size = DEFAULT_PAGE_SIZE
     if len(items_list) > page_size:
         num_pages = math.ceil(len(items_list) / page_size)
         page_number = max(page_number, 1)
@@ -58,4 +51,4 @@ def pagination_data(items_list, page_number, page_size=DEFAULT_PAGE_SIZE):
         pagination_info = []
         page_items = items_list
 
-    return pagination_info, page_items, page_size_options(len(items_list))
+    return pagination_info, page_items, page_size, list(PAGE_SIZE_OPTIONS)
