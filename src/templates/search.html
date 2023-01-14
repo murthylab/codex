@@ -207,7 +207,12 @@
            href="{{url_for('app.search', page_number=page_info.number, page_size=page_size, filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, sort_by=sort_by, data_version=data_version)}}">{{page_info.label}}</a>
     </li>
     {% endfor %}
+    <li>
+        <button type="button" class="btn btn-outline-primary" style="margin-left: 15px;" title="Settings"
+            data-toggle="modal" data-target="#filterModal"><i class="fa-solid fa-sliders"></i></button>
+    </li>
 </ul>
+
 {% endif %}
 
 {% endblock content %}
