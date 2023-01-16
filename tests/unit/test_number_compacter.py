@@ -14,6 +14,7 @@ TEST_CASES = {
 }
 TEST_CASES.update({-k: f"-{v}" for k, v in TEST_CASES.items() if k})
 
+
 class CompacterTest(TestCase):
     def test_number_to_compact_repr(self):
         for k, v in TEST_CASES.items():

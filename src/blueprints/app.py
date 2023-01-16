@@ -242,6 +242,7 @@ def search():
             ids=filtered_root_id_list,
             output_sets=neuron_db.output_sets(),
             label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["label"]),
+            nt_type_getter=lambda x: neuron_db.get_neuron_data(x)["nt_type"],
             synapse_neuropil_count_getter=lambda x: len(
                 neuron_db.get_neuron_data(x)["input_neuropils"]
             )

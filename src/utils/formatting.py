@@ -6,6 +6,8 @@ from src.utils.parsing import tokenize, tokenize_and_fold_for_highlight
 # This enables passing strings safely back and forth to jinja templates without urlencoding them.
 WEB_SAFE_MAP = {c: " " for c in set(string.whitespace)}  # Whitespaces
 WEB_SAFE_MAP.update({c: "`" for c in ['"', "'"]})  # String delimiters
+
+
 def make_web_safe(txt):
     return "".join([WEB_SAFE_MAP.get(c, c) for c in txt])
 

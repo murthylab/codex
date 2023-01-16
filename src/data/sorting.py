@@ -35,6 +35,7 @@ SORT_BY_OPTIONS = {
     "-labels": "# Labels (high -> low)",
     "labels": "# Labels (low -> high)",
     "twin_cells": "# Twin cells (high -> low)",
+    "nt_type": "Neurotransmitter Type",
 }
 
 
@@ -67,6 +68,7 @@ def sort_search_results(
     ids,
     output_sets,
     label_count_getter,
+    nt_type_getter,
     synapse_neuropil_count_getter,
     size_getter,
     partner_count_getter,
@@ -98,6 +100,9 @@ def sort_search_results(
                     "values_dict": dct,
                 }
                 return ids, extra_data
+            if sort_by == "nt_type":
+                ids = sorted(ids, key=lambda x: nt_type_getter(x))
+                return ids, None
             if sort_by in ["synapse_neuropils", "-synapse_neuropils"]:
                 dct = {rid: synapse_neuropil_count_getter(rid) for rid in ids}
                 extra_data = {

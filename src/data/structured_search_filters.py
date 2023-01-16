@@ -655,7 +655,9 @@ def _parse_search_terms(terms):
 
 def _parse_chained_search_query(search_query):
     if search_query and not (
-        search_query.startswith('"') and search_query.endswith('"') and len(search_query) > 1
+        search_query.startswith('"')
+        and search_query.endswith('"')
+        and len(search_query) > 1
     ):
         search_operators = _extract_search_operators(
             search_query, STRUCTURED_SEARCH_NARY_OPERATORS
