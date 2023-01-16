@@ -2,15 +2,12 @@ import string
 from src.utils.parsing import tokenize, tokenize_and_fold_for_highlight
 
 
-WHITE_SPACES = set(string.whitespace)
-
-# replaces all newline/return/tab chars with plain whitespace
+# Replaces all newline/return/tab chars with plain whitespace, and string delimiters with back quotes.
+# This enables passing strings safely back and forth to jinja templates without urlencoding them.
+WEB_SAFE_MAP = {c: " " for c in set(string.whitespace)}  # Whitespaces
+WEB_SAFE_MAP.update({c: "`" for c in ['"', "'"]})  # String delimiters
 def make_web_safe(txt):
-    def make_safe(c):
-        return c if c not in WHITE_SPACES else " "
-
-    safe_chars = [make_safe(c) for c in txt]
-    return "".join(safe_chars)
+    return "".join([WEB_SAFE_MAP.get(c, c) for c in txt])
 
 
 def synapse_table_to_csv_string(table):
