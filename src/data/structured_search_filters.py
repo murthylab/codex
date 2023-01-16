@@ -613,7 +613,7 @@ def apply_chaining_rule(chaining_rule, term_search_results):
 
 
 def _extract_search_operators(term, ops=None):
-    if not (term.startswith('"') and term.endswith('"')):
+    if not (term.startswith('"') and term.endswith('"') and len(term) > 1):
         ops = ops or STRUCTURED_SEARCH_OPERATORS
         ops_shorthands = [op.shorthand for op in ops]
         return [
@@ -655,7 +655,7 @@ def _parse_search_terms(terms):
 
 def _parse_chained_search_query(search_query):
     if search_query and not (
-        search_query.startswith('"') and search_query.endswith('"')
+        search_query.startswith('"') and search_query.endswith('"') and len(search_query) > 1
     ):
         search_operators = _extract_search_operators(
             search_query, STRUCTURED_SEARCH_NARY_OPERATORS

@@ -113,7 +113,7 @@ class SearchIndex(object):
         # try breaking the search term into tokens. run search for each token and collect resulting doc ids.
         # then append them in this order: first those docs that contain all the terms, then those that do not contain
         # all the terms (ranking)
-        if not (term.startswith('"') and term.endswith('"')):
+        if not (term.startswith('"') and term.endswith('"') and len(term) > 1):
             tokens = tokenize(term)
             if len(tokens) > 1 or (
                 len(tokens) == 1 and tokens[0] != term
