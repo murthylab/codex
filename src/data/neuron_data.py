@@ -444,9 +444,9 @@ class NeuronDB(object):
 
         def _caption(name, length):
             if length > CATEGORY_LIMIT:
-                return f"{name} (showing top {CATEGORY_LIMIT} out of {length})"
+                return f"{name} (showing top {CATEGORY_LIMIT} out of {'{:,}'.format(length)})"
             elif length > 10:
-                return f"{name} ({length})"
+                return f"{name} ({'{:,}'.format(length)})"
             else:
                 return name
 
@@ -454,7 +454,7 @@ class NeuronDB(object):
             lst_all = sorted([(k, v) for k, v in d.items() if k], key=lambda p: -p[1])
             return lst_all[:CATEGORY_LIMIT]
 
-        return [
+        all_cats = [
             {
                 "caption": _caption("Classes", len(classes)),
                 "key": "class",
@@ -486,6 +486,7 @@ class NeuronDB(object):
                 "counts": _sorted_counts(groups),
             },
         ]
+        return [cat for cat in all_cats if cat["counts"]]
 
     # Returns value ranges for all attributes with not too many different values. Used for advanced search dropdowns.
     @lru_cache

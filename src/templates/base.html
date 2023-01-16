@@ -14,10 +14,16 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
+                <a class="nav-link" id="nav_explore" href="{{url_for('app.explore')}}">Explore</a>
+            </li>
+            <li class="nav-item">
                 <a onclick="loading(event);" class="nav-link" id="nav_search" href="{{url_for('app.search')}}">Search</a>
             </li>
             <li class="nav-item">
                 <a onclick="loading(event);" class="nav-link" id="nav_stats" href="{{url_for('app.stats')}}">Stats</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="nav_cell_details" href="{{url_for('app.cell_details')}}">Cell Info</a>
             </li>
             <li class="nav-item">
                 <a onclick="loading(event);" class="nav-link" id="nav_connectivity" href="{{url_for('app.connectivity')}}">Network</a>
@@ -27,12 +33,6 @@
             </li>
             <li class="nav-item">
                 <a onclick="loading(event);" class="nav-link" id="nav_nblast" href="{{url_for('app.nblast')}}">NBLAST</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="nav_cell_details" href="{{url_for('app.cell_details')}}">Cell Info</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="nav_explore" href="{{url_for('app.explore')}}">Explore</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="nav_neuropils" href="{{url_for('app.neuropils')}}">Neuropils</a>

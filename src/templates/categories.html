@@ -2,17 +2,6 @@
 {% block title %} Explore Categories {% endblock title %}
 {% block content %}
 
-<form class="form-inline">
-    <label style="margin: 20px;">Data version</label>
-    <select style="margin: 20px;" class="form-select form-select-lg mb-3" onchange="this.form.submit()"
-            aria-label="Data Version" name="data_version">
-        {% for v in data_versions %}
-        <option value="{{v}}" {{
-        'selected' if data_version==v}}>{{v}}</option>
-        {% endfor %}
-    </select>
-</form>
-
 {% for category_data in categories %}
 <div class="card bg-light mb-3" style="margin: 10px;">
     <div class="card-header">
@@ -22,9 +11,21 @@
         {% for val, count in category_data['counts'] %}
         <a class="btn btn btn-link my-2 my-sm-0"
            href="{{url_for('app.search', filter_string=category_data['key'] + ' == ' + val, data_version=data_version)}}">{{val}}
-            ({{count}})</a>
+            ({{'{:,}'.format(count)}})</a>
         {% endfor %}
     </div>
 </div>
 {% endfor %}
+
+<form class="form-inline">
+    <label style="margin: 20px;">Data version</label>
+    <select style="margin: 20px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit()"
+            aria-label="Data Version" name="data_version">
+        {% for v in data_versions %}
+        <option value="{{v}}" {{
+        'selected' if data_version==v}}>{{v}}</option>
+        {% endfor %}
+    </select>
+</form>
+
 {% endblock content %}
