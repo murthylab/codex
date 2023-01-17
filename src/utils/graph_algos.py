@@ -83,7 +83,7 @@ def pathways(source, target, input_sets, output_sets):
     try:
         source = int(source)
         target = int(target)
-    except:
+    except ValueError:
         log_error(f"Invalid Cell IDs for pathways: {source=} {target=}")
         return None
 

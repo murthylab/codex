@@ -214,7 +214,7 @@ def val_counts(table):
         types[c] = list(set([type(r[i]) for r in table[1:]]))
         try:
             bounds[c] = (min([r[i] for r in table[1:]]), max([r[i] for r in table[1:]]))
-        except:
+        except Exception:
             pass
     return unique_counts, missing_counts, undefined_counts, types, bounds
 

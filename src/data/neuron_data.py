@@ -367,7 +367,7 @@ class NeuronDB(object):
     ):
         try:
             cell_id = int(cell_id)
-        except:
+        except ValueError:
             raise ValueError(f"'{cell_id}' is not a valid cell ID")
         table = self.connections(
             ids=[cell_id], min_syn_count=min_syn_count, nt_type=nt_type

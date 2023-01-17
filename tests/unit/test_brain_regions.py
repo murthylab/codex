@@ -66,9 +66,9 @@ class RegionsTest(TestCase):
 
     def test_neuropil_categories(self):
         dct = defaultdict(list)
-        for k, l in REGION_CATEGORIES.items():
-            for pil in l:
-                dct[pil].append(k)
+        for key, value in REGION_CATEGORIES.items():
+            for pil in value:
+                dct[pil].append(key)
 
         for p in REGIONS.keys():
             self.assertEqual(1, len(dct[p]), p)

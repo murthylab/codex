@@ -561,7 +561,7 @@ def _make_predicate(
             return lambda x: x["root_id"] in target_rid_set
         except ValueError as e:
             raise_malformed_structured_search_query(
-                f"Invalid cell id '{rhs}' in operator '{op}'"
+                f"Invalid cell id '{rhs}' in operator '{op}', error: {e}"
             )
     elif op == OP_PATHWAYS:
         pathway_distance_map = pathways(

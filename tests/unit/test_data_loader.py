@@ -1,4 +1,4 @@
-from src.data.gcs_data_loader import *
+from src.data.gcs_data_loader import load_nblast_scores_header, load_nblast_scores_for_root_id
 from unittest import TestCase
 
 

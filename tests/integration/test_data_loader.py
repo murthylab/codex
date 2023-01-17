@@ -1,6 +1,6 @@
 import datetime
 
-from src.data.gcs_data_loader import *
+from src.data.gcs_data_loader import load_nblast_scores_for_root_ids
 from unittest import TestCase
 
 
