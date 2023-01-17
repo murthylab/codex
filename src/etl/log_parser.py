@@ -37,4 +37,4 @@ if __name__ == "__main__":
         for result in get_logs(log_type=lt, max_results=2000):
             log_lines.append(extract_activity_log(result))
         print(f"Fetched {len(log_lines)}")
-        write_csv(filename=f"{lt}_logs.csv", rows=log_lines)
+        write_csv(filename=f"logs/{lt}_logs.csv", rows=log_lines)
