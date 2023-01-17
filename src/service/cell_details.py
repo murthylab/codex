@@ -49,7 +49,7 @@ def cached_cell_details(
             [f"{k}: {nd[f'{k.lower()}_avg']}" for k in sorted(NEURO_TRANSMITTER_NAMES)]
         )
         + "</small>",
-        f"Label contributors": concat_labels(unames),
+        "Label contributors": concat_labels(unames),
     }
 
     related_cells = {}

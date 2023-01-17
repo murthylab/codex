@@ -141,7 +141,7 @@ def load_and_pickle_all_neuron_db_versions(data_root_path=DATA_ROOT_PATH):
         print(f"App initialization writing pickle to {pf}..")
         with gzip.open(pf, "wb") as handle:
             pickle.dump(db, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        print(f"Done.")
+        print("Done.")
 
 
 # generic CSV file reader with settings

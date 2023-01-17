@@ -156,9 +156,9 @@ OBSOLETE_ROUTE_DESTINATIONS = {
 @base.route("/wip")
 @request_wrapper
 def wip():
-    log_activity(f"Rendering WIP notice")
+    log_activity("Rendering WIP notice")
     return render_error(
-        message=f"Both the data and the app are a work in progress. Estimated completion time is Feb 2023.",
+        message="Both the data and the app are a work in progress. Estimated completion time is Feb 2023.",
         title="Codex - current status",
     )
 
@@ -192,7 +192,7 @@ def styles(filename):
 @base.route("/error", methods=["GET", "POST"])
 @request_wrapper
 def error():
-    log_activity(f"Loading Error page")
+    log_activity("Loading Error page")
     message = request.args.get("message", "Unexpected error")
     title = request.args.get("title", "Request failed")
     back_button = request.args.get("back_button", 1, type=int)
@@ -229,7 +229,7 @@ def warning_with_redirect(title, message, redirect_url, redirect_button_text):
 @base.route("/about", methods=["GET", "POST"])
 @request_wrapper
 def about():
-    log_activity(f"Loading About page")
+    log_activity("Loading About page")
     message_sent = False
     if request.method == "POST":
         msg = request.form.get("user_message")
@@ -260,7 +260,7 @@ def about():
 @base.route("/faq", methods=["GET", "POST"])
 @request_wrapper
 def faq():
-    log_activity(f"Loading FAQ page")
+    log_activity("Loading FAQ page")
     message_sent = False
     if request.method == "POST":
         msg = request.form.get("user_message")
@@ -306,12 +306,12 @@ def index(path):
                 log_error(f"No destination found for {path=}, redirecting to home page")
             return redirect("/")
     elif request.args.get("filter_string"):
-        log_activity(f"Searching from home page")
+        log_activity("Searching from home page")
         return redirect(
             url_for("app.search", filter_string=request.args.get("filter_string"))
         )
     else:
-        log_activity(f"Loading home page")
+        log_activity("Loading home page")
         card_data = [
             {
                 "header": "Search",
@@ -403,7 +403,7 @@ def login():
             return redirect(request.args.get("redirect_to", "/"))
         except ValueError:
             log_activity(f"Invalid token provided upon login: {request.form}")
-            return render_error(f"Login failed.")
+            return render_error("Login failed.")
     else:
         return render_auth_page()
 
@@ -411,7 +411,7 @@ def login():
 @base.route("/data_access_token", methods=["GET", "POST"])
 @request_wrapper
 def data_access_token():
-    log_activity(f"Loading data access token form")
+    log_activity("Loading data access token form")
     if request.method == "POST":
         access_token = extract_access_token(request.form.get("access_token", ""))
         url = resp = access_payload = None
@@ -450,7 +450,7 @@ def data_access_token():
 @base.route("/logout", methods=["GET", "POST"])
 @request_wrapper
 def logout():
-    log_activity(f"Logging out")
+    log_activity("Logging out")
     delete_cookies(session)
     return render_auth_page()
 
@@ -458,9 +458,9 @@ def logout():
 @base.route("/auth_token", methods=["GET"])
 @request_wrapper
 def auth_token():
-    log_activity(f"Showing auth token")
+    log_activity("Showing auth token")
     token = fetch_flywire_token(session)
-    return render_info(title=f"Your auth token (don't share)", message=token)
+    return render_info(title="Your auth token (don't share)", message=token)
 
 
 def render_error(

@@ -1,5 +1,4 @@
 import json
-import math
 import re
 from datetime import datetime
 
@@ -125,7 +124,7 @@ def stats():
 @request_wrapper
 @require_data_access
 def leaderboard():
-    log_activity(f"Loading Leaderboard")
+    log_activity("Loading Leaderboard")
     return render_template("leaderboard.html", data_stats=leaderboard_cached())
 
 
@@ -133,7 +132,7 @@ def leaderboard():
 @request_wrapper
 @require_data_access
 def explore():
-    log_activity(f"Loading Explore page")
+    log_activity("Loading Explore page")
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
     return render_template(
         "categories.html",
@@ -401,7 +400,7 @@ def ngl_redirect_with_browser_check(ngl_url):
     else:
         return warning_with_redirect(
             title="Browser not supported",
-            message=f"Neuroglancer (3D neuron rendering) is not supported on your browser. Use Chrome or Firefox.",
+            message="Neuroglancer (3D neuron rendering) is not supported on your browser. Use Chrome or Firefox.",
             redirect_url=ngl_url,
             redirect_button_text="Proceed anyway",
         )
@@ -443,7 +442,7 @@ def cell_details():
         cell_names_or_id = request.args.get("root_id")
     if cell_names_or_id:
         if cell_names_or_id == "{random_cell}":
-            log_activity(f"Generated random cell detail page")
+            log_activity("Generated random cell detail page")
             root_id = neuron_db.random_cell_id()
             cell_names_or_id = f"name == {neuron_db.get_neuron_data(root_id)['name']}"
         else:
@@ -457,7 +456,7 @@ def cell_details():
                 return redirect(url_for("app.search", filter_string=cell_names_or_id))
 
     if root_id is None:
-        log_activity(f"Generated empty cell detail page")
+        log_activity("Generated empty cell detail page")
         return render_template("cell_details.html")
     log(f"Generating neuron info {activity_suffix(root_id, data_version)}")
     dct = cached_cell_details(
@@ -593,7 +592,7 @@ def nblast():
         nblast_scores = []
 
     if download:
-        fname = f"nblast_scores.csv"
+        fname = "nblast_scores.csv"
         return Response(
             "\n".join([",".join([str(r) for r in row]) for row in nblast_scores]),
             mimetype="text/csv",
@@ -735,7 +734,7 @@ def path_length():
         matrix = []
 
     if download:
-        fname = f"path_lengths.csv"
+        fname = "path_lengths.csv"
         return Response(
             "\n".join([",".join([str(r) for r in row]) for row in matrix]),
             mimetype="text/csv",
@@ -877,7 +876,7 @@ def connectivity():
                     ),
                     mimetype="application/json",
                     headers={
-                        "Content-disposition": f"attachment; filename=connections.json"
+                        "Content-disposition": "attachment; filename=connections.json"
                     },
                 )
             else:
@@ -885,7 +884,7 @@ def connectivity():
                     synapse_table_to_csv_string(contable),
                     mimetype="text/csv",
                     headers={
-                        "Content-disposition": f"attachment; filename=connections.csv"
+                        "Content-disposition": "attachment; filename=connections.csv"
                     },
                 )
 
