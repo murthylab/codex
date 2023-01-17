@@ -39,7 +39,10 @@ def user_agent():
 
 
 def _is_smoke_test_request():
-    return request.args.get("smoke_test", "") == os.environ.get("SMOKE_TEST_KEY")
+    try:
+        return request.args.get("smoke_test", "") == os.environ.get("SMOKE_TEST_KEY")
+    except RuntimeError:
+        return False
 
 
 def _fetch_client_info():
