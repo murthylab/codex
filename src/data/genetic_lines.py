@@ -1,5 +1,6 @@
 import csv
 from functools import lru_cache
+from src.data.gcs_data_loader import load_jennet_lines_from_gcs
 from src.data.brain_regions import REGIONS, REGION_CATEGORIES
 
 
@@ -22,26 +23,15 @@ def jennet_compartment_to_neuropils(compartment):
 
     return []
 
-@lru_cache
-def load_genetic_lines(tsv_filename="Jenett.2012.9.24.tsv"):
-    # TODO: move data somewhere sensible
-    # sourced from https://flybase.org/reports/FBrf0219498.html
-    lines = {}
-    with open(tsv_filename) as file:
-        reader = csv.DictReader(file, delimiter="\t")
-        rows_read = 0
-        for row in reader:
-            line = f"R{row['Sample'].split('_')[1]}"  ## sample name to line name
-            line_data = lines.get(line, {})
-            compartment = row["Compartment"]
-            line_data[compartment] = {
-                "intensity": row["Intensity"],
-                "distribution": row["Distribution"],
-                "neuropils": jennet_compartment_to_neuropils(compartment),
-            }
-            lines[line] = line_data
-            rows_read += 1
-    print(f"Loaded {rows_read} rows for {len(lines)} lines from {tsv_filename}")
-    return dict(sorted(lines.items()))
 
-LINES = load_genetic_lines()
+def add_neuropils_to_jennet_lines(lines):
+    for line, compartments in lines.items():
+        for compartment, data in compartments.items():
+            data["neuropils"] = jennet_compartment_to_neuropils(compartment)
+    return lines
+
+
+LINES = add_neuropils_to_jennet_lines(load_jennet_lines_from_gcs())
+
+
+

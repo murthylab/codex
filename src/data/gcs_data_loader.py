@@ -12,6 +12,8 @@ GCS_BASE_URL = "https://storage.googleapis.com"
 FLYWIRE_DATA_BUCKET = "flywire-data"
 FILE_EXTENSION = "csv.gz"
 
+JENNET_LINES_PATH = f"{GCS_BASE_URL}/{FLYWIRE_DATA_BUCKET}/codex/cell_lines/Jenett.2012.9.24.tsv.gz"
+
 DEFAULT_POOL_SIZE = 1  # TODO: this should be set to 'cpu_count()' once caching works for multiprocess execution
 
 
@@ -29,6 +31,37 @@ def load_csv_content_from_compressed_object_on_gcs(
     except Exception as e:
         log(f"Could not download from GCS: {obj_url}, error: {e}")
         return None  # This is not an error necessarily. Data might not exist for certain objects.
+
+
+
+@lru_cache
+def load_jennet_lines_from_gcs(path=JENNET_LINES_PATH):
+    lines = {}
+    try:
+        web_response = requests.get(path, timeout=3, stream=True)
+        gz_file = web_response.content
+        f = io.BytesIO(gz_file)
+        with gzip.GzipFile(fileobj=f) as fh:
+            reader = csv.DictReader(io.TextIOWrapper(fh, "utf8"), delimiter="\t")
+            rows_read = 0
+            for row in reader:
+                line = f"R{row['Sample'].split('_')[1]}"
+                line_data = lines.get(line, {})
+                compartment = row["Compartment"]
+                line_data[compartment] = {
+                    "intensity": row["Intensity"],
+                    "distribution": row["Distribution"],
+                }
+                lines[line] = line_data
+                rows_read += 1
+        log(f"Loaded {rows_read} rows for {len(lines)} lines from {path}")
+    except Exception as e:
+        log_error(f"Exception while loading Jenett lines: {e}")
+        return None
+    return dict(sorted(lines.items()))
+
+
+
 
 
 """
@@ -99,3 +132,4 @@ def load_nblast_scores_for_root_ids(root_ids, pool_size=DEFAULT_POOL_SIZE):
     )
 
     return {p[0]: p[1] for p in zip(root_ids, results)}
+
