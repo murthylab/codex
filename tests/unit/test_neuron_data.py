@@ -423,7 +423,7 @@ class NeuronDataTest(TestCase):
         neuron_data = self.neuron_db.neuron_data
         mismatch = 0
         for rid, nd in neuron_data.items():
-            ld = [compact_label(l["label"]) for l in label_data.get(rid, [])]
+            ld = [compact_label(label["label"]) for label in label_data.get(rid, [])]
             if sorted(set(nd["label"])) != sorted(set(ld)):
                 print(f'{sorted(set(nd["label"]))} -> {sorted(set(ld))}')
                 mismatch += 1

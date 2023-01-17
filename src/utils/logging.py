@@ -48,11 +48,8 @@ def _fetch_client_info():
 
 
 def with_url_link(txt):
-    try:
-        url = str(request.url)
-        return format_link(url, txt)
-    except:
-        return txt
+    return format_link(request.url, txt)
+
 
 
 def log(msg):
