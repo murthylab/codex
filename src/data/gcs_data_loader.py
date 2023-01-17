@@ -56,8 +56,14 @@ def load_jennet_lines_from_gcs(path=JENNET_LINES_PATH):
                 lines[line] = line_data
                 rows_read += 1
         log(f"Loaded {rows_read} rows for {len(lines)} lines from {path}")
+    except requests.exceptions.RequestException as e:
+        log_error(f"Error while making request to {path}: {e}")
+        return None
+    except gzip.BadGzipFile as e:
+        log_error(f"Error while decompressing file: {e}")
+        return None
     except Exception as e:
-        log_error(f"Exception while loading Jenett lines: {e}")
+        log_error(f"Unexpected exception while loading Jenett lines: {e}")
         return None
     return dict(sorted(lines.items()))
 
