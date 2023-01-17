@@ -19,7 +19,7 @@ def fetch_user_name(storage, default_to=None):
 def fetch_user_email(storage, default_to=None):
     try:
         return storage["id_info"]["email"]
-    except KeyError:
+    except RuntimeError:
         return default_to
 
 

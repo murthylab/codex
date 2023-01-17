@@ -43,8 +43,11 @@ def _is_smoke_test_request():
 
 
 def _fetch_client_info():
-    ip_addr = request.headers.get("X-Forwarded-For", request.remote_addr)
-    return f"<https://ipinfo.io/{ip_addr}|{user_agent()}>"
+    try:
+        ip_addr = request.headers.get("X-Forwarded-For", request.remote_addr)
+        return f"<https://ipinfo.io/{ip_addr}|{user_agent()}>"
+    except RuntimeError:
+        return None
 
 
 def with_url_link(txt):
