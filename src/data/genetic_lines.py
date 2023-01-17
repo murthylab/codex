@@ -32,6 +32,3 @@ def add_neuropils_to_jennet_lines(lines):
 
 
 LINES = add_neuropils_to_jennet_lines(load_jennet_lines_from_gcs())
-
-
-

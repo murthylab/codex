@@ -12,7 +12,9 @@ GCS_BASE_URL = "https://storage.googleapis.com"
 FLYWIRE_DATA_BUCKET = "flywire-data"
 FILE_EXTENSION = "csv.gz"
 
-JENNET_LINES_PATH = f"{GCS_BASE_URL}/{FLYWIRE_DATA_BUCKET}/codex/cell_lines/Jenett.2012.9.24.tsv.gz"
+JENNET_LINES_PATH = (
+    f"{GCS_BASE_URL}/{FLYWIRE_DATA_BUCKET}/codex/cell_lines/Jenett.2012.9.24.tsv.gz"
+)
 
 DEFAULT_POOL_SIZE = 1  # TODO: this should be set to 'cpu_count()' once caching works for multiprocess execution
 
@@ -31,7 +33,6 @@ def load_csv_content_from_compressed_object_on_gcs(
     except Exception as e:
         log(f"Could not download from GCS: {obj_url}, error: {e}")
         return None  # This is not an error necessarily. Data might not exist for certain objects.
-
 
 
 @lru_cache
@@ -59,9 +60,6 @@ def load_jennet_lines_from_gcs(path=JENNET_LINES_PATH):
         log_error(f"Exception while loading Jenett lines: {e}")
         return None
     return dict(sorted(lines.items()))
-
-
-
 
 
 """
@@ -132,4 +130,3 @@ def load_nblast_scores_for_root_ids(root_ids, pool_size=DEFAULT_POOL_SIZE):
     )
 
     return {p[0]: p[1] for p in zip(root_ids, results)}
-
