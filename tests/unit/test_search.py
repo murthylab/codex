@@ -6,11 +6,11 @@ from src.service.search import pagination_data
 class TestSearch(TestCase):
     def test_pagination_data(self):
         self.assertEqual(
-            ([], [1, 2, 3], 20, [20, 50, 100]),
+            ([], [1, 2, 3], 20, [10, 20, 50, 100]),
             pagination_data(items_list=[1, 2, 3], page_number=1, page_size=20),
         )
         self.assertEqual(
-            ([], [1, 2, 3], 20, [20, 50, 100]),
+            ([], [1, 2, 3], 10, [10, 20, 50, 100]),
             pagination_data(items_list=[1, 2, 3], page_number=1, page_size=-5),
         )
         self.assertEqual(
@@ -24,7 +24,7 @@ class TestSearch(TestCase):
                 ],
                 range(20),
                 20,
-                [20, 50, 100],
+                [10, 20, 50, 100],
             ),
             pagination_data(items_list=range(100), page_number=1, page_size=20),
         )
@@ -39,7 +39,7 @@ class TestSearch(TestCase):
                 ],
                 range(20, 40),
                 20,
-                [20, 50, 100],
+                [10, 20, 50, 100],
             ),
             pagination_data(items_list=range(100), page_number=2, page_size=20),
         )
@@ -58,7 +58,7 @@ class TestSearch(TestCase):
                 ],
                 range(380, 400),
                 20,
-                [20, 50, 100],
+                [10, 20, 50, 100],
             ),
             pagination_data(items_list=range(1000), page_number=20, page_size=20),
         )
@@ -77,7 +77,7 @@ class TestSearch(TestCase):
                 ],
                 range(750, 800),
                 50,
-                [20, 50, 100],
+                [10, 20, 50, 100],
             ),
             pagination_data(items_list=range(1000), page_number=16, page_size=50),
         )
