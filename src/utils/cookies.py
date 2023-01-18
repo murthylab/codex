@@ -12,7 +12,7 @@ def is_user_authenticated(storage):
 def fetch_user_name(storage, default_to=None):
     try:
         return storage["id_info"]["name"]
-    except KeyError:
+    except Exception:
         return default_to
 
 
@@ -26,7 +26,7 @@ def fetch_user_email(storage, default_to=None):
 def fetch_user_picture(storage):
     try:
         return storage["id_info"]["picture"]
-    except KeyError:
+    except Exception:
         return None
 
 
