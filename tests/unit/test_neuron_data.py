@@ -1,10 +1,10 @@
 import json
 import os
 from unittest import TestCase
+from collections import defaultdict
 
-from src.data.brain_regions import neuropil_description
-from src.data.neuron_data import *
-from src.data.structured_search_filters import *
+from src.data.brain_regions import neuropil_description, REGIONS
+from src.data.neuron_data import NEURON_DATA_ATTRIBUTES, NeuronDB
 from src.data.local_data_loader import (
     unpickle_all_neuron_db_versions,
     unpickle_neuron_db,
@@ -14,6 +14,7 @@ from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSI
 from src.utils.formatting import compact_label, make_web_safe
 from src.utils.graph_algos import neighbors
 from tests import TEST_DATA_ROOT_PATH
+from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
 
 class NeuronDataTest(TestCase):
@@ -422,7 +423,7 @@ class NeuronDataTest(TestCase):
         neuron_data = self.neuron_db.neuron_data
         mismatch = 0
         for rid, nd in neuron_data.items():
-            ld = [compact_label(l["label"]) for l in label_data.get(rid, [])]
+            ld = [compact_label(label["label"]) for label in label_data.get(rid, [])]
             if sorted(set(nd["label"])) != sorted(set(ld)):
                 print(f'{sorted(set(nd["label"]))} -> {sorted(set(ld))}')
                 mismatch += 1

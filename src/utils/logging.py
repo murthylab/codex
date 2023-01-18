@@ -37,14 +37,14 @@ SLCKHKSOS = os.environ.get("HK_HELP")
 def user_agent():
     try:
         return str(parse_ua(str(request.user_agent)))
-    except:
+    except Exception:
         return ""
 
 
 def _is_smoke_test_request():
     try:
-        return request.args.get("smoke_test", "") == os.environ["SMOKE_TEST_KEY"]
-    except:
+        return request.args.get("smoke_test", "") == os.environ.get("SMOKE_TEST_KEY")
+    except Exception:
         return False
 
 
@@ -52,16 +52,16 @@ def _fetch_client_info():
     try:
         ip_addr = request.headers.get("X-Forwarded-For", request.remote_addr)
         return f"<https://ipinfo.io/{ip_addr}|{user_agent()}>"
-    except:
+    except Exception:
         return None
 
 
 def with_url_link(txt):
     try:
-        url = str(request.url)
-        return format_link(url, txt)
-    except:
+        format_link(request.url, txt)
+    except Exception:
         return txt
+
 
 
 def log(msg):

@@ -71,26 +71,45 @@ def compile_network_html(
             for r in connection_table
             if r[0] in projections and r[1] in projections
         ]
-        name_getter = lambda x: f"Class {x}"
-        caption_getter = lambda x: x
+
+        def name_getter(x):
+            return f"Class {x}"
+
+        def caption_getter(x):
+            return x
+
         label_getter = None
         class_getter = None
         nt_type_getter = None
-        size_getter = lambda x: 1 + int(
-            x.replace("<1", "0").replace("%", "").split()[-1]
-        )
+
+        def size_getter(x):
+            return 1 + int(x.replace("<1", "0").replace("%", "").split()[-1])
+
         center_ids = list(
             set([r[0] for r in connection_table]).union(
                 [r[1] for r in connection_table]
             )
         )
     else:
-        name_getter = lambda x: neuron_db.get_neuron_data(x)["name"]
-        caption_getter = lambda x: neuron_db.get_neuron_caption(x)
-        label_getter = lambda x: neuron_db.get_neuron_data(x)["label"]
-        class_getter = lambda x: neuron_db.get_neuron_data(x)["class"]
-        nt_type_getter = lambda x: neuron_db.get_neuron_data(x)["nt_type"]
-        size_getter = lambda x: 1
+
+        def name_getter(x):
+            return neuron_db.get_neuron_data(x)["name"]
+
+        def caption_getter(x):
+            return neuron_db.get_neuron_caption(x)
+
+        def label_getter(x):
+            return neuron_db.get_neuron_data(x)["label"]
+
+        def class_getter(x):
+            return neuron_db.get_neuron_data(x)["class"]
+
+        def nt_type_getter(x):
+            return neuron_db.get_neuron_data(x)["nt_type"]
+
+        def size_getter(x):
+            return 1
+
         center_ids = root_ids
 
     return make_graph_html(

@@ -26,7 +26,7 @@ from src.etl.synapse_table_processor import (
     compile_neuropil_synapse_rows,
 )
 
-CAVE_AUTH_TOKEN_FILE_NAME = f"static/secrets/cave_auth_token.txt"
+CAVE_AUTH_TOKEN_FILE_NAME = "static/secrets/cave_auth_token.txt"
 CAVE_DATASTACK_NAME = "flywire_fafb_production"
 
 
@@ -214,7 +214,7 @@ def val_counts(table):
         types[c] = list(set([type(r[i]) for r in table[1:]]))
         try:
             bounds[c] = (min([r[i] for r in table[1:]]), max([r[i] for r in table[1:]]))
-        except:
+        except Exception:
             pass
     return unique_counts, missing_counts, undefined_counts, types, bounds
 
@@ -303,7 +303,7 @@ def compile_neuron_metadata_table(version, summarize_files=False):
         ]
     ]
 
-    dirpath = raw_data_file_path(version=version, filename=f"meta")
+    dirpath = raw_data_file_path(version=version, filename="meta")
     files = os.listdir(dirpath)
     print(f"Loading metadata files from {dirpath}: {files}")
 

@@ -12,7 +12,7 @@ class SearchIndex(object):
         self.ci_token_to_row_id = {}
         self.lc_labels = {}
 
-        log(f"App initialization creating search index")
+        log("App initialization creating search index")
         for text_list, label_list, i in texts_labels_id_tuples:
             for txt in text_list:
                 self.add_to_index(txt, i, self.CS_label_to_row_id)

@@ -35,7 +35,8 @@ Note: If running for the first time, first run `pip install -r requirements_dev.
 
 ## Linting / code formatting
 ```
-pip install git+https://github.com/psf/black && black src
+python3 -m pip install -r requirements_dev.txt
+python3 -m black . && python3 -m ruff .
 ```
 
 ## Profiling

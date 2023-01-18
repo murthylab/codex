@@ -243,12 +243,12 @@ def make_graph_html(
                 title=edge_title(v),
             )
         if not show_edge_weights:
-            net.add_legend(f"Top Cross Synapse Counts", "white")
+            net.add_legend("Top Cross Synapse Counts", "white")
             for k, v in sorted(cell_to_cell_counts.items(), key=lambda x: -x[1])[:5]:
                 net.add_legend(f"- {edge_label(v)} from {k[0]} to {k[1]}", "white")
 
         if cell_loop_counts:
-            net.add_legend(f"Top Internal Synapse Counts", "white")
+            net.add_legend("Top Internal Synapse Counts", "white")
             for k, v in sorted(cell_loop_counts.items(), key=lambda x: -x[1])[:5]:
                 net.add_legend(f"- {edge_label(v)} in {k}", "white")
     else:

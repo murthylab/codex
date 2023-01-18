@@ -41,7 +41,7 @@ def download():
             f"https://storage.googleapis.com/flywire-data/codex/data/{data_version}/{data_product}.csv.gz"
         )
     else:
-        log_user_help(f"API: rendering download page")
+        log_user_help("API: rendering download page")
         return render_template(
             "download.html",
             data_version=data_version or LATEST_DATA_SNAPSHOT_VERSION,

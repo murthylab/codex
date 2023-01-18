@@ -85,7 +85,7 @@ class NeuronDB(object):
         self.label_data = {}
         self.labels_file_timestamp = labels_file_timestamp
 
-        log(f"App initialization processing neuron data..")
+        log("App initialization processing neuron data..")
         column_index = {}
         for i, r in enumerate(neuron_file_rows):
             if i == 0:
@@ -134,7 +134,7 @@ class NeuronDB(object):
                 "output_neuropils": [],
             }
 
-        log(f"App initialization processing label data..")
+        log("App initialization processing label data..")
         labels_file_columns = get_labels_file_columns()
         rid_col_idx = labels_file_columns.index("root_id")
         label_col_idx = labels_file_columns.index("label")
@@ -184,7 +184,7 @@ class NeuronDB(object):
             for p in sorted(not_found_labels.items(), key=lambda x: -x[1])[:10]:
                 log(f"  {p}")
 
-        log(f"App initialization processing coordinates data..")
+        log("App initialization processing coordinates data..")
         coordinates_file_columns = get_coordinates_file_columns()
         rid_col_idx = coordinates_file_columns.index("root_id")
         pos_col_idx = coordinates_file_columns.index("position")
@@ -218,7 +218,7 @@ class NeuronDB(object):
             f"not found rids: {len(not_found_rids)}, max list val: {max([(len(nd['position']), nd['root_id']) for nd in self.neuron_data.values()])}"
         )
 
-        log(f"App initialization loading connections..")
+        log("App initialization loading connections..")
         self.connection_rows = []
         input_neuropils = defaultdict(set)
         output_neuropils = defaultdict(set)
@@ -251,7 +251,7 @@ class NeuronDB(object):
                 [from_node, to_node, neuropil, syn_count, nt_type]
             )
 
-        log(f"App initialization processing NBLAST data..")
+        log("App initialization processing NBLAST data..")
         nblast_file_columns = get_nblast_file_columns()
         rid_col_idx = nblast_file_columns.index("root_id")
         scores_col_idx = nblast_file_columns.index("scores")
@@ -288,7 +288,7 @@ class NeuronDB(object):
             f"neruons with similar cells: {len([1 for nd in self.neuron_data.values() if nd['similar_cell_scores']])}"
         )
 
-        log(f"App initialization augmenting..")
+        log("App initialization augmenting..")
         for rid, nd in self.neuron_data.items():
             nd["input_neuropils"] = sorted(input_neuropils[rid])
             nd["output_neuropils"] = sorted(output_neuropils[rid])
@@ -300,7 +300,7 @@ class NeuronDB(object):
             nd["input_cells"] = len(input_cells[rid])
             nd["output_cells"] = len(output_cells[rid])
 
-        log(f"App initialization building search index..")
+        log("App initialization building search index..")
 
         def searchable_labels(ndata):
             labels = []
@@ -367,7 +367,7 @@ class NeuronDB(object):
     ):
         try:
             cell_id = int(cell_id)
-        except:
+        except ValueError:
             raise ValueError(f"'{cell_id}' is not a valid cell ID")
         table = self.connections(
             ids=[cell_id], min_syn_count=min_syn_count, nt_type=nt_type

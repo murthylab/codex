@@ -26,8 +26,8 @@ def load_csv_content_from_compressed_object_on_gcs(
         with gzip.GzipFile(fileobj=f) as fh:
             reader = csv.reader(io.TextIOWrapper(fh, "utf8"))
             return [row for row in reader]
-    except:
-        log(f"Could not download from GCS: {obj_url}")
+    except Exception as e:
+        log(f"Could not download from GCS: {obj_url}, error: {e}")
         return None  # This is not an error necessarily. Data might not exist for certain objects.
 
 
