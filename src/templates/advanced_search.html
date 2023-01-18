@@ -11,7 +11,7 @@
         dropdownBase.querySelector("button").innerText = elem.childNodes[0].textContent.trim();
     }
 
-    function populateDropdown(dropdownElem, values, isAttributes, shouldUpdateRHS = false) {
+    function populateDropdown(dropdownElem, values, isAttributes, shouldUpdateRHS = false, rhsForceText = false, rhsMultiple = false) {
         const menuElem = dropdownElem.querySelector(".dropdown > .dropdown-menu");
         menuElem.replaceChildren();
         const searchTermElem = dropdownElem.parentElement;
@@ -28,7 +28,7 @@
                 node.appendChild(description);
                 if (shouldUpdateRHS) {
                     node.addEventListener("click", () => {
-                        updateRHS(v[1]["value_range"], searchTermElem);
+                        updateRHS(rhsForceText ? null : v[1]["value_range"], searchTermElem, rhsMultiple);
                     });
                 }
             }
@@ -46,7 +46,7 @@
         firstElem.click();
     }
 
-    function updateRHS(values, searchTermElem) {
+    function updateRHS(values, searchTermElem, rhsMultiple = false) {
         const rhsDropdownElem = searchTermElem.querySelector(".search-dropdown-rhs");
         const rhsInputElem = searchTermElem.querySelector(".search-input-rhs");
         const oldRHSVal = rhsDropdownElem.getAttribute("hidden") ? null : rhsDropdownElem.querySelector(".dropdown").getAttribute("value");
@@ -66,6 +66,22 @@
         }
         else {
             rhsInputElem.removeAttribute("hidden");
+        }
+
+        const rhsMultiHolderElem = searchTermElem.querySelector(".search-rhs-multi-holder");
+        const extraValues = rhsMultiHolderElem.querySelectorAll(".search-component");
+        for (const extraValue of extraValues) {
+            extraValue.remove();
+        }
+        const removeButtons = searchTermElem.querySelectorAll(".search-rhs-multi-remove");
+        for (const removeButton of removeButtons) {
+            removeButton.setAttribute("hidden", true);
+        }
+        if (rhsMultiple) {
+            rhsMultiHolderElem.removeAttribute("hidden");
+        }
+        else {
+            rhsMultiHolderElem.setAttribute("hidden", true);
         }
     }
 
@@ -97,22 +113,24 @@
                 lhsDropdownElem.removeAttribute("hidden");
                 lhsDropdownElem.querySelector(".search-label").innerText = operator["lhs_description"];
                 if (operator["lhs_range"] === "attributes") {
-                    populateDropdown(lhsDropdownElem, Object.entries(attributes), true, shouldUpdateRHS = true);
+                    populateDropdown(lhsDropdownElem, Object.entries(attributes), true,
+                        shouldUpdateRHS = true, rhsForceText = operator["rhs_force_text"], rhsMultiple = operator["rhs_multiple"]);
                 }
                 else {
                     populateDropdown(lhsDropdownElem, operator["lhs_range"], false);
-                    updateRHS(operator["rhs_range"], searchTermElem);
+                    const range = operator["rhs_force_text"] ? null : operator["rhs_range"];
+                    updateRHS(range, searchTermElem, operator["rhs_multiple"]);
                 }
             }
             else {
                 lhsInputElem.removeAttribute("hidden");
                 lhsInputElem.querySelector(".search-label").innerText = operator["lhs_description"];
-                updateRHS(operator["rhs_range"], searchTermElem);
+                updateRHS(operator["rhs_range"], searchTermElem, operator["rhs_multiple"]);
             }
         }
         else if (operator["op_type"] === "unary_operator") {
             placeholderElem.removeAttribute("hidden");
-            updateRHS(operator["rhs_range"], searchTermElem);
+            updateRHS(operator["rhs_range"], searchTermElem, operator["rhs_multiple"]);
         }
         else {
             console.log("Unknown operator type", operator["op_type"]);
@@ -148,6 +166,19 @@
         updateDividers();
     }
 
+    function submitOnInputEnter(element) {
+        const submitFunc = function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                doAdvancedSearch();
+            }
+        };
+        const inputs = element.querySelectorAll("input");
+        for (const input of inputs) {
+            input.addEventListener("keypress", submitFunc);
+        }
+    }
+
     function addSearchTerm() {
         const searchTermTemplate = document.querySelector(".search-term-template");
         const newTerm = searchTermTemplate.cloneNode(true);
@@ -156,17 +187,7 @@
         newTerm.removeAttribute("hidden");
         searchTermTemplate.parentElement.appendChild(newTerm);
 
-        const submitFunc = function (event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                doAdvancedSearch();
-            }
-        };
-        const inputs = newTerm.querySelectorAll("input");
-        for (const input of inputs) {
-            input.addEventListener("keypress", submitFunc);
-        }
-
+        submitOnInputEnter(newTerm);
 
         const removeButtons = document.querySelectorAll(".search-term > .search-remove-term");
         if (removeButtons.length > 1) {
@@ -203,6 +224,66 @@
         dividers[dividers.length - 1].setAttribute("hidden", true);
     }
 
+    function addRHSMultiTerm(buttonElem) {
+        const searchTermElem = buttonElem.parentElement.parentElement.parentElement;
+        //figure out which to duplicate- input or dropdown- based on hidden
+        let valueTemplate = searchTermElem.querySelector(".search-dropdown-rhs");
+        if (valueTemplate.hasAttribute("hidden")) {
+            valueTemplate = searchTermElem.querySelector(".search-input-rhs");
+        }
+        const removeButton = valueTemplate.querySelector(".search-rhs-multi-remove");
+        removeButton.removeAttribute("hidden");
+
+        const valueHolder = searchTermElem.querySelector(".search-rhs-multi-holder");
+        const newTerm = valueTemplate.cloneNode(true);
+        newTerm.querySelector(".search-label").setAttribute("hidden", true);
+
+        //reset to default value in case original dropdown had a different one picked
+        const firstDropdownNode = newTerm.querySelector(".dropdown-item");
+        if (firstDropdownNode) {
+            selectDropdownOption(firstDropdownNode);
+        }
+        const newInput = newTerm.querySelector("input");
+        if (newInput) {
+            newInput.value = "";
+        }
+
+        //reattach event listeners since those don't get cloned
+        const dropdownNodes = newTerm.querySelectorAll(".dropdown-item");
+        for (const dropdownNode of dropdownNodes) {
+            dropdownNode.addEventListener("click", () => {
+                selectDropdownOption(dropdownNode);
+            });
+        }
+        submitOnInputEnter(newTerm);
+
+        valueHolder.insertBefore(newTerm, buttonElem.parentElement);
+        return newTerm;
+    }
+
+    function removeRHSMultiTerm(buttonElem) {
+        const searchTermElem = buttonElem.closest(".search-term-grid");
+        const valueElem = buttonElem.parentElement;
+        valueElem.remove();
+        //if removed from normal search grid: move first from multi-holder to normal search grid
+        const valueHolder = searchTermElem.querySelector(".search-rhs-multi-holder");
+        const primaryRHSInput = searchTermElem.querySelector(".search-term-grid > .search-input-rhs");
+        const primaryRHSDropdown = searchTermElem.querySelector(".search-term-grid > .search-dropdown-rhs");
+        if (!primaryRHSInput || !primaryRHSDropdown) {
+            const firstMulti = valueHolder.querySelector(".search-component");
+            valueHolder.removeChild(firstMulti);
+            searchTermElem.insertBefore(firstMulti, searchTermElem.querySelector(".search-multi-placeholder"));
+            firstMulti.querySelector(".search-label").removeAttribute("hidden");
+        }
+        const multiTerms = valueHolder.querySelectorAll(".search-component");
+        if (multiTerms.length === 0) {
+            const removeButtons = searchTermElem.querySelectorAll(".search-rhs-multi-remove");
+            for (const removeButton of removeButtons) {
+                removeButton.setAttribute("hidden", true);
+            }
+        }
+    }
+
     function markInvalid(inputParent) {
         const inputElem = inputParent.querySelector("input");
         inputElem.classList.add("invalid");
@@ -227,6 +308,7 @@
             const operatorElem = searchElem.querySelector(".search-operator");
             const rhsDropdownElem = searchElem.querySelector(".search-dropdown-rhs");
             const rhsInputElem = searchElem.querySelector(".search-input-rhs");
+            const rhsMultiElem = searchElem.querySelector(".search-rhs-multi-holder");
 
             if (!lhsDropdownElem.getAttribute("hidden")) {
                 searchString += lhsDropdownElem.querySelector(".dropdown").getAttribute("value") + " ";
@@ -251,6 +333,21 @@
                 }
                 searchString += val;
             }
+            if (!rhsMultiElem.getAttribute("hidden")) {
+                const rhsMultiDropdowns = rhsMultiElem.querySelectorAll(".search-dropdown-rhs");
+                for (const rhsMultiDropdown of rhsMultiDropdowns) {
+                    searchString += "," + rhsMultiDropdown.querySelector(".dropdown").getAttribute("value");
+                }
+                const rhsMultiInputs = rhsMultiElem.querySelectorAll(".search-input-rhs");
+                for (const rhsMultiInput of rhsMultiInputs) {
+                    const val = rhsMultiInput.querySelector("input").value;
+                    if (val === "") {
+                        markInvalid(rhsMultiInput);
+                        return;
+                    }
+                    searchString += "," + val;
+                }
+            }
         }
         const filterBox = document.getElementById("filter_string");
         filterBox.value = searchString;
@@ -267,6 +364,17 @@
         }
     }
 
+    function setDropdownOrInputValue(value, searchTerm, dropdownSelector, inputSelector) {
+        const dropdownElem = searchTerm.querySelector(dropdownSelector);
+        const inputElem = searchTerm.querySelector(inputSelector);
+        if (!dropdownElem.getAttribute("hidden")) {
+            clickDropdownValue(dropdownElem, value);
+        }
+        else {
+            inputElem.querySelector("input").value = value;
+        }
+    }
+
     function loadQuery() {
         //delete all current search terms (from last time menu was opened)
         const oldRemoveButtons = document.querySelectorAll(".search-term > .search-remove-term > div > button");
@@ -280,26 +388,24 @@
             for (const term of currentQuery["terms"]) {
                 const newTerm = addSearchTerm();
 
-                const lhsDropdownElem = newTerm.querySelector(".search-dropdown-lhs");
-                const lhsInputElem = newTerm.querySelector(".search-input-lhs");
                 const operatorElem = newTerm.querySelector(".search-operator");
-                const rhsDropdownElem = newTerm.querySelector(".search-dropdown-rhs");
-                const rhsInputElem = newTerm.querySelector(".search-input-rhs");
-
                 clickDropdownValue(operatorElem, term["op"]);
                 if ("lhs" in term) {
-                    if (!lhsDropdownElem.getAttribute("hidden")) {
-                        clickDropdownValue(lhsDropdownElem, term["lhs"]);
+                    setDropdownOrInputValue(term["lhs"], newTerm, ".search-dropdown-lhs", ".search-input-lhs");
+                }
+                const rhsArr = term["rhs"].split(",");
+                setDropdownOrInputValue(rhsArr[0], newTerm, ".search-dropdown-rhs", ".search-input-rhs");
+
+                const rhsMultiButtonElem = newTerm.querySelector(".search-rhs-multi-add > button");
+                for (let i = 1; i < rhsArr.length; i++) {
+                    const multiTerm = addRHSMultiTerm(rhsMultiButtonElem);
+                    console.log(multiTerm);
+                    if (multiTerm.classList.contains("search-dropdown-rhs")) {
+                        clickDropdownValue(multiTerm, rhsArr[i]);
                     }
                     else {
-                        lhsInputElem.querySelector("input").value = term["lhs"];
+                        multiTerm.querySelector("input").value = rhsArr[i];
                     }
-                }
-                if (!rhsDropdownElem.getAttribute("hidden")) {
-                    clickDropdownValue(rhsDropdownElem, term["rhs"]);
-                }
-                else {
-                    rhsInputElem.querySelector("input").value = term["rhs"];
                 }
             }
         }
@@ -324,6 +430,11 @@
     .search-component {
         display: grid;
         grid-template-rows: auto auto;
+        grid-template-columns: auto auto;
+        padding-bottom: 0.3em;
+    }
+    .search-label {
+        grid-column: span 2;
     }
     .search-remove-term {
         margin-top: 1em;
@@ -358,6 +469,19 @@
                 <div class="search-terms">
                     <div class="search-term-template" hidden>
                         <div class="search-term-grid">
+                            <div class="search-component search-operator">
+                                <div class="search-label">Operator</div>
+                                <div class="dropdown">
+                                    <button type="button" id="operatorDropdownButton" class="btn btn-light dropdown-toggle"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="operatorDropdownButton">
+                                        {% for (k, v) in advanced_search_data.operators.items() %}
+                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); chooseOperator(this);" value="{{k}}">{{k}}
+                                            <div class="dropdown-description">{{v["description"]}}</div></a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
                             <div class="search-component search-input-lhs" hidden>
                                 <div class="search-label"></div>
                                 <input class="form-control" type="text">
@@ -372,22 +496,11 @@
                                 </div>
                             </div>
                             <div class="search-unary-placeholder" hidden></div>
-                            <div class="search-component search-operator">
-                                <div class="search-label">Operator</div>
-                                <div class="dropdown">
-                                    <button type="button" id="operatorDropdownButton" class="btn btn-light dropdown-toggle"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                                    <div class="dropdown-menu search-dropdown-menu" aria-labelledby="operatorDropdownButton">
-                                        {% for (k, v) in advanced_search_data.operators.items() %}
-                                        <a class="dropdown-item" href="#" onclick="selectDropdownOption(this); chooseOperator(this);" value="{{k}}">{{k}}
-                                            <div class="dropdown-description">{{v["description"]}}</div></a>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
                             <div class="search-component search-input-rhs" hidden>
                                 <div class="search-label"></div>
                                 <input class="form-control" type="text">
+                                <button type="button" class="search-rhs-multi-remove btn btn-link btn-sm" style="color: grey"
+                                onclick="removeRHSMultiTerm(this);" title="Delete Value" hidden><i class="fa-solid fa-xmark"></i></button>
                             </div>
                             <div class="search-component search-dropdown-rhs" hidden>
                                 <div class="search-label"></div>
@@ -397,12 +510,22 @@
                                     <div class="dropdown-menu search-dropdown-menu" aria-labelledby="rhsDropdownButton">
                                     </div>
                                 </div>
+                                <button type="button" class="search-rhs-multi-remove btn btn-link btn-sm" style="color: grey"
+                                onclick="removeRHSMultiTerm(this);" title="Delete Value" hidden><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                            <div class="search-multi-placeholder"></div>
+                            <div></div>
+                            <div class="search-rhs-multi-holder" hidden>
+                                <div class="search-rhs-multi-add">
+                                    <button type="button" class="btn btn-link" id="addRHSMultiTermButton"
+                                    onclick="addRHSMultiTerm(this);" title="Add Value"><i class="fa-solid fa-plus"></i> value</button>
+                                </div>
                             </div>
                         </div>
                         <div class="search-remove-term" hidden>
                             <div class="d-flex justify-content-end">
-                            <button type="button" class="btn btn-link btn-sm" style="color: grey"
-                                    onclick="removeSearchTerm(this);" title="Delete Term"><i class="fa-solid fa-xmark"></i></button>
+                                <button type="button" class="btn btn-link btn-sm" style="color: grey"
+                                        onclick="removeSearchTerm(this);" title="Delete Term"><i class="fa-solid fa-xmark"></i></button>
                             </div>
                         </div>
                         <div class="search-divider row" hidden>
