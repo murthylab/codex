@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+from src.data.brain_regions import REGIONS
 from PIL import Image
 from meshparty import skeleton_io, trimesh_vtk, trimesh_io
 
@@ -21,83 +22,6 @@ BRAIN_MESH_PATH = "brain_mesh_v141.obj"
 
 SEGMENT_COLOR = (160 / 255, 42 / 255, 250 / 255)
 
-REGIONS = {
-    1: "AME_R",
-    2: "LO_R",
-    3: "NO",
-    4: "BU_R",
-    5: "PB",
-    6: "LH_R",
-    7: "LAL_R",
-    8: "SAD",
-    9: "CAN_R",
-    10: "AMMC_R",
-    11: "ICL_R",
-    12: "VES_R",
-    13: "IB_R",
-    14: "ATL_R",
-    15: "CRE_R",
-    16: "MB_PED_R",
-    17: "MB_VL_R",
-    18: "MB_ML_R",
-    19: "FLA_R",
-    20: "LOP_R",
-    21: "EB",
-    22: "AL_R",
-    23: "ME_R",
-    24: "FB",
-    25: "SLP_R",
-    26: "SIP_R",
-    27: "SMP_R",
-    28: "AVLP_R",
-    29: "PVLP_R",
-    30: "WED_R",
-    31: "PLP_R",
-    32: "AOTU_R",
-    33: "GOR_R",
-    34: "MB_CA_R",
-    35: "SPS_R",
-    36: "IPS_R",
-    37: "SCL_R",
-    38: "EPA_R",
-    39: "GNG",
-    40: "PRW",
-    41: "GA_R",
-    42: "AME_L",
-    43: "LO_L",
-    44: "BU_L",
-    45: "LH_L",
-    46: "LAL_L",
-    47: "CAN_L",
-    48: "AMMC_L",
-    49: "ICL_L",
-    50: "VES_L",
-    51: "IB_L",
-    52: "ATL_L",
-    53: "CRE_L",
-    54: "MB_PED_L",
-    55: "MB_VL_L",
-    56: "MB_ML_L",
-    57: "FLA_L",
-    58: "LOP_L",
-    59: "AL_L",
-    60: "ME_L",
-    61: "SLP_L",
-    62: "SIP_L",
-    63: "SMP_L",
-    64: "AVLP_L",
-    65: "PVLP_L",
-    66: "WED_L",
-    67: "PLP_L",
-    68: "AOTU_L",
-    69: "GOR_L",
-    70: "MB_CA_L",
-    71: "SPS_L",
-    72: "IPS_L",
-    73: "SCL_L",
-    74: "EPA_L",
-    75: "GA_L",
-}
 
 full_brain = trimesh_io.read_mesh(BRAIN_MESH_PATH)
 full_brain_mesh = trimesh_io.Mesh(full_brain[0], full_brain[1], full_brain[2])
@@ -164,15 +88,15 @@ def generate_neuropil_thumbnails():
         use_https=True,
     )
 
-    for mesh_id in REGIONS:
-        np_mesh_cv = cv.mesh.get(mesh_id)
+    for np_name, np_attrs in REGIONS.items():
+        np_id = np_attrs[0]
+        np_mesh_cv = cv.mesh.get(np_id)
         np_mesh = trimesh_io.Mesh(
             np_mesh_cv.vertices, np_mesh_cv.faces, np_mesh_cv.normals
         )
         np_mesh_actor = trimesh_vtk.mesh_actor(
             np_mesh, color=SEGMENT_COLOR, opacity=0.75
         )
-        np_name = REGIONS[mesh_id]
         out_path = os.path.join("thumbnails", f"{np_name}.png")
         trimesh_vtk.render_actors(
             [full_brain_mesh_actor, np_mesh_actor],
