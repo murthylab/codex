@@ -46,6 +46,16 @@ def fetch_flywire_user_id(storage):
     return storage["data_access_payload"]["id"]
 
 
+def fetch_flywire_user_affiliation(storage):
+    try:
+        return (
+            storage["data_access_payload"]["pi"]
+            or storage["data_access_payload"]["affiliations"]
+        )
+    except Exception:
+        return None
+
+
 def is_granted_data_access(storage):
     return "data_access_token" in storage
 

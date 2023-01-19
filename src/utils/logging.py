@@ -8,7 +8,12 @@ from flask import session, request, has_request_context
 from user_agents import parse as parse_ua
 
 from src.configuration import proc_id, host_name, APP_ENVIRONMENT
-from src.utils.cookies import fetch_user_name, fetch_user_email, is_granted_data_access
+from src.utils.cookies import (
+    fetch_user_name,
+    fetch_user_email,
+    is_granted_data_access,
+    fetch_flywire_user_affiliation,
+)
 
 startup_time = datetime.datetime.now()
 
@@ -74,7 +79,11 @@ def log(msg):
 
     user_info = fetch_user_email(session)
     if user_info:
+        affiliation = fetch_flywire_user_affiliation(session)
+        if affiliation:
+            user_info = f"{user_info} {affiliation}"
         msg = f"{user_info} > {msg}"
+
     print(msg)
     return msg
 
