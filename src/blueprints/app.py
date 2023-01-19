@@ -1014,6 +1014,7 @@ def synapse_density():
 def genetic_lines():
     selected = request.args.get("selected")
     expressions = LINES.get(selected, {})
+
     return render_template(
         "genetic_lines.html", lines=LINES, selected=selected, expressions=expressions
     )
