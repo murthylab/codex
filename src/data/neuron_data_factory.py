@@ -1,5 +1,5 @@
 from src.data.local_data_loader import unpickle_neuron_db, DATA_ROOT_PATH
-from src.data.versions import DATA_SNAPSHOT_VERSIONS, DEFAULT_DATA_SNAPSHOT_VERSION
+from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 from src.utils.logging import log
 
 # Singleton

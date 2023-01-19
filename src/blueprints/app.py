@@ -33,7 +33,10 @@ from src.data.structured_search_filters import (
     parse_search_query,
 )
 from src.data.sorting import sort_search_results, SORT_BY_OPTIONS
-from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSION_DESCRIPTIONS
+from src.data.versions import (
+    DEFAULT_DATA_SNAPSHOT_VERSION,
+    DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
+)
 from src.service.cell_details import cached_cell_details
 from src.service.network import compile_network_html
 from src.service.search import pagination_data, DEFAULT_PAGE_SIZE
@@ -163,8 +166,7 @@ def render_neuron_list(
 
     display_data = [neuron_db.get_neuron_data(i) for i in page_ids]
     skeleton_thumbnail_urls = {
-        nd["root_id"]: url_for_skeleton(nd["root_id"])
-        for nd in display_data
+        nd["root_id"]: url_for_skeleton(nd["root_id"]) for nd in display_data
     }
     highlighted_labels = {}
     for nd in display_data:
