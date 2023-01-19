@@ -6,7 +6,7 @@ import pickle
 from datetime import datetime
 
 from src.data.neuron_data import NeuronDB
-from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS
+from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS
 from src.utils.logging import log, log_error
 from src.utils.networking import download
 
@@ -32,7 +32,7 @@ def data_file_path_for_version(version, data_root_path=DATA_ROOT_PATH):
 
 def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     if version is None:
-        version = LATEST_DATA_SNAPSHOT_VERSION
+        version = DEFAULT_DATA_SNAPSHOT_VERSION
     data_file_path = data_file_path_for_version(
         version=version, data_root_path=data_root_path
     )

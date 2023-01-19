@@ -27,7 +27,7 @@ from src.configuration import (
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.data.versions import (
-    LATEST_DATA_SNAPSHOT_VERSION,
+    DEFAULT_DATA_SNAPSHOT_VERSION,
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
 )
 from src.utils.auth import extract_access_token
@@ -373,7 +373,7 @@ def index(path):
             num_cells="{:,}".format(neuron_db.num_cells()),
             num_synapses="{:,}".format(neuron_db.num_synapses()),
             num_annotations="{:,}".format(neuron_db.num_annotations()),
-            default_version=LATEST_DATA_SNAPSHOT_VERSION,
+            default_version=DEFAULT_DATA_SNAPSHOT_VERSION,
         )
 
 
@@ -491,7 +491,7 @@ def demo_clip():
 
 def activity_suffix(filter_string, data_version):
     return (f"for '{truncate(filter_string, 50)}'" if filter_string else "") + (
-        f" (v{data_version})" if data_version != LATEST_DATA_SNAPSHOT_VERSION else ""
+        f" (v{data_version})" if data_version != DEFAULT_DATA_SNAPSHOT_VERSION else ""
     )
 
 
@@ -500,7 +500,7 @@ def activity_suffix(filter_string, data_version):
 def skeleton_thumbnail_url():
     cell_or_neuropil = request.args.get("cell_or_neuropil")
     log_request = request.args.get("log_request", default=1, type=int)
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     url = url_for_skeleton(cell_or_neuropil=cell_or_neuropil, data_version=data_version)
     if log_request:
         log_activity(

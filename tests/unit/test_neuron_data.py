@@ -10,7 +10,7 @@ from src.data.local_data_loader import (
     unpickle_neuron_db,
     read_csv,
 )
-from src.data.versions import DATA_SNAPSHOT_VERSIONS, LATEST_DATA_SNAPSHOT_VERSION
+from src.data.versions import DATA_SNAPSHOT_VERSIONS, DEFAULT_DATA_SNAPSHOT_VERSION
 from src.utils.formatting import compact_label, make_web_safe
 from src.utils.graph_algos import neighbors
 from tests import TEST_DATA_ROOT_PATH
@@ -21,7 +21,7 @@ class NeuronDataTest(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.neuron_db = unpickle_neuron_db(
-            version=LATEST_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
+            version=DEFAULT_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
         )
 
     def test_loading(self):
@@ -527,7 +527,7 @@ class NeuronDataTest(TestCase):
 
             found_rids = [i for i in rid_set if i in self.neuron_db.neuron_data]
             print(
-                f"### Num seg ids: {len(rid_set)}, found in {LATEST_DATA_SNAPSHOT_VERSION} dataset: {len(found_rids)} {codex_link(found_rids)}"
+                f"### Num seg ids: {len(rid_set)}, found in {DEFAULT_DATA_SNAPSHOT_VERSION} dataset: {len(found_rids)} {codex_link(found_rids)}"
             )
             ustream = neighbors(found_rids, self.neuron_db.input_sets())
             dstream = neighbors(found_rids, self.neuron_db.output_sets())

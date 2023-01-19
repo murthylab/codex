@@ -153,7 +153,7 @@ def generate_thumbnails():
         render(filename)
         print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Rendered {filename}")
     # Next step: upload thumbnails to GCS bucket:
-    # flywire-data/{LATEST_DATA_SNAPSHOT_VERSION}/skeleton_thumbnails/{root_id}.png
+    # flywire-data/codex/skeleton_thumbnails/{root_id}.png
 
 
 def generate_neuropil_thumbnails():

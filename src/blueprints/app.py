@@ -33,7 +33,7 @@ from src.data.structured_search_filters import (
     parse_search_query,
 )
 from src.data.sorting import sort_search_results, SORT_BY_OPTIONS
-from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
+from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSION_DESCRIPTIONS
 from src.service.cell_details import cached_cell_details
 from src.service.network import compile_network_html
 from src.service.search import pagination_data, DEFAULT_PAGE_SIZE
@@ -70,7 +70,7 @@ app = Blueprint("app", __name__, url_prefix="/app")
 @require_data_access
 def stats():
     filter_string = request.args.get("filter_string", "")
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
 
@@ -110,7 +110,7 @@ def stats():
         else [],
         filter_string=filter_string,
         hint=hint,
-        data_versions=NeuronDataFactory.instance().available_versions(),
+        data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
         data_version=data_version,
         case_sensitive=case_sensitive,
         whole_word=whole_word,
@@ -133,10 +133,10 @@ def leaderboard():
 @require_data_access
 def explore():
     log_activity("Loading Explore page")
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     return render_template(
         "categories.html",
-        data_versions=NeuronDataFactory.instance().available_versions(),
+        data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
         data_version=data_version,
         key="class",
         categories=NeuronDataFactory.instance().get(data_version).categories(),
@@ -194,7 +194,7 @@ def render_neuron_list(
         page_size_options=page_size_options,
         filter_string=filter_string,
         hint=hint,
-        data_versions=NeuronDataFactory.instance().available_versions(),
+        data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
         data_version=data_version,
         case_sensitive=case_sensitive,
         whole_word=whole_word,
@@ -218,7 +218,7 @@ def search():
     filter_string = request.args.get("filter_string", "")
     page_number = int(request.args.get("page_number", 1))
     page_size = int(request.args.get("page_size", DEFAULT_PAGE_SIZE))
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
     sort_by = request.args.get("sort_by")
@@ -281,7 +281,7 @@ def search():
 @require_data_access
 def download_search_results():
     filter_string = request.args.get("filter_string", "")
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
     neuron_db = NeuronDataFactory.instance().get(data_version)
@@ -325,7 +325,7 @@ def download_search_results():
 @require_data_access
 def root_ids_from_search_results():
     filter_string = request.args.get("filter_string", "")
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
     neuron_db = NeuronDataFactory.instance().get(data_version)
@@ -350,7 +350,7 @@ def root_ids_from_search_results():
 @require_data_access
 def search_results_flywire_url():
     filter_string = request.args.get("filter_string", "")
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
     neuron_db = NeuronDataFactory.instance().get(data_version)
@@ -380,7 +380,7 @@ def search_results_flywire_url():
 @request_wrapper
 def flywire_url():
     root_ids = [int(rid) for rid in request.args.getlist("root_ids")]
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     log_request = request.args.get("log_request", default=1, type=int)
     proofreading_url = request.args.get("proofreading_url", default=0, type=int)
     url = nglui.url_for_root_ids(
@@ -411,7 +411,7 @@ def ngl_redirect_with_browser_check(ngl_url):
 @require_data_access
 def cell_details():
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     reachability_stats = request.args.get("reachability_stats", 0, type=int)
     neuron_db = NeuronDataFactory.instance().get(data_version)
 
@@ -800,7 +800,7 @@ def path_length():
 @require_data_access
 def connectivity():
     sample_input = "720575940626843194, 720575940631740497, 720575940608893891"
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     nt_type = request.args.get("nt_type", None)
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     connections_cap = request.args.get("cap", 20, type=int)
@@ -912,7 +912,7 @@ def connectivity():
                 info_text=None,
                 sample_input=None,
                 message=message,
-                data_versions=NeuronDataFactory.instance().available_versions(),
+                data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
                 data_version=data_version,
                 reduce=reduce,
                 group_regions=group_regions,
@@ -932,7 +932,7 @@ def connectivity():
             f"{con_doc['a']}",
             sample_input=sample_input,
             message=None,
-            data_versions=NeuronDataFactory.instance().available_versions(),
+            data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
             data_version=data_version,
             reduce=reduce,
             group_regions=group_regions,
@@ -982,7 +982,7 @@ def neuropils():
 @request_wrapper
 @require_data_access
 def synapse_density():
-    data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     normalized = request.args.get("normalized", type=int, default=0)
     directed = request.args.get("directed", type=int, default=0)
     group_by = request.args.get("group_by")

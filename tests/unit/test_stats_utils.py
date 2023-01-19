@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from src.data.local_data_loader import unpickle_neuron_db
-from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
+from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 from src.utils import stats
 from tests import TEST_DATA_ROOT_PATH
 
@@ -21,10 +21,10 @@ class Test(TestCase):
             search_query="test_query_1",
             case_sensitive=0,
             match_words=1,
-            data_version=LATEST_DATA_SNAPSHOT_VERSION,
+            data_version=DEFAULT_DATA_SNAPSHOT_VERSION,
         )
         self.assertEqual(
-            f"Stats for search query: 'test_query_1', match words, data version: {LATEST_DATA_SNAPSHOT_VERSION}",
+            f"Stats for search query: 'test_query_1', match words, data version: {DEFAULT_DATA_SNAPSHOT_VERSION}",
             caption,
         )
         self.assertEqual(
@@ -34,7 +34,7 @@ class Test(TestCase):
 
         # actual data
         neuron_db = unpickle_neuron_db(
-            LATEST_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
+            DEFAULT_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
         )
         caption, data_stats, data_charts = stats.compile_data(
             neuron_data=list(neuron_db.neuron_data.values()),
@@ -42,10 +42,10 @@ class Test(TestCase):
             search_query="test_query_2",
             case_sensitive=1,
             match_words=0,
-            data_version=LATEST_DATA_SNAPSHOT_VERSION,
+            data_version=DEFAULT_DATA_SNAPSHOT_VERSION,
         )
         self.assertEqual(
-            f"Stats for search query: 'test_query_2', case sensitive, data version: {LATEST_DATA_SNAPSHOT_VERSION}",
+            f"Stats for search query: 'test_query_2', case sensitive, data version: {DEFAULT_DATA_SNAPSHOT_VERSION}",
             caption,
         )
         self.assertEqual(

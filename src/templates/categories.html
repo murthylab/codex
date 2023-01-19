@@ -21,9 +21,9 @@
     <label style="margin: 20px;">Data version</label>
     <select style="margin: 20px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit()"
             aria-label="Data Version" name="data_version">
-        {% for v in data_versions %}
-        <option value="{{v}}" {{
-        'selected' if data_version==v}}>{{v}}</option>
+        {% for k, v in data_versions.items() %}
+        <option value="{{k}}" {{
+        'selected' if data_version==k}}>{{v}}</option>
         {% endfor %}
     </select>
 </form>

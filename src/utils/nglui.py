@@ -1,7 +1,7 @@
 import random
 import urllib.parse
 
-from src.data.versions import LATEST_DATA_SNAPSHOT_VERSION
+from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 
 _BASE_URL = "https://neuroglancer-demo.appspot.com"
 _PREFIX = {
@@ -91,10 +91,10 @@ def url_for_root_ids(root_ids, version, point_to_proofreading_flywire=False):
         return PROOFREADFW.format("%22%2C%22".join([str(seg) for seg in root_ids]))
     else:
         prefix = _PREFIX.get(str(version)) or _PREFIX.get(
-            str(LATEST_DATA_SNAPSHOT_VERSION)
+            str(DEFAULT_DATA_SNAPSHOT_VERSION)
         )
         sufix = _SUFFIX.get(str(version)) or _SUFFIX.get(
-            str(LATEST_DATA_SNAPSHOT_VERSION)
+            str(DEFAULT_DATA_SNAPSHOT_VERSION)
         )
         seg_ids = ",".join([f'"{rid}"' for rid in root_ids])
         payload = urllib.parse.quote(f"{prefix}{seg_ids}{sufix}")
