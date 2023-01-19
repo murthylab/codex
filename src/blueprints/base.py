@@ -500,8 +500,7 @@ def activity_suffix(filter_string, data_version):
 def skeleton_thumbnail_url():
     cell_or_neuropil = request.args.get("cell_or_neuropil")
     log_request = request.args.get("log_request", default=1, type=int)
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
-    url = url_for_skeleton(cell_or_neuropil=cell_or_neuropil, data_version=data_version)
+    url = url_for_skeleton(cell_or_neuropil=cell_or_neuropil)
     if log_request:
         log_activity(
             f"Fetching skeleton URL for {cell_or_neuropil}: {format_link(url)}"
