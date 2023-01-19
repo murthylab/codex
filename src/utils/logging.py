@@ -63,7 +63,6 @@ def with_url_link(txt):
         return txt
 
 
-
 def log(msg):
     msg = f"{proc_id} > {uptime()} > {msg}"
     if "localhost" != host_name:

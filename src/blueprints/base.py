@@ -498,10 +498,12 @@ def activity_suffix(filter_string, data_version):
 @base.route("/skeleton_thumbnail_url")
 @request_wrapper
 def skeleton_thumbnail_url():
-    root_id = int(request.args.get("root_id"))
+    cell_or_neuropil = request.args.get("cell_or_neuropil")
     log_request = request.args.get("log_request", default=1, type=int)
     data_version = request.args.get("data_version", LATEST_DATA_SNAPSHOT_VERSION)
-    url = url_for_skeleton(root_id=root_id, data_version=data_version)
+    url = url_for_skeleton(cell_or_neuropil=cell_or_neuropil, data_version=data_version)
     if log_request:
-        log_activity(f"Fetching skeleton URL for {root_id}: {format_link(url)}")
+        log_activity(
+            f"Fetching skeleton URL for {cell_or_neuropil}: {format_link(url)}"
+        )
     return redirect(url, code=302)
