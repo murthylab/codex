@@ -63,7 +63,7 @@ def _fetch_client_info():
 
 def with_url_link(txt):
     try:
-        format_link(request.url, txt)
+        return format_link(request.url, txt)
     except Exception:
         return txt
 
