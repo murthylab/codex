@@ -1,4 +1,9 @@
+from contextlib import ExitStack
+import glob
 import os
+import shutil
+import subprocess
+import sys
 
 import numpy as np
 from src.data.brain_regions import REGIONS
@@ -35,21 +40,38 @@ full_brain_mesh_actor = trimesh_vtk.mesh_actor(
     full_brain_mesh, color=(0, 0, 0), opacity=0.025
 )
 
-ngl_state = {
-    "navigation": {
-        "pose": {
-            "position": {
-                "voxelSize": [4, 4, 40],
-                "voxelCoordinates": [131529, 53923, 2000],
+
+class HiddenPrints:
+    # https://stackoverflow.com/a/45669280
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, "w")
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
+
+
+def generate_cam(perspective_orientation=[0.0, 0.0, 0.0, 1.0]):
+    ngl_state = {
+        "navigation": {
+            "pose": {
+                "position": {
+                    "voxelSize": [4, 4, 40],
+                    "voxelCoordinates": [131529, 53923, 2000],
+                }
             }
-        }
-    },
-    "perspectiveZoom": 2500,
-}
-cam = trimesh_vtk.camera_from_ngl_state(ngl_state)
+        },
+        "perspectiveZoom": 2500,
+        "perspectiveOrientation": perspective_orientation,
+    }
+    return trimesh_vtk.camera_from_ngl_state(ngl_state)
 
 
-def render(filename, out_path=None):
+cam = generate_cam()
+
+
+def render(filename, out_path=None, camera=cam):
     if out_path is None:
         out_path = os.path.join(THUMBNAILS_PATH, filename)
     skeleton = skeleton_io.read_skeleton_h5(os.path.join(DATA_PATH, filename))
@@ -57,13 +79,16 @@ def render(filename, out_path=None):
         skeleton, color=SEGMENT_COLOR, opacity=0.75
     )
     out_filename = out_path.replace(".h5", ".png")
-    trimesh_vtk.render_actors(
-        [full_brain_mesh_actor, skeleton_actor],
-        filename=out_filename,
-        camera=cam,
-        scale=1,
-        do_save=True,
-    )
+    with HiddenPrints():
+        trimesh_vtk.render_actors(
+            [full_brain_mesh_actor, skeleton_actor],
+            filename=out_filename,
+            camera=camera,
+            scale=1,
+            do_save=True,
+            video_width=540,
+            video_height=360,
+        )
     add_transparency(out_filename)
 
 
@@ -84,6 +109,69 @@ def generate_thumbnails():
         print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Rendered {filename}")
     # Next step: upload thumbnails to GCS bucket:
     # flywire-data/codex/skeleton_thumbnails/{root_id}.png
+
+
+def compile_gif(root_id, cleanup=True):
+    input_path = os.path.join(THUMBNAILS_PATH, f"*_{root_id}.png")
+    output_path = os.path.join(THUMBNAILS_PATH, f"{root_id}.gif")
+    print("Compiling gif", output_path)
+    os.system(f"convert -delay 10 -dispose background {input_path} {output_path}")
+    if cleanup:
+        for f in glob.glob(input_path):
+            os.remove(f)
+
+
+def generate_thumbnail_animated(filename):
+    root_id = filename.replace(".h5", "")
+
+    angle = 0.4
+    smoothness = 4
+    increment = angle / smoothness
+    frames = {}
+    frames[0] = [0, 2 * smoothness]
+    for i in range(1, smoothness):
+        a = i * increment
+        frames[a] = [i, 2 * smoothness - i]
+        frames[-a] = [2 * smoothness + i, 4 * smoothness - i]
+    frames[angle] = [smoothness]
+    frames[-angle] = [3 * smoothness]
+
+    for f in frames:
+        cam = generate_cam(perspective_orientation=[0, f, 0, 1])
+        base_i = frames[f][0]
+        render(
+            filename,
+            out_path=os.path.join(THUMBNAILS_PATH, f"{base_i:02}_{filename}"),
+            camera=cam,
+        )
+        for i in range(1, len(frames[f])):
+            shutil.copyfile(
+                os.path.join(THUMBNAILS_PATH, f"{base_i:02}_{root_id}.png"),
+                os.path.join(THUMBNAILS_PATH, f"{(frames[f][i]):02}_{root_id}.png"),
+            )
+    compile_gif(root_id)
+
+
+def generate_thumbnails_animated():
+    # generate_thumbnail_animated(filename)
+
+    # filenames = os.listdir(DATA_PATH)
+    filenames = [
+        "720575940627118090.h5",
+        "720575940623680234.h5",
+        "720575940621280688.h5",
+        "720575940624743404.h5",
+        "720575940626977917.h5",
+        "720575940623495827.h5",
+        "720575940620251271.h5",
+        "720575940616815958.h5",
+        "720575940627436114.h5",
+        "720575940630361143.h5",
+    ]
+    num_ids = len(filenames)
+    for i, filename in enumerate(filenames):
+        generate_thumbnail_animated(filename)
+        print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Rendered {filename}")
 
 
 def generate_neuropil_thumbnails():
@@ -116,4 +204,5 @@ def generate_neuropil_thumbnails():
 
 if __name__ == "__main__":
     # generate_thumbnails()
-    generate_neuropil_thumbnails()
+    # generate_neuropil_thumbnails()
+    generate_thumbnails_animated()
