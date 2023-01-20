@@ -339,10 +339,10 @@ def index(path):
                 "url": "app.cell_details",
             },
             {
-                "header": "NBLAST",
-                "body": "Pairwise morphological similarity scores for sets of neurons",
-                "asset_filename": "card-nblast.jpg",
-                "url": "app.nblast",
+                "header": "Neuropils",
+                "body": "Visualize and query connections in specific brain regions",
+                "asset_filename": "neuropils.gif",
+                "url": "app.neuropils",
             },
             {
                 "header": "Network Graphs",
@@ -355,6 +355,12 @@ def index(path):
                 "body": "Analyse shortest-paths between pairs of neurons",
                 "asset_filename": "card-pathways.png",
                 "url": "app.path_length",
+            },
+            {
+                "header": "NBLAST",
+                "body": "Pairwise morphological similarity scores for sets of neurons",
+                "asset_filename": "card-nblast.jpg",
+                "url": "app.nblast",
             },
             {
                 "header": "Download Data",
