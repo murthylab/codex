@@ -4,4 +4,4 @@ python3 -m src.etl.pickle_data && \
 python3 -m pytest tests/unit/test_stats_utils.py -x && \
 python3 -m pytest tests/unit/test_neuron_data.py -x && \
 python3 -m pytest tests/integration/test_neuron_data.py -x && \
-gsutil -m rsync -r -x ".*.DS_Store" -x ".*bkp.csv.gz" static/data gs://flywire-data/codex/data
+gsutil -m rsync -r -x ".*.DS_Store|.*bkp.csv.gz" static/data gs://flywire-data/codex/data
