@@ -39,7 +39,7 @@ class NeuronDataTest(TestCase):
             "label_data": "50 M",
             "labels_file_timestamp": "64 B",
             "neuron_data": "365 M",
-            "search_index": "152 M",
+            "search_index": "153 M",
         }
 
         def approx_size(ob):
