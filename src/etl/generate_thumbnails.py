@@ -13,14 +13,20 @@ Instructions:
     - These are available from https://drive.google.com/drive/folders/1NA7lq5Arj5sqVnWUKAPc4KHkIjV0K8ba
 - Place the full brain mesh file in the local folder, named `brain_mesh_v141.obj` (or anything else, and update `BRAIN_MESH_PATH` accordingly).
     - This is already included
-- Make sure you have meshparty, Pillow, and numpy installed (`pip install meshparty` etc. - may need a fresh Conda environment).
-- Run `python generate_thumbnails.py`. For each `<root_id>.h5` skeleton file, a corresponding thumbnail in the thumbnails folder named `<root_id>.png` will be created.
+- Make sure you have meshparty, Pillow, and numpy installed, as well as the project's requirements.txt (`pip install meshparty` etc. - may need a fresh Conda environment).
+- From the project root folder, run `python -m src.etl.generate_thumbnails`. For each `<root_id>.h5` skeleton file, a corresponding thumbnail in the thumbnails folder named `<root_id>.png` will be created.
 """
 
-DATA_PATH = os.path.join("flywire_resource_data_files", "l2_skeletons")
-BRAIN_MESH_PATH = "brain_mesh_v141.obj"
+BASE_PATH = os.path.join("src", "etl")
+DATA_PATH = os.path.join(BASE_PATH, "flywire_resource_data_files", "l2_skeletons")
+BRAIN_MESH_PATH = os.path.join(BASE_PATH, "brain_mesh_v141.obj")
+THUMBNAILS_PATH = os.path.join(BASE_PATH, "thumbnails")
 
 SEGMENT_COLOR = (160 / 255, 42 / 255, 250 / 255)
+
+
+if not os.path.exists(THUMBNAILS_PATH):
+    os.makedirs(THUMBNAILS_PATH)
 
 
 full_brain = trimesh_io.read_mesh(BRAIN_MESH_PATH)
@@ -45,7 +51,7 @@ cam = trimesh_vtk.camera_from_ngl_state(ngl_state)
 
 def render(filename, out_path=None):
     if out_path is None:
-        out_path = os.path.join("thumbnails", filename)
+        out_path = os.path.join(THUMBNAILS_PATH, filename)
     skeleton = skeleton_io.read_skeleton_h5(os.path.join(DATA_PATH, filename))
     skeleton_actor = trimesh_vtk.skeleton_actor(
         skeleton, color=SEGMENT_COLOR, opacity=0.75
@@ -97,7 +103,7 @@ def generate_neuropil_thumbnails():
         np_mesh_actor = trimesh_vtk.mesh_actor(
             np_mesh, color=SEGMENT_COLOR, opacity=0.75
         )
-        out_path = os.path.join("thumbnails", f"{np_name}.png")
+        out_path = os.path.join(THUMBNAILS_PATH, f"{np_name}.png")
         trimesh_vtk.render_actors(
             [full_brain_mesh_actor, np_mesh_actor],
             filename=out_path,
