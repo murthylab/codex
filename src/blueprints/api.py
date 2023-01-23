@@ -46,7 +46,7 @@ def download():
             "download.html",
             data_version=data_version or DEFAULT_DATA_SNAPSHOT_VERSION,
             data_product=data_product or list(DOWNLOADABLE_PRODUCTS.keys())[0],
-            data_versions=list(DATA_SNAPSHOT_VERSION_DESCRIPTIONS.keys()),
+            data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
             data_products=DOWNLOADABLE_PRODUCTS,
             user_name=fetch_user_name(session),
         )
