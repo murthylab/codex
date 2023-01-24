@@ -36,10 +36,10 @@ class NeuronDataTest(TestCase):
 
         expected_sizes = {
             "connection_rows": "646 M",
-            "label_data": "50 M",
+            "label_data": "52 M",
             "labels_file_timestamp": "64 B",
             "neuron_data": "365 M",
-            "search_index": "153 M",
+            "search_index": "155 M",
         }
 
         def approx_size(ob):

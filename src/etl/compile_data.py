@@ -397,29 +397,31 @@ def compile_neuron_metadata_table(version, summarize_files=False):
                 val_col=f_content[0].index("side"),
             )
         elif f == "cell_stats.feather":
+            # older than 571: stats_cols = ["root_id", "area_nm2", "size_nm3", "path_length_nm"]
+            stats_cols = ['root_id', 'area', 'volume', 'path_length', 'max_strahler', 'n_branch_points', 'n_end_points', 'n_skeleton_nodes', 'diameter']
             assert all(
                 [
                     col in f_content[0]
-                    for col in ["root_id", "area_nm2", "size_nm3", "path_length_nm"]
+                    for col in stats_cols
                 ]
             )
             load(
                 dct=area_dict,
                 tbl=f_content,
                 rid_col=f_content[0].index("root_id"),
-                val_col=f_content[0].index("area_nm2"),
+                val_col=f_content[0].index("area"),
             )
             load(
                 dct=size_dict,
                 tbl=f_content,
                 rid_col=f_content[0].index("root_id"),
-                val_col=f_content[0].index("size_nm3"),
+                val_col=f_content[0].index("volume"),
             )
             load(
                 dct=length_dict,
                 tbl=f_content,
                 rid_col=f_content[0].index("root_id"),
-                val_col=f_content[0].index("path_length_nm"),
+                val_col=f_content[0].index("path_length"),
             )
         else:
             assert f"Unknown file: {f}" is None
