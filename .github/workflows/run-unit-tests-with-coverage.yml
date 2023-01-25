@@ -1,5 +1,6 @@
 name: Run unit tests with coverage
 on:
+  pull_request:
   push:
     branches:
     - main
