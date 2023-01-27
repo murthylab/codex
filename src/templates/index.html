@@ -30,7 +30,7 @@
         </div>
 
         <div style="min-width: 300px; width: 50%;">
-            <hr class="my-4" align="left">
+            <hr class="my-4">
 
             <h2 style="color: purple;">FlyWire Dataset (v{{default_version}})</h2>
             <p>Codex provides access to <a href="details" data-toggle="modal" data-target="#dataVersionsModal">
@@ -59,7 +59,7 @@
                        aria-label="Filter" value="{{filter_string}}" onchange="loading(event)">
             </form>
 
-            <hr class="my-4" align="left">
+            <hr class="my-4">
         </div>
 
 
@@ -75,7 +75,9 @@
                 <div class="card" style="max-width: 300px; margin: 0 auto;">
                     <div class="card_image" style="height: 200px; margin: 0 auto;">
                         <img src="{{url_for('base.asset', filename=cd.asset_filename)}}"
-                             style="align: center; object-fit: cover; min-width: 100%; width: auto; height: auto; margin: 0 auto;">
+                             style="object-fit: cover; min-width: 100%; width: auto; height: auto; margin: 0 auto;"
+                             aria-hidden="true"
+                             alt="">
                     </div>
                     <div class="card_content" style="height: 120px;">
                         <h2 class="card_title">{{cd.header}}</h2>

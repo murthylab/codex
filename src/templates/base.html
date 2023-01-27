@@ -3,9 +3,9 @@
 {% block base_barebones_content %}
 <!-- Banner: h6 style="background: purple; color: white; text-align: center; font-size: 14px;">Dec 12, 2022: FlyWire data snapshot has been updated to v526. Previous snapshots are still available via settings.</h6 -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
-    <a id='nav_home' class="navbar-brand mb-0 h1" href="{{url_for('base.index')}}"><img width="30.6px" height="17.7px"
-                                                                                        src="{{url_for('base.asset', filename='codex-icon-color.png')}}">&nbsp;
-        Codex</a>
+    <a id='nav_home' class="navbar-brand mb-0 h1" href="{{url_for('base.index')}}">
+        <img width="30.6px" height="17.7px" src="{{url_for('base.asset', filename='codex-icon-color.png')}}">
+        &nbsp;Codex</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
