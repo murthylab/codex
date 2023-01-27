@@ -612,7 +612,7 @@ class NeuronDataTest(TestCase):
 
     def test_thumbnails(self):
         # Run this first to collect existing skeleton root ids:
-        # gsutil du gs://flywire-data/526/skeleton_thumbnails | grep png | cut -d"/" -f 6 | cut -d "." -f 1 > static/raw_data/526/thumbnails_tmp.csv
+        # gsutil du gs://flywire-data/codex/526/skeleton_thumbnails | grep png | cut -d"/" -f 6 | cut -d "." -f 1 > static/raw_data/526/thumbnails_tmp.csv
         fname = f"{TEST_DATA_ROOT_PATH}/../raw_data/526/thumbnails_tmp.csv"
         if os.path.isfile(fname):
             content = set([int(r[0]) for r in read_csv(fname)])
