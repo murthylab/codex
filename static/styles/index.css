@@ -16,10 +16,8 @@ h2 {
 }
 
 img {
-  height: auto;
   max-width: 100%;
   vertical-align: middle;
-  horizontal-align: middle;
 }
 
 .cards {
@@ -33,8 +31,9 @@ img {
 .cards_item {
   display: flex;
   padding: 1rem;
-  transform: scale(1);
   transition: transform .2s;
+  cursor: pointer;
+  margin: 0 auto;
 }
 
 .cards_item:hover {
@@ -44,6 +43,7 @@ img {
 @media (min-width: 40rem) {
   .cards_item {
     width: 50%;
+    margin: 0;
   }
 }
 
