@@ -56,9 +56,9 @@
         <tr>
             <td style="padding: 0px; margin: 0px;" ><a
                     href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);"><img
-                    src="{{skeleton_thumbnail_urls.get(neuron.root_id)}}"
-                    onmouseover="this.src='https://storage.googleapis.com/flywire-data/codex/skeleton_gifs/720575940616815958.gif'"
-                    onmouseout="this.src='{{skeleton_thumbnail_urls.get(neuron.root_id)}}'"
+                    src="{{skeleton_thumbnail_urls.get(neuron.root_id)[0]}}"
+                    onmouseover="this.src='{{skeleton_thumbnail_urls.get(neuron.root_id)[1]}}'"
+                    onmouseout="this.src='{{skeleton_thumbnail_urls.get(neuron.root_id)[0]}}'"
                     width="200px" height="150px;" border="1px;"></a></td>
             <td><a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);">{{neuron.name}}</a><br><small>{{neuron.root_id}}</small>
             </td>
