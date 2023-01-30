@@ -17,13 +17,17 @@ Instructions:
 - Place the full brain mesh file in the local folder, named `brain_mesh_v141.obj` (or anything else, and update `BRAIN_MESH_PATH` accordingly).
     - This is already included
 - Make sure you have meshparty, Pillow, and numpy installed, as well as the project's requirements.txt (`pip install meshparty` etc. - may need a fresh Conda environment).
+- For animated thumbnails, make sure ImageMagick is installed with the `convert` command- https://imagemagick.org/script/download.php
 - From the project root folder, run `python -m src.etl.generate_thumbnails`. For each `<root_id>.h5` skeleton file, a corresponding thumbnail in the thumbnails folder named `<root_id>.png` will be created.
+    - For animated thumbnails: run `python -m src.etl.generate_thumbnails animated`
+    - For neuropil thumbnails: run `python -m src.etl.generate_thumbnails neuropils`
 """
 
 BASE_PATH = os.path.join("src", "etl")
 DATA_PATH = os.path.join(BASE_PATH, "flywire_resource_data_files", "l2_skeletons")
 BRAIN_MESH_PATH = os.path.join(BASE_PATH, "brain_mesh_v141.obj")
 THUMBNAILS_PATH = os.path.join(BASE_PATH, "thumbnails")
+PREV_THUMBNAILS_PATH = os.path.join(BASE_PATH, "thumbnails_prev")
 
 SEGMENT_COLOR = (160 / 255, 42 / 255, 250 / 255)
 
@@ -69,7 +73,7 @@ def generate_cam(perspective_orientation=[0.0, 0.0, 0.0, 1.0]):
 cam = generate_cam()
 
 
-def render(filename, out_path=None, camera=cam):
+def render(filename, out_path=None, camera=cam, downscale_factor=1):
     if out_path is None:
         out_path = os.path.join(THUMBNAILS_PATH, filename)
     skeleton = skeleton_io.read_skeleton_h5(os.path.join(DATA_PATH, filename))
@@ -84,8 +88,8 @@ def render(filename, out_path=None, camera=cam):
             camera=camera,
             scale=1,
             do_save=True,
-            video_width=540,
-            video_height=360,
+            video_width=1080 // downscale_factor,
+            video_height=720 // downscale_factor, 
         )
     add_transparency(out_filename)
 
@@ -103,8 +107,13 @@ def generate_thumbnails():
     filenames = os.listdir(DATA_PATH)
     num_ids = len(filenames)
     for i, filename in enumerate(filenames):
-        render(filename)
-        print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Rendered {filename}")
+        if os.path.exists(os.path.join(THUMBNAILS_PATH, filename.replace(".h5", ".png"))):
+            print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Already exists {filename}")
+        elif os.path.exists(os.path.join(PREV_THUMBNAILS_PATH, filename.replace(".h5", ".png"))):
+            print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Exists in previous version {filename}")
+        else:
+            render(filename)
+            print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Rendered {filename}")
     # Next step: upload thumbnails to GCS bucket:
     # flywire-data/codex/skeleton_thumbnails/{root_id}.png
 
@@ -123,7 +132,7 @@ def generate_thumbnail_animated(filename):
     root_id = filename.replace(".h5", "")
 
     angle = 0.4
-    smoothness = 4
+    smoothness = 3
     increment = angle / smoothness
     frames = {}
     frames[0] = [0, 2 * smoothness]
@@ -141,6 +150,7 @@ def generate_thumbnail_animated(filename):
             filename,
             out_path=os.path.join(THUMBNAILS_PATH, f"{base_i:02}_{filename}"),
             camera=cam,
+            downscale_factor=4,
         )
         for i in range(1, len(frames[f])):
             shutil.copyfile(
@@ -151,25 +161,16 @@ def generate_thumbnail_animated(filename):
 
 
 def generate_thumbnails_animated():
-    # generate_thumbnail_animated(filename)
-
-    # filenames = os.listdir(DATA_PATH)
-    filenames = [
-        "720575940627118090.h5",
-        "720575940623680234.h5",
-        "720575940621280688.h5",
-        "720575940624743404.h5",
-        "720575940626977917.h5",
-        "720575940623495827.h5",
-        "720575940620251271.h5",
-        "720575940616815958.h5",
-        "720575940627436114.h5",
-        "720575940630361143.h5",
-    ]
+    filenames = os.listdir(DATA_PATH)
     num_ids = len(filenames)
     for i, filename in enumerate(filenames):
-        generate_thumbnail_animated(filename)
-        print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Rendered {filename}")
+        if os.path.exists(os.path.join(THUMBNAILS_PATH, filename.replace(".h5", ".gif"))):
+            print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Already exists {filename}")
+        elif os.path.exists(os.path.join(PREV_THUMBNAILS_PATH, filename.replace(".h5", ".gif"))):
+            print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Exists in previous version {filename}")
+        else:
+            generate_thumbnail_animated(filename)
+            print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Rendered {filename}")
 
 
 def generate_neuropil_thumbnails():
@@ -201,6 +202,12 @@ def generate_neuropil_thumbnails():
 
 
 if __name__ == "__main__":
-    # generate_thumbnails()
-    # generate_neuropil_thumbnails()
-    generate_thumbnails_animated()
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "neuropils":
+            generate_neuropil_thumbnails()
+        elif sys.argv[1] == "animated":
+            generate_thumbnails_animated()
+        else:
+            generate_thumbnails()
+    else:
+        generate_thumbnails()
