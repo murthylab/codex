@@ -20,14 +20,20 @@
             </pre>
 
         {% else %}
-            <!-- reload page button -->
+        <p>Job is still running. This page will reload to check every 10 seconds</p>
             <button
                     class="btn btn-primary"
                     onclick="window.location.reload();"
-            >Reload
+            >Reload Now
             </button>
+                <script language="javascript">
+setTimeout(function(){
+   window.location.reload(1);
+}, 10000);
+</script>
 
 
         {% endif %}
     </div>
+
 {% endblock content %}
