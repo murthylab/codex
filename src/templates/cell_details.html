@@ -136,6 +136,8 @@ div.google-visualization-tooltip { width:250px; }
                 src="{{url_for('app.flywire_url', data_version=data_version, root_ids=[cell_id], log_request=0)}}" title="neuroglancer"
                 loading="lazy"></iframe>
     </div>
+            <a class="btn btn-primary" href="{{ url_for('app.matching_lines', segment_id=cell_id) }}">Find matching genetic
+            lines</a>
 </div>
 <div class="card" style="width: 100%;">
     <div class="card-header" style="color: purple;">

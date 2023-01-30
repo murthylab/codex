@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Matching Lines Submission Status
+{% endblock title %}
+
+{% block content %}
+
+    <div class="container">
+
+
+        <h2>Job Status</h2>
+        <pre>
+{{ response|tojson(indent=2) }}
+</pre>
+        {% if results %}
+            <h2>Results</h2>
+            <pre>
+{{ results|tojson(indent=2) }}
+            </pre>
+
+        {% else %}
+            <!-- reload page button -->
+            <button
+                    class="btn btn-primary"
+                    onclick="window.location.reload();"
+            >Reload
+            </button>
+
+
+        {% endif %}
+    </div>
+{% endblock content %}
