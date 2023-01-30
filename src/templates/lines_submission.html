@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Matching Lines Submission Status
+{% if results %}
+[Job Completed]
+{% else %}
+[Job Running]
+{% endif %}
+    - Matching Lines Submission Status
 {% endblock title %}
 
 {% block content %}
