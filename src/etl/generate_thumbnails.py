@@ -89,7 +89,7 @@ def render(filename, out_path=None, camera=cam, downscale_factor=1):
             scale=1,
             do_save=True,
             video_width=1080 // downscale_factor,
-            video_height=720 // downscale_factor, 
+            video_height=720 // downscale_factor,
         )
     add_transparency(out_filename)
 
@@ -107,13 +107,23 @@ def generate_thumbnails():
     filenames = os.listdir(DATA_PATH)
     num_ids = len(filenames)
     for i, filename in enumerate(filenames):
-        if os.path.exists(os.path.join(THUMBNAILS_PATH, filename.replace(".h5", ".png"))):
-            print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Already exists {filename}")
-        elif os.path.exists(os.path.join(PREV_THUMBNAILS_PATH, filename.replace(".h5", ".png"))):
-            print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Exists in previous version {filename}")
+        if os.path.exists(
+            os.path.join(THUMBNAILS_PATH, filename.replace(".h5", ".png"))
+        ):
+            print(
+                f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Already exists {filename}"
+            )
+        elif os.path.exists(
+            os.path.join(PREV_THUMBNAILS_PATH, filename.replace(".h5", ".png"))
+        ):
+            print(
+                f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Exists in previous version {filename}"
+            )
         else:
             render(filename)
-            print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Rendered {filename}")
+            print(
+                f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Rendered {filename}"
+            )
     # Next step: upload thumbnails to GCS bucket:
     # flywire-data/codex/skeleton_thumbnails/{root_id}.png
 
@@ -164,13 +174,23 @@ def generate_thumbnails_animated():
     filenames = os.listdir(DATA_PATH)
     num_ids = len(filenames)
     for i, filename in enumerate(filenames):
-        if os.path.exists(os.path.join(THUMBNAILS_PATH, filename.replace(".h5", ".gif"))):
-            print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Already exists {filename}")
-        elif os.path.exists(os.path.join(PREV_THUMBNAILS_PATH, filename.replace(".h5", ".gif"))):
-            print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Exists in previous version {filename}")
+        if os.path.exists(
+            os.path.join(THUMBNAILS_PATH, filename.replace(".h5", ".gif"))
+        ):
+            print(
+                f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Already exists {filename}"
+            )
+        elif os.path.exists(
+            os.path.join(PREV_THUMBNAILS_PATH, filename.replace(".h5", ".gif"))
+        ):
+            print(
+                f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Exists in previous version {filename}"
+            )
         else:
             generate_thumbnail_animated(filename)
-            print(f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Rendered {filename}")
+            print(
+                f"[{i + 1}/{num_ids} ({(i + 1) / num_ids * 100}%)] Rendered {filename}"
+            )
 
 
 def generate_neuropil_thumbnails():
