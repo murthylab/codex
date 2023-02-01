@@ -40,27 +40,47 @@
             <li class="nav-item">
                 <a onclick="loading(event);" class="nav-link" id="nav_synapse" href="{{url_for('app.synapse_density')}}">Synapse</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" id="nav_faq" href="{{url_for('base.faq')}}">FAQ</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="nav_about" href="{{url_for('base.about')}}">About</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="nav_more_active" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  More
+                </a>
+                <div class="dropdown-menu" aria-labelledby="nav_more_active">
+                  <a class="dropdown-item" id="nav_faq" href="{{url_for('base.faq')}}">FAQ</a>
+                  <a class="dropdown-item" id="nav_leaderboard" href="{{url_for('app.leaderboard')}}">Tagathon</a>
+                  <a class="dropdown-item" id="nav_about_codex" href="{{url_for('base.about_codex')}}">About Codex</a>
+                  <a class="dropdown-item" id="nav_about_flywire" href="{{url_for('base.about_flywire')}}">About FlyWire</a>
+                  <a class="dropdown-item" id="nav_account" href="{{url_for('base.account')}}">Account</a>
+                </div>
             </li>
 
             <script>
-              function nav_elem_id(cur_url) {
-                let tabs = ['search', 'cell_details', 'stats', 'explore',
-                            'nblast', 'connectivity','path_length','neuropils', 'synapse', 'faq', 'about'];
-                for (const tab of tabs){
+              function highlight_elem_id(elem_id) {
+                document.getElementById(elem_id).style.color = 'purple';
+              }
+              function configure_nav_bar(cur_url) {
+                let fixed_tabs = ['search', 'cell_details', 'stats', 'explore',
+                            'nblast', 'connectivity','path_length','neuropils', 'synapse'];
+                for (const tab of fixed_tabs){
                     if (cur_url.includes(tab)) {
-                      return 'nav_' + tab;
+                      highlight_elem_id('nav_' + tab);
+                      return;
                     }
                 }
-                return 'nav_home';
-              }
-              elem_id = nav_elem_id(window.location.href);
-              document.getElementById(elem_id).style.color = 'purple';
 
+                let more_tabs = ['faq', 'leaderboard', 'about_codex', 'about_flywire', 'account'];
+                for (const tab of more_tabs){
+                    if (cur_url.includes(tab)) {
+                      console.log('+++ ' + document.getElementById('nav_' + tab).text);
+                      document.getElementById('nav_more_active').text = document.getElementById('nav_' + tab).text;
+                      highlight_elem_id('nav_more_active');
+                      return;
+                    }
+                }
+
+                highlight_elem_id('nav_home');
+              }
+
+              configure_nav_bar(window.location.href);
             </script>
         </ul>
 

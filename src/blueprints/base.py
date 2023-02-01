@@ -226,21 +226,18 @@ def warning_with_redirect(title, message, redirect_url, redirect_button_text):
     )
 
 
-@base.route("/about", methods=["GET", "POST"])
+@base.route("/about_codex", methods=["GET", "POST"])
 @request_wrapper
-def about():
-    log_activity("Loading About page")
+def about_codex():
+    log_activity("Loading About Codex page")
     message_sent = False
     if request.method == "POST":
         msg = request.form.get("user_message")
         if msg:
-            log_user_help(f"From About page: {msg}")
+            log_user_help(f"From About Codex page: {msg}")
             message_sent = True
     return render_template(
-        "about.html",
-        user_email=fetch_user_email(session),
-        user_name=fetch_user_name(session),
-        user_picture=fetch_user_picture(session),
+        "about_codex.html",
         message_sent=message_sent,
         build_git_sha=BUILD_GIT_SHA,
         build_timestamp=BUILD_TIMESTAMP,
@@ -254,6 +251,27 @@ def about():
             total_request_serving_time_millis / max(1, num_requests_processed)
         )
         / 1000,
+    )
+
+
+@base.route("/about_flywire", methods=["GET", "POST"])
+@request_wrapper
+def about_flywire():
+    log_activity("Loading About FlyWire Dataset page")
+    return render_template(
+        "about_flywire.html",
+    )
+
+
+@base.route("/account", methods=["GET"])
+@request_wrapper
+def account():
+    log_activity("Loading Account page")
+    return render_template(
+        "account.html",
+        user_email=fetch_user_email(session),
+        user_name=fetch_user_name(session),
+        user_picture=fetch_user_picture(session),
     )
 
 

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+Account
+{% endblock title %}
+
+{% block content %}
+<div class="card bg-light mb-3" style="margin: 10px;">
+    <div class="card-header" style="color: purple; font-size: 18px;">
+        Account
+    </div>
+    <div class="card-body">
+        <div>
+            <img src="{{user_picture|safe}}">
+            <p style="margin-left: 10px; display: inline-block; vertical-align: top;">
+                {{user_name}}<br>{{user_email}}<br><br>
+                <a href="/auth_token"><small><i class="fa-solid fa-key"></i></small> Auth token</a>
+                &nbsp;&#8286;&nbsp;
+                <a href="/logout">&#10132 Sign out</a></p>
+        </div>
+    </div>
+</div>
+{% endblock content %}
