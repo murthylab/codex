@@ -69,13 +69,16 @@
         </thead>
         <tbody>
         {% for neuron in display_data %}
-        <tr onmouseover="hover_row(this, '{{neuron.root_id}}');"
-            onmouseleave="unhover_row(this, '{{neuron.root_id}}');">
-            <td style="padding: 0px; margin: 0px;" ><a
-                    href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);"><img
-                    class="skeleton_thumbnail"
-                    src="{{skeleton_thumbnail_urls.get(neuron.root_id)[0]}}"
-                    width="200px" height="150px;" border="1px;"></a></td>
+        <tr>
+            <td style="padding: 0px; margin: 0px;"
+                onmouseover="hover_row(this, '{{neuron.root_id}}');"
+                onmouseleave="unhover_row(this, '{{neuron.root_id}}');">
+                <a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);"><img
+                   class="skeleton_thumbnail"
+                   src="{{skeleton_thumbnail_urls.get(neuron.root_id)[0]}}"
+                   width="200px" height="150px;" border="1px;">
+                </a>
+            </td>
             <td><a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);">{{neuron.name}}</a><br><small>{{neuron.root_id}}</small>
             </td>
             <td style="color:#3A3A3A;">
