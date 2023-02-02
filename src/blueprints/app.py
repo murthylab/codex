@@ -43,7 +43,11 @@ from src.service.search import pagination_data, DEFAULT_PAGE_SIZE
 from src.service.stats import stats_cached, leaderboard_cached
 from src.service.synapse import synapse_density_cached
 from src.utils import nglui
-from src.utils.cookies import fetch_flywire_user_id
+from src.utils.cookies import (
+    fetch_flywire_user_id,
+    fetch_user_email,
+    fetch_flywire_token,
+)
 from src.utils.formatting import (
     synapse_table_to_csv_string,
     synapse_table_to_json_dict,
@@ -64,6 +68,7 @@ from src.utils.pathway_vis import pathway_chart_data_rows
 from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
 from src.data.structured_search_filters import get_advanced_search_data
+from src.data.braincircuits import neuron2line
 
 app = Blueprint("app", __name__, url_prefix="/app")
 
@@ -1004,3 +1009,17 @@ def synapse_density():
     )
 
     return render_template("synapse_density.html", **dct)
+
+
+@app.route("/matching_lines/")
+@request_wrapper
+@require_data_access
+def matching_lines():
+    segment_id = request.args.get("segment_id")
+    target_library = request.args.get("target_library")
+    email = fetch_user_email(session)
+    cave_token = fetch_flywire_token(session)
+    if segment_id and target_library:
+        return neuron2line([segment_id], target_library, email, cave_token)
+    else:
+        return {}, 400
