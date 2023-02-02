@@ -37,7 +37,7 @@ from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
 )
-from src.data.genetic_lines import LINES, neuron2line, check_submission, get_result
+from src.data.genetic_lines import LINES
 from src.service.cell_details import cached_cell_details
 from src.service.network import compile_network_html
 from src.service.search import pagination_data, DEFAULT_PAGE_SIZE
@@ -1016,37 +1016,3 @@ def genetic_lines():
     return render_template(
         "genetic_lines.html", lines=LINES, selected=selected, expressions=expressions
     )
-
-
-@app.route("/matching_lines/<segment_id>")
-@request_wrapper
-@require_data_access
-def matching_lines(segment_id):
-    if segment_id:
-        result = neuron2line([segment_id])
-        submission_id = result.get("submission")
-        if submission_id:
-            return redirect(
-                url_for("app.lines_submission", submission_id=submission_id)
-            )
-
-    return redirect(url_for("app.genetic_lines"))
-
-
-@app.route("/lines/submission/<submission_id>")
-@request_wrapper
-@require_data_access
-def lines_submission(submission_id):
-    responses = check_submission(submission_id)
-    if len(responses) == 0:
-        return redirect(url_for("app.genetic_lines"))
-    response = responses[0]
-    job_id = response.get("job_id")
-    status = response.get("job_status")
-    if status == "FINISHED":
-        results = get_result(job_id)
-        return render_template(
-            "lines_submission.html", response=response, results=results
-        )
-
-    return render_template("lines_submission.html", response=response, results=None)
