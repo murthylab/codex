@@ -1,6 +1,7 @@
 import requests
+import os
 
-BRAINCIRCUITS_TOKEN = "900ac5c2bb32028caa65b98f85b919f9"
+BRAINCIRCUITS_TOKEN = os.environ.get("BRAINCIRCUITS_TOKEN")
 
 
 def neuron2line(
@@ -29,4 +30,7 @@ def neuron2line(
         },
         params={"project": "fruitfly_fafb_flywire"},
     )
+    if not response.ok:
+        raise Exception(response.text)
     return response.json()
+
