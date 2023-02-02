@@ -43,7 +43,11 @@ from src.service.search import pagination_data, DEFAULT_PAGE_SIZE
 from src.service.stats import stats_cached, leaderboard_cached
 from src.service.synapse import synapse_density_cached
 from src.utils import nglui
-from src.utils.cookies import fetch_flywire_user_id
+from src.utils.cookies import (
+    fetch_flywire_user_id,
+    fetch_user_email,
+    fetch_flywire_token,
+)
 from src.utils.formatting import (
     synapse_table_to_csv_string,
     synapse_table_to_json_dict,
@@ -148,17 +152,17 @@ def explore():
 
 
 def render_neuron_list(
-        data_version,
-        template_name,
-        filtered_root_id_list,
-        filter_string,
-        case_sensitive,
-        whole_word,
-        page_number,
-        page_size,
-        sort_by,
-        hint,
-        extra_data,
+    data_version,
+    template_name,
+    filtered_root_id_list,
+    filter_string,
+    case_sensitive,
+    whole_word,
+    page_number,
+    page_size,
+    sort_by,
+    hint,
+    extra_data,
 ):
     neuron_db = NeuronDataFactory.instance().get(data_version)
     pagination_info, page_ids, page_size, page_size_options = pagination_data(
@@ -252,10 +256,10 @@ def search():
             synapse_neuropil_count_getter=lambda x: len(
                 neuron_db.get_neuron_data(x)["input_neuropils"]
             )
-                                                    + len(neuron_db.get_neuron_data(x)["output_neuropils"]),
+            + len(neuron_db.get_neuron_data(x)["output_neuropils"]),
             size_getter=lambda x: neuron_db.get_neuron_data(x)["size_nm"],
             partner_count_getter=lambda x: len(neuron_db.output_sets()[x])
-                                           + len(neuron_db.input_sets()[x]),
+            + len(neuron_db.input_sets()[x]),
             similarity_scores_getter=lambda x: neuron_db.get_similar_cells(
                 x, as_dict_with_scores=True
             ),
@@ -507,8 +511,8 @@ def nblast():
         if source_cell_names_or_ids:
             root_ids |= set(neuron_db.search(search_query=source_cell_names_or_ids))
         if (
-                target_cell_names_or_ids
-                and target_cell_names_or_ids != source_cell_names_or_ids
+            target_cell_names_or_ids
+            and target_cell_names_or_ids != source_cell_names_or_ids
         ):
             root_ids |= set(neuron_db.search(search_query=target_cell_names_or_ids))
         root_ids = sorted(root_ids)
@@ -619,9 +623,9 @@ def nblast():
                 target_cell_names_or_ids=target_cell_names_or_ids,
             ),
             info_text="With this tool you can specify one "
-                      "or more source cells + one or more target cells, and get a matrix of NBLAST scores for all "
-                      "source/target pairs.<br>"
-                      f"{nblast_doc['a']}",
+            "or more source cells + one or more target cells, and get a matrix of NBLAST scores for all "
+            "source/target pairs.<br>"
+            f"{nblast_doc['a']}",
             sample_input=sample_input,
             message=message,
         )
@@ -704,8 +708,8 @@ def path_length():
         if source_cell_names_or_ids:
             root_ids |= set(neuron_db.search(search_query=source_cell_names_or_ids))
         if (
-                target_cell_names_or_ids
-                and target_cell_names_or_ids != source_cell_names_or_ids
+            target_cell_names_or_ids
+            and target_cell_names_or_ids != source_cell_names_or_ids
         ):
             root_ids |= set(neuron_db.search(search_query=target_cell_names_or_ids))
         root_ids = sorted(root_ids)
@@ -792,11 +796,11 @@ def path_length():
                 target_cell_names_or_ids=target_cell_names_or_ids,
             ),
             info_text="With this tool you can specify one "
-                      "or more source cells + one or more target cells, set a minimum synapse threshold per connection,"
-                      " and get a matrix with shortest path lengths for all source/target pairs. From there, you can inspect / "
-                      "visualize "
-                      "the pathways between any pair of cells in detail.<br>"
-                      f"{paths_doc['a']}",
+            "or more source cells + one or more target cells, set a minimum synapse threshold per connection,"
+            " and get a matrix with shortest path lengths for all source/target pairs. From there, you can inspect / "
+            "visualize "
+            "the pathways between any pair of cells in detail.<br>"
+            f"{paths_doc['a']}",
             sample_input=sample_input,
             message=message,
         )
@@ -816,8 +820,8 @@ def connectivity():
     hide_weights = request.args.get("hide_weights", 0, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     if (
-            request.args.get("with_sample_input", type=int, default=0)
-            and not cell_names_or_ids
+        request.args.get("with_sample_input", type=int, default=0)
+        and not cell_names_or_ids
     ):
         cell_names_or_ids = sample_input
     download = request.args.get("download")
@@ -936,7 +940,7 @@ def connectivity():
             max_cap=1,
             network_html=None,
             info_text="With this tool you can specify one or more cells and visualize their connectivity network.<br>"
-                      f"{con_doc['a']}",
+            f"{con_doc['a']}",
             sample_input=sample_input,
             message=None,
             data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
@@ -1013,7 +1017,9 @@ def synapse_density():
 def matching_lines():
     segment_id = request.args.get("segment_id")
     target_library = request.args.get("target_library")
+    email = fetch_user_email(session)
+    cave_token = fetch_flywire_token(session)
     if segment_id and target_library:
-        return neuron2line([segment_id], target_library)
+        return neuron2line([segment_id], target_library, email, cave_token)
     else:
         return {}, 400
