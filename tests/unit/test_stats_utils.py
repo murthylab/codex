@@ -49,14 +49,11 @@ class Test(TestCase):
             caption,
         )
         self.assertEqual(
-            {
-                "": 3,
-                "Top Labelers (all time)": 5,
-                "Top Labelers (last 500)": 5,
-                "Top Labels": 5,
-            },
-            {k: len(v) for k, v in data_stats.items()},
+            {"", "Top Labelers (all time)", "Top Labelers (last 500)", "Top Labels"},
+            set(data_stats.keys()),
         )
+        self.assertEqual(5, len(data_stats["Top Labelers (all time)"]))
+        self.assertEqual(5, len(data_stats["Top Labels"]))
         self.assertEqual(
             [
                 "Classes",

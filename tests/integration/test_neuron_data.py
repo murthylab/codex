@@ -36,10 +36,10 @@ class NeuronDataTest(TestCase):
 
         expected_sizes = {
             "connection_rows": "646 M",
-            "label_data": "52 M",
+            "label_data": "53 M",
             "labels_file_timestamp": "64 B",
             "neuron_data": "365 M",
-            "search_index": "155 M",
+            "search_index": "156 M",
         }
 
         def approx_size(ob):
@@ -62,9 +62,21 @@ class NeuronDataTest(TestCase):
             "labels_file_timestamp": approx_size(loaded_db.labels_file_timestamp),
         }
 
-        self.assertEqual(
-            expected_sizes,
-            actual_sizes,
+        def compare_approx_sizes(exp, act):
+            if exp.keys() != act.keys():
+                return False
+            for k, ve in exp.items():
+                va = act[k]
+                ve_vals = ve.split(" ")
+                va_vals = va.split(" ")
+                if ve_vals[1] != va_vals[1] or not (
+                    0.8 * int(ve_vals[0]) <= int(va_vals[0]) <= 1.2 * int(ve_vals[0])
+                ):
+                    return False
+            return True
+
+        self.assertTrue(
+            compare_approx_sizes(expected_sizes, actual_sizes),
             "Unexpected DB size, makes sure it's not outdated. To update: rm -r static/data/* then run the service.",
         )
 

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}
+About
+{% endblock title %}
+
+{% block content %}
+<div class="card bg-light mb-3" style="margin: 10px;">
+    <div class="card-header" style="color: purple; font-size: 18px;">
+        About FlyWire Connectome
+    </div>
+    <div class="card-body" >
+        <h6>Status</h6>
+        <ul>
+            <li>FlyWire Connectome is actively proofread and labeled - completeness and accuracy are improving daily</li>
+            <li>Expected public release date (along with Codex) is Feb 2023</li>
+        </ul>
+        <h6>Credits and Resources</h6>
+        <ul>
+            <li>The <a href="https://flywire.ai" target="_blank">FlyWire</a> Project: A human-AI collaboration to map
+                the fly connectome
+            </li>
+            <li>To publish FlyWire data, please follow the instructions <a
+                    href="https://docs.google.com/document/d/1bUkOB-5JnT3u__JDvAoVDHJ3zr5NXQtV_63yx2w6Tcc/">in this
+                doc</a></li>
+            <li>FlyWire <a href="https://flywire.ai/tos.html">Terms of Service and Privacy</a> notice</li>
+            <li>Supported by BRAIN Initiative grant MH117815 to Murthy and Seung</li>
+        </ul>
+        <h6>Data Sources</h6>
+        <ul>
+            <li>Cell segments were auto-generated from electron-microscopy images with AI. Primary contact: <a href="mailto:flywire@princeton.edu">flywire@princeton.edu</a></li>
+            <li>Cell reconstructions were assembled from segments (proofread) by the FlyWire community (see the <a href="https://flywire.ai" target="_blank">FlyWire</a> Project). Primary contact: <a href="mailto:flywire@princeton.edu">flywire@princeton.edu</a></li>
+            <li>Synaptic connections were automatically detected using the <a href="https://www.nature.com/articles/s41592-021-01183-7">Buhmann et al.</a> method. Primary contact: <a href="mailto:flywire@princeton.edu">flywire@princeton.edu</a></li>
+            <li>Free-form labels (cell identification tags) were provided by the FlyWire community. See the <a href="{{url_for('app.leaderboard')}}">tagathon leaderboard</a> and the specific list of authors in each cell info page for credits.</li>
+            <li>Hierarchical annotations (side, flow, super class, cell class, cell type, nerve and hemi-lineage) were assigned in collaboration with the <a href="http://flybrain.mrc-lmb.cam.ac.uk/jefferislabwebsite/">Jefferis lab</a>. Primary contact: <a href="https://www.zoo.cam.ac.uk/directory/dr-philip-schlegel">Philipp Schlegel</a></li>
+            <li>Neurotransmitter types were predicted were predicted using the <a href="https://www.biorxiv.org/content/10.1101/2020.06.12.148775v2">Eckstein et al.</a> method. Primary contact: <a href="mailto:flywire@princeton.edu">flywire@princeton.edu</a></li>
+            <li>Morphological similarity scores (NBLAST based) were computed for the central brain cells by <a href="https://www.zoo.cam.ac.uk/directory/dr-philip-schlegel">Philipp Schlegel</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock content %}

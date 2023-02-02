@@ -4,9 +4,15 @@ from src.data.local_data_loader import write_csv, read_csv
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils.graph_algos import reachable_nodes
 
+"""
+For every neuron in the dataset, calculates the number of neurons reachable within i hops (for i=0,1,2...)
+Generates sharded CSV tables with root id of the neuron in 1st column, and the counts of reachable neurons in second
+column in the following format: <# reachable in 0 hops>:<# reachable in 1 hops>:<# reachable in 2 hops>...
+"""
+
 
 def compute_distance_counts():
-    neuron_db = NeuronDataFactory.get(version="571")
+    neuron_db = NeuronDataFactory().get(version="571")
     osets = neuron_db.output_sets()
     sorted_rids = sorted(neuron_db.neuron_data.keys())
     chunk_size = 1000
