@@ -32,9 +32,6 @@
                 <a onclick="loading(event);" class="nav-link" id="nav_path_length" href="{{url_for('app.path_length')}}">Pathways</a>
             </li>
             <li class="nav-item">
-                <a onclick="loading(event);" class="nav-link" id="nav_nblast" href="{{url_for('app.nblast')}}">NBLAST</a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link" id="nav_neuropils" href="{{url_for('app.neuropils')}}">Neuropils</a>
             </li>
             <li class="nav-item">
@@ -47,6 +44,7 @@
                 <div class="dropdown-menu" aria-labelledby="nav_more_active">
                   <a class="dropdown-item" id="nav_faq" href="{{url_for('base.faq')}}">FAQ</a>
                   <a class="dropdown-item" id="nav_leaderboard" href="{{url_for('app.leaderboard')}}">Tagathon</a>
+                  <a class="dropdown-item" onclick="loading(event);" id="nav_nblast" href="{{url_for('app.nblast')}}">NBLAST</a>
                   <a class="dropdown-item" id="nav_about_codex" href="{{url_for('base.about_codex')}}">About Codex</a>
                   <a class="dropdown-item" id="nav_about_flywire" href="{{url_for('base.about_flywire')}}">About FlyWire</a>
                   <a class="dropdown-item" id="nav_account" href="{{url_for('base.account')}}">Account</a>
@@ -59,7 +57,7 @@
               }
               function configure_nav_bar(cur_url) {
                 let fixed_tabs = ['search', 'cell_details', 'stats', 'explore',
-                            'nblast', 'connectivity','path_length','neuropils', 'synapse'];
+                            'connectivity','path_length','neuropils', 'synapse'];
                 for (const tab of fixed_tabs){
                     if (cur_url.includes(tab)) {
                       highlight_elem_id('nav_' + tab);
@@ -67,12 +65,12 @@
                     }
                 }
 
-                let more_tabs = ['faq', 'leaderboard', 'about_codex', 'about_flywire', 'account'];
+                let more_tabs = ['faq', 'leaderboard', 'nblast', 'about_codex', 'about_flywire', 'account'];
                 for (const tab of more_tabs){
                     if (cur_url.includes(tab)) {
-                      console.log('+++ ' + document.getElementById('nav_' + tab).text);
                       document.getElementById('nav_more_active').text = document.getElementById('nav_' + tab).text;
                       highlight_elem_id('nav_more_active');
+                      highlight_elem_id('nav_' + tab);
                       return;
                     }
                 }
