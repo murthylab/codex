@@ -76,32 +76,33 @@
       }
 
       function submitBrainCircuitsRequest() {
-                fetch("{{ url_for('app.matching_lines') }}?" + new URLSearchParams({
-                    segment_id: '{{cell_id}}',
-                    target_library: document.getElementById("braincircuits-target-library").value
-                }))
-                    .then(response => {
-                        if (response.ok) {
-                            return response.json()
-                        }
-                        throw new Error('Error calling Braincircuits')
-                    })
-                    .then(data => {
-                        const modal = document.getElementById("braincircuits-modal");
-                        const modal_body = modal.getElementsByClassName("modal-body")[0];
-                        modal_body.innerHTML = `<p>Submission Complete! The Submission ID is:</p> <pre>${data["submission"]}</pre><p>The
-                        results will be sent to your email address.</p>`;
-                        document.getElementById("brain_circuits_submit").disabled = true;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        const modal = document.getElementById("braincircuits-modal");
-                        const modal_body = modal.getElementsByClassName("modal-body")[0];
-                        modal_body.innerHTML = `<p>There was an error submitting the request. Please try again later.</p>`;
-                        document.getElementById("brain_circuits_submit").disabled = true;
-                    })
+            fetch("{{ url_for('app.matching_lines') }}?" + new URLSearchParams({
+                segment_id: '{{cell_id}}',
+                target_library: document.getElementById("braincircuits-target-library").value
+            }))
+                .then(response => {
+                    if (response.ok) {
+                        return response.json()
+                    }
+                    throw new Error('Error calling Braincircuits')
+                })
+                .then(data => {
+                    console.log(data)
+                    const modal = document.getElementById("braincircuits-modal");
+                    const modal_body = modal.getElementsByClassName("modal-body")[0];
+                    modal_body.innerHTML = `<p>Submission Complete! The Submission ID is:</p> <pre>${data["submission"]}</pre><p>The
+                    results will be sent to your email address.</p>`;
+                    document.getElementById("brain_circuits_submit").disabled = true;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const modal = document.getElementById("braincircuits-modal");
+                    const modal_body = modal.getElementsByClassName("modal-body")[0];
+                    modal_body.innerHTML = `<p>There was an error submitting the request. Please try again later.</p>`;
+                    document.getElementById("brain_circuits_submit").disabled = true;
+                })
 
-            }
+        }
 
 </script>
 <style>

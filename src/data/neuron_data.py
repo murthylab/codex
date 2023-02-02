@@ -530,7 +530,7 @@ class NeuronDB(object):
                 ].items()
                 if score >= min_score
             ]
-            if self.get_neuron_data(root_id)["similar_cell_scores"]
+            if self.get_neuron_data(root_id).get("similar_cell_scores")
             else []
         )
         scores = sorted(scores, key=lambda p: -p[1])[:top_k]

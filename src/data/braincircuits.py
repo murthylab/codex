@@ -1,53 +1,30 @@
 import requests
 
+
+BRAINCIRCUITS_TOKEN = "900ac5c2bb32028caa65b98f85b919f9"
+CAVE_TOKEN = "2b479ecfb87e457f4f863055db38918f"
+
 HEADERS = {
-    "Authorization": "Bearer PLrh9E-XqFr9_0XrnE5ljn2XMsAnJTSerwK1nff0y-k",  # temporary
+    "Authorization": f"Bearer {BRAINCIRCUITS_TOKEN}",
+    "Authorization-Cave": f"Bearer {CAVE_TOKEN}",
     "Content-Type": "application/json",
 }
 
-BASE_URL = "https://api-test.braincircuits.io/app/neuron2line"
-
-
-def braincircuits_request(method, data={}, extra_params=None, route=""):
-    params = {"project": "fruitfly_fafb_flywire"}
-
-    if extra_params:
-        params.update(extra_params)
-
-    response = requests.request(
-        method=method,
-        url=f"{BASE_URL}/{route}",
-        headers=HEADERS,
-        json=data,
-        params=params,
-    )
-    return response.json()
+BASE_URL = "https://api-test.braincircuits.io"
 
 
 def neuron2line(segment_ids: list[str], target_library: str):
-    return braincircuits_request(
+    response = requests.request(
         method="POST",
-        data={
+        url=f"{BASE_URL}/app/neuron2line",
+        headers=HEADERS,
+        json={
             "segment_ids": ",".join(segment_ids),
             "template_space": "JRC2018_BRAIN_UNISEX",
             "target_library": target_library,
             "matching_method": "colormip",
-            "caveToken": "2b479ecfb87e457f4f863055db38918f",  # temporary
+            "caveToken": CAVE_TOKEN,
         },
+        params={"project": "fruitfly_fafb_flywire"},
     )
-
-
-def check_submission(submission_id: str):
-    return braincircuits_request(
-        method="GET",
-        extra_params={"submission": submission_id},
-        route="submission",
-    )
-
-
-def get_result(jobid: str):
-    return braincircuits_request(
-        method="GET",
-        extra_params={"job": jobid},
-        route="result/matching",
-    )
+    return response.json()
