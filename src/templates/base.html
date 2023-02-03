@@ -47,6 +47,7 @@
                   <a class="dropdown-item" onclick="loading(event);" id="nav_nblast" href="{{url_for('app.nblast')}}">NBLAST</a>
                   <a class="dropdown-item" id="nav_about_codex" href="{{url_for('base.about_codex')}}">About Codex</a>
                   <a class="dropdown-item" id="nav_about_flywire" href="{{url_for('base.about_flywire')}}">About FlyWire</a>
+                  <a class="dropdown-item" id="nav_download" href="{{url_for('api.download')}}">Download Data</a>
                   <a class="dropdown-item" id="nav_account" href="{{url_for('base.account')}}">Account</a>
                 </div>
             </li>
@@ -65,7 +66,7 @@
                     }
                 }
 
-                let more_tabs = ['faq', 'leaderboard', 'nblast', 'about_codex', 'about_flywire', 'account'];
+                let more_tabs = ['faq', 'leaderboard', 'nblast', 'about_codex', 'about_flywire', 'download', 'account'];
                 for (const tab of more_tabs){
                     if (cur_url.includes(tab)) {
                       document.getElementById('nav_more_active').text = document.getElementById('nav_' + tab).text;

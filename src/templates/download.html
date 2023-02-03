@@ -8,15 +8,22 @@
          Download Data
     </div>
     <div class="card-body">
-        <p> Dear <b>{{user_name}}</b>, recall
+        <p> Dear <b>{{user_name}}</b>, beware
             that FlyWire data has not been published yet.
             <br>
             <br>
-            <i style="margin-right: 5px; color: orange;" class="fa-solid fa-warning"></i>
-            Do not share or forward the data to anyone without written permission from <b>flywire@princeton.edu</b>
-            <i style="margin-left: 5px; color: orange;" class="fa-solid fa-warning"></i>
+            <i style="margin-right: 5px; color: red;" class="fa-solid fa-warning"></i>
+            Do not share or forward the data to anyone without <b>written permission</b> from <b>flywire@princeton.edu</b>
+            <i style="margin-left: 5px; color: red;" class="fa-solid fa-warning"></i>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="agree_chk"
+                     onchange="document.getElementById('download_form').hidden=!document.getElementById('agree_chk').checked;">
+              <label class="form-check-label" for="agree_chk">
+                I understand and agree to not share data without permission
+              </label>
+            </div>
         </p>
-        <form class="form-inline">
+        <form class="form-inline" id="download_form" hidden>
             <label style="margin: 20px;">Data version</label>
             <select style="margin: 20px;" class="form-select form-select-lg mb-3"
                     aria-label="Data Version" name="data_version">
