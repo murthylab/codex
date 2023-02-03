@@ -1,6 +1,8 @@
 import json
 import re
 from datetime import datetime
+import requests
+
 
 from flask import (
     render_template,
@@ -62,6 +64,7 @@ from src.utils.logging import (
     log,
     log_user_help,
     log_warning,
+    log_error,
 )
 from src.utils.nglui import can_be_flywire_root_id
 from src.utils.pathway_vis import pathway_chart_data_rows
@@ -1019,7 +1022,17 @@ def matching_lines():
     target_library = request.args.get("target_library")
     email = fetch_user_email(session)
     cave_token = fetch_flywire_token(session)
-    if segment_id and target_library:
-        return neuron2line([segment_id], target_library, email, cave_token)
-    else:
-        return {}, 400
+    log_activity(f"Calling BrainCircuits API with {segment_id=} {target_library=}")
+    result = None
+    try:
+        result = neuron2line([segment_id], target_library, email, cave_token)
+        log_activity(f"BrainCircuits API call returned {result=}")
+    except requests.HTTPError as e:
+        log_error(
+            f"BrainCircuits API call failed with {e=}. Did you set BRAINCIRCUITS_TOKEN?"
+        )
+        result = {"error": e.response.text}, e.response.status_code
+    except Exception as e:
+        log_error(f"BrainCircuits API call failed with error: {e=}")
+        result = {"error": str(e)}, 500
+    return result

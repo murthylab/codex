@@ -81,26 +81,28 @@
                 target_library: document.getElementById("braincircuits-target-library").value
             }))
                 .then(response => {
-                    if (response.ok) {
-                        return response.json()
+                    if (!response.ok) {
+                        throw Error(response.statusText);
                     }
-                    throw new Error('Error calling Braincircuits')
+                    return response.json();;
                 })
                 .then(data => {
                     console.log(data)
+                    if (data.error) {
+                        throw Error(data.error);
+                    }
                     const modal = document.getElementById("braincircuits-modal");
                     const modal_body = modal.getElementsByClassName("modal-body")[0];
                     modal_body.innerHTML = `<p>Submission Complete! The results will be sent to your email address.</p>`;
-                    document.getElementById("brain_circuits_submit").disabled = true;
                 })
                 .catch(error => {
-                    console.error('Error:', error);
                     const modal = document.getElementById("braincircuits-modal");
                     const modal_body = modal.getElementsByClassName("modal-body")[0];
-                    modal_body.innerHTML = `<p>There was an error submitting the request. Please try again later.</p>`;
-                    document.getElementById("brain_circuits_submit").disabled = true;
+                    modal_body.innerHTML = `<p>There was an error submitting the request. Please try again later.</p><pre style="white-space: pre-wrap;">${error}</pre>`;
                 })
-
+                .finally(() => {
+                    document.getElementById("brain_circuits_submit").disabled = true;
+                });
         }
 
 </script>
