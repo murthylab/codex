@@ -1035,4 +1035,5 @@ def matching_lines():
     except Exception as e:
         log_error(f"BrainCircuits API call failed with error: {e=}")
         result = {"error": str(e)}, 500
+    result['email'] = email
     return result

@@ -96,7 +96,7 @@
                 if (data.error) {
                     throw Error(data.error);
                 }
-                modal_body.innerHTML = `<p>Submission Complete! The results will be sent to your email address.</p>`;
+                modal_body.innerHTML = `<p>Submission Complete! The results will be sent to your email address: ${data.email}</p>`;
             })
             .catch(error => {
                 modal_body.innerHTML = `<p>There was an error submitting the request. Please try again later.</p><pre style="white-space: pre-wrap;">${error}</pre>`;
