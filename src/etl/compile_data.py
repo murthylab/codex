@@ -130,7 +130,7 @@ def init_cave_client():
     return CAVEclient(CAVE_DATASTACK_NAME, auth_token=auth_token)
 
 
-def load_neuron_info_from_cave(client, version):
+def load_neuron_info_from_cave(client, version, write_user_infos_table=False):
     print("Downloading 'neuron_information_v2' with CAVE client..")
     df = client.materialize.query_table("neuron_information_v2")
     print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
@@ -162,6 +162,14 @@ def load_neuron_info_from_cave(client, version):
     print(
         f"Fetched user infos: {len(user_infos)}, not found: {len(user_ids - set(user_id_to_info.keys()))}"
     )
+
+    if write_user_infos_table:
+        print("Writing user infos table...")
+        user_infos_table = [["id", "name", "affiliation"]]
+        for u in user_infos:
+            user_infos_table.append([u["id"], u["name"], u["pi"]])
+        write_csv("user_infos.csv", rows=user_infos_table)
+
     uinfo_not_found = 0
     neuron_info_table[0].extend(["user_name", "user_affiliation"])
     for r in neuron_info_table[1:]:
