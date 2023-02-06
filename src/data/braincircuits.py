@@ -2,14 +2,14 @@ import requests
 import os
 
 BRAINCIRCUITS_TOKEN = os.environ.get("BRAINCIRCUITS_TOKEN")
+BRAINCIRCUITS_ENDPOINT = os.environ.get("BRAINCIRCUITS_ENDPOINT", "api-test.braincircuits.io")
 
 
 def neuron2line(
-    segment_ids: list[str], target_library: str, email: str, cave_token: str
+        segment_ids: list[str], target_library: str, email: str, cave_token: str
 ) -> dict:
-
     response = requests.post(
-        url="https://api-test.braincircuits.io/app/neuron2line",
+        url=f"https://{BRAINCIRCUITS_ENDPOINT}/app/neuron2line",
         headers={
             "Authorization": f"Bearer {BRAINCIRCUITS_TOKEN}",
             "Authorization-Cave": f"Bearer {cave_token}",
