@@ -1,5 +1,6 @@
 import random
 import urllib.parse
+from nglui import statebuilder
 
 from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 
@@ -40,33 +41,6 @@ _SUFFIX = {
 }
 
 
-PROOFREADFW = (
-    "https://neuromancer-seung-import.appspot.com/#!%7B%22layers%22:%5B%7B%22tab%22:%22"
-    "annotations%22%2C%22selectedAnnotation%22:%7B%22id%22:%22data-bounds%22%7D%2C%22source%22"
-    ":%22precomputed://https://tigerdata.princeton.edu/sseung-test1/fafb-v15-alignment-temp/"
-    "fine_final/z0_7063/v1/aligned/mip1%22%2C%22crossSectionRenderScale%22:2%2C%22type%22:%22"
-    "image%22%2C%22blend%22:%22default%22%2C%22shaderControls%22:%7B%7D%2C%22name%22:%22MIP1+%22"
-    "%2C%22visible%22:false%7D%2C%7B%22source%22:%22"
-    "precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf"
-    "%22%2C%22type%22:%22segmentation%22%2C%22selectedAlpha%22"
-    ":0%2C%22saturation%22:0%2C%22objectAlpha%22:0.1%2C%22segmentColors%22:%7B%221%22:%22#b5b5b5%22"
-    "%7D%2C%22segments%22:%5B%221%22%5D%2C%22skeletonRendering%22:%7B%22mode2d%22:%22lines_and_points%22"
-    "%2C%22mode3d%22:%22lines%22%7D%2C%22name%22:%22tissue%22%7D%2C%7B%22source%22:%22graphene://"
-    "https://prodv1.flywire-daf.com/segmentation/table/fly_v31%22%2C%22type%22:%22segmentation_with_graph%22"
-    "%2C%22segments%22:%5B%22{}%22%5D%2C%22skeletonRendering%22:%7B%22mode2d%22:%22lines_and_points%22%"
-    "2C%22mode3d%22:%22lines%22%7D%2C%22graphOperationMarker%22:%5B%7B%22annotations%22:%5B%5D%2C%22tags%22"
-    ":%5B%5D%7D%2C%7B%22annotations%22:%5B%5D%2C%22tags%22:%5B%5D%7D%5D%2C%22pathFinder%22:%7B%22color%22:"
-    "%22#ffff00%22%2C%22pathObject%22:%7B%22annotationPath%22:%7B%22annotations%22:%5B%5D%2C%22tags%22:"
-    "%5B%5D%7D%2C%22hasPath%22:false%7D%7D%2C%22name%22:%22fly_v31%22%7D%5D%2C%22navigation%22:%7B%22pose%22"
-    ":%7B%22position%22:%7B%22voxelSize%22:%5B32%2C32%2C40%5D%2C%22voxelCoordinates%22"
-    ":%5B15764.8935546875%2C2596.16552734375%2C2435.556396484375%5D%7D%7D%2C%22zoomFactor%22"
-    ":463.48584732654984%7D%2C%22showDefaultAnnotations%22:false%2C%22perspectiveOrientation%22"
-    ":%5B0.058571770787239075%2C0.5669599771499634%2C0.8209267258644104%2C0.034712888300418854%5D%2C%22"
-    "perspectiveZoom%22:4641.209227099396%2C%22showSlices%22:false%2C%22jsonStateServer%22:%22https:"
-    "//globalv1.daf-apis.com/nglstate/post%22%2C%22selectedLayer%22:%7B%22layer%22:%22fly_v31%22%7D%2C%22"
-    "perspectiveViewBackgroundColor%22:%22#ffffff%22%2C%22layout%22:%223d%22%7D"
-)
-
 _NEUROPIL_BASE_URL = "https://neuroglancer-demo.appspot.com/#!"
 _NEUROPIL_PREFIX = (
     '{"layers":[{"type":"segmentation","source":"precomputed://gs://flywire_neuropil_meshes/'
@@ -86,9 +60,40 @@ _NEUROPIL_SUFFIX = (
 )
 
 
-def url_for_root_ids(root_ids, version, point_to_proofreading_flywire=False):
+def url_for_root_ids(
+    root_ids, version, point_to_proofreading_flywire=False, position=None
+):
     if point_to_proofreading_flywire:
-        return PROOFREADFW.format("%22%2C%22".join([str(seg) for seg in root_ids]))
+        img_layer = statebuilder.ImageLayerConfig(
+            name="EM",
+            source="precomputed://gs://microns-seunglab/drosophila_v0/alignment/vector_fixer30_faster_v01/v4/image_stitch_v02",
+        )
+
+        seg_layer = statebuilder.SegmentationLayerConfig(
+            name="Production segmentation",
+            source="graphene://https://prodv1.flywire-daf.com/segmentation/table/fly_v31",
+            fixed_ids=root_ids,
+        )
+
+        view_options = {
+            "layout": "xy-3d",
+            "show_slices": False,
+            "zoom_3d": 2500,
+        }
+
+        if position is not None:
+            view_options["position"] = [position[0] / 4, position[1] / 4, position[2]]
+
+        sb = statebuilder.StateBuilder(
+            layers=[img_layer, seg_layer],
+            view_kws=view_options,
+        )
+
+        url = sb.render_state(
+            return_as="url",
+            url_prefix="https://ngl.flywire.ai",
+        )
+        return url
     else:
         prefix = _PREFIX.get(str(version)) or _PREFIX.get(
             str(DEFAULT_DATA_SNAPSHOT_VERSION)
