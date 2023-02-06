@@ -20,7 +20,7 @@ def neuron2line(
             "template_space": "JRC2018_BRAIN_UNISEX",
             "target_library": target_library,
             "matching_method": "colormip",
-            "caveToken": "",
+            "caveToken": cave_token,
             "email": email,
         },
         params={"project": "fruitfly_fafb_flywire"},
