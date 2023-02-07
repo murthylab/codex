@@ -12,18 +12,20 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-        {% for page in [('explore', 'Explore'),
-                            ('search', 'Search'),
-                            ('stats', 'Stats'),
-                            ('cell_details', 'Cell Info'),
-                            ('connectivity', 'Network'),
-                            ('path_length', 'Pathways'),
-                            ('neuropils', 'Neuropils'),
-                            ('synapse_density', 'Synapse'),]%}
-            <li class="nav-item text-nowrap">
-              <a onclick="loading(event);" class="nav-link" id="nav_{{ page[0] }}" href="{{url_for('app.' + page[0])}}">{{ page[1] }}</a>
-            </li>
+    {% set tabs = [["explore", 'Explore'],
+                        ['search', 'Search'],
+                        ['stats', 'Stats'],
+                        ['cell_details', 'Cell Info'],
+                        ['connectivity', 'Network'],
+                        ['path_length', 'Pathways'],
+                        ['neuropils', 'Neuropils'],
+                        ['synapse_density', 'Synapse'],
+                        ['genetic_lines', 'Genetic Lines']] %}
+        <ul class="mr-auto navbar-nav">
+        {% for page in tabs %}
+          <li class="nav-item text-nowrap">
+            <a onclick="loading(event);" class="nav-link" id="nav_{{ page[0] }}" href="{{url_for('app.' + page[0])}}">{{ page[1] }}</a>
+          </li>
         {% endfor %}
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="nav_more_active" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -45,11 +47,9 @@
                 document.getElementById(elem_id).style.color = 'purple';
               }
               function configure_nav_bar(cur_url) {
-                let fixed_tabs = ['search', 'cell_details', 'stats', 'explore',
-                            'connectivity','path_length','neuropils', 'synapse'];
-                for (const tab of fixed_tabs){
-                    if (cur_url.includes(tab)) {
-                      highlight_elem_id('nav_' + tab);
+                for (const tab of {{ tabs|safe }} ){
+                    if (cur_url.includes(tab[0])) {
+                      highlight_elem_id('nav_' + tab[0]);
                       return;
                     }
                 }
