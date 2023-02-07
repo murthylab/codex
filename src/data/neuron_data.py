@@ -403,13 +403,8 @@ class NeuronDB(object):
         return sum([r[3] for r in self.connection_rows])
 
     @lru_cache
-    def num_annotations(self):
-        return sum(
-            [
-                len(nd["label"]) + (1 if nd["class"] else 0)
-                for nd in self.neuron_data.values()
-            ]
-        )
+    def num_labels(self):
+        return sum([len(nd["label"]) for nd in self.neuron_data.values()])
 
     @lru_cache
     def classes(self):

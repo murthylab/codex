@@ -75,6 +75,34 @@
         {% endfor %}
       }
 
+      function submitBrainCircuitsRequest() {
+        const modal = document.getElementById("braincircuits-modal");
+        const modal_body = modal.getElementsByClassName("modal-body")[0];
+        const target_library = document.getElementById("braincircuits-target-library").value;
+        modal_body.innerHTML = `<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</\span></div></div>`;
+        document.getElementById("brain_circuits_footer").remove()
+        fetch("{{ url_for('app.matching_lines') }}?" + new URLSearchParams({
+            segment_id: '{{cell_id}}',
+            target_library: target_library,
+        }))
+            .then(response => {
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.json();;
+            })
+            .then(data => {
+                console.log(data)
+                if (data.error) {
+                    throw Error(data.error);
+                }
+                modal_body.innerHTML = `<p>Submission Complete! The results will be sent to your email address: ${data.email}</p>`;
+            })
+            .catch(error => {
+                modal_body.innerHTML = `<p>There was an error submitting the request. Please try again later.</p><pre style="white-space: pre-wrap;">${error}</pre>`;
+            })
+        }
+
 </script>
 <style>
 div.google-visualization-tooltip { width:250px; }
@@ -136,6 +164,10 @@ div.google-visualization-tooltip { width:250px; }
                 src="{{url_for('app.flywire_url', data_version=data_version, root_ids=[cell_id], log_request=0)}}" title="neuroglancer"
                 loading="lazy"></iframe>
     </div>
+                <!-- Button trigger modal -->
+
+
+
 </div>
 <div class="card" style="width: 100%;">
     <div class="card-header" style="color: purple;">
@@ -150,6 +182,13 @@ div.google-visualization-tooltip { width:250px; }
                 <td>{{v|safe}}</td>
             </tr>
             {% endfor %}
+            <!-- TODO: Revive this once bcio prod refactor is out -->
+            <tr hidden>
+                <td>
+                    <a class="btn btn-link" data-toggle="modal" data-target="#braincircuits-modal"><i class="fa-solid fa-brain"></i>&nbsp; Find matching genetic lines with BrainCircuits.io </a>
+                </td>
+                <td></td>
+            </tr>
             </tbody>
         </table>
     </div>
@@ -175,6 +214,46 @@ div.google-visualization-tooltip { width:250px; }
     </div>
     {% endfor %}
 </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="braincircuits-modal" tabindex="-1" aria-labelledby="braincircuits-modal-label"
+            aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="braincircuits-modal-label">Find matching genetic lines with BrainCircuits.io</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="braincircuits-form">
+                    <form>
+                        <div class="form-group">
+                            <label>Select Target Library</label>
+                            <select class="form-control" id="braincircuits-target-library">
+                                <option>fruitfly_brain_FlyLight_Annotator_Gen1_MCFO</option>
+                                <option>fruitfly_brain_FlyLight_Gen1_GAL4</option>
+                                <option>fruitfly_brain_FlyLight_Gen1_LexA</option>
+                                <option>fruitfly_brain_FlyLight_Gen1_MCFO</option>
+                                <option>fruitfly_brain_FlyLight_Gen1_MCFO_gamma_corrected</option>
+                                <option>fruitfly_brain_FlyLight_Split-GAL4_Drivers</option>
+                                <option>fruitfly_brain_Vienna_Gen1_GAL4</option>
+                                <option>fruitfly_brain_Vienna_Gen1_LexA</option>
+                                <option>fruitfly_brain_FlyEM_Hemibrain_v1.2.1</option>
+                                <option>Only_ColorMIP</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" id="brain_circuits_footer">
+                    <button type="button" class="btn btn-primary" id="brain_circuits_submit"
+                            onclick="submitBrainCircuitsRequest()">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% else %}
 <div class="card" style="margin: 15px;">
     <div class="card-header" style="color: purple;">

@@ -329,7 +329,8 @@ def index(path):
             url_for("app.search", filter_string=request.args.get("filter_string"))
         )
     else:
-        log_activity("Loading home page")
+        data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+        log_activity(f"Loading home page for {data_version=}")
         card_data = [
             {
                 "header": "Search",
@@ -387,7 +388,7 @@ def index(path):
                 "url": "api.download",
             },
         ]
-        neuron_db = NeuronDataFactory.instance().get()
+        neuron_db = NeuronDataFactory.instance().get(version=data_version)
         return render_template(
             "index.html",
             card_data=card_data,
@@ -396,7 +397,7 @@ def index(path):
             ),
             num_cells="{:,}".format(neuron_db.num_cells()),
             num_synapses="{:,}".format(neuron_db.num_synapses()),
-            num_annotations="{:,}".format(neuron_db.num_annotations()),
+            num_labels="{:,}".format(neuron_db.num_labels()),
             default_version=DEFAULT_DATA_SNAPSHOT_VERSION,
         )
 

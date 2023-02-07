@@ -1,6 +1,8 @@
 import json
 import re
 from datetime import datetime
+import requests
+
 
 from flask import (
     render_template,
@@ -44,7 +46,11 @@ from src.service.search import pagination_data, DEFAULT_PAGE_SIZE
 from src.service.stats import stats_cached, leaderboard_cached
 from src.service.synapse import synapse_density_cached
 from src.utils import nglui
-from src.utils.cookies import fetch_flywire_user_id
+from src.utils.cookies import (
+    fetch_flywire_user_id,
+    fetch_user_email,
+    fetch_flywire_token,
+)
 from src.utils.formatting import (
     synapse_table_to_csv_string,
     synapse_table_to_json_dict,
@@ -59,12 +65,14 @@ from src.utils.logging import (
     log,
     log_user_help,
     log_warning,
+    log_error,
 )
 from src.utils.nglui import can_be_flywire_root_id
 from src.utils.pathway_vis import pathway_chart_data_rows
 from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
 from src.data.structured_search_filters import get_advanced_search_data
+from src.data.braincircuits import neuron2line
 
 app = Blueprint("app", __name__, url_prefix="/app")
 
@@ -1016,3 +1024,26 @@ def genetic_lines():
     return render_template(
         "genetic_lines.html", lines=LINES, selected=selected, expressions=expressions
     )
+@app.route("/matching_lines/")
+@request_wrapper
+@require_data_access
+def matching_lines():
+    segment_id = request.args.get("segment_id")
+    target_library = request.args.get("target_library")
+    email = fetch_user_email(session)
+    cave_token = fetch_flywire_token(session)
+    log_activity(f"Calling BrainCircuits API with {segment_id=} {target_library=}")
+    result = None
+    try:
+        result = neuron2line([segment_id], target_library, email, cave_token)
+        log_activity(f"BrainCircuits API call returned {result=}")
+    except requests.HTTPError as e:
+        log_error(
+            f"BrainCircuits API call failed with {e=}. Did you set BRAINCIRCUITS_TOKEN?"
+        )
+        result = {"error": e.response.text}, e.response.status_code
+    except Exception as e:
+        log_error(f"BrainCircuits API call failed with error: {e=}")
+        result = {"error": str(e)}, 500
+    result["email"] = email
+    return result
