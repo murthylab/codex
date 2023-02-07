@@ -57,9 +57,11 @@
                 document.getElementById(elem_id).style.color = 'purple';
               }
               function configure_nav_bar(cur_url) {
-                for (const tab of {{ tabs|safe }} ){
-                    if (cur_url.includes(tab[0])) {
-                      highlight_elem_id('nav_' + tab[0]);
+                let fixed_tabs = ['search', 'cell_details', 'stats', 'explore',
+                            'connectivity','path_length','neuropils', 'synapse'];
+                for (const tab of fixed_tabs){
+                    if (cur_url.includes(tab)) {
+                      highlight_elem_id('nav_' + tab);
                       return;
                     }
                 }
