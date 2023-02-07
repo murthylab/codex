@@ -13,30 +13,18 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link" id="nav_explore" href="{{url_for('app.explore')}}">Explore</a>
+        {% for page in [('explore', 'Explore'),
+                            ('search', 'Search'),
+                            ('stats', 'Stats'),
+                            ('cell_details', 'Cell Info'),
+                            ('connectivity', 'Network'),
+                            ('path_length', 'Pathways'),
+                            ('neuropils', 'Neuropils'),
+                            ('synapse_density', 'Synapse'),]%}
+            <li class="nav-item text-nowrap">
+              <a onclick="loading(event);" class="nav-link" id="nav_{{ page[0] }}" href="{{url_for('app.' + page[0])}}">{{ page[1] }}</a>
             </li>
-            <li class="nav-item">
-                <a onclick="loading(event);" class="nav-link" id="nav_search" href="{{url_for('app.search')}}">Search</a>
-            </li>
-            <li class="nav-item">
-                <a onclick="loading(event);" class="nav-link" id="nav_stats" href="{{url_for('app.stats')}}">Stats</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="nav_cell_details" href="{{url_for('app.cell_details')}}">Cell Info</a>
-            </li>
-            <li class="nav-item">
-                <a onclick="loading(event);" class="nav-link" id="nav_connectivity" href="{{url_for('app.connectivity')}}">Network</a>
-            </li>
-            <li class="nav-item">
-                <a onclick="loading(event);" class="nav-link" id="nav_path_length" href="{{url_for('app.path_length')}}">Pathways</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="nav_neuropils" href="{{url_for('app.neuropils')}}">Neuropils</a>
-            </li>
-            <li class="nav-item">
-                <a onclick="loading(event);" class="nav-link" id="nav_synapse" href="{{url_for('app.synapse_density')}}">Synapse</a>
-            </li>
+        {% endfor %}
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="nav_more_active" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   More
