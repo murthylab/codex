@@ -1031,9 +1031,9 @@ def matching_lines():
         log_error(
             f"BrainCircuits API call failed with {e=}. Did you set BRAINCIRCUITS_TOKEN?"
         )
-        result = {"error": e.response.text}, e.response.status_code
+        return {"error": "BrainCircuits API call failed. Did you set BRAINCIRCUITS_TOKEN?"}, e.response.status_code
     except Exception as e:
         log_error(f"BrainCircuits API call failed with error: {e=}")
-        result = {"error": str(e)}, 500
+        return {"error": str(e)}, 500
     result["email"] = email
     return result
