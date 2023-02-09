@@ -273,17 +273,19 @@ def compare_csvs(
 
     dfset = old_row_set - new_row_set
     print(f"Rows in old but not new: {len(dfset)}")
-    if summarize_diffs:
-        summarize(hdr, dfset)
-    if print_diffs:
-        prntdiffs(dfset)
+    if dfset:
+        if summarize_diffs:
+            summarize(hdr, dfset)
+        if print_diffs:
+            prntdiffs(dfset)
 
     dfset = new_row_set - old_row_set
     print(f"Rows in new but not old: {len(dfset)}")
-    if summarize_diffs:
-        summarize(hdr, dfset)
-    if print_diffs:
-        prntdiffs(dfset)
+    if dfset:
+        if summarize_diffs:
+            summarize(hdr, dfset)
+        if print_diffs:
+            prntdiffs(dfset)
 
 
 def update_cave_data_file(name, db_load_func, cave_client, version):
