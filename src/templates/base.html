@@ -22,7 +22,6 @@
                         ['neuropils', 'Neuropils'],
                         ['synapse_density', 'Synapse'],
                         ]%}
-        <ul class="mr-auto navbar-nav">
         {% for page in tabs %}
           <li class="nav-item text-nowrap">
             <a onclick="loading(event);" class="nav-link" id="nav_{{ page[0] }}" href="{{url_for('app.' + page[0])}}">{{ page[1] }}</a>
