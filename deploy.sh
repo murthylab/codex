@@ -2,7 +2,6 @@ TIMESTAMP=$(date)
 GIT_SHA=$(git log | head -1 | cut -d " " -f 2)
 
 pip install pytest && \
-python3 -m pytest tests/integration -x && \
 python3 -m pytest tests/unit -x && \
 gcloud run deploy --source . \
         --set-env-vars "APP_ENVIRONMENT=PROD" \

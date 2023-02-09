@@ -34,13 +34,15 @@
 
     {% if root_ids_str %}
 
-    <a class="btn btn-link" onclick="copyRootIdsToClipboard();">
+    <a class="btn btn-link" onclick="copyRootIdsToClipboard();" id="copy_ids_link">
         <i class="fa-regular fa-clipboard"></i> &nbsp; Copy IDs
     </a>
     <script type="text/javascript">
       function copyRootIdsToClipboard() {
-        navigator.clipboard.writeText("{{root_ids_str}}");
-        alert("{{num_items}} IDs copied to clipboard");
+        parent.navigator.clipboard.writeText("{{root_ids_str}}");
+        let copy_elem = document.getElementById('copy_ids_link');
+        copy_elem.text = "IDs Copied";
+        setTimeout(function() { copy_elem.text = "Copy IDs again"; }, 1000);
       }
     </script>
 
