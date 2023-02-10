@@ -61,6 +61,7 @@ def url_for_root_ids(
             "layout": "xy-3d",
             "show_slices": False,
             "zoom_3d": 2500,
+            "zoom_image": 50,
         }
 
         if position is not None:
