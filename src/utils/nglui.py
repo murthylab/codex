@@ -1,6 +1,7 @@
 import random
 import urllib.parse
 from nglui import statebuilder
+import json
 
 from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 
@@ -41,23 +42,6 @@ _SUFFIX = {
 }
 
 
-_NEUROPIL_BASE_URL = "https://neuroglancer-demo.appspot.com/#!"
-_NEUROPIL_PREFIX = (
-    '{"layers":[{"type":"segmentation","source":"precomputed://gs://flywire_neuropil_meshes/'
-    'whole_neuropil/brain_mesh_v141.surf","tab":"source","selectedAlpha":0,"saturation":0,"objectAlpha":'
-    '0.1,"segments":["1"],"segmentColors":{"1":"#b5b5b5"},"name":"tissue"},{"type":"segmentation",'
-    '"mesh":"precomputed://gs://neuroglancer-fafb-data/elmr-data/FAFBNP.surf/mesh","objectAlpha":0.90,'
-    '"tab":"source","segments":'
-)
-_NEUROPIL_SUFFIX = (
-    ',"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":'
-    '"neuropil-regions-surface"}],"navigation":{"pose":{"position":{"voxelSize":[4,4,40],'
-    '"voxelCoordinates":[144710,55390,512]}},"zoomFactor":40.875984234132744},"showAxisLines":false,'
-    '"perspectiveViewBackgroundColor":"#ffffff","perspectiveZoom":3000,"showSlices":false,'
-    '"gpuMemoryLimit":2000000000,"showDefaultAnnotations":false,'
-    '"selectedLayer":{"layer":"neuropil-regions-surface","visible":false},'
-    '"layout":"3d"}'
-)
 
 
 def url_for_root_ids(
@@ -120,9 +104,54 @@ def can_be_flywire_root_id(txt):
     except Exception:
         return False
 
-
 def url_for_neuropils(segment_ids=None):
-    seg_ids = "[" + ",".join([f'"{rid}"' for rid in segment_ids or []]) + "]"
-    return _NEUROPIL_BASE_URL + urllib.parse.quote(
-        _NEUROPIL_PREFIX + seg_ids + _NEUROPIL_SUFFIX
-    )
+
+    config = {
+        "layers": [
+            {
+                "type": "segmentation",
+                "source": "precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf",
+                "tab": "source",
+                "selectedAlpha": 0,
+                "saturation": 0,
+                "objectAlpha": 0.1,
+                "segments": ["1"],
+                "segmentColors": {"1": "#b5b5b5"},
+                "name": "tissue"
+            },
+            {
+                "type": "segmentation",
+                "mesh": "precomputed://gs://neuroglancer-fafb-data/elmr-data/FAFBNP.surf/mesh",
+                "objectAlpha": 0.90,
+                "tab": "source",
+                "segments": segment_ids,
+                "skeletonRendering": {
+                    "mode2d": "lines_and_points",
+                    "mode3d": "lines"
+                },
+                "name": "neuropil-regions-surface"
+            }
+        ],
+        "navigation": {
+            "pose": {
+                "position": {
+                    "voxelSize": [4, 4, 40],
+                    "voxelCoordinates": [144710, 55390, 512]
+                }
+            },
+            "zoomFactor": 40.875984234132744
+        },
+        "showAxisLines": False,
+        "perspectiveViewBackgroundColor": "#ffffff",
+        "perspectiveZoom": 3000,
+        "showSlices": False,
+        "gpuMemoryLimit": 2000000000,
+        "showDefaultAnnotations": False,
+        "selectedLayer": {
+            "layer": "neuropil-regions-surface",
+            "visible": False
+        },
+        "layout": "3d"
+    }
+
+    return f"https://neuroglancer-demo.appspot.com/#!{urllib.parse.quote(json.dumps(config))}"
