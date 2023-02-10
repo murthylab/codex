@@ -42,8 +42,6 @@ _SUFFIX = {
 }
 
 
-
-
 def url_for_root_ids(
     root_ids, version, point_to_proofreading_flywire=False, position=None
 ):
@@ -104,6 +102,7 @@ def can_be_flywire_root_id(txt):
     except Exception:
         return False
 
+
 def url_for_neuropils(segment_ids=None):
 
     config = {
@@ -117,7 +116,7 @@ def url_for_neuropils(segment_ids=None):
                 "objectAlpha": 0.1,
                 "segments": ["1"],
                 "segmentColors": {"1": "#b5b5b5"},
-                "name": "tissue"
+                "name": "tissue",
             },
             {
                 "type": "segmentation",
@@ -125,21 +124,18 @@ def url_for_neuropils(segment_ids=None):
                 "objectAlpha": 0.90,
                 "tab": "source",
                 "segments": segment_ids,
-                "skeletonRendering": {
-                    "mode2d": "lines_and_points",
-                    "mode3d": "lines"
-                },
-                "name": "neuropil-regions-surface"
-            }
+                "skeletonRendering": {"mode2d": "lines_and_points", "mode3d": "lines"},
+                "name": "neuropil-regions-surface",
+            },
         ],
         "navigation": {
             "pose": {
                 "position": {
                     "voxelSize": [4, 4, 40],
-                    "voxelCoordinates": [144710, 55390, 512]
+                    "voxelCoordinates": [144710, 55390, 512],
                 }
             },
-            "zoomFactor": 40.875984234132744
+            "zoomFactor": 40.875984234132744,
         },
         "showAxisLines": False,
         "perspectiveViewBackgroundColor": "#ffffff",
@@ -147,11 +143,8 @@ def url_for_neuropils(segment_ids=None):
         "showSlices": False,
         "gpuMemoryLimit": 2000000000,
         "showDefaultAnnotations": False,
-        "selectedLayer": {
-            "layer": "neuropil-regions-surface",
-            "visible": False
-        },
-        "layout": "3d"
+        "selectedLayer": {"layer": "neuropil-regions-surface", "visible": False},
+        "layout": "3d",
     }
 
     return f"https://neuroglancer-demo.appspot.com/#!{urllib.parse.quote(json.dumps(config))}"
