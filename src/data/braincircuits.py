@@ -2,9 +2,7 @@ import requests
 import os
 
 BRAINCIRCUITS_TOKEN = os.environ.get("BRAINCIRCUITS_TOKEN")
-BRAINCIRCUITS_ENDPOINT = os.environ.get(
-    "BRAINCIRCUITS_ENDPOINT", "api-test.braincircuits.io"
-)
+BRAINCIRCUITS_ENDPOINT = "api.braincircuits.io"
 
 
 def neuron2line(
