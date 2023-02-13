@@ -12,9 +12,13 @@ gunicorn = "20.1.0"
 requests = "2.28.1"
 google-auth = "2.11.0"
 user-agents = "2.2.0"
+nglui = "2.7.2"
+caveclient = "4.20.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"
+black = "^23.1.0"
+ruff = "^0.0.246"
 
 [build-system]
 requires = ["poetry-core"]
