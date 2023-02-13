@@ -4,6 +4,7 @@ from nglui import statebuilder
 import json
 
 from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
+from src.data.brain_regions import REGIONS, COLORS
 
 _BASE_URL = "https://neuroglancer-demo.appspot.com"
 _PREFIX = {
@@ -125,6 +126,7 @@ def url_for_neuropils(segment_ids=None):
                 "objectAlpha": 0.90,
                 "tab": "source",
                 "segments": segment_ids,
+                "segmentColors": {seg_id: COLORS[key] for key, (seg_id, _) in REGIONS.items()},
                 "skeletonRendering": {"mode2d": "lines_and_points", "mode3d": "lines"},
                 "name": "neuropil-regions-surface",
             },
