@@ -710,3 +710,17 @@ class NeuronDataTest(TestCase):
 
         self.assertLess(60, len(bset))
         self.assertLess(1000, len(bridges))
+
+    def test_attribute_coverage(self):
+        sparse_attrs = {
+            "similar_cell_scores",
+            "label",
+            "nerve_type",
+            "oct_avg",
+            "ser_avg",
+        }
+        for k, v in NEURON_DATA_ATTRIBUTES.items():
+            if k in sparse_attrs:
+                continue
+            num_vals = len([n[k] for n in self.neuron_db.neuron_data.values() if n[k]])
+            self.assertGreater(num_vals / len(self.neuron_db.neuron_data), 0.9, k)
