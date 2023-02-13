@@ -126,7 +126,9 @@ def url_for_neuropils(segment_ids=None):
                 "objectAlpha": 0.90,
                 "tab": "source",
                 "segments": segment_ids,
-                "segmentColors": {seg_id: COLORS[key] for key, (seg_id, _) in REGIONS.items()},
+                "segmentColors": {
+                    seg_id: COLORS[key] for key, (seg_id, _) in REGIONS.items()
+                },
                 "skeletonRendering": {"mode2d": "lines_and_points", "mode3d": "lines"},
                 "name": "neuropil-regions-surface",
             },
