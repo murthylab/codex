@@ -35,7 +35,7 @@ def compute_distance_counts():
         write_csv(filename=f"chunk_{chunk_idx}.csv.gz", rows=rows, compress=True)
 
 
-def compile_distance_counts_table(self):
+def compile_distance_counts_table():
     rows = []
     for i in range(118):
         print(f"Reading chunk {i}")
