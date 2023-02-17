@@ -53,7 +53,7 @@ class Test(TestCase):
             set(data_stats.keys()),
         )
         self.assertEqual(5, len(data_stats["Top Labelers (all time)"]))
-        self.assertEqual(5, len(data_stats["Top Labels"]))
+        self.assertEqual(10, len(data_stats["Top Labels"]))
         self.assertEqual(
             [
                 "Classes",
