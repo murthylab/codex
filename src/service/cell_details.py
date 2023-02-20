@@ -41,10 +41,20 @@ def cached_cell_details(
         + " in, "
         + "{:,}".format(nd["output_synapses"])
         + " out</small>",
-        "Classification": nd["class"],
-        f'Labels<br><span style="font-size: 9px; color: purple;">Updated {neuron_db.labels_ingestion_timestamp()}</span>': concat_labels(
-            labels
-        ),
+        "Classification": "<small>"
+        + "<br>".join(
+            [
+                f"{cl[0]}: <b>{nd[cl[1]]}</b>"
+                for cl in [
+                    ("Side", "side"),
+                    ("Nerve", "nerve_type"),
+                    ("Flow", "flow"),
+                    ("Super Class", "class"),
+                ]
+                if nd[cl[1]]
+            ]
+        )
+        + "</small>",
         "NT Type": nd["nt_type"]
         + f' ({lookup_nt_type_name(nd["nt_type"])})'
         + "<br><small>predictions "
@@ -52,6 +62,22 @@ def cached_cell_details(
             [f"{k}: {nd[f'{k.lower()}_avg']}" for k in sorted(NEURO_TRANSMITTER_NAMES)]
         )
         + "</small>",
+        "Size (nm)": "<small>"
+        + "<br>".join(
+            [
+                f"{cl[0]}: <b>{nd[cl[1]]}</b>"
+                for cl in [
+                    ("Length", "length_nm"),
+                    ("Area", "area_nm"),
+                    ("Volume", "size_nm"),
+                ]
+                if nd[cl[1]]
+            ]
+        )
+        + "</small>",
+        f'Identification Labels<br><span style="font-size: 9px; color: purple;">Updated {neuron_db.labels_ingestion_timestamp()}</span>': concat_labels(
+            labels
+        ),
         "Label contributors": concat_labels(unames),
     }
 
