@@ -52,7 +52,7 @@ from src.utils.logging import (
     uptime,
     host_name,
     proc_id,
-    _is_smoke_test_request,
+    _should_bypass_auth,
     APP_ENVIRONMENT,
     log_warning,
 )
@@ -103,7 +103,7 @@ def request_wrapper(func):
                 log_activity(f"Redirecting base URL from  {request.url}: {new_url}")
                 return redirect(new_url)
 
-        if not is_user_authenticated(session) and not _is_smoke_test_request():
+        if not is_user_authenticated(session) and not _should_bypass_auth():
             if request.endpoint not in ["base.login", "base.logout"]:
                 return render_auth_page(redirect_to=request.url)
         elif log_verbose:
@@ -127,7 +127,7 @@ def request_wrapper(func):
 def require_data_access(func):
     @wraps(func)
     def wrap(*args, **kwargs):
-        if not is_granted_data_access(session) and not _is_smoke_test_request():
+        if not is_granted_data_access(session) and not _should_bypass_auth():
             if request.endpoint not in [
                 "base.login",
                 "base.logout",
@@ -441,43 +441,39 @@ def login():
         return render_auth_page()
 
 
-def check_access_token(access_token):
-    url = resp = access_payload = None
-    try:
-        url = f"https://globalv1.flywire-daf.com/auth/api/v1/user/cache?middle_auth_token={access_token}"
-        resp = get_request(url=url)
-        access_payload = resp.json()
-        log(f"Auth payload: {access_payload}")
-    except Exception as e:
-        log_error(f"Could not parse auth response: {access_token=} {url=} {resp=} {e=}")
-
-    if access_payload and "view" in access_payload.get("permissions_v2", {}).get(
-        "fafb", {}
-    ):
-        log_activity(f"Data access granted: {access_payload}")
-        store_flywire_data_access(
-            session, access_token=access_token, access_payload=access_payload
-        )
-        return redirect(request.args.get("redirect_to", "/"))
-    else:
-        log_activity(f"Data access denied: {access_payload}")
-        message = (
-            "The provided token does not grant access to FlyWire data. If you have been granted access in "
-            "the past, make sure you obtain the token using the same account (go back and try again). To "
-            'request access visit <a href="https://join.flywire.ai" target="_blank">this page</a>.'
-        )
-        return render_error(message=message)
-
-
 @base.route("/data_access_token", methods=["GET", "POST"])
 @request_wrapper
 def data_access_token():
     log_activity("Loading data access token form")
     if request.method == "POST":
         access_token = extract_access_token(request.form.get("access_token", ""))
-        return check_access_token(access_token)
-    elif access_token := os.environ.get("CAVE_TOKEN"):
-        return check_access_token(access_token)
+        url = resp = access_payload = None
+        try:
+            url = f"https://globalv1.flywire-daf.com/auth/api/v1/user/cache?middle_auth_token={access_token}"
+            resp = get_request(url=url)
+            access_payload = resp.json()
+            log(f"Auth payload: {access_payload}")
+        except Exception as e:
+            log_error(
+                f"Could not parse auth response: {access_token=} {url=} {resp=} {e=}"
+            )
+
+        if access_payload and "view" in access_payload.get("permissions_v2", {}).get(
+            "fafb", {}
+        ):
+            log_activity(f"Data access granted: {access_payload}")
+            store_flywire_data_access(
+                session, access_token=access_token, access_payload=access_payload
+            )
+            return redirect(request.args.get("redirect_to", "/"))
+        else:
+            log_activity(f"Data access denied: {access_payload}")
+            message = (
+                "The provided token does not grant access to FlyWire data. If you have been granted access in "
+                "the past, make sure you obtain the token using the same account (go back and try again). To "
+                'request access visit <a href="https://join.flywire.ai" target="_blank">this page</a>.'
+            )
+            return render_error(message=message)
     else:
         return render_template(
             "data_access_token.html", redirect_to=request.args.get("redirect_to", "/")
