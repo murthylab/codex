@@ -5,3 +5,4 @@ google-auth==2.11.0
 user-agents==2.2.0
 nglui>=2.7.2
 caveclient==4.20.2
+python-dotenv==0.21.1

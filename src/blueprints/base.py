@@ -430,7 +430,43 @@ def login():
             log_activity(f"Invalid token provided upon login: {request.form}")
             return render_error("Login failed.")
     else:
+        if os.environ.get("APP_ENVIRONMENT") == "DEV" and os.environ.get("BYPASS_AUTH"):
+            log_activity("Bypassing auth")
+            session.permanent = True
+            store_user_info(
+                session,
+                id_info={"email": "user@localhost", "name": "User", "picture": ""},
+            )
+            return redirect(request.args.get("redirect_to", "/"))
         return render_auth_page()
+
+
+def check_access_token(access_token):
+    url = resp = access_payload = None
+    try:
+        url = f"https://globalv1.flywire-daf.com/auth/api/v1/user/cache?middle_auth_token={access_token}"
+        resp = get_request(url=url)
+        access_payload = resp.json()
+        log(f"Auth payload: {access_payload}")
+    except Exception as e:
+        log_error(f"Could not parse auth response: {access_token=} {url=} {resp=} {e=}")
+
+    if access_payload and "view" in access_payload.get("permissions_v2", {}).get(
+        "fafb", {}
+    ):
+        log_activity(f"Data access granted: {access_payload}")
+        store_flywire_data_access(
+            session, access_token=access_token, access_payload=access_payload
+        )
+        return redirect(request.args.get("redirect_to", "/"))
+    else:
+        log_activity(f"Data access denied: {access_payload}")
+        message = (
+            "The provided token does not grant access to FlyWire data. If you have been granted access in "
+            "the past, make sure you obtain the token using the same account (go back and try again). To "
+            'request access visit <a href="https://join.flywire.ai" target="_blank">this page</a>.'
+        )
+        return render_error(message=message)
 
 
 @base.route("/data_access_token", methods=["GET", "POST"])
@@ -439,33 +475,9 @@ def data_access_token():
     log_activity("Loading data access token form")
     if request.method == "POST":
         access_token = extract_access_token(request.form.get("access_token", ""))
-        url = resp = access_payload = None
-        try:
-            url = f"https://globalv1.flywire-daf.com/auth/api/v1/user/cache?middle_auth_token={access_token}"
-            resp = get_request(url=url)
-            access_payload = resp.json()
-            log(f"Auth payload: {access_payload}")
-        except Exception as e:
-            log_error(
-                f"Could not parse auth response: {access_token=} {url=} {resp=} {e=}"
-            )
-
-        if access_payload and "view" in access_payload.get("permissions_v2", {}).get(
-            "fafb", {}
-        ):
-            log_activity(f"Data access granted: {access_payload}")
-            store_flywire_data_access(
-                session, access_token=access_token, access_payload=access_payload
-            )
-            return redirect(request.args.get("redirect_to", "/"))
-        else:
-            log_activity(f"Data access denied: {access_payload}")
-            message = (
-                "The provided token does not grant access to FlyWire data. If you have been granted access in "
-                "the past, make sure you obtain the token using the same account (go back and try again). To "
-                'request access visit <a href="https://join.flywire.ai" target="_blank">this page</a>.'
-            )
-            return render_error(message=message)
+        return check_access_token(access_token)
+    elif access_token := os.environ.get("CAVE_TOKEN"):
+        return check_access_token(access_token)
     else:
         return render_template(
             "data_access_token.html", redirect_to=request.args.get("redirect_to", "/")

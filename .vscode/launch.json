@@ -1,25 +1,26 @@
 {
-    "version": "0.1 .0",
-    "configurations": [
-        {
-            "name": "Codex",
-            "type": "python",
-            "request": "launch",
-            "module": "flask",
-            "env": {
-                "FLASK_APP": "src/main.py",
-                "FLASK_DEBUG": "1",
-                "FLASK_SECRET_KEY": "dev_dummy_key",
-                "SMOKE_TEST_KEY": "dev_smoke_test_key",
-                "APP_ENVIRONMENT": "DEV",
-            },
-            "args": [
-                "run",
-                "--no-debugger",
-                "--no-reload"
-            ],
-            "jinja": true,
-            "justMyCode": true
-        }
-    ]
+  "version": "0.1 .0",
+  "configurations": [
+    {
+      "name": "Codex",
+      "type": "python",
+      "request": "launch",
+      "module": "flask",
+      "env": {
+        "FLASK_APP": "src/main.py",
+        "FLASK_DEBUG": "1",
+        "FLASK_SECRET_KEY": "dev_dummy_key",
+        "SMOKE_TEST_KEY": "dev_smoke_test_key",
+        "APP_ENVIRONMENT": "DEV"
+      },
+      "args": ["run"],
+      "jinja": true,
+      "justMyCode": true,
+      "serverReadyAction": {
+        "pattern": "Running on http://127.0.0.1:([0-9]+)",
+        "uriFormat": "http://localhost:%s/login",
+        "action": "debugWithChrome"
+      }
+    }
+  ]
 }
