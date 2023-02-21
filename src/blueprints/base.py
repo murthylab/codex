@@ -52,7 +52,7 @@ from src.utils.logging import (
     uptime,
     host_name,
     proc_id,
-    _is_smoke_test_request,
+    _should_bypass_auth,
     APP_ENVIRONMENT,
     log_warning,
 )
@@ -103,7 +103,7 @@ def request_wrapper(func):
                 log_activity(f"Redirecting base URL from  {request.url}: {new_url}")
                 return redirect(new_url)
 
-        if not is_user_authenticated(session) and not _is_smoke_test_request():
+        if not is_user_authenticated(session) and not _should_bypass_auth():
             if request.endpoint not in ["base.login", "base.logout"]:
                 return render_auth_page(redirect_to=request.url)
         elif log_verbose:
@@ -127,7 +127,7 @@ def request_wrapper(func):
 def require_data_access(func):
     @wraps(func)
     def wrap(*args, **kwargs):
-        if not is_granted_data_access(session) and not _is_smoke_test_request():
+        if not is_granted_data_access(session) and not _should_bypass_auth():
             if request.endpoint not in [
                 "base.login",
                 "base.logout",
@@ -430,6 +430,7 @@ def login():
             log_activity(f"Invalid token provided upon login: {request.form}")
             return render_error("Login failed.")
     else:
+
         return render_auth_page()
 
 

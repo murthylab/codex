@@ -46,11 +46,17 @@ def user_agent():
         return ""
 
 
-def _is_smoke_test_request():
+def _should_bypass_auth():
     try:
-        return request.args.get("smoke_test", "") == os.environ.get("SMOKE_TEST_KEY")
+        is_smoke_test = request.args.get("smoke_test", "") == os.environ.get(
+            "SMOKE_TEST_KEY"
+        )
+        is_auth_bypass = (
+            os.environ.get("BYPASS_AUTH") and os.environ.get("APP_ENVIRONMENT") == "DEV"
+        )
     except Exception:
         return False
+    return is_smoke_test or is_auth_bypass
 
 
 def _fetch_client_info():
@@ -132,7 +138,7 @@ def _post_to_slk(username, access_granted, text, real_user_activity, extra_hk):
 
 
 def post_to_slk(text, hk=None):
-    real_user_activity = APP_ENVIRONMENT != "DEV" and not _is_smoke_test_request()
+    real_user_activity = APP_ENVIRONMENT != "DEV" and not _should_bypass_auth()
     if has_request_context():
         username = fetch_user_name(session)
         access_granted = is_granted_data_access(session)
