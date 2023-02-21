@@ -430,14 +430,7 @@ def login():
             log_activity(f"Invalid token provided upon login: {request.form}")
             return render_error("Login failed.")
     else:
-        if os.environ.get("APP_ENVIRONMENT") == "DEV" and os.environ.get("BYPASS_AUTH"):
-            log_activity("Bypassing auth")
-            session.permanent = True
-            store_user_info(
-                session,
-                id_info={"email": "user@localhost", "name": "User", "picture": ""},
-            )
-            return redirect(request.args.get("redirect_to", "/"))
+
         return render_auth_page()
 
 
