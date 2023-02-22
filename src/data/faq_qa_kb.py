@@ -77,9 +77,8 @@ FAQ_QA_KB = {
         "a": '<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4961245/">NBLAST</a> is a method '
         "for assigning similarity scores to pairs of neurons. NBLAST scores are not "
         "necessarily symmetric, and they range from 1 (morphologically similar) to -1 (not similar).<br>"
-        "The NBLAST scores shown here were contributed by "
-        '<a href="https://www.zoo.cam.ac.uk/directory/dr-philip-schlegel">Dr. Philipp Schlegel</a> '
-        "and they cover the central brain cells (which is around 50k of the neurons in the dataset). ",
+        "The NBLAST scores used here were contributed by "
+        '<a href="https://www.zoo.cam.ac.uk/directory/dr-philip-schlegel">Dr. Philipp Schlegel</a>.',
     },
     "paths": {
         "q": "What is a pathway length?",

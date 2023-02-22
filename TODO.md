@@ -6,8 +6,7 @@
 ## Labels / data quality
 1. import Hemibrain and other labels/annotations
 
-## Pathways / NBLAST tables
-1. after nblast, people might want to look at a subset (but more than 2 neurons) together. Perhaps a checkbox to select ids to copy would be useful?
+## Pathways
 1. origin / target textboxes instead of just one with set of cells
 
 ## General TODO:

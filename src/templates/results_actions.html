@@ -47,11 +47,6 @@
     </script>
 
     <a class="btn btn-link" onclick="loading(event);"
-       href="{{url_for('app.nblast', source_cell_names_or_ids=filter_string, target_cell_names_or_ids=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
-        <i class="fa-solid fa-table-cells"></i> &nbsp; NBLAST
-    </a>
-
-    <a class="btn btn-link" onclick="loading(event);"
        href="{{url_for('app.path_length', source_cell_names_or_ids=filter_string, target_cell_names_or_ids=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version)}}">
         <i class="fa-solid fa-route"></i> &nbsp; Pathways
     </a>
@@ -75,9 +70,6 @@
 
     <a class="btn btn-link" style="color:grey" onclick="disabledAlert();">
         <i class="fa-regular fa-clipboard"></i> &nbsp; Copy IDs</a>
-
-    <a class="btn btn-link" style="color:grey" onclick="disabledAlert();">
-        <i class="fa-solid fa-table-cells"></i> &nbsp; NBLAST</a>
 
     <a class="btn btn-link" style="color:grey" onclick="disabledAlert();">
         <i class="fa-solid fa-route"></i> &nbsp; Pathways</a>

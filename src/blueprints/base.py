@@ -379,12 +379,6 @@ def index(path):
                 "url": "app.path_length",
             },
             {
-                "header": "NBLAST",
-                "body": "Pairwise morphological similarity scores for sets of neurons",
-                "asset_filename": "card-nblast.jpg",
-                "url": "app.nblast",
-            },
-            {
                 "header": "Download Data",
                 "body": "Export raw data for analysis with other tools / programs",
                 "asset_filename": "card-data.png",

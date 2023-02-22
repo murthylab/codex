@@ -22,5 +22,4 @@ for i in $(seq 1 3); do curl "https://latest---codex-yjsmm7mp3q-ue.a.run.app/app
 for i in $(seq 1 3); do curl "https://latest---codex-yjsmm7mp3q-ue.a.run.app/app/stats?smoke_test=$SMOKE_TEST_PROD_KEY" | grep "scending" || echo -e "\033[1;31m FAILED\nFAILED\nFAILED\nFAILED\nFAILED\nFAILED\nFAILED\nFAILED  \033[0m"; done && \
 for i in $(seq 1 3); do curl "https://latest---codex-yjsmm7mp3q-ue.a.run.app/app/connectivity?cell_names_or_ids=720575940628289103&smoke_test=$SMOKE_TEST_PROD_KEY" | grep "drawGraph" || echo -e "\033[1;31m FAILED\nFAILED\nFAILED\nFAILED\nFAILED\nFAILED\nFAILED\nFAILED  \033[0m"; done && \
 for i in $(seq 1 3); do curl "https://latest---codex-yjsmm7mp3q-ue.a.run.app/app/path_length?with_sample_input=1&smoke_test=$SMOKE_TEST_PROD_KEY" | grep "from" || echo -e "\033[1;31m FAILED\nFAILED\nFAILED\nFAILED\nFAILED\nFAILED\nFAILED\nFAILED  \033[0m"; done && \
-for i in $(seq 1 3); do curl "https://latest---codex-yjsmm7mp3q-ue.a.run.app/app/nblast?with_sample_input=1&smoke_test=$SMOKE_TEST_PROD_KEY" | grep "from" || echo -e "\033[1;31m FAILED\nFAILED\nFAILED\nFAILED\nFAILED\nFAILED\nFAILED\nFAILED  \033[0m"; done && \
 echo "Done."
