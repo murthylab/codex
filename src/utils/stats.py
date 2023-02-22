@@ -169,13 +169,16 @@ def _make_data_stats(neuron_data, label_data, include_leaderboard=False):
             "- Labeled": labeled_neurons,
             "- Classified": classified_neurons,
             "- Avg. length": format_number(total_length // (1000 * len(neuron_data)))
-            + " &#181;m",
+            if neuron_data
+            else "NA" + " &#181;m",
             "- Avg. area": format_number(total_area // (1000000 * len(neuron_data)))
-            + " &#181;m<sup>2</sup>",
+            if neuron_data
+            else "NA" + " &#181;m<sup>2</sup>",
             "- Avg. volume": format_number(
                 total_volume // (1000000000 * len(neuron_data))
             )
-            + " &#181;m<sup>3</sup>",
+            if neuron_data
+            else "NA" + " &#181;m<sup>3</sup>",
         }
     }
     if anno_counts:

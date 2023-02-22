@@ -28,7 +28,17 @@ class Test(TestCase):
             caption,
         )
         self.assertEqual(
-            {"": {"- Classified": "0", "- Labeled": "0", "Cells": "0"}}, data_stats
+            {
+                "": {
+                    "- Avg. area": "NA &#181;m<sup>2</sup>",
+                    "- Avg. length": "NA &#181;m",
+                    "- Avg. volume": "NA &#181;m<sup>3</sup>",
+                    "- Classified": "0",
+                    "- Labeled": "0",
+                    "Cells": "0",
+                }
+            },
+            data_stats,
         )
         self.assertEqual({}, data_charts)
 
@@ -49,11 +59,9 @@ class Test(TestCase):
             caption,
         )
         self.assertEqual(
-            {"", "Top Labelers (all time)", "Top Labelers (last 500)", "Top Labels"},
+            {"", "Top Labels"},
             set(data_stats.keys()),
         )
-        self.assertEqual(5, len(data_stats["Top Labelers (all time)"]))
-        self.assertEqual(10, len(data_stats["Top Labels"]))
         self.assertEqual(
             [
                 "Classes",
