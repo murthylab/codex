@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from src.data.brain_regions import NEUROPIL_DESCRIPTIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
@@ -19,15 +19,14 @@ def make_chart_from_counts(
     colors_dict=None,  # keyed by count_dict keys
     descriptions_dict=None,  # keyed by count_dict keys, used in tooltips
     search_filter="",
-    sort_by_freq=False,
 ):
     sorted_counts = (
         sorted(counts_dict.items(), key=lambda p: p[1], reverse=True)
-        if sort_by_freq
+        if chart_type == "bar"
         else sorted(counts_dict.items(), key=lambda p: p[0])
     )
 
-    if sort_by_freq and len(sorted_counts) > 10:
+    if chart_type == "bar" and len(sorted_counts) > 10:
         sorted_counts = sorted_counts[:10]
 
     height_px = max(300, 150 + 4 * len(counts_dict)) if chart_type == "bar" else 400
@@ -66,7 +65,6 @@ def make_chart_from_list(
     item_list,
     descriptions_dict=None,
     search_filter="",
-    sort_by_freq=False,
 ):
     counts = defaultdict(int)
     for i in item_list:
@@ -78,69 +76,51 @@ def make_chart_from_list(
         counts_dict=counts,
         descriptions_dict=descriptions_dict,
         search_filter=search_filter,
-        sort_by_freq=sort_by_freq,
     )
 
 
 def _make_data_charts(data_list):
-    nt_types = []
-    input_output_regions = []
-    input_neuropils = []
-    output_neuropils = []
-    classes = []
+    StatGroupProps = namedtuple("StatGroupProps", "title filter_key type descriptions")
+    stat_groups = {
+        "nt_type": StatGroupProps(
+            "Neurotransmitter Types", "nt", "bar", NEURO_TRANSMITTER_NAMES
+        ),
+        "input_neuropils": StatGroupProps(
+            "Top Input Regions", "input_neuropil", "bar", NEUROPIL_DESCRIPTIONS
+        ),
+        "output_neuropils": StatGroupProps(
+            "Top Output Regions", "output_neuropil", "bar", NEUROPIL_DESCRIPTIONS
+        ),
+        "flow": StatGroupProps("Flow", "flow", "donut", None),
+        "class": StatGroupProps("Super Class", "class", "donut", None),
+        "side": StatGroupProps("Soma Side", "side", "donut", None),
+        "nerve_type": StatGroupProps("Nerve", "nerve", "bar", None),
+    }
+    stat_lists = {k: [] for k in stat_groups.keys()}
     unknown_key = "Unknown"
+
     for d in data_list:
-        nt_types.append(d["nt_type"] or unknown_key)
-        input_output_regions.append(d["hemisphere_fingerprint"] or unknown_key)
-        input_neuropils.extend(d["input_neuropils"] or [unknown_key])
-        output_neuropils.extend(d["output_neuropils"] or [unknown_key])
-        classes.append(d["class"] or unknown_key)
+        for k, props in stat_groups.items():
+            val = d[k]
+            if isinstance(val, list):
+                stat_lists[k].extend(val)
+            elif (
+                val or props.type == "donut"
+            ):  # donut charts should sum up to 100%, so we include missing values
+                stat_lists[k].append(val or unknown_key)
 
     result = {}
-    if classes:
-        result["Classes"] = make_chart_from_list(
-            chart_type="donut",
-            key_title="Cell Classes",
-            val_title="Count",
-            item_list=classes,
-            search_filter="class",
-        )
-    if nt_types:
-        result["Neurotransmitter types"] = make_chart_from_list(
-            chart_type="donut",
-            key_title="Type",
-            val_title="Num Cells",
-            item_list=nt_types,
-            descriptions_dict=NEURO_TRANSMITTER_NAMES,
-            search_filter="nt",
-        )
-    if input_neuropils:
-        result["Top input regions"] = make_chart_from_list(
-            chart_type="bar",
-            key_title="Input neuropils",
-            val_title="Num Cells",
-            item_list=input_neuropils,
-            descriptions_dict=NEUROPIL_DESCRIPTIONS,
-            search_filter="input_neuropil",
-            sort_by_freq=True,
-        )
-    if output_neuropils:
-        result["Top output regions"] = make_chart_from_list(
-            chart_type="bar",
-            key_title="Output neuropils",
-            val_title="Num Cells",
-            item_list=output_neuropils,
-            descriptions_dict=NEUROPIL_DESCRIPTIONS,
-            search_filter="output_neuropil",
-            sort_by_freq=True,
-        )
-    if input_output_regions:
-        result["Num cells with inputs/outputs in hemispheres"] = make_chart_from_list(
-            chart_type="donut",
-            key_title="Output regions",
-            val_title="Num Cells",
-            item_list=input_output_regions,
-        )
+
+    for k, props in stat_groups.items():
+        if stat_lists[k]:
+            result[props.title] = make_chart_from_list(
+                chart_type=props.type,
+                key_title=props.title,
+                val_title="Num Cells",
+                item_list=stat_lists[k],
+                search_filter=props.filter_key,
+                descriptions_dict=props.descriptions,
+            )
 
     return result
 

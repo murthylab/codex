@@ -164,7 +164,6 @@ def cached_cell_details(
                 val_title="Synapse count",
                 counts_dict=input_neuropil_synapse_count,
                 descriptions_dict=NEUROPIL_DESCRIPTIONS,
-                sort_by_freq=True,
                 search_filter="input_neuropils",
             )
             charts["Input Synapse Hemisphere"] = stats_utils.make_chart_from_counts(
@@ -193,7 +192,6 @@ def cached_cell_details(
                 val_title="Synapse count",
                 counts_dict=output_neuropil_synapse_count,
                 descriptions_dict=NEUROPIL_DESCRIPTIONS,
-                sort_by_freq=True,
                 search_filter="output_neuropils",
             )
             charts["Output Synapse Hemisphere"] = stats_utils.make_chart_from_counts(
