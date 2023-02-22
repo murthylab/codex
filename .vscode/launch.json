@@ -18,8 +18,8 @@
       "justMyCode": true,
       "serverReadyAction": {
         "pattern": "Running on http://127.0.0.1:([0-9]+)",
-        "uriFormat": "http://localhost:%s/login",
-        "action": "debugWithChrome"
+        "uriFormat": "http://localhost:%s",
+        "action": "openExternally"
       }
     }
   ]
