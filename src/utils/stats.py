@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from src.data.brain_regions import NEUROPIL_DESCRIPTIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
+from src.utils.graph_vis import format_number
 
 
 def group_counts(count_pairs):
@@ -144,10 +145,13 @@ def _make_data_charts(data_list):
     return result
 
 
-def _make_data_stats(neuron_data, label_data):
+def _make_data_stats(neuron_data, label_data, include_leaderboard=False):
     labeled_neurons = 0
     classified_neurons = 0
     anno_counts = defaultdict(int)
+    total_length = 0
+    total_area = 0
+    total_volume = 0
     for nd in neuron_data:
         if nd["label"]:
             labeled_neurons += 1
@@ -155,12 +159,23 @@ def _make_data_stats(neuron_data, label_data):
                 anno_counts[t] += 1
         if nd["class"]:
             classified_neurons += 1
+        total_length += nd["length_nm"]
+        total_area += nd["area_nm"]
+        total_volume += nd["size_nm"]
 
     result = {
         "": {
             "Cells": len(neuron_data),
             "- Labeled": labeled_neurons,
             "- Classified": classified_neurons,
+            "- Avg. length": format_number(total_length // (1000 * len(neuron_data)))
+            + " &#181;m",
+            "- Avg. area": format_number(total_area // (1000000 * len(neuron_data)))
+            + " &#181;m<sup>2</sup>",
+            "- Avg. volume": format_number(
+                total_volume // (1000000000 * len(neuron_data))
+            )
+            + " &#181;m<sup>3</sup>",
         }
     }
     if anno_counts:
@@ -169,12 +184,13 @@ def _make_data_stats(neuron_data, label_data):
             for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:10]
         }
 
-    fill_in_leaderboard_data(
-        label_data=label_data,
-        top_n=5,
-        include_lab_leaderboard=False,
-        destination=result,
-    )
+    if include_leaderboard:
+        fill_in_leaderboard_data(
+            label_data=label_data,
+            top_n=5,
+            include_lab_leaderboard=False,
+            destination=result,
+        )
 
     return result
 
