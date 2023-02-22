@@ -56,7 +56,7 @@ def pil_based_typing():
     print(len(type_lists.items()))
 
 
-def cluster_neurons(directed=True):
+def cluster_neurons(predicate, directed=True, print_markdown=False, csv_filename=None):
     neuron_db = NeuronDataFactory().get()
 
     def cluster_rids(rids, nblast_score_threshold):
@@ -78,6 +78,53 @@ def cluster_neurons(directed=True):
             )
         ]
 
+    neuron_rids = set(
+        [
+            ndata["root_id"]
+            for ndata in neuron_db.neuron_data.values()
+            if predicate(ndata)
+        ]
+    )
+
+    score_threshold = 1
+    MAX_CLUSTER_SIZE = 50
+    clusters = [neuron_rids]
+
+    def report_cluster_sizes():
+        print(
+            f"Num clusters: {len(clusters)}, large clusters: {len(large_clusters)}, "
+            f"largest cluster: {max([len(c) for c in clusters])}, "
+            f"singletons: {len([c for c in clusters if len(c) == 1])}, "
+            f"empties: {len([c for c in clusters if len(c) == 0])}, "
+            f"threshold: {score_threshold}"
+        )
+
+    while True:
+        large_clusters = [cl for cl in clusters if len(cl) > MAX_CLUSTER_SIZE]
+        if score_threshold >= 9 or not large_clusters:
+            break
+        report_cluster_sizes()
+        clusters = [cl for cl in clusters if len(cl) <= MAX_CLUSTER_SIZE]
+        for lc in large_clusters:
+            clusters.extend(cluster_rids(lc, score_threshold))
+        score_threshold += 1
+
+    report_cluster_sizes()
+
+    clusters = sorted(clusters, key=lambda c: -len(c))
+    if csv_filename:
+        write_csv(rows=clusters, filename=csv_filename)
+
+    if print_markdown:
+        for i, c in enumerate(clusters):
+            if len(c) <= 10:
+                break
+            name = f"Cluster with {len(c)} cells"
+            link = f"http://codex.flywire.ai/app/search?filter_string={','.join([str(r) for r in c])}"
+            print(f"1. [{name}]({link})")
+
+
+if __name__ == "__main__":
     SEZ_PILS = {"PRW", "GNG", "SAD", "AMMC_R", "AMMC_L"}
 
     def is_sez(ndata):
@@ -85,39 +132,4 @@ def cluster_neurons(directed=True):
             [p in SEZ_PILS for p in ndata["output_neuropils"]]
         )
 
-    sez_neuron_rids = set(
-        [ndata["root_id"] for ndata in neuron_db.neuron_data.values() if is_sez(ndata)]
-    )
-
-    score_threshold = 4
-    MAX_CLUSTER_SIZE = 50
-    clusters = [sez_neuron_rids]
-    while True:
-        large_clusters = [cl for cl in clusters if len(cl) > MAX_CLUSTER_SIZE]
-        if score_threshold >= 9 or not large_clusters:
-            break
-        print(
-            f"Num clusters: {len(clusters)}, large clusters: {len(large_clusters)}, threshold: {score_threshold}"
-        )
-
-        clusters = [cl for cl in clusters if len(cl) <= MAX_CLUSTER_SIZE]
-        for lc in large_clusters:
-            clusters.extend(cluster_rids(lc, score_threshold))
-        score_threshold += 1
-
-    print(
-        f"Num clusters: {len(clusters)}, largest cluster: {max([len(c) for c in clusters])}"
-    )
-
-    clusters = sorted(clusters, key=lambda c: -len(c))
-    write_csv(rows=clusters, filename="sez_clusters.csv")
-    for i, c in enumerate(clusters):
-        if len(c) <= 10:
-            break
-        name = f"Cluster with {len(c)} cells"
-        link = f"http://codex.flywire.ai/app/search?filter_string={','.join([str(r) for r in c])}"
-        print(f"1. [{name}]({link})")
-
-
-if __name__ == "__main__":
-    cluster_neurons()
+    cluster_neurons(predicate=lambda n: True)
