@@ -118,7 +118,10 @@ def request_wrapper(func):
             traceback.print_exc()
             log_error(f"Exception when executing {signature}: {e}")
             num_request_errors += 1
-            return render_error(f"{e}\n")
+            if APP_ENVIRONMENT == "DEV":
+                raise e
+            else:
+                return render_error(f"{e}\n")
 
     return wrap
 
