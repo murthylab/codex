@@ -39,6 +39,7 @@
         if (rowElem.querySelector(".skeleton_thumbnail").src !== newSrc) {
             rowElem.querySelector(".skeleton_thumbnail").src = newSrc;
         }
+        rowElem.querySelector(".thumbnail_3d_link").hidden = false;
     }
 
     function unhover_row(rowElem, rootID) {
@@ -46,6 +47,7 @@
         if (rowElem.querySelector(".skeleton_thumbnail").src !== newSrc) {
             rowElem.querySelector(".skeleton_thumbnail").src = newSrc;
         }
+        rowElem.querySelector(".thumbnail_3d_link").hidden = true;
     }
 </script>
 
@@ -63,9 +65,8 @@
             {% endif %}
             <th scope="col" title="Neurotransmitter type prediction and confidence score">NT</th>
             <th scope="col" title="Length / Area / Volume (in micrometers)">Size</th>
-            <th scope="col" title="Upstream/Downstream partners and synapse hemispheres">Up/Dn</th>
+            <th scope="col" title="Upstream/Downstream partners and synapse hemispheres">Partners</th>
             <th scope="col" title="Annotations provided by members of the FlyWire community">Identification Labels</th>
-            <th scope="col">3D</th>
         </tr>
         </thead>
         <tbody>
@@ -74,11 +75,17 @@
             <td style="padding: 0px; margin: 0px;"
                 onmouseover="hover_row(this, '{{neuron.root_id}}');"
                 onmouseleave="unhover_row(this, '{{neuron.root_id}}');">
-                <a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);"><img
-                   class="skeleton_thumbnail"
-                   src="{{skeleton_thumbnail_urls.get(neuron.root_id)[0]}}"
-                   width="200px" height="150px;" border="1px;">
-                </a>
+                <div style="position: relative; text-align: center; color: white; width: 200px; height: 150px;">
+                    <a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);"><img
+                       class="skeleton_thumbnail"
+                       src="{{skeleton_thumbnail_urls.get(neuron.root_id)[0]}}"
+                       border="1px;" style="width:100%; height: 100%;">
+                    </a>
+                    <div class="thumbnail_3d_link" hidden style="position: absolute; top: 2px; right: 2px;">
+                        <a class="btn btn-link btn-sm" href="{{url_for('app.flywire_url', data_version=data_version, root_ids=[neuron.root_id])}}"
+                           target="_blank" role="button" title="Render in 3D">3D viewer <i class="fa-solid fa-up-right-from-square"></i></a>
+                    </div>
+                </div>
             </td>
             <td><a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);">{{neuron.name}}</a><br><small>{{neuron.root_id}}</small>
             </td>
@@ -188,7 +195,19 @@
                 <br>{{'{:,}'.format(neuron.area_nm // 1000000)}}&#181;m<sup>2</sup>
                 <br>{{'{:,}'.format(neuron.size_nm // 1000000000)}}&#181;m<sup>3</sup>
             </small></td>
-            <td style="color:purple;"><small>{{neuron.input_cells}}:{{neuron.output_cells}}<br>{{neuron.hemisphere_fingerprint}}</small></td>
+            <td>
+                <small>
+                <a href="{{url_for('app.search', filter_string='{upstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                    <i class="fa-solid fa-arrow-up"></i> &nbsp; {{neuron.input_cells}}
+                </a>
+                    <br>
+                <a href="{{url_for('app.search', filter_string='{downstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                    <i class="fa-solid fa-arrow-down"></i> &nbsp; {{neuron.output_cells}}
+                </a>
+                </small>
+                <br>
+                <small style="color:purple;">{{neuron.hemisphere_fingerprint}}</small>
+            </td>
             <td style="color:#3A3A3A;">
                 {% for tg in neuron.label %}
                 <div class="spotfilter">
@@ -209,9 +228,6 @@
                 </div>
                 {% endfor %}
             </td>
-
-            <td><a class="btn btn-outline-primary" href="{{url_for('app.flywire_url', data_version=data_version, root_ids=[neuron.root_id])}}"
-                   target="_blank" role="button" title="Render in 3D"><i class="fa-solid fa-cube"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>
