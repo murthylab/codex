@@ -118,6 +118,23 @@ div.google-visualization-tooltip { width:250px; }
                 </tbody>
             </table>
         </div>
+    </div>
+    <div class="card" style="width: 100%;">
+        <div class="card-header" style="color: purple;">
+            Annotations
+        </div>
+        <div class="body">
+            <table class="table">
+                <tbody>
+                {% for k, v in cell_annotations.items() %}
+                <tr>
+                    <td>{{k|safe}}</td>
+                    <td>{{v|safe}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
         <div>
             <form style="margin: 10px;" target="_blank">
                 <h7 style="color: purple;"> <i class="fa-solid fa-pen-to-square"></i> Contribute to the labeling effort</h7>

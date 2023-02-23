@@ -41,20 +41,6 @@ def cached_cell_details(
         + " in, "
         + "{:,}".format(nd["output_synapses"])
         + " out</small>",
-        "Classification": "<small>"
-        + "<br>".join(
-            [
-                f"{cl[0]}: <b>{nd[cl[1]]}</b>"
-                for cl in [
-                    ("Side", "side"),
-                    ("Nerve", "nerve_type"),
-                    ("Flow", "flow"),
-                    ("Super Class", "class"),
-                ]
-                if nd[cl[1]]
-            ]
-        )
-        + "</small>",
         "NT Type": nd["nt_type"]
         + f' ({lookup_nt_type_name(nd["nt_type"])})'
         + "<br><small>predictions "
@@ -70,6 +56,23 @@ def cached_cell_details(
                     ("Length", "length_nm"),
                     ("Area", "area_nm"),
                     ("Volume", "size_nm"),
+                ]
+                if nd[cl[1]]
+            ]
+        )
+        + "</small>",
+    }
+
+    cell_annotations = {
+        "Classification": "<small>"
+        + "<br>".join(
+            [
+                f"{cl[0]}: <b>{nd[cl[1]]}</b>"
+                for cl in [
+                    ("Side", "side"),
+                    ("Nerve", "nerve_type"),
+                    ("Flow", "flow"),
+                    ("Super Class", "class"),
                 ]
                 if nd[cl[1]]
             ]
@@ -228,6 +231,7 @@ def cached_cell_details(
 
     # remove empty items
     cell_attributes = {k: v for k, v in cell_attributes.items() if v}
+    cell_annotations = {k: v for k, v in cell_annotations.items() if v}
 
     cell_extra_data = {}
     if neuron_db.connection_rows and reachability_stats:
@@ -260,6 +264,7 @@ def cached_cell_details(
         data_version=data_version,
         cell_coordinates=nd["position"][0] if nd["position"] else "",
         cell_attributes=cell_attributes,
+        cell_annotations=cell_annotations,
         cell_extra_data=cell_extra_data,
         related_cells=related_cells,
         charts=charts,

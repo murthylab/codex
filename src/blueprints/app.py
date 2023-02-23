@@ -481,7 +481,7 @@ def cell_details():
         reachability_stats=reachability_stats,
     )
     log_activity(
-        f"Generated neuron info for {root_id} with {len(dct['cell_attributes']) + len(dct['related_cells'])} items"
+        f"Generated neuron info for {root_id} with {len(dct['cell_attributes']) + len(dct['cell_annotations']) + len(dct['related_cells'])} items"
     )
     return render_template("cell_details.html", **dct)
 
