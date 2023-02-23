@@ -63,6 +63,7 @@ def make_graph_html(
     group_regions,
     show_edge_weights,
     show_warnings,
+    layers=None,
 ):
     """
     connection_table has 4 columns: pre root id, post root id, neuropil, syn count
@@ -70,11 +71,13 @@ def make_graph_html(
     center_ids is the ids of the neurons that are being inspected
     """
     center_ids = center_ids or []
-    connection_table, aggregated_con_count, aggregated_syn_count = aggregate_and_cap(
-        connection_table=connection_table,
-        connections_cap=connections_cap,
-        group_regions=group_regions,
-    )
+
+    if layers is None:
+        connection_table, aggregated_con_count, aggregated_syn_count = aggregate_and_cap(
+            connection_table=connection_table,
+            connections_cap=connections_cap,
+            group_regions=group_regions,
+        )
 
     node_ids = set([r[0] for r in connection_table]).union(
         [r[1] for r in connection_table]
@@ -83,7 +86,7 @@ def make_graph_html(
     max_syn_count = max([r[3] for r in connection_table])
     large_weights = total_syn_count >= 50000
 
-    if show_warnings:
+    if layers is None and show_warnings:
         if aggregated_con_count > connections_cap:
             warning_msg = (
                 f"Top {format_number(connections_cap)} connections out of {format_number(aggregated_con_count)} "
@@ -113,6 +116,11 @@ def make_graph_html(
 
     def node_position(nid):
         return None, None
+    
+    def node_level(nid):
+        if layers is None:
+            return None
+        return layers[int(nid)]
 
     def node_color(nid):
         return nt_color(nt_type_getter(nid)) if nt_type_getter else UNSPECIFIED_COLOR
@@ -180,12 +188,12 @@ def make_graph_html(
             return format_number(weight)
 
     def edge_width(weight):
-        if large_weights:
+        if large_weights or layers is not None:
             return 50 * weight / max_syn_count
         else:
             return len(str(weight))
 
-    net = Network(show_edge_weights=show_edge_weights)
+    net = Network(show_edge_weights=show_edge_weights, layered=layers is not None)
 
     added_cell_nodes = set()
 
@@ -200,6 +208,7 @@ def make_graph_html(
                 shape=node_shape(nid),
                 size=node_size(nid),
                 mass=node_mass(nid),
+                level=node_level(nid),
                 x=x,
                 y=y,
                 cluster_inputs=node_clusterable(nid),
@@ -234,7 +243,18 @@ def make_graph_html(
             net.add_legend("Output Neuropil", color=OUTPUT_NEUROPIL_COLOR)
         return node_name
 
-    if group_regions:
+    if layers is not None:
+        for r in connection_table:
+            add_cell_node(r[0])
+            add_cell_node(r[1])
+            net.add_edge(
+                source=r[0],
+                target=r[1],
+                width=edge_width(r[3]),
+                label=edge_label(r[3]),
+                title=edge_title(r[3]),
+            )
+    elif group_regions:
         cell_to_cell_counts = defaultdict(int)
         cell_loop_counts = defaultdict(int)
         for r in connection_table:
@@ -295,7 +315,7 @@ def make_graph_html(
 
 
 class Network(object):
-    def __init__(self, show_edge_weights, edge_physics=True, node_physics=False):
+    def __init__(self, show_edge_weights, edge_physics=True, node_physics=False, layered=False):
         self.edges = []
         self.node_map = {}
         self.legend = []
@@ -304,6 +324,7 @@ class Network(object):
         self.node_physics = node_physics
         self.cluster_data = {}
         self.active_edges = {}
+        self.layered = layered
 
     def add_node(
         self,
@@ -316,6 +337,7 @@ class Network(object):
         title=None,
         x=None,
         y=None,
+        level=None,
         cluster_inputs=False,
         cluster_outputs=False,
     ):
@@ -338,6 +360,8 @@ class Network(object):
             if y is not None:
                 node["y"] = y
                 node["fixed.y"] = True
+            if level is not None:
+                node["level"] = level
 
             self.node_map[name] = node
             if cluster_inputs or cluster_outputs:
@@ -364,7 +388,7 @@ class Network(object):
             "physics": self.edge_physics,
             "label": label if self.show_edge_weights else "",
             "title": title,
-            "arrows": "to",
+            "arrows": None if self.layered else "to",
             "arrowStrikethrough": True,
             "width": width,
             "dashes": False,
@@ -396,5 +420,6 @@ class Network(object):
             cluster_data=self.cluster_data,
             active_edges=self.active_edges,
             legend=self.legend,
+            layered=self.layered,
             warning_msg=warning_msg,
         )
