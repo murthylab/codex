@@ -115,3 +115,19 @@ tr:nth-child(even){background-color: #fafafa}
     opacity: 1;
     background:#2a9df4;}
 }
+
+@media (max-width: 800px) {
+    .card-columns.custom-columns {
+        column-count: 1;
+    }
+}
+@media (min-width: 800px) {
+    .card-columns.custom-columns {
+        column-count: 2;
+    }
+}
+@media (min-width: 1200px) {
+    .card-columns.custom-columns {
+        column-count: 3;
+    }
+}
