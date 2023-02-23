@@ -177,4 +177,6 @@ def nanometer_to_flywire_coordinates(coordinates):
 def nanos_to_formatted_micros(nanos, degree):
     divisor = pow(1000, degree)
     micros = round(nanos / divisor)
-    return f"{format_number(micros)} &#181;m" + (f"<sup>{degree}</sup>" if degree > 1 else "")
+    return f"{format_number(micros)} &#181;m" + (
+        f"<sup>{degree}</sup>" if degree > 1 else ""
+    )

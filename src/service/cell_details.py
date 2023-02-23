@@ -8,7 +8,11 @@ from src.data.neurotransmitters import lookup_nt_type_name, NEURO_TRANSMITTER_NA
 from src.data.structured_search_filters import OP_UPSTREAM, OP_DOWNSTREAM, OP_SIMILAR
 from src.utils import nglui
 from src.utils import stats as stats_utils
-from src.utils.formatting import concat_labels, nanometer_to_flywire_coordinates, nanos_to_formatted_micros
+from src.utils.formatting import (
+    concat_labels,
+    nanometer_to_flywire_coordinates,
+    nanos_to_formatted_micros,
+)
 from src.utils.graph_algos import reachable_node_counts
 
 

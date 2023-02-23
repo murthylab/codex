@@ -53,7 +53,8 @@ from src.utils.formatting import (
     synapse_table_to_csv_string,
     synapse_table_to_json_dict,
     highlight_annotations,
-    trim_long_tokens, nanos_to_formatted_micros,
+    trim_long_tokens,
+    nanos_to_formatted_micros,
 )
 from src.utils.graph_algos import distance_matrix
 from src.utils.logging import (
@@ -73,6 +74,7 @@ from src.data.structured_search_filters import get_advanced_search_data
 from src.data.braincircuits import neuron2line
 
 app = Blueprint("app", __name__, url_prefix="/app")
+
 
 @app.context_processor
 def jinja_utils():
