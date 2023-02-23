@@ -1,4 +1,5 @@
 from collections import defaultdict
+import random
 
 from networkx import Graph, DiGraph, connected_components, strongly_connected_components
 
@@ -86,7 +87,8 @@ def cluster_neurons(predicate, directed=True, print_markdown=False, csv_filename
         ]
     )
 
-    score_threshold = 1
+    score_threshold = 4
+    MAX_SCORE_THRESHOLD = 6
     MAX_CLUSTER_SIZE = 50
     clusters = [neuron_rids]
 
@@ -101,7 +103,7 @@ def cluster_neurons(predicate, directed=True, print_markdown=False, csv_filename
 
     while True:
         large_clusters = [cl for cl in clusters if len(cl) > MAX_CLUSTER_SIZE]
-        if score_threshold >= 9 or not large_clusters:
+        if score_threshold >= MAX_SCORE_THRESHOLD or not large_clusters:
             break
         report_cluster_sizes()
         clusters = [cl for cl in clusters if len(cl) <= MAX_CLUSTER_SIZE]
@@ -117,9 +119,12 @@ def cluster_neurons(predicate, directed=True, print_markdown=False, csv_filename
 
     if print_markdown:
         for i, c in enumerate(clusters):
-            if len(c) <= 10:
+            if len(c) <= 1:
                 break
             name = f"Cluster with {len(c)} cells"
+            if len(c) > 50:
+                c = random.sample(c, 50)
+                name += " (sample)"
             link = f"http://codex.flywire.ai/app/search?filter_string={','.join([str(r) for r in c])}"
             print(f"1. [{name}]({link})")
 
@@ -132,4 +137,9 @@ if __name__ == "__main__":
             [p in SEZ_PILS for p in ndata["output_neuropils"]]
         )
 
-    cluster_neurons(predicate=lambda n: True)
+    cluster_neurons(
+        predicate=lambda n: is_sez(n),
+        directed=False,
+        csv_filename="sez_clusters_v2.csv",
+        print_markdown=True,
+    )
