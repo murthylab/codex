@@ -160,6 +160,10 @@ def truncate(txt, charlim, include_length=False):
         return res
 
 
+def format_number(n):
+    return "{:,}".format(n)
+
+
 def nanometer_to_flywire_coordinates(coordinates):
     coordinates = tokenize(coordinates)
     assert len(coordinates) == 3
@@ -168,3 +172,9 @@ def nanometer_to_flywire_coordinates(coordinates):
         round(int(coordinates[1]) / 4),
         round(int(coordinates[2]) / 40),
     )
+
+
+def nanos_to_formatted_micros(nanos, degree):
+    divisor = pow(1000, degree)
+    micros = round(nanos / divisor)
+    return f"{format_number(micros)} &#181;m" + (f"<sup>{degree}</sup>" if degree > 1 else "")

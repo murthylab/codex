@@ -8,7 +8,7 @@ from src.data.neurotransmitters import lookup_nt_type_name, NEURO_TRANSMITTER_NA
 from src.data.structured_search_filters import OP_UPSTREAM, OP_DOWNSTREAM, OP_SIMILAR
 from src.utils import nglui
 from src.utils import stats as stats_utils
-from src.utils.formatting import concat_labels, nanometer_to_flywire_coordinates
+from src.utils.formatting import concat_labels, nanometer_to_flywire_coordinates, nanos_to_formatted_micros
 from src.utils.graph_algos import reachable_node_counts
 
 
@@ -48,14 +48,14 @@ def cached_cell_details(
             [f"{k}: {nd[f'{k.lower()}_avg']}" for k in sorted(NEURO_TRANSMITTER_NAMES)]
         )
         + "</small>",
-        "Size (nm)": "<small>"
+        "Size": "<small>"
         + "<br>".join(
             [
-                f"{cl[0]}: <b>{nd[cl[1]]}</b>"
+                f"{cl[0]}: <b>{nanos_to_formatted_micros(nd[cl[1]], cl[2])}</b>"
                 for cl in [
-                    ("Length", "length_nm"),
-                    ("Area", "area_nm"),
-                    ("Volume", "size_nm"),
+                    ("Length", "length_nm", 1),
+                    ("Area", "area_nm", 2),
+                    ("Volume", "size_nm", 3),
                 ]
                 if nd[cl[1]]
             ]

@@ -6,6 +6,7 @@ from src.utils.formatting import (
     highlight_annotations,
     truncate,
     nanometer_to_flywire_coordinates,
+    nanos_to_formatted_micros,
 )
 
 
@@ -139,3 +140,15 @@ class TestHighlighting(TestCase):
             nanometer_to_flywire_coordinates("3, 33")
         with self.assertRaises(AssertionError):
             nanometer_to_flywire_coordinates("3, 3, 3 2")
+
+    def test_nanos_to_formatted_micros(self):
+        self.assertEqual("1 &#181;m", nanos_to_formatted_micros(1000, 1))
+        self.assertEqual("1 &#181;m", nanos_to_formatted_micros(1234, 1))
+        self.assertEqual("2 &#181;m", nanos_to_formatted_micros(1560, 1))
+        self.assertEqual("47 &#181;m<sup>2</sup>", nanos_to_formatted_micros(46546541, 2))
+        self.assertEqual("12 &#181;m<sup>2</sup>", nanos_to_formatted_micros(12344565, 2))
+        self.assertEqual("16 &#181;m<sup>2</sup>", nanos_to_formatted_micros(15604456, 2))
+        self.assertEqual("0 &#181;m<sup>3</sup>", nanos_to_formatted_micros(1000, 3))
+        self.assertEqual("1 &#181;m<sup>3</sup>", nanos_to_formatted_micros(1234456789, 3))
+        self.assertEqual("78,775,445,549 &#181;m<sup>3</sup>", nanos_to_formatted_micros(78775445548744654654, 3))
+

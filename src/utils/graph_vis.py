@@ -4,7 +4,7 @@ from collections import defaultdict
 from flask import render_template, url_for
 
 from src.data.brain_regions import neuropil_description, lookup_neuropil_set
-from src.utils.formatting import shorten_and_concat_labels
+from src.utils.formatting import shorten_and_concat_labels, format_number
 
 INPUT_NEUROPIL_COLOR = "#97c2fc"
 OUTPUT_NEUROPIL_COLOR = "#fcc297"
@@ -44,10 +44,6 @@ def aggregate_and_cap(connection_table, connections_cap, group_regions):
                 break
 
     return connections_res, aggregated_con_count, aggregated_syn_count
-
-
-def format_number(n):
-    return "{:,}".format(n)
 
 
 def make_graph_html(

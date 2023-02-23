@@ -2,7 +2,7 @@ from collections import defaultdict, namedtuple
 
 from src.data.brain_regions import NEUROPIL_DESCRIPTIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
-from src.utils.graph_vis import format_number
+from src.utils.formatting import nanos_to_formatted_micros
 
 
 def group_counts(count_pairs):
@@ -148,20 +148,9 @@ def _make_data_stats(neuron_data, label_data, include_leaderboard=False):
             "Cells": len(neuron_data),
             "- Labeled": labeled_neurons,
             "- Classified": classified_neurons,
-            "- Avg. length": format_number(total_length // (1000 * len(neuron_data)))
-            + " &#181;m"
-            if neuron_data
-            else "NA",
-            "- Avg. area": format_number(total_area // (1000000 * len(neuron_data)))
-            + " &#181;m<sup>2</sup>"
-            if neuron_data
-            else "NA",
-            "- Avg. volume": format_number(
-                total_volume // (1000000000 * len(neuron_data))
-            )
-            + " &#181;m<sup>3</sup>"
-            if neuron_data
-            else "NA",
+            "- Avg. length": nanos_to_formatted_micros(total_length / len(neuron_data), 1) if neuron_data else "NA",
+            "- Avg. area": nanos_to_formatted_micros(total_area / len(neuron_data), 2) if neuron_data else "NA",
+            "- Avg. volume": nanos_to_formatted_micros(total_volume / len(neuron_data), 3) if neuron_data else "NA",
         }
     }
     if anno_counts:

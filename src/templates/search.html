@@ -202,9 +202,10 @@
                     {% endif %}
                 </div>
             </td>
-            <td style="color:purple;"><small>{{'{:,}'.format(neuron.length_nm // 1000)}}&#181;m
-                <br>{{'{:,}'.format(neuron.area_nm // 1000000)}}&#181;m<sup>2</sup>
-                <br>{{'{:,}'.format(neuron.size_nm // 1000000000)}}&#181;m<sup>3</sup>
+            <td style="color:purple;"><small>
+                {{nanos_to_formatted_micros(neuron.length_nm, 1)|safe}}<br>
+                {{nanos_to_formatted_micros(neuron.area_nm, 2)|safe}}<br>
+                {{nanos_to_formatted_micros(neuron.size_nm, 3)|safe}}
             </small></td>
             <td>
                 <small>
