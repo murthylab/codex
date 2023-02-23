@@ -101,7 +101,7 @@
 div.google-visualization-tooltip { width:250px; }
 </style>
 
-<div class="card-columns" id="main_panels_container" style="padding: 5px;">
+<div class="card-columns" style="padding: 5px;">
     <div class="card" style="width: 100%;">
         <div class="card-header" style="color: purple;">
             Cell Info
@@ -117,39 +117,6 @@ div.google-visualization-tooltip { width:250px; }
                 {% endfor %}
                 </tbody>
             </table>
-        </div>
-    </div>
-    <div class="card" style="width: 100%;">
-        <div class="card-header" style="color: purple;">
-            Annotations
-        </div>
-        <div class="body">
-            <table class="table">
-                <tbody>
-                {% for k, v in cell_annotations.items() %}
-                <tr>
-                    <td>{{k|safe}}</td>
-                    <td>{{v|safe}}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div>
-            <form style="margin: 10px;" target="_blank">
-                <h7 style="color: purple;"> <i class="fa-solid fa-pen-to-square"></i> Contribute to the labeling effort</h7>
-                <textarea class="form-control" id="annotation_text" minlength="2" rows="2" name="annotation_text"
-                      placeholder="label, annotate, or identify this cell" required></textarea>
-                <input style="margin-top: 10px;" class="form-control mr-sm-2" autocomplete="off" minlength="11" required
-                    id="annotation_coordinates" name="annotation_coordinates" placeholder="coordinates: x y z (in nano)"
-                    aria-label="Soma Coordinates in Nanometers" value="{{cell_coordinates}}">
-                <input type="hidden" id="annotation_cell_id" name="annotation_cell_id" value="{{cell_id}}"/>
-                <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">
-                    Continue
-                </button> <button type="button" onclick="alert('After you fill in the annotation info and hit Continue, you will be taken to the Flywire annotation management system to submit it with one click. If accepted, your annotation will show up in Codex the next work day.')" style="margin-top: 10px;" class="btn btn-outline-info btn-sm">
-                    <i class="fa-solid fa-info"></i>
-                </button>
-            </form>
         </div>
     </div>
     {% if load_connections %}
@@ -174,35 +141,75 @@ div.google-visualization-tooltip { width:250px; }
                 src="{{url_for('app.flywire_url', data_version=data_version, root_ids=[cell_id], log_request=0)}}" title="neuroglancer"
                 loading="lazy"></iframe>
     </div>
-                <!-- Button trigger modal -->
-
-
-
 </div>
-<div class="card" style="width: 100%;">
-    <div class="card-header" style="color: purple;">
-        Further Analysis
+
+<div class="card-columns" style="padding: 5px;">
+    <div class="card" style="width: 100%;">
+        <div class="card-header" style="color: purple;">
+            Annotations
+        </div>
+        <div class="body">
+            <table class="table">
+                <tbody>
+                {% for k, v in cell_annotations.items() %}
+                <tr>
+                    <td>{{k|safe}}</td>
+                    <td>{{v|safe}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="body">
-        <table class="table">
-            <tbody>
-            {% for k, v in related_cells.items() %}
-            <tr>
-                <td>{{k|safe}}</td>
-                <td>{{v|safe}}</td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <td>
-                    <a class="btn btn-link" data-toggle="modal" data-target="#braincircuits-modal"><i class="fa-solid fa-brain"></i>&nbsp; Find matching genetic lines with BrainCircuits.io </a>
-                </td>
-                <td></td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="card" style="width: 100%;">
+        <div class="card-header" style="color: purple;">
+            Contribute
+        </div>
+        <div class="body">
+            <form style="margin: 10px;" target="_blank">
+                <h7 style="color: purple;"> <i class="fa-solid fa-pen-to-square"></i> Label / identify cell</h7>
+                <textarea class="form-control" id="annotation_text" minlength="2" rows="2" name="annotation_text"
+                      placeholder="label, annotate, or identify this cell" required></textarea>
+                <br>
+                <h7 style="color: purple;"> <i class="fa-solid fa-map-pin"></i> Coordinates (in nm)</h7>
+                <input style="margin-top: 10px;" class="form-control mr-sm-2" autocomplete="off" minlength="11" required
+                    id="annotation_coordinates" name="annotation_coordinates" placeholder="coordinates: x y z (in nano)"
+                    aria-label="Soma Coordinates in Nanometers" value="{{cell_coordinates}}">
+                <input type="hidden" id="annotation_cell_id" name="annotation_cell_id" value="{{cell_id}}"/>
+                <br>
+                <small style="color: grey;"><i class="fa-solid fa-circle-info"></i> Identification labels can be anchored to specific coordinates on the cell (where the identification was made). See the FlyWire and Coordinates links on the Cell Info panel for reference.</small>
+                <br><br>
+                <small style="color: grey;"><i class="fa-solid fa-circle-info"></i> After you fill in the annotation info and hit Continue, you will be taken to the Flywire annotation management system to submit it with one click. If accepted, your annotation will show up in Codex the next work day.</small>
+                <br>
+                <br>
+                <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">
+                    Continue
+                </button>
+            </form>
+        </div>
     </div>
-</div>
-<div class="card-columns" id="charts_container" style="padding: 5px;">
+
+    <div class="card" style="width: 100%;">
+        <div class="card-header" style="color: purple;">
+            Further Analysis
+        </div>
+        <div class="body">
+            <table class="table">
+                <tbody>
+                {% for k in related_cells %}
+                <tr>
+                    <td>{{k|safe}}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td>
+                        <a class="btn btn-link" data-toggle="modal" data-target="#braincircuits-modal"><i class="fa-solid fa-brain"></i>&nbsp; Find matching genetic lines with BrainCircuits.io </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
     {% for hdr, attribs in cell_extra_data.items() %}
     <div class="card" style="width: 100%;">
         <div class="card-header" style="color: purple;">
@@ -224,45 +231,49 @@ div.google-visualization-tooltip { width:250px; }
     {% endfor %}
 </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="braincircuits-modal" tabindex="-1" aria-labelledby="braincircuits-modal-label"
-            aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="braincircuits-modal-label">Find matching genetic lines with BrainCircuits.io</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="braincircuits-form">
-                    <form>
-                        <div class="form-group">
-                            <label>Select Target Library</label>
-                            <select class="form-control" id="braincircuits-target-library">
-                                    <option value="fruitfly_brain_FlyLight_Annotator_Gen1_MCFO">FlyLight Annotator Gen1 MCFO (101215 images)</option>
-                                    <option value="fruitfly_brain_FlyLight_Gen1_GAL4">FlyLight Gen1 GAL4 (32932 images)</option>
-                                    <option value="fruitfly_brain_FlyLight_Gen1_LexA">FlyLight Gen1 LexA (5033 images)</option>
-                                    <option value="fruitfly_brain_FlyLight_Gen1_MCFO">FlyLight Gen1 MCFO (136367 images)</option>
-                                    <option value="fruitfly_brain_FlyLight_Gen1_MCFO_gamma_corrected">FlyLight Gen1 MCFO gamma corrected (81419 images)</option>
-                                    <option value="fruitfly_brain_FlyLight_Split-GAL4_Drivers">FlyLight Split-GAL4 Drivers (3045 images)</option>
-                                    <option value="fruitfly_brain_Vienna_Gen1_GAL4">Vienna Gen1 GAL4 (3588 images)</option>
-                                    <option value="fruitfly_brain_Vienna_Gen1_LexA">Vienna Gen1 LexA (2343 images)</option>
-                                    <option value="fruitfly_brain_FlyEM_Hemibrain_v1.2.1">FlyEM Hemibrain v1.2.1 (30789 images)</option>
-                                    <option value="Only_ColorMIP">Only ColorMIP Generation (0 images)</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer" id="brain_circuits_footer">
-                    <button type="button" class="btn btn-primary" id="brain_circuits_submit"
-                            onclick="submitBrainCircuitsRequest()">
-                        Submit
-                    </button>
-                </div>
+<div class="card-columns" id="charts_container" style="padding: 5px;">
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="braincircuits-modal" tabindex="-1" aria-labelledby="braincircuits-modal-label"
+        aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="braincircuits-modal-label">Find matching genetic lines with BrainCircuits.io</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="braincircuits-form">
+                <form>
+                    <div class="form-group">
+                        <label>Select Target Library</label>
+                        <select class="form-control" id="braincircuits-target-library">
+                                <option value="fruitfly_brain_FlyLight_Annotator_Gen1_MCFO">FlyLight Annotator Gen1 MCFO (101215 images)</option>
+                                <option value="fruitfly_brain_FlyLight_Gen1_GAL4">FlyLight Gen1 GAL4 (32932 images)</option>
+                                <option value="fruitfly_brain_FlyLight_Gen1_LexA">FlyLight Gen1 LexA (5033 images)</option>
+                                <option value="fruitfly_brain_FlyLight_Gen1_MCFO">FlyLight Gen1 MCFO (136367 images)</option>
+                                <option value="fruitfly_brain_FlyLight_Gen1_MCFO_gamma_corrected">FlyLight Gen1 MCFO gamma corrected (81419 images)</option>
+                                <option value="fruitfly_brain_FlyLight_Split-GAL4_Drivers">FlyLight Split-GAL4 Drivers (3045 images)</option>
+                                <option value="fruitfly_brain_Vienna_Gen1_GAL4">Vienna Gen1 GAL4 (3588 images)</option>
+                                <option value="fruitfly_brain_Vienna_Gen1_LexA">Vienna Gen1 LexA (2343 images)</option>
+                                <option value="fruitfly_brain_FlyEM_Hemibrain_v1.2.1">FlyEM Hemibrain v1.2.1 (30789 images)</option>
+                                <option value="Only_ColorMIP">Only ColorMIP Generation (0 images)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" id="brain_circuits_footer">
+                <button type="button" class="btn btn-primary" id="brain_circuits_submit"
+                        onclick="submitBrainCircuitsRequest()">
+                    Submit
+                </button>
             </div>
         </div>
     </div>
+</div>
+
 {% else %}
 <div class="card" style="margin: 15px;">
     <div class="card-header" style="color: purple;">

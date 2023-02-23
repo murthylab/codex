@@ -55,6 +55,7 @@ from src.utils.formatting import (
     highlight_annotations,
     trim_long_tokens,
     nanos_to_formatted_micros,
+    nanometer_to_flywire_coordinates,
 )
 from src.utils.graph_algos import distance_matrix
 from src.utils.logging import (
@@ -423,6 +424,23 @@ def ngl_redirect_with_browser_check(ngl_url):
             redirect_url=ngl_url,
             redirect_button_text="Proceed anyway",
         )
+
+
+@app.route("/cell_coordinates/<path:data_version>/<path:cell_id>")
+@request_wrapper
+@require_data_access
+def cell_coordinates(data_version, cell_id):
+    log_activity(
+        f"Loading coordinates for cell {cell_id} from data version {data_version}"
+    )
+    neuron_db = NeuronDataFactory.instance().get(data_version)
+    nd = neuron_db.get_neuron_data(cell_id)
+    return f"<h2>Supervoxel IDs and coordinates for {cell_id}</h2>" + "<br>".join(
+        [
+            f"Supervoxel ID: {s}, nanometer coordinates: {c}, FlyWire coordinates: {nanometer_to_flywire_coordinates(c)}"
+            for c, s in zip(nd["position"], nd["supervoxel_id"])
+        ]
+    )
 
 
 @app.route("/cell_details", methods=["GET", "POST"])

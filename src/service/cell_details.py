@@ -36,7 +36,10 @@ def cached_cell_details(
     )
     cell_attributes = {
         "Name": nd["name"],
-        "FlyWire Root ID": f'{root_id}<br><small><a href="{nglui.url_for_root_ids([root_id], version=data_version, point_to_proofreading_flywire=True, position=pos)}" target="_blank">Open in FlyWire <i class="fa-solid fa-up-right-from-square"></i> </a></small>',
+        "FlyWire Root ID": f"{root_id}<br><small>"
+        f'<a href="{nglui.url_for_root_ids([root_id], version=data_version, point_to_proofreading_flywire=True, position=pos)}" target="_blank">Open in FlyWire <i class="fa-solid fa-up-right-from-square"></i> </a><br>'
+        f'<a href="cell_coordinates/{data_version}/{root_id}" target="_blank">Supervoxel IDs and Coordinates <i class="fa-solid fa-up-right-from-square"></i> </a>'
+        "</small>",
         "Partners<br><small>Synapses</small>": "{:,}".format(nd["input_cells"])
         + " in, "
         + "{:,}".format(nd["output_cells"])
@@ -68,8 +71,7 @@ def cached_cell_details(
     }
 
     cell_annotations = {
-        "Classification": "<small>"
-        + "<br>".join(
+        "Classification": concat_labels(
             [
                 f"{cl[0]}: <b>{nd[cl[1]]}</b>"
                 for cl in [
@@ -80,15 +82,15 @@ def cached_cell_details(
                 ]
                 if nd[cl[1]]
             ]
-        )
-        + "</small>",
-        f'Identification Labels<br><span style="font-size: 9px; color: purple;">Updated {neuron_db.labels_ingestion_timestamp()}</span>': concat_labels(
-            labels
         ),
+        "Identification Labels": concat_labels(labels),
         "Label contributors": concat_labels(unames),
+        "Last DB sync": concat_labels(
+            [f'<b style="color: green">{neuron_db.labels_ingestion_timestamp()}</b>']
+        ),
     }
 
-    related_cells = {}
+    related_cells = []
 
     def insert_neuron_list_links(key, ids, icon, search_endpoint=None):
         if ids:
@@ -98,13 +100,9 @@ def cached_cell_details(
                 search_endpoint = (
                     f"search?filter_string=id << {comma_separated_root_ids}"
                 )
-            search_link = f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{icon}&nbsp; {len(ids)} {key}</a>'
-            ngl_url = url_for("app.flywire_url", root_ids=[root_id] + list(ids))
-            nglui_link = (
-                f'<a class="btn btn-outline-primary btn-sm" href="{ngl_url}"'
-                f' target="_blank"><i class="fa-solid fa-cube"></i></a>'
+            related_cells.append(
+                f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{icon}&nbsp; {len(ids)} {key}</a>'
             )
-            related_cells[search_link] = nglui_link
 
     connectivity_table = neuron_db.connections(ids=[root_id], min_syn_count=min_syn_cnt)
 
@@ -231,7 +229,7 @@ def cached_cell_details(
             f'<a class="btn btn-link" onclick="loading(event);" href="{rurl}"><i class="fa-solid fa-gears"></i> &nbsp; Run downstream / '
             f"upstream reachability analysis and reload</a>"
         )
-        related_cells[hlink] = ""
+        related_cells.append(hlink)
 
     # remove empty items
     cell_attributes = {k: v for k, v in cell_attributes.items() if v}
@@ -255,12 +253,6 @@ def cached_cell_details(
         )
         if reachable_counts:
             cell_extra_data["Upstream Reachable Cells (5+ syn)"] = reachable_counts
-
-    if nd["position"]:
-        cell_extra_data["Marked coordinates and Supervoxel IDs"] = {
-            f"nm: {c}<br>fw: {nanometer_to_flywire_coordinates(c)}": s
-            for c, s in zip(nd["position"], nd["supervoxel_id"])
-        }
 
     return dict(
         cell_names_or_id=cell_names_or_id or nd["name"],
