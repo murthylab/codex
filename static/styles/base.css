@@ -21,9 +21,8 @@ th, td {
 }
 
 .td_filter_buttons_caption {
-  font-size: 10px;
+  font-size: 0px;
   color: grey;
-  opacity: 0.0;
 }
 
 div.spotfilter:hover .td_filter_buttons {
@@ -31,7 +30,7 @@ div.spotfilter:hover .td_filter_buttons {
 }
 
 div.spotfilter:hover .td_filter_buttons_caption {
-  opacity: 1;
+  font-size: 10px;
 }
 
 
