@@ -668,16 +668,16 @@ def pathways():
     for data_row in data_rows:
         cons.append([data_row[0], data_row[1], "", data_row[2], ""])
     return compile_network_html(
-            root_ids=root_ids,
-            contable=cons,
-            data_version=data_version,
-            group_regions=group_regions,
-            reduce=reduce,
-            connections_cap=connections_cap,
-            hide_weights=hide_weights,
-            log_request=False,
-            layers=layers,
-        )
+        root_ids=root_ids,
+        contable=cons,
+        data_version=data_version,
+        group_regions=group_regions,
+        reduce=reduce,
+        connections_cap=connections_cap,
+        hide_weights=hide_weights,
+        log_request=False,
+        layers=layers,
+    )
 
 
 @app.route("/path_length")
@@ -1028,7 +1028,9 @@ def matching_lines():
         log_error(
             f"BrainCircuits API call failed with {e=}. Did you set BRAINCIRCUITS_TOKEN?"
         )
-        return {"error": "BrainCircuits API call failed. Did you set BRAINCIRCUITS_TOKEN?"}, e.response.status_code
+        return {
+            "error": "BrainCircuits API call failed. Did you set BRAINCIRCUITS_TOKEN?"
+        }, e.response.status_code
     except Exception as e:
         log_error(f"BrainCircuits API call failed with error: {e=}")
         return {"error": str(e)}, 500

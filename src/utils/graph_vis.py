@@ -73,7 +73,11 @@ def make_graph_html(
     center_ids = center_ids or []
 
     if layers is None:
-        connection_table, aggregated_con_count, aggregated_syn_count = aggregate_and_cap(
+        (
+            connection_table,
+            aggregated_con_count,
+            aggregated_syn_count,
+        ) = aggregate_and_cap(
             connection_table=connection_table,
             connections_cap=connections_cap,
             group_regions=group_regions,
@@ -116,7 +120,7 @@ def make_graph_html(
 
     def node_position(nid):
         return None, None
-    
+
     def node_level(nid):
         if layers is None:
             return None
@@ -315,7 +319,9 @@ def make_graph_html(
 
 
 class Network(object):
-    def __init__(self, show_edge_weights, edge_physics=True, node_physics=False, layered=False):
+    def __init__(
+        self, show_edge_weights, edge_physics=True, node_physics=False, layered=False
+    ):
         self.edges = []
         self.node_map = {}
         self.legend = []

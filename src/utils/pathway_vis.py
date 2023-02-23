@@ -17,7 +17,7 @@ def sort_connections(node_layers, cons):
         layers[layer].append(node)
     if len(layers) <= 3:
         return cons
-    
+
     # node_cons: {node id: [(connected node id, weight of connection) for all connections]}
     node_cons = {}
     for con in cons:
@@ -35,7 +35,7 @@ def sort_connections(node_layers, cons):
         for con in node_cons[node]:
             if node_layers[con[0]] == 2:
                 layer1_weights[node] += con[1]
-    
+
     layers[1].sort(key=lambda x: layer1_weights[x], reverse=True)
 
     # sort layer lists by best matching with prior layer
@@ -60,6 +60,7 @@ def sort_connections(node_layers, cons):
         layer_i = node_layers[n]
         layer = layers[layer_i]
         return layer_i * 100 + layer.index(n)
+
     for node in node_cons:
         node_con = node_cons[node]
         node_con.sort(key=layer_pos)
@@ -73,7 +74,7 @@ def sort_connections(node_layers, cons):
             node_con = node_cons[layer_node]
             for con in node_con:
                 sorted_cons.append((layer_node, con[0], con[1]))
-    
+
     return sorted_cons
 
 
