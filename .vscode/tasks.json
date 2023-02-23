@@ -1,0 +1,40 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Lint",
+      "type": "shell",
+      "command": "./lint.sh"
+    },
+    {
+      "label": "Unit Tests",
+      "type": "shell",
+      "command": "./run_unit_tests.sh",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Integration Tests",
+      "type": "shell",
+      "command": "./run_integration_tests.sh",
+      "group": {
+        "kind": "test"
+      }
+    },
+    {
+      "label": "All Tests",
+      "type": "shell",
+      "command": "./run_tests.sh",
+      "group": {
+        "kind": "test"
+      }
+    },
+    {
+      "label": "Profile",
+      "type": "shell",
+      "command": "./profile.sh"
+    }
+  ]
+}
