@@ -68,8 +68,8 @@ def sort_connections(node_layers, cons):
     # sorted_cons: [(node 1, node 2, weight) for each node connection]
     # same as cons but in proper matched order
     sorted_cons = []
-    for l in layers:
-        layer = layers[l]
+    for layer_i in layers:
+        layer = layers[layer_i]
         for layer_node in layer:
             node_con = node_cons[layer_node]
             for con in node_con:
