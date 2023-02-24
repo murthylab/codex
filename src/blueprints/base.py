@@ -156,16 +156,6 @@ OBSOLETE_ROUTE_DESTINATIONS = {
 }
 
 
-@base.route("/wip")
-@request_wrapper
-def wip():
-    log_activity("Rendering WIP notice")
-    return render_error(
-        message="Both the data and the app are a work in progress. Estimated completion time is Feb 2023.",
-        title="Codex - current status",
-    )
-
-
 @base.route("/favicon.ico")
 def favicon():
     return send_from_directory(
