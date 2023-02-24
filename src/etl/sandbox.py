@@ -3,7 +3,7 @@ import random
 
 from networkx import Graph, DiGraph, connected_components, strongly_connected_components
 
-from src.data.local_data_loader import write_csv
+from src.data.local_data_loader import write_csv, unpickle_neuron_db
 from src.data.neuron_data_factory import NeuronDataFactory
 
 """
@@ -127,6 +127,24 @@ def cluster_neurons(predicate, directed=True, print_markdown=False, csv_filename
                 name += " (sample)"
             link = f"http://codex.flywire.ai/app/search?filter_string={','.join([str(r) for r in c])}"
             print(f"1. [{name}]({link})")
+
+
+def compare_versions():
+    ndb526 = unpickle_neuron_db(version="526")
+    ndb571 = unpickle_neuron_db(version="571")
+
+    print(
+        f"Num neurons in 526: {len(ndb526.neuron_data)}, 571: {len(ndb571.neuron_data)}"
+    )
+    print(
+        f"Num neurons in 526 and 571: {len(set(ndb526.neuron_data.keys()) & set(ndb571.neuron_data.keys()))}"
+    )
+    print(
+        f"Num neurons in 526-571: {len(set(ndb526.neuron_data.keys()) - set(ndb571.neuron_data.keys()))}"
+    )
+    print(
+        f"Num neurons in 526-571: {len(set(ndb571.neuron_data.keys()) - set(ndb526.neuron_data.keys()))}"
+    )
 
 
 if __name__ == "__main__":
