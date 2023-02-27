@@ -62,7 +62,7 @@ def highlight_annotations(free_form_search_terms, labels):
     highlighted_annotations = []
     for label_string, label_tokens in parsed_labels:
 
-        # looks like this: [(color, start, end), (color, start, end), ...]
+        # looks like this: [(class_name, start, end), (class_name, start, end), ...]
         highlight_locations = []
         for label_token in label_tokens:
             token, start, end = label_token
@@ -71,7 +71,8 @@ def highlight_annotations(free_form_search_terms, labels):
 
                 # only add if not overlapping
                 if not_intersecting(highlight_locations, start, end):
-                    highlight_locations.append(("#C5FCB8", start, end))  # green
+                    highlight_locations.append(("highlight-green", start, end))  # use the CSS class
+
             else:
                 for search_token in folded_search_tokens:
                     if search_token in token:
@@ -84,7 +85,7 @@ def highlight_annotations(free_form_search_terms, labels):
                         ):
                             highlight_locations.append(
                                 (
-                                    "#F7FCB8",
+                                    "highlight-yellow",
                                     start + index,
                                     start + index + len(search_token),
                                 )
@@ -96,18 +97,17 @@ def highlight_annotations(free_form_search_terms, labels):
             highlighted_label_string = label_string
 
         else:
-            for i, (color, start, end) in enumerate(highlight_locations):
+            for i, (class_name, start, end) in enumerate(highlight_locations):
                 if i == 0:
                     highlighted_label_string += label_string[:start]
                 else:
                     highlighted_label_string += label_string[
                         highlight_locations[i - 1][2] : start
                     ]
-                highlighted_label_string += f'<span style="padding:1px;border-radius:5px;background-color:{color}">{label_string[start:end]}</span>'
+                highlighted_label_string += f'<span class="{class_name}">{label_string[start:end]}</span>'  # use the CSS class
             highlighted_label_string += label_string[end:]
         highlighted_annotations.append(highlighted_label_string)
     return highlighted_annotations
-
 
 def not_intersecting(list_of_ranges, start, end):
     if not list_of_ranges:

@@ -59,14 +59,14 @@ class TestHighlighting(TestCase):
                 "Kenyon cell KC",
                 ["Mushroom Body Kenyon cell KC"],
                 [
-                    'Mushroom Body <span style="padding:1px;border-radius:5px;background-color:#C5FCB8">Kenyon</span> <span style="padding:1px;border-radius:5px;background-color:#C5FCB8">cell</span> <span style="padding:1px;border-radius:5px;background-color:#C5FCB8">KC</span>'
+                    'Mushroom Body <span class="highlight-green">Kenyon</span> <span class="highlight-green">cell</span> <span class="highlight-green">KC</span>'
                 ],
             ),
             (
                 "mushroom body",
                 ["Mushroom Body Kenyon cell KC"],
                 [
-                    '<span style="padding:1px;border-radius:5px;background-color:#C5FCB8">Mushroom</span> <span style="padding:1px;border-radius:5px;background-color:#C5FCB8">Body</span> Kenyon cell KC'
+                    '<span class="highlight-green">Mushroom</span> <span class="highlight-green">Body</span> Kenyon cell KC'
                 ],
             ),
             (
@@ -83,7 +83,7 @@ class TestHighlighting(TestCase):
                 [
                     "pCd1(FW)/SMP487(HB) *",
                     "SMPpv1; left",
-                    '<span style="padding:1px;border-radius:5px;background-color:#F7FCB8">pMP</span>3a; put_PDM15gC; pCd1?*',
+                    '<span class="highlight-yellow">pMP</span>3a; put_PDM15gC; pCd1?*',
                     "SMPpv1; right; acetylcholine*",
                     "pCd1?",
                     "putative fru*",
@@ -94,7 +94,7 @@ class TestHighlighting(TestCase):
                 "shroo",
                 ["Mushroom Body Kenyon cell KC"],
                 [
-                    'Mu<span style="padding:1px;border-radius:5px;background-color:#F7FCB8">shroo</span>m Body Kenyon cell KC'
+                    'Mu<span class="highlight-yellow">shroo</span>m Body Kenyon cell KC'
                 ],
             ),
             (
@@ -106,7 +106,7 @@ class TestHighlighting(TestCase):
                 "some label",
                 ["some label*"],
                 [
-                    '<span style="padding:1px;border-radius:5px;background-color:#C5FCB8">some</span> <span style="padding:1px;border-radius:5px;background-color:#C5FCB8">label</span>*'
+                    '<span class="highlight-green">some</span> <span class="highlight-green">label</span>*'
                 ],
             ),
         ]
@@ -114,6 +114,9 @@ class TestHighlighting(TestCase):
             free_form_search_terms = parse_search_query(filter_string)[1]
             actual = highlight_annotations(free_form_search_terms, labels)
             self.assertEqual(expected, actual, filter_string)
+
+
+
 
     def test_truncate(self):
         self.assertEqual("bit", truncate("bit", 5))

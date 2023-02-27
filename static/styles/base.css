@@ -131,3 +131,16 @@ tr:nth-child(even){background-color: #fafafa}
         column-count: 3;
     }
 }
+
+
+.highlight-green {
+  padding: 1px;
+  border-radius: 5px;
+  background-color: #C5FCB8;
+}
+
+.highlight-yellow {
+  padding: 1px;
+  border-radius: 5px;
+  background-color: #F7FCB8;
+}
