@@ -146,7 +146,7 @@ def _make_data_stats(neuron_data, label_data, include_leaderboard=False):
     result = {
         "": {
             "Cells": len(neuron_data),
-            "- Labeled": labeled_neurons,
+            "- With label(s)": labeled_neurons,
             "- Classified": classified_neurons,
             "- Avg. length": nanos_to_formatted_micros(
                 total_length / len(neuron_data), 1

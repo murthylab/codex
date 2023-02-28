@@ -471,7 +471,7 @@ class NeuronDB(object):
                 "counts": _sorted_counts(sides),
             },
             {
-                "caption": _caption("Labels", len(labels)),
+                "caption": _caption("Identification labels", len(labels)),
                 "key": "label",
                 "counts": _sorted_counts(labels),
             },

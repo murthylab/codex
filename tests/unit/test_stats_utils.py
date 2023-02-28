@@ -34,7 +34,7 @@ class Test(TestCase):
                     "- Avg. length": "NA",
                     "- Avg. volume": "NA",
                     "- Classified": "0",
-                    "- Labeled": "0",
+                    "- With label(s)": "0",
                     "Cells": "0",
                 }
             },
