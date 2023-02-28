@@ -71,7 +71,9 @@ def highlight_annotations(free_form_search_terms, labels):
 
                 # only add if not overlapping
                 if not_intersecting(highlight_locations, start, end):
-                    highlight_locations.append(("highlight-green", start, end))  # use the CSS class
+                    highlight_locations.append(
+                        ("highlight-green", start, end)
+                    )  # use the CSS class
 
             else:
                 for search_token in folded_search_tokens:
@@ -108,6 +110,7 @@ def highlight_annotations(free_form_search_terms, labels):
             highlighted_label_string += label_string[end:]
         highlighted_annotations.append(highlighted_label_string)
     return highlighted_annotations
+
 
 def not_intersecting(list_of_ranges, start, end):
     if not list_of_ranges:

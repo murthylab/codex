@@ -12,6 +12,7 @@ from src.utils.formatting import (
     concat_labels,
     nanometer_to_flywire_coordinates,
     nanos_to_formatted_micros,
+    format_number,
 )
 from src.utils.graph_algos import reachable_node_counts
 
@@ -40,13 +41,13 @@ def cached_cell_details(
         f'<a href="{nglui.url_for_root_ids([root_id], version=data_version, point_to_proofreading_flywire=True, position=pos)}" target="_blank">Open in FlyWire <i class="fa-solid fa-up-right-from-square"></i> </a><br>'
         f'<a href="cell_coordinates/{data_version}/{root_id}" target="_blank">Supervoxel IDs and Coordinates <i class="fa-solid fa-up-right-from-square"></i> </a>'
         "</small>",
-        "Partners<br><small>Synapses</small>": "{:,}".format(nd["input_cells"])
+        "Partners<br><small>Synapses</small>": format_number(nd["input_cells"])
         + " in, "
-        + "{:,}".format(nd["output_cells"])
+        + format_number(nd["output_cells"])
         + " out<br><small>"
-        + "{:,}".format(nd["input_synapses"])
+        + format_number(nd["input_synapses"])
         + " in, "
-        + "{:,}".format(nd["output_synapses"])
+        + format_number(nd["output_synapses"])
         + " out</small>",
         "NT Type": nd["nt_type"]
         + f' ({lookup_nt_type_name(nd["nt_type"])})'
@@ -92,16 +93,10 @@ def cached_cell_details(
 
     related_cells = []
 
-    def insert_neuron_list_links(key, ids, icon, search_endpoint=None):
-        if ids:
-            ids = set(ids)
-            comma_separated_root_ids = ", ".join([str(rid) for rid in ids])
-            if not search_endpoint:
-                search_endpoint = (
-                    f"search?filter_string=id << {comma_separated_root_ids}"
-                )
+    def insert_neuron_list_links(key, num_neurons, icon, search_endpoint):
+        if num_neurons:
             related_cells.append(
-                f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{icon}&nbsp; {len(ids)} {key}</a>'
+                f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{icon}&nbsp; {format_number(num_neurons)} {key}</a>'
             )
 
     connectivity_table = neuron_db.connections(ids=[root_id], min_syn_count=min_syn_cnt)
@@ -110,25 +105,17 @@ def cached_cell_details(
         input_neuropil_synapse_count = defaultdict(int)
         output_neuropil_synapse_count = defaultdict(int)
         input_nt_type_count = defaultdict(int)
-        downstream = []
-        upstream = []
         for r in connectivity_table:
             if r[0] == root_id:
-                downstream.append(r[1])
                 output_neuropil_synapse_count[r[2]] += r[3]
             else:
                 assert r[1] == root_id
-                upstream.append(r[0])
                 input_neuropil_synapse_count[r[2]] += r[3]
                 input_nt_type_count[r[4].upper()] += r[3]
 
-        # dedupe
-        downstream = sorted(set(downstream))
-        upstream = sorted(set(upstream))
-
         insert_neuron_list_links(
             "input cells (upstream) with 5+ synapses",
-            upstream,
+            nd["input_cells"],
             '<i class="fa-solid fa-arrow-up"></i>',
             search_endpoint=url_for(
                 "app.search", filter_string=f"{OP_UPSTREAM} {root_id}"
@@ -136,7 +123,7 @@ def cached_cell_details(
         )
         insert_neuron_list_links(
             "output cells (downstream) with 5+ synapses",
-            downstream,
+            nd["output_cells"],
             '<i class="fa-solid fa-arrow-down"></i>',
             search_endpoint=url_for(
                 "app.search", filter_string=f"{OP_DOWNSTREAM} {root_id}"
@@ -211,7 +198,7 @@ def cached_cell_details(
 
     insert_neuron_list_links(
         "cells with similar morphology (NBLAST based)",
-        neuron_db.get_similar_cells(root_id),
+        len(neuron_db.get_similar_cells(root_id)),
         '<i class="fa-regular fa-clone"></i>',
         search_endpoint=url_for("app.search", filter_string=f"{OP_SIMILAR} {root_id}"),
     )
@@ -226,8 +213,8 @@ def cached_cell_details(
             reachability_stats=1,
         )
         hlink = (
-            f'<a class="btn btn-link" onclick="loading(event);" href="{rurl}"><i class="fa-solid fa-gears"></i> &nbsp; Run downstream / '
-            f"upstream reachability analysis and reload</a>"
+            f'<a class="btn btn-link" onclick="loading(event);" href="{rurl}"><i class="fa-solid fa-gears"></i> &nbsp; '
+            "Run reachability analysis and reload</a>"
         )
         related_cells.append(hlink)
 

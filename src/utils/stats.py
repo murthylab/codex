@@ -2,7 +2,7 @@ from collections import defaultdict, namedtuple
 
 from src.data.brain_regions import NEUROPIL_DESCRIPTIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
-from src.utils.formatting import nanos_to_formatted_micros
+from src.utils.formatting import nanos_to_formatted_micros, format_number
 
 
 def group_counts(count_pairs):
@@ -181,7 +181,7 @@ def _make_data_stats(neuron_data, label_data, include_leaderboard=False):
 
 
 def _format_val(val):
-    return "{:,}".format(val) if isinstance(val, int) else val
+    return format_number(val) if isinstance(val, int) else val
 
 
 def format_for_display(dict_of_dicts):

@@ -56,6 +56,7 @@ from src.utils.formatting import (
     trim_long_tokens,
     nanos_to_formatted_micros,
     nanometer_to_flywire_coordinates,
+    format_number,
 )
 from src.utils.graph_algos import distance_matrix
 from src.utils.logging import (
@@ -79,7 +80,9 @@ app = Blueprint("app", __name__, url_prefix="/app")
 
 @app.context_processor
 def jinja_utils():
-    return dict(nanos_to_formatted_micros=nanos_to_formatted_micros)
+    return dict(
+        format_number=format_number, nanos_to_formatted_micros=nanos_to_formatted_micros
+    )
 
 
 @app.route("/stats")

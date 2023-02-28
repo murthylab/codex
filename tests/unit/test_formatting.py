@@ -93,9 +93,7 @@ class TestHighlighting(TestCase):
             (
                 "shroo",
                 ["Mushroom Body Kenyon cell KC"],
-                [
-                    'Mu<span class="highlight-yellow">shroo</span>m Body Kenyon cell KC'
-                ],
+                ['Mu<span class="highlight-yellow">shroo</span>m Body Kenyon cell KC'],
             ),
             (
                 "{has} name",
@@ -114,9 +112,6 @@ class TestHighlighting(TestCase):
             free_form_search_terms = parse_search_query(filter_string)[1]
             actual = highlight_annotations(free_form_search_terms, labels)
             self.assertEqual(expected, actual, filter_string)
-
-
-
 
     def test_truncate(self):
         self.assertEqual("bit", truncate("bit", 5))

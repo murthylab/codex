@@ -42,7 +42,7 @@ from src.utils.cookies import (
     store_user_info,
     fetch_flywire_token,
 )
-from src.utils.formatting import truncate
+from src.utils.formatting import truncate, format_number
 from src.utils.logging import (
     log,
     log_activity,
@@ -382,9 +382,9 @@ def index(path):
             data_version_infos=sorted(
                 DATA_SNAPSHOT_VERSION_DESCRIPTIONS.values(), reverse=True
             ),
-            num_cells="{:,}".format(neuron_db.num_cells()),
-            num_synapses="{:,}".format(neuron_db.num_synapses()),
-            num_labels="{:,}".format(neuron_db.num_labels()),
+            num_cells=format_number(neuron_db.num_cells()),
+            num_synapses=format_number(neuron_db.num_synapses()),
+            num_labels=format_number(neuron_db.num_labels()),
             default_version=DEFAULT_DATA_SNAPSHOT_VERSION,
         )
 

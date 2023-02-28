@@ -4,6 +4,7 @@ from functools import lru_cache
 
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
+from src.utils.formatting import format_number
 
 
 @lru_cache
@@ -110,10 +111,10 @@ def synapse_density_cached(data_version, normalized, directed, group_by):
             pct_diff = round(100 * (density - 1))
             if pct_diff == 0:
                 return "+0% (baseline)"
-            return ("+" if pct_diff >= 0 else "") + "{:,}".format(pct_diff) + "%"
+            return ("+" if pct_diff >= 0 else "") + format_number(pct_diff) + "%"
         else:
             pct = round(100 * d / tot_syn_cnt)
-            return "{:,}".format(d) + f"<br><small>{pct}%</small>"
+            return format_number(d) + f"<br><small>{pct}%</small>"
 
     table = [["from \\ to"] + [class_caption(c) for c in classes]]
     min_density = min(group_to_group_density.values())
