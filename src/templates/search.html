@@ -209,12 +209,12 @@
             </small></td>
             <td>
                 <small>
-                <a href="{{url_for('app.search', filter_string='{upstream} ' + neuron.root_id|string, data_version=data_version)}}">
-                    <i class="fa-solid fa-arrow-up"></i> &nbsp; {{neuron.input_cells}}
+                <a href="{{url_for('app.search', filter_string='{upstream} ' + neuron.root_id|string, data_version=data_version)}}" target="_blank">
+                    <i class="fa-solid fa-arrow-up"></i> &nbsp; {{format_number(neuron.input_cells)}}
                 </a>
                     <br>
-                <a href="{{url_for('app.search', filter_string='{downstream} ' + neuron.root_id|string, data_version=data_version)}}">
-                    <i class="fa-solid fa-arrow-down"></i> &nbsp; {{neuron.output_cells}}
+                <a href="{{url_for('app.search', filter_string='{downstream} ' + neuron.root_id|string, data_version=data_version)}}" target="_blank">
+                    <i class="fa-solid fa-arrow-down"></i> &nbsp; {{format_number(neuron.output_cells)}}
                 </a>
                 </small>
                 <br>

@@ -41,17 +41,15 @@ def cached_cell_details(
         f'<a href="{nglui.url_for_root_ids([root_id], version=data_version, point_to_proofreading_flywire=True, position=pos)}" target="_blank">Open in FlyWire <i class="fa-solid fa-up-right-from-square"></i> </a><br>'
         f'<a href="cell_coordinates/{data_version}/{root_id}" target="_blank">Supervoxel IDs and Coordinates <i class="fa-solid fa-up-right-from-square"></i> </a>'
         "</small>",
-        "Partners<br><small>Synapses</small>": format_number(nd["input_cells"])
-        + " in, "
-        + format_number(nd["output_cells"])
-        + " out<br><small>"
-        + format_number(nd["input_synapses"])
-        + " in, "
-        + format_number(nd["output_synapses"])
-        + " out</small>",
+        "Partners<br><small>Synapses</small>": '<a href="'
+        + url_for("app.search", filter_string=f"{OP_UPSTREAM} {root_id}")
+        + f'" target="_blank"><i class="fa-solid fa-arrow-up"></i> {format_number(nd["input_cells"])} in</a>'
+        + f' &#183; <a href="{url_for("app.search", filter_string=f"{OP_DOWNSTREAM} {root_id}")}'
+        + f'" target="_blank">{format_number(nd["output_cells"])} out <i class="fa-solid fa-arrow-down"></i></a>'
+        + f'<br><small><i class="fa-solid fa-arrow-up"></i> {format_number(nd["input_synapses"])} in &#183; '
+        + f'{format_number(nd["output_synapses"])} out <i class="fa-solid fa-arrow-down"></i></small>',
         "NT Type": nd["nt_type"]
-        + f' ({lookup_nt_type_name(nd["nt_type"])})'
-        + "<br><small>predictions "
+        + f' ({lookup_nt_type_name(nd["nt_type"])})<br><small>predictions '
         + ", ".join(
             [f"{k}: {nd[f'{k.lower()}_avg']}" for k in sorted(NEURO_TRANSMITTER_NAMES)]
         )
