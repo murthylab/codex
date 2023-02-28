@@ -48,26 +48,26 @@ class NeuronDataTest(TestCase):
             )
 
         expected_missing_value_bounds = {
-            "label": 70000,
-            "class": 150,
-            "flow": 150,
+            "label": 76000,
+            "class": 5000,
+            "flow": 5150,
             "side": 14000,
-            "nerve_type": 94000,
+            "nerve_type": 110000,
             "input_cells": 4000,
             "input_neuropils": 4000,
             "input_synapses": 4000,
             "output_cells": 4000,
             "output_neuropils": 4000,
             "output_synapses": 4000,
-            "similar_cell_scores": 60000,
-            "nt_type": 10000,
+            "similar_cell_scores": 160000,  # TODO: import 571 NBLAST scores and reduce bound
+            "nt_type": 11000,
             "nt_type_score": 10000,
-            "ach_avg": 3500,
-            "da_avg": 8500,
-            "gaba_avg": 5000,
-            "glut_avg": 6000,
+            "ach_avg": 4000,
+            "da_avg": 9500,
+            "gaba_avg": 6000,
+            "glut_avg": 6500,
             "oct_avg": 35000,
-            "ser_avg": 50000,
+            "ser_avg": 61000,
         }
 
         for k in NEURON_DATA_ATTRIBUTES.keys():
@@ -190,10 +190,10 @@ class NeuronDataTest(TestCase):
     def test_structured_search_case(self):
         # case sensitive vs insensitive search
         class_matches = self.neuron_db.search(
-            "class == Descending", case_sensitive=True
+            "class == Descending/DN", case_sensitive=True
         )
         self.assertEqual(len(class_matches), 0)
-        class_matches = self.neuron_db.search("class == descending")
+        class_matches = self.neuron_db.search("class == descending/DN")
         self.assertGreater(len(class_matches), 1000)
 
         # starts with op
@@ -248,11 +248,11 @@ class NeuronDataTest(TestCase):
         )
 
     def test_downstream_upstream_queries(self):
-        downstream = self.neuron_db.search("{downstream} 720575940611848362")
-        self.assertEqual(622, len(downstream))
+        downstream = self.neuron_db.search("{downstream} 720575940646952324")
+        self.assertEqual(104, len(downstream))
 
-        upstream = self.neuron_db.search("{upstream} 720575940611848362")
-        self.assertEqual(2, len(upstream))
+        upstream = self.neuron_db.search("{upstream} 720575940646952324")
+        self.assertEqual(180, len(upstream))
 
     def test_downstream_upstream_region_queries(self):
         downstream = self.neuron_db.search(
@@ -267,7 +267,7 @@ class NeuronDataTest(TestCase):
             "center {downstream_region} 720575940643467886"
         )
         self.assertEqual(
-            sorted([720575940614371218, 720575940619538136, 720575940640259456]),
+            sorted([720575940619266870, 720575940620960347, 720575940632905164]),
             sorted(downstream),
         )
 
@@ -361,12 +361,33 @@ class NeuronDataTest(TestCase):
 
     def test_classes(self):
         expected_list = [
-            "ascending",
+            "/CX",
+            "/fragment",
+            "/olfactory",
+            "/putative_glia",
+            "ascending/AN",
             "central",
-            "descending",
-            "endocrine",
-            "motor",
-            "optic",
+            "central/ALIN",
+            "central/ALLN",
+            "central/ALON",
+            "central/ALPN",
+            "central/AMMC",
+            "central/CSD",
+            "central/CX",
+            "central/DAN",
+            "central/Kenyon_Cell",
+            "central/LHCENT",
+            "central/MBIN",
+            "central/MBON",
+            "central/mAL",
+            "central/ring neuron",
+            "descending/DN",
+            "descending/ocellar",
+            "endocrine/endocrine",
+            "motor/motor",
+            "optic/bilateral",
+            "optic/ocellar",
+            "optic/optic_lobes",
             "sensory",
             "sensory/gustatory",
             "sensory/hygrosensory",
@@ -374,14 +395,17 @@ class NeuronDataTest(TestCase):
             "sensory/olfactory",
             "sensory/thermosensory",
             "visual_centrifugal",
+            "visual_centrifugal/ocellar",
             "visual_projection",
+            "visual_projection/bilateral",
+            "visual_projection/ocellar",
         ]
         self.assertEqual(expected_list, self.neuron_db.classes())
         rids_without_class = []
         for nd in self.neuron_db.neuron_data.values():
             if not nd["class"]:
                 rids_without_class.append(nd["root_id"])
-        self.assertGreater(200, len(rids_without_class))
+        self.assertGreater(5000, len(rids_without_class))
 
     def test_sizes(self):
         for nd in self.neuron_db.neuron_data.values():
@@ -613,7 +637,7 @@ class NeuronDataTest(TestCase):
     def test_thumbnails(self):
         # Run this first to collect existing skeleton root ids:
         # gsutil du gs://flywire-data/codex/526/skeleton_thumbnails | grep png | cut -d"/" -f 6 | cut -d "." -f 1 > static/raw_data/526/thumbnails_tmp.csv
-        fname = f"{TEST_DATA_ROOT_PATH}/../raw_data/526/thumbnails_tmp.csv"
+        fname = f"{TEST_DATA_ROOT_PATH}/../raw_data/{DEFAULT_DATA_SNAPSHOT_VERSION}/thumbnails_tmp.csv"
         if os.path.isfile(fname):
             content = set([int(r[0]) for r in read_csv(fname)])
             self.assertEqual(
