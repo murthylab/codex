@@ -3,44 +3,31 @@ import urllib.parse
 from nglui import statebuilder
 import json
 
-from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 from src.data.brain_regions import REGIONS, COLORS
 
 _BASE_URL = "https://neuroglancer-demo.appspot.com"
-_PREFIX = {
-    "447": (
-        '{"dimensions":{"x":[1.6e-8,"m"],"y":[1.6e-8,"m"],"z":[4e-8,"m"]},"projectionScale":30000,'
-        '"layers":['
-        '{"type":"image","source":"precomputed://https://bossdb-open-data.s3.amazonaws.com/flywire/fafbv14","tab":"source","name":"EM"},'
-        '{"source":"precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf",'
+
+
+def _prefix(data_version):
+    return (
+        '{"dimensions":{"x":[1.6e-8,"m"],"y":[1.6e-8,"m"],"z":[4e-8,"m"]},"projectionScale":30000,"layers":[{"type":'
+        '"image","source":"precomputed://https://bossdb-open-data.s3.amazonaws.com/flywire/fafbv14","tab":"source",'
+        '"name":"EM"},{"source":"precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf",'
         '"type":"segmentation","selectedAlpha":0,"saturation":0,"objectAlpha":0.1,"segmentColors":{"1":"#b5b5b5"},'
         '"segments":["1"],"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":"tissue"},'
-        '{"type":"segmentation","source":"precomputed://gs://flywire_v141_m447"'
-        ',"tab":"source","segments":['
-    ),
-    "526": (
-        '{"dimensions":{"x":[1.6e-8,"m"],"y":[1.6e-8,"m"],"z":[4e-8,"m"]},"projectionScale":30000,'
-        '"layers":['
-        '{"type":"image","source":"precomputed://https://bossdb-open-data.s3.amazonaws.com/flywire/fafbv14","tab":"source","name":"EM"},'
-        '{"source":"precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf",'
-        '"type":"segmentation","selectedAlpha":0,"saturation":0,"objectAlpha":0.1,"segmentColors":{"1":"#b5b5b5"},'
-        '"segments":["1"],"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":"tissue"},'
-        '{"type":"segmentation","source":"precomputed://gs://flywire_v141_m526"'
-        ',"tab":"source","segments":['
-    ),
-}
-_SUFFIX = {
-    "447": (
-        '],"name":"flywire_v141_m447"}],"showSlices":false,"perspectiveViewBackgroundColor":"#ffffff",'
-        '"showDefaultAnnotations":false, "selectedLayer":{"visible":false,"layer":"flywire_v141_m447"},'
-        '"layout":"3d"}'
-    ),
-    "526": (
-        '],"name":"flywire_v141_m526"}],"showSlices":false,"perspectiveViewBackgroundColor":"#ffffff",'
-        '"showDefaultAnnotations":false, "selectedLayer":{"visible":false,"layer":"flywire_v141_m526"},'
-        '"layout":"3d"}'
-    ),
-}
+        '{"type":"segmentation","source":"precomputed://gs://flywire_v141_m'
+        f'{data_version}","tab":"source","segments":['
+    )
+
+
+def _suffix(data_version):
+    return (
+        f'],"name":"flywire_v141_m{data_version}"'
+        '}],"showSlices":false,"perspectiveViewBackgroundColor":"#ffffff",'
+        '"showDefaultAnnotations":false, "selectedLayer":{"visible":false,"layer":'
+        f'"flywire_v141_m{data_version}"'
+        '},"layout":"3d"}'
+    )
 
 
 def url_for_root_ids(
@@ -79,14 +66,8 @@ def url_for_root_ids(
         )
         return url
     else:
-        prefix = _PREFIX.get(str(version)) or _PREFIX.get(
-            str(DEFAULT_DATA_SNAPSHOT_VERSION)
-        )
-        sufix = _SUFFIX.get(str(version)) or _SUFFIX.get(
-            str(DEFAULT_DATA_SNAPSHOT_VERSION)
-        )
         seg_ids = ",".join([f'"{rid}"' for rid in root_ids])
-        payload = urllib.parse.quote(f"{prefix}{seg_ids}{sufix}")
+        payload = urllib.parse.quote(f"{_prefix(version)}{seg_ids}{_suffix(version)}")
         return f"{_BASE_URL}/#!{payload}"
 
 
