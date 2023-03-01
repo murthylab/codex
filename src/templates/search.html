@@ -59,7 +59,10 @@
         <tr>
             <th scope="col">Cell Shape</th>
             <th scope="col" title="Names are auto-assigned based on primary input/output regions; IDs correspond to FlyWire root ids for selected data version">Name/ID</th>
-            <th scope="col" title="Hierarchical annotations">Classification</th>
+            <th scope="col" title="Hierarchical annotations">
+                Classification
+                <a href="" style="color:teal;" data-toggle="modal" data-target="#cellAnnotationsModal">[?]</a>
+            </th>
             {% if extra_data %}
                 <th scope="col" title="{{extra_data.title}}">{{extra_data.column_name}}</th>
             {% endif %}
@@ -316,6 +319,41 @@
     </li>
 </ul>
 
+<div class="modal fade" id="cellAnnotationsModal" tabindex="-1" role="dialog" aria-labelledby="cellAnnotationsModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color:blue;" id="cellAnnotationsModalLabel">Cell Annotations</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <b style="color: purple">Side</b>
+                Soma side of the neuron from the fly’s perspective
+                <br><br>
+                <b style="color: purple">Nerve type</b>
+                Nerve through which the neuron is entering/exiting the nervous system
+                <br><br>
+                <b style="color: purple">Flow</b>
+                Top hierarchical annotation describing signal flow of this neuron
+                <br><br>
+                <b style="color: purple">Super Class</b>
+                Broadest hierarchical annotation below “flow”
+                <br><br>
+                <b style="color: purple">Class & Sub Class</b>
+                Provides useful labels for small to medium-sized groups of neurons and sits between superclass and cell type
+                <br><br>
+                <b style="color: purple">Cell type</b>
+                Cell types are principally derived from a mapping to the Janelia hemibrain dataset which includes both previously known as well as newly described types
+            </div>
+        </div>
+    </div>
+</div>
+
+
 {% endif %}
+
 
 {% endblock content %}

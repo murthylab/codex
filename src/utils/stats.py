@@ -29,7 +29,7 @@ def make_chart_from_counts(
     if chart_type == "bar" and len(sorted_counts) > 10:
         sorted_counts = sorted_counts[:10]
 
-    height_px = max(300, 150 + 4 * len(counts_dict)) if chart_type == "bar" else 400
+    height_px = max(300, min(400, 150 + 4 * len(counts_dict))) if chart_type == "bar" else 400
 
     def _color(key):
         return colors_dict.get(key) if colors_dict else None
