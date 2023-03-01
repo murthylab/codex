@@ -158,14 +158,71 @@
                     {% endif %}
                 </div>
                 {% endif %}
-                {% if neuron.class %}
+                {% if neuron.super_class %}
                 <div class="spotfilter">
                     <small><span style="color: teal" title="Broadest hierarchical annotation below 'flow'">Super Class</span>
+                    {{neuron.super_class}}</small>
+                    {% if 'super_class' in multi_val_attrs %}
+                    <span class="td_filter_buttons">
+                        <button title="Exclude {{neuron.super_class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('super_class != {{neuron.super_class}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{neuron.super_class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('super_class == {{neuron.super_class}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                    </span>
+                    <span class="td_filter_buttons_caption">
+                        apply filter
+                    </span>
+                    {% else %}
+                        <span class="td_filter_buttons_caption" style="color: orange">
+                            all matches
+                        </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% if neuron.class %}
+                <div class="spotfilter">
+                    <small><span style="color: teal" title="Medium sized groups of neurons">Class</span>
                     {{neuron.class}}</small>
                     {% if 'class' in multi_val_attrs %}
                     <span class="td_filter_buttons">
                         <button title="Exclude {{neuron.class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class != {{neuron.class}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
                         <button title="Show only {{neuron.class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('class == {{neuron.class}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                    </span>
+                    <span class="td_filter_buttons_caption">
+                        apply filter
+                    </span>
+                    {% else %}
+                        <span class="td_filter_buttons_caption" style="color: orange">
+                            all matches
+                        </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% if neuron.sub_class %}
+                <div class="spotfilter">
+                    <small><span style="color: teal" title="Small groups of neurons">Sub Class</span>
+                    {{neuron.sub_class}}</small>
+                    {% if 'sub_class' in multi_val_attrs %}
+                    <span class="td_filter_buttons">
+                        <button title="Exclude {{neuron.sub_class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('sub_class != {{neuron.sub_class}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{neuron.sub_class}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('sub_class == {{neuron.sub_class}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                    </span>
+                    <span class="td_filter_buttons_caption">
+                        apply filter
+                    </span>
+                    {% else %}
+                        <span class="td_filter_buttons_caption" style="color: orange">
+                            all matches
+                        </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% if neuron.cell_type %}
+                <div class="spotfilter">
+                    <small><span style="color: teal" title="Cell types are derived from a mapping to the Janelia hemibrain dataset">Cell Type</span>
+                    {{neuron.cell_type}}</small>
+                    {% if 'cell_type' in multi_val_attrs %}
+                    <span class="td_filter_buttons">
+                        <button title="Exclude {{neuron.cell_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('cell_type != {{neuron.cell_type}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{neuron.cell_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('cell_type == {{neuron.cell_type}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
                     </span>
                     <span class="td_filter_buttons_caption">
                         apply filter
