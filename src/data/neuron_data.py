@@ -129,7 +129,7 @@ class NeuronDB(object):
                 "super_class": _get_value("super_class"),
                 "class": _get_value("class"),
                 "sub_class": _get_value("sub_class"),
-                "cell_type": _get_value("cell_type"),
+                "cell_type": "",  # TODO: revive this once updated table is provided _get_value("cell_type"),
                 "nerve_type": _get_value("nerve_type"),
                 "side": _get_value("side"),
                 "length_nm": _get_value("length_nm", to_type=int, default=0),
