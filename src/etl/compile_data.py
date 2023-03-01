@@ -208,20 +208,20 @@ def val_counts(table):
     types = {}
     bounds = {}
     for i, c in enumerate(table[0]):
-        uvals = list(set([r[i] for r in table[1:] if r[i]]))
+        uvals = list(set([r[i] for r in table[1:] if len(r) > i and r[i]]))
         unique_counts[c] = (len(uvals), uvals if len(uvals) < 20 else "")
-        missing_counts[c] = len([r[i] for r in table[1:] if not r[i]])
+        missing_counts[c] = len([r for r in table[1:] if len(r) <= i or not r[i]])
         undefined_counts[c] = len(
             [
                 r[i]
                 for r in table[1:]
-                if str(r[i]).lower()
+                if len(r) > i and str(r[i]).lower()
                 in ["na", "none", "undefined", "unspecified", "unknown"]
             ]
         )
-        types[c] = list(set([type(r[i]) for r in table[1:]]))
+        types[c] = list(set([type(r[i]) for r in table[1:] if len(r) > i]))
         try:
-            bounds[c] = (min([r[i] for r in table[1:]]), max([r[i] for r in table[1:]]))
+            bounds[c] = (min([r[i] for r in table[1:] if len(r) > i]), max([r[i] for r in table[1:] if len(r) > i]))
         except Exception:
             pass
     return unique_counts, missing_counts, undefined_counts, types, bounds
@@ -591,7 +591,7 @@ def process_nblast_file(version):
         if rows_scanned % 1000 == 0 or rows_scanned == len(df_data):
             print(f"Rows scanned: {rows_scanned}, score dict len: {len(scores_dict)}")
 
-    scores_table = ["root_id", "scores"]
+    scores_table = [["root_id", "scores"]]
     scores_table.extend(
         [
             [rid, ";".join([f"{p[0]}:{p[1]}" for p in score_pairs])]
