@@ -158,7 +158,6 @@ def explore():
         "categories.html",
         data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
         data_version=data_version,
-        key="class",
         categories=NeuronDataFactory.instance().get(data_version).categories(),
     )
 
@@ -324,7 +323,13 @@ def download_search_results():
         "label",
         "name",
         "nt_type",
+        "flow",
+        "super_class",
         "class",
+        "sub_class",
+        "cell_type",
+        "nerve_type",
+        "side",
         "input_synapses",
         "output_synapses",
         "hemisphere_fingerprint",

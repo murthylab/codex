@@ -92,7 +92,10 @@ def _make_data_charts(data_list):
             "Top Output Regions", "output_neuropil", "bar", NEUROPIL_DESCRIPTIONS
         ),
         "flow": StatGroupProps("Flow", "flow", "donut", None),
-        "class": StatGroupProps("Super Class", "class", "donut", None),
+        "super_class": StatGroupProps("Super Class", "super_class", "donut", None),
+        "class": StatGroupProps("Class", "class", "bar", None),
+        "sub_class": StatGroupProps("Sub Class", "sub_class", "bar", None),
+        "cell_type": StatGroupProps("Cell Type", "cell_type", "bar", None),
         "side": StatGroupProps("Soma Side", "side", "donut", None),
         "nerve_type": StatGroupProps("Nerve", "nerve", "bar", None),
     }

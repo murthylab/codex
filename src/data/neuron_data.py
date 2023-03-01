@@ -32,7 +32,10 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "name",
     "group",
     "nt_type",
+    "super_class",
     "class",
+    "sub_class",
+    "cell_type",
     "flow",
     "nerve_type",
     "side",
@@ -40,7 +43,10 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
 
 NEURON_DATA_ATTRIBUTES = {
     "ach_avg": float,
+    "super_class": str,
     "class": str,
+    "sub_class": str,
+    "cell_type": str,
     "da_avg": float,
     "gaba_avg": float,
     "glut_avg": float,
@@ -119,8 +125,11 @@ class NeuronDB(object):
                 "oct_avg": _get_value("oct_avg", to_type=float),
                 "ser_avg": _get_value("ser_avg", to_type=float),
                 "da_avg": _get_value("da_avg", to_type=float),
-                "class": _get_value("class"),
                 "flow": _get_value("flow"),
+                "super_class": _get_value("super_class"),
+                "class": _get_value("class"),
+                "sub_class": _get_value("sub_class"),
+                "cell_type": _get_value("cell_type"),
                 "nerve_type": _get_value("nerve_type"),
                 "side": _get_value("side"),
                 "length_nm": _get_value("length_nm", to_type=int, default=0),
@@ -629,7 +638,16 @@ class NeuronDB(object):
         # This is used for deciding when to allow "include / exclude" filters.
 
         attr_vals = defaultdict(set)
-        candidate_attr_names = {"class", "flow", "side", "nt_type", "nerve_type"}
+        candidate_attr_names = {
+            "super_class",
+            "class",
+            "sub_class",
+            "cell_type",
+            "flow",
+            "side",
+            "nt_type",
+            "nerve_type",
+        }
         multi_val_attr_names = set()
 
         for cell_id in ids:

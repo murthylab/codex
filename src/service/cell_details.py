@@ -77,7 +77,10 @@ def cached_cell_details(
                     ("Side", "side"),
                     ("Nerve", "nerve_type"),
                     ("Flow", "flow"),
-                    ("Super Class", "class"),
+                    ("Super Class", "super_class"),
+                    ("Class", "class"),
+                    ("Sub Class", "sub_class"),
+                    ("Cell Type", "cell_type"),
                 ]
                 if nd[cl[1]]
             ]

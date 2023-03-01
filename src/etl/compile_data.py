@@ -304,7 +304,10 @@ def compile_neuron_metadata_table(version, summarize_files=False):
         [
             "root_id",
             "flow",
+            "super_class",
             "class",
+            "sub_class",
+            "cell_type",
             "side",
             "nerve_type",
             "length_nm",
@@ -328,7 +331,9 @@ def compile_neuron_metadata_table(version, summarize_files=False):
         return res
 
     super_class_dict = {}
-    cell_class_dict = {}
+    class_dict = {}
+    sub_class_dict = {}
+    cell_type_dict = {}
     flow_dict = {}
     nerve_dict = {}
     side_dict = {}
@@ -360,18 +365,24 @@ def compile_neuron_metadata_table(version, summarize_files=False):
         if f == "coarse_cell_classes.feather":
             assert f_content[0] == ["root_id", "class"]
             load(
-                dct=cell_class_dict,
+                dct=class_dict,
                 tbl=f_content,
                 rid_col=f_content[0].index("root_id"),
                 val_col=f_content[0].index("class"),
             )
         elif f == "coarse_anno.feather":
-            assert all(
-                [
-                    col in f_content[0]
-                    for col in ["root_id", "flow", "super_class", "cell_class"]
+            if int(version) < 571:
+                expected_columns = ["root_id", "flow", "super_class", "cell_class"]
+            else:
+                expected_columns = [
+                    "root_id",
+                    "flow",
+                    "super_class",
+                    "cell_class",
+                    "cell_sub_class",
+                    "cell_type",
                 ]
-            )
+            assert all([col in f_content[0] for col in expected_columns])
             load(
                 dct=flow_dict,
                 tbl=f_content,
@@ -385,11 +396,24 @@ def compile_neuron_metadata_table(version, summarize_files=False):
                 val_col=f_content[0].index("super_class"),
             )
             load(
-                dct=cell_class_dict,
+                dct=class_dict,
                 tbl=f_content,
                 rid_col=f_content[0].index("root_id"),
                 val_col=f_content[0].index("cell_class"),
             )
+            if int(version) >= 571:
+                load(
+                    dct=sub_class_dict,
+                    tbl=f_content,
+                    rid_col=f_content[0].index("root_id"),
+                    val_col=f_content[0].index("cell_sub_class"),
+                )
+                load(
+                    dct=cell_type_dict,
+                    tbl=f_content,
+                    rid_col=f_content[0].index("root_id"),
+                    val_col=f_content[0].index("cell_type"),
+                )
         elif f == "nerve_anno.feather":
             assert all([col in f_content[0] for col in ["root_id", "nerve"]])
             load(
@@ -407,54 +431,44 @@ def compile_neuron_metadata_table(version, summarize_files=False):
                 val_col=f_content[0].index("side"),
             )
         elif f == "cell_stats.feather":
-            # older than 571: stats_cols = ["root_id", "area_nm2", "size_nm3", "path_length_nm"]
-            stats_cols = [
-                "root_id",
-                "area",
-                "volume",
-                "path_length",
-                "max_strahler",
-                "n_branch_points",
-                "n_end_points",
-                "n_skeleton_nodes",
-                "diameter",
-            ]
-            assert all([col in f_content[0] for col in stats_cols])
+            # older than 571:
+            if int(version) < 571:
+                size_cols = ["area_nm2", "size_nm3", "path_length_nm"]
+            else:
+                size_cols = ["area", "volume", "path_length"]
+            assert all([col in f_content[0] for col in ["root_id"] + size_cols])
             load(
                 dct=area_dict,
                 tbl=f_content,
                 rid_col=f_content[0].index("root_id"),
-                val_col=f_content[0].index("area"),
+                val_col=f_content[0].index(size_cols[0]),
             )
             load(
                 dct=size_dict,
                 tbl=f_content,
                 rid_col=f_content[0].index("root_id"),
-                val_col=f_content[0].index("volume"),
+                val_col=f_content[0].index(size_cols[1]),
             )
             load(
                 dct=length_dict,
                 tbl=f_content,
                 rid_col=f_content[0].index("root_id"),
-                val_col=f_content[0].index("path_length"),
+                val_col=f_content[0].index(size_cols[2]),
             )
         else:
             assert f"Unknown file: {f}" is None
 
-        print(f"Class rows after processing {f}: {len(new_content)}")
-
-    def make_class(sclass, cclass):
-        res = sclass or NA_STR
-        if cclass and not cclass.startswith("unknown"):
-            res += f"/{cclass}"
-        return res
+        print(f"Done processing {f}")
 
     for rid in all_root_ids:
         new_content.append(
             [
                 rid,
                 flow_dict.get(rid, NA_STR),
-                make_class(super_class_dict.get(rid), cell_class_dict.get(rid)),
+                super_class_dict.get(rid),
+                class_dict.get(rid),
+                sub_class_dict.get(rid),
+                cell_type_dict.get(rid),
                 side_dict.get(rid, NA_STR),
                 nerve_dict.get(rid, NA_STR),
                 round(float(length_dict.get(rid, NA_INT))),
@@ -489,7 +503,10 @@ def update_connectome_files(version):
     assert [
         "root_id",
         "flow",
+        "super_class",
         "class",
+        "sub_class",
+        "cell_type",
         "side",
         "nerve_type",
         "length_nm",
