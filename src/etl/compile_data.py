@@ -215,13 +215,17 @@ def val_counts(table):
             [
                 r[i]
                 for r in table[1:]
-                if len(r) > i and str(r[i]).lower()
+                if len(r) > i
+                and str(r[i]).lower()
                 in ["na", "none", "undefined", "unspecified", "unknown"]
             ]
         )
         types[c] = list(set([type(r[i]) for r in table[1:] if len(r) > i]))
         try:
-            bounds[c] = (min([r[i] for r in table[1:] if len(r) > i]), max([r[i] for r in table[1:] if len(r) > i]))
+            bounds[c] = (
+                min([r[i] for r in table[1:] if len(r) > i]),
+                max([r[i] for r in table[1:] if len(r) > i]),
+            )
         except Exception:
             pass
     return unique_counts, missing_counts, undefined_counts, types, bounds

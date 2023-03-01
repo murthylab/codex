@@ -64,10 +64,13 @@ class Test(TestCase):
         )
         self.assertEqual(
             [
+                "Cell Type",
+                "Class",
                 "Flow",
                 "Nerve",
                 "Neurotransmitter Types",
                 "Soma Side",
+                "Sub Class",
                 "Super Class",
                 "Top Input Regions",
                 "Top Output Regions",
@@ -75,6 +78,6 @@ class Test(TestCase):
             sorted(data_charts.keys()),
         )
         self.assertEqual(
-            [5, 5, 5, 5, 5, 5, 5],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
             [len(data_charts[k]) for k in sorted(data_charts.keys())],
         )

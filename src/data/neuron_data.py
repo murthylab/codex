@@ -416,11 +416,38 @@ class NeuronDB(object):
         return sum([len(nd["label"]) for nd in self.neuron_data.values()])
 
     @lru_cache
+    def super_classes(self):
+        return sorted(
+            set(
+                [
+                    nd["super_class"]
+                    for nd in self.neuron_data.values()
+                    if nd["super_class"]
+                ]
+            )
+        )
+
+    @lru_cache
     def classes(self):
-        res = set()
-        for nd in self.neuron_data.values():
-            res.add(nd["class"])
-        return sorted(list([p for p in res if p]))
+        return sorted(
+            set([nd["class"] for nd in self.neuron_data.values() if nd["class"]])
+        )
+
+    @lru_cache
+    def sub_classes(self):
+        return sorted(
+            set(
+                [nd["sub_class"] for nd in self.neuron_data.values() if nd["sub_class"]]
+            )
+        )
+
+    @lru_cache
+    def cell_types(self):
+        return sorted(
+            set(
+                [nd["cell_type"] for nd in self.neuron_data.values() if nd["cell_type"]]
+            )
+        )
 
     @lru_cache
     def categories(self):

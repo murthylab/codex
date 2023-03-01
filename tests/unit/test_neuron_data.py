@@ -49,7 +49,10 @@ class NeuronDataTest(TestCase):
 
         expected_missing_value_bounds = {
             "label": 76000,
-            "class": 5000,
+            "super_class": 5200,
+            "class": 37000,
+            "sub_class": 116000,
+            "cell_type": 100000,
             "flow": 5150,
             "side": 14000,
             "nerve_type": 110000,
@@ -59,7 +62,7 @@ class NeuronDataTest(TestCase):
             "output_cells": 4000,
             "output_neuropils": 4000,
             "output_synapses": 4000,
-            "similar_cell_scores": 160000,  # TODO: import 571 NBLAST scores and reduce bound
+            "similar_cell_scores": 76000,  # TODO: import 571 NBLAST scores and reduce bound
             "nt_type": 11000,
             "nt_type_score": 10000,
             "ach_avg": 4000,
@@ -189,11 +192,9 @@ class NeuronDataTest(TestCase):
 
     def test_structured_search_case(self):
         # case sensitive vs insensitive search
-        class_matches = self.neuron_db.search(
-            "class == Descending/DN", case_sensitive=True
-        )
+        class_matches = self.neuron_db.search("class == dn", case_sensitive=True)
         self.assertEqual(len(class_matches), 0)
-        class_matches = self.neuron_db.search("class == descending/DN")
+        class_matches = self.neuron_db.search("class == DN")
         self.assertGreater(len(class_matches), 1000)
 
         # starts with op
@@ -361,51 +362,67 @@ class NeuronDataTest(TestCase):
 
     def test_classes(self):
         expected_list = [
-            "/CX",
-            "/fragment",
-            "/olfactory",
-            "/putative_glia",
-            "ascending/AN",
-            "central",
-            "central/ALIN",
-            "central/ALLN",
-            "central/ALON",
-            "central/ALPN",
-            "central/AMMC",
-            "central/CSD",
-            "central/CX",
-            "central/DAN",
-            "central/Kenyon_Cell",
-            "central/LHCENT",
-            "central/MBIN",
-            "central/MBON",
-            "central/mAL",
-            "central/ring neuron",
-            "descending/DN",
-            "descending/ocellar",
-            "endocrine/endocrine",
-            "motor/motor",
-            "optic/bilateral",
-            "optic/ocellar",
-            "optic/optic_lobes",
-            "sensory",
-            "sensory/gustatory",
-            "sensory/hygrosensory",
-            "sensory/mechanosensory",
-            "sensory/olfactory",
-            "sensory/thermosensory",
-            "visual_centrifugal",
-            "visual_centrifugal/ocellar",
-            "visual_projection",
-            "visual_projection/bilateral",
-            "visual_projection/ocellar",
+            "ALIN",
+            "ALLN",
+            "ALON",
+            "ALPN",
+            "AMMC",
+            "AN",
+            "CSD",
+            "CX",
+            "DAN",
+            "DN",
+            "Kenyon_Cell",
+            "LHCENT",
+            "MBIN",
+            "MBON",
+            "bilateral",
+            "endocrine",
+            "fragment",
+            "gustatory",
+            "hygrosensory",
+            "mAL",
+            "mechanosensory",
+            "motor",
+            "ocellar",
+            "olfactory",
+            "optic_lobes",
+            "putative_glia",
+            "ring neuron",
+            "thermosensory",
+            "unknown_sensory",
         ]
         self.assertEqual(expected_list, self.neuron_db.classes())
-        rids_without_class = []
-        for nd in self.neuron_db.neuron_data.values():
-            if not nd["class"]:
-                rids_without_class.append(nd["root_id"])
-        self.assertGreater(5000, len(rids_without_class))
+
+    def test_super_classes(self):
+        expected_list = [
+            "ascending",
+            "central",
+            "descending",
+            "endocrine",
+            "motor",
+            "optic",
+            "sensory",
+            "visual_centrifugal",
+            "visual_projection",
+        ]
+        self.assertEqual(expected_list, self.neuron_db.super_classes())
+
+    def test_sub_classes(self):
+        expected_list = [
+            "auditory",
+            "eye bristle",
+            "multiglomerular",
+            "ocellar_interneuron",
+            "taste bristle",
+            "taste peg",
+            "uniglomerular",
+        ]
+        self.assertEqual(expected_list, self.neuron_db.sub_classes())
+
+    def test_cell_types(self):
+        expected_list_length = 1412
+        self.assertEqual(expected_list_length, len(self.neuron_db.cell_types()))
 
     def test_sizes(self):
         for nd in self.neuron_db.neuron_data.values():
@@ -742,6 +759,9 @@ class NeuronDataTest(TestCase):
             "nerve_type",
             "oct_avg",
             "ser_avg",
+            "class",
+            "sub_class",
+            "cell_type",
         }
         for k, v in NEURON_DATA_ATTRIBUTES.items():
             if k in sparse_attrs:
