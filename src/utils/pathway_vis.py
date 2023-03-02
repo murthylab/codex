@@ -9,11 +9,9 @@ def sort_connections(node_layers, cons):
     # TODO improve matching algorithm
 
     # layers: {i: [nodes in layer i]}
-    layers = {}
+    layers = defaultdict(list)
     for node in node_layers:
         layer = node_layers[node]
-        if layer not in layers:
-            layers[layer] = []
         layers[layer].append(node)
     if len(layers) <= 3:
         return cons
@@ -29,9 +27,8 @@ def sort_connections(node_layers, cons):
         node_cons[con[1]].append((con[0], con[2]))
 
     # layer1_weights: {node id: total weight of node's connections to layer 2} for all layer 1 nodes
-    layer1_weights = {}
+    layer1_weights = defaultdict(int)
     for node in layers[1]:
-        layer1_weights[node] = 0
         for con in node_cons[node]:
             if node_layers[con[0]] == 2:
                 layer1_weights[node] += con[1]

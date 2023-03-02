@@ -197,7 +197,10 @@ def make_graph_html(
         else:
             return len(str(weight))
 
-    net = Network(show_edge_weights=show_edge_weights, layered=layers is not None)
+    net = Network(
+        show_edge_weights=show_edge_weights,
+        layers=layers[center_ids[1]] + 1 if layers is not None else 0,
+    )
 
     added_cell_nodes = set()
 
@@ -320,7 +323,7 @@ def make_graph_html(
 
 class Network(object):
     def __init__(
-        self, show_edge_weights, edge_physics=True, node_physics=False, layered=False
+        self, show_edge_weights, edge_physics=True, node_physics=False, layers=0
     ):
         self.edges = []
         self.node_map = {}
@@ -330,7 +333,7 @@ class Network(object):
         self.node_physics = node_physics
         self.cluster_data = {}
         self.active_edges = {}
-        self.layered = layered
+        self.layers = layers
 
     def add_node(
         self,
@@ -394,7 +397,7 @@ class Network(object):
             "physics": self.edge_physics,
             "label": label if self.show_edge_weights else "",
             "title": title,
-            "arrows": None if self.layered else "to",
+            "arrows": None if self.layers else "to",
             "arrowStrikethrough": True,
             "width": width,
             "dashes": False,
@@ -426,6 +429,6 @@ class Network(object):
             cluster_data=self.cluster_data,
             active_edges=self.active_edges,
             legend=self.legend,
-            layered=self.layered,
+            layers=self.layers,
             warning_msg=warning_msg,
         )

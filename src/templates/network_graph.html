@@ -316,12 +316,13 @@
             }
         };
 
-        if ({{layered|tojson}}) {
+        const layers = {{layers|tojson}};
+        if (layers) {
             options["layout"] = {
                 "hierarchical": {
                     "direction": "LR",
                     "nodeSpacing": 40,
-                    "treeSpacing": 200
+                    "levelSeparation": 800 / (layers - 1)
                 }
             };
             options["edges"]["smooth"] = {
