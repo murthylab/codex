@@ -61,7 +61,6 @@ def highlight_annotations(free_form_search_terms, labels):
     ]
     highlighted_annotations = []
     for label_string, label_tokens in parsed_labels:
-
         # looks like this: [(class_name, start, end), (class_name, start, end), ...]
         highlight_locations = []
         for label_token in label_tokens:

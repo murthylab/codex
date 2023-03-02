@@ -417,7 +417,6 @@ def login():
             log_activity(f"Invalid token provided upon login: {request.form}")
             return render_error("Login failed.")
     else:
-
         return render_auth_page()
 
 

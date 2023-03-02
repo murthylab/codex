@@ -87,7 +87,6 @@ def can_be_flywire_root_id(txt):
 
 
 def url_for_neuropils(segment_ids=None):
-
     config = {
         "layers": [
             {

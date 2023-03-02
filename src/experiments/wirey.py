@@ -1,7 +1,7 @@
 import openai
 
-class ChatBot:
 
+class ChatBot:
     def __init__(self, system=""):
         self.system = system
         self.messages = []
@@ -15,8 +15,9 @@ class ChatBot:
         return result
 
     def execute(self):
-        completion = openai.ChatCompletion.create(model="gpt-3.5-turbo",
-                                                  messages=self.messages)
+        completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo", messages=self.messages
+        )
         return completion.choices[0].message.content
 
 
