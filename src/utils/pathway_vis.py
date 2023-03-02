@@ -17,12 +17,8 @@ def sort_connections(node_layers, cons):
         return cons
 
     # node_cons: {node id: [(connected node id, weight of connection) for all connections]}
-    node_cons = {}
+    node_cons = defaultdict(list)
     for con in cons:
-        if con[0] not in node_cons:
-            node_cons[con[0]] = []
-        if con[1] not in node_cons:
-            node_cons[con[1]] = []
         node_cons[con[0]].append((con[1], con[2]))
         node_cons[con[1]].append((con[0], con[2]))
 
