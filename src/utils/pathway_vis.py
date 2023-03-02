@@ -70,7 +70,8 @@ def sort_connections(node_layers, cons):
         for layer_node in layer:
             node_con = node_cons[layer_node]
             for con in node_con:
-                sorted_cons.append((layer_node, con[0], con[1]))
+                if (con[0], layer_node, con[1]) not in sorted_cons:
+                    sorted_cons.append((layer_node, con[0], con[1]))
 
     return sorted_cons
 
