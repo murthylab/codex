@@ -11,3 +11,10 @@ if not TEST_DATA_ROOT_PATH.endswith(DATA_ROOT_PATH):
     TEST_DATA_ROOT_PATH += f"/{DATA_ROOT_PATH}"
 
 TEST_NEURON_DATA_FACTORY = NeuronDataFactory(data_root_path=TEST_DATA_ROOT_PATH)
+
+# Helper for inspecting cell lists in dev server
+def log_dev_url_for_root_ids(caption, root_ids):
+    print(
+        f"{caption}: http://localhost:5000/app/search?filter_string="
+        f"{'%2C+'.join([str(rid) for rid in root_ids])}&page_size=100"
+    )

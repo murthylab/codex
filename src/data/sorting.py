@@ -172,7 +172,7 @@ def sort_search_results(
                 extra_data = {
                     "title": "Morphological Similarity Score",
                     "column_name": "NBLAST",
-                    "values_dict": {k: v/10 for k, v in sim_scores.items()},
+                    "values_dict": {k: v / 10 for k, v in sim_scores.items()},
                 }
                 ids = sorted(ids, key=lambda x: -sim_scores[x])
             else:
