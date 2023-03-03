@@ -316,6 +316,22 @@
             }
         };
 
+        const layers = {{layers|tojson}};
+        if (layers) {
+            options["layout"] = {
+                "hierarchical": {
+                    "direction": "LR",
+                    "nodeSpacing": 40,
+                    "levelSeparation": 800 / (layers - 1)
+                }
+            };
+            options["edges"]["smooth"] = {
+                type: "cubicBezier",
+                forceDirection: "horizontal",
+                roundness: 0.8
+            };
+        }
+
         network = new vis.Network(container, data, options);
 
         var popup = document.createElement("div");

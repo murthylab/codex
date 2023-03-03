@@ -14,9 +14,10 @@ def compile_network_html(
     connections_cap,
     hide_weights,
     log_request,
+    layers=None,
 ):
     neuron_db = NeuronDataFactory.instance().get(version=data_version)
-    if not group_regions:  # exclude unknown region connections
+    if not group_regions and layers is None:  # exclude unknown region connections
         connection_table = [list(r) for r in contable if r[2] in REGIONS]
     else:
         connection_table = contable
@@ -125,4 +126,5 @@ def compile_network_html(
         group_regions=group_regions,
         show_edge_weights=not hide_weights,
         show_warnings=log_request,
+        layers=layers,
     )

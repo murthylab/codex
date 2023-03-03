@@ -534,36 +534,33 @@ def pathways():
                 message=f"Cell {rid} is not in the dataset.", title="Cell not found"
             )
 
-    plen, data_rows = pathway_chart_data_rows(
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    connections_cap = request.args.get("cap", 0, type=int)
+    reduce = request.args.get("reduce", 0, type=int)
+    group_regions = request.args.get("group_regions", 0, type=int)
+    hide_weights = request.args.get("hide_weights", 0, type=int)
+
+    root_ids = [source, target]
+
+    layers, data_rows = pathway_chart_data_rows(
         source=source,
         target=target,
         neuron_db=neuron_db,
         min_syn_count=min_syn_count,
     )
-
-    def cell_link(rid):
-        cell_details_url = url_for("app.cell_details", root_id=rid)
-        cell_name = neuron_db.get_neuron_data(rid)["name"]
-        return f'<a href="{cell_details_url}">{cell_name}</a>'
-
-    if not data_rows:
-        caption = f"There are no pathways from {cell_link(source)} to {cell_link(target)} with minimum synapse threshold "
-    else:
-        caption = (
-            f"Shortest paths from {cell_link(source)} to "
-            f"{cell_link(target)} have length {plen} for minimum synapse threshold "
-        )
-
-    return render_template(
-        "pathways.html",
-        data_rows=data_rows,
-        caption=caption,
-        min_syn_count=min_syn_count,
-        source_cell_id=source,
-        target_cell_id=target,
-        list_url=url_for("app.search", filter_string=f"{source} {OP_PATHWAYS} {target}")
-        if min_syn_count == MIN_SYN_COUNT
-        else "",
+    cons = []
+    for data_row in data_rows:
+        cons.append([data_row[0], data_row[1], "", data_row[2], ""])
+    return compile_network_html(
+        root_ids=root_ids,
+        contable=cons,
+        data_version=data_version,
+        group_regions=group_regions,
+        reduce=reduce,
+        connections_cap=connections_cap,
+        hide_weights=hide_weights,
+        log_request=False,
+        layers=layers,
     )
 
 
