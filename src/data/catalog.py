@@ -12,13 +12,17 @@ _CODEX_DATA_SCHEMA = {
         "glut_avg",
         "ach_avg",
         "oct_avg",
+    ],
+    # one row per id
+    "classification": [
+        "root_id",
         "flow",
         "super_class",
         "class",
         "sub_class",
         "cell_type",
         "side",
-        "nerve_type",
+        "nerve",
         "length_nm",
         "area_nm",
         "size_nm",
@@ -48,7 +52,7 @@ _CODEX_DATA_SCHEMA = {
         "position",
         "supervoxel_id",
     ],
-    # multiple rows per id
+    # one row per id
     "nblast": [
         "root_id",
         "scores",
@@ -60,8 +64,8 @@ def get_neurons_file_columns():
     return list(_CODEX_DATA_SCHEMA["neurons"])
 
 
-def get_classes_file_columns():
-    return list(_CODEX_DATA_SCHEMA["classes"])
+def get_classification_file_columns():
+    return list(_CODEX_DATA_SCHEMA["classification"])
 
 
 def get_labels_file_columns():

@@ -12,6 +12,7 @@ from src.utils.networking import download
 
 DATA_ROOT_PATH = "static/data"
 NEURON_FILE_NAME = "neurons.csv.gz"
+CLASSIFICATION_FILE_NAME = "classification.csv.gz"
 CONNECTIONS_FILE_NAME = "connections.csv.gz"
 LABELS_FILE_NAME = "labels.csv.gz"
 COORDINATES_FILE_NAME = "coordinates.csv.gz"
@@ -70,6 +71,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
                 return []
 
     neuron_rows = _read_data(NEURON_FILE_NAME)
+    classification_rows = _read_data(CLASSIFICATION_FILE_NAME)
     connection_rows = _read_data(CONNECTIONS_FILE_NAME)
     label_rows, labels_file_timestamp = _read_data(
         LABELS_FILE_NAME, with_timestamp=True
@@ -87,6 +89,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     )
     neuron_db = NeuronDB(
         neuron_file_rows=neuron_rows,
+        classification_rows=classification_rows,
         connection_rows=connection_rows,
         label_rows=label_rows,
         labels_file_timestamp=labels_file_timestamp,

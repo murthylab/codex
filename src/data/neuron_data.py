@@ -9,6 +9,7 @@ from src.data.catalog import (
     get_coordinates_file_columns,
     get_connections_file_columns,
     get_nblast_file_columns,
+    get_classification_file_columns,
 )
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.search_index import SearchIndex
@@ -81,6 +82,7 @@ class NeuronDB(object):
     def __init__(
         self,
         neuron_file_rows,
+        classification_rows,
         connection_rows,
         label_rows,
         labels_file_timestamp,
@@ -99,11 +101,9 @@ class NeuronDB(object):
                 column_index = {c: i for i, c in enumerate(r)}
                 continue
 
-            def _get_value(col, split=False, to_type=None, default=None):
+            def _get_value(col, split=False, to_type=None):
                 def convert_type(v):
-                    if v == "" and default is not None:
-                        v = default
-                    return to_type(v) if to_type else v
+                    return to_type(v) if to_type and v != "" else v
 
                 val = r[column_index[col]]
                 if split:
@@ -117,7 +117,7 @@ class NeuronDB(object):
                 "root_id": root_id,
                 "name": _get_value("name"),
                 "group": _get_value("group"),
-                "nt_type": _get_value("nt_type").upper(),
+                "nt_type": _get_value("nt_type"),
                 "nt_type_score": _get_value("nt_type_score", to_type=float),
                 "gaba_avg": _get_value("gaba_avg", to_type=float),
                 "ach_avg": _get_value("ach_avg", to_type=float),
@@ -125,23 +125,66 @@ class NeuronDB(object):
                 "oct_avg": _get_value("oct_avg", to_type=float),
                 "ser_avg": _get_value("ser_avg", to_type=float),
                 "da_avg": _get_value("da_avg", to_type=float),
-                "flow": _get_value("flow"),
-                "super_class": _get_value("super_class"),
-                "class": _get_value("class"),
-                "sub_class": _get_value("sub_class"),
-                "cell_type": "",  # TODO: revive this once updated table is provided _get_value("cell_type"),
-                "nerve": _get_value("nerve_type"),  # TODO: rename in compile to nerve
-                "side": _get_value("side"),
-                "length_nm": _get_value("length_nm", to_type=int, default=0),
-                "area_nm": _get_value("area_nm", to_type=int, default=0),
-                "size_nm": _get_value("size_nm", to_type=int, default=0),
-                # clean
+                # empty slots (populated below)
+                "flow": "",
+                "super_class": "",
+                "class": "",
+                "sub_class": "",
+                "cell_type": "",
+                "nerve": "",
+                "side": "",
+                "length_nm": 0,
+                "area_nm": 0,
+                "size_nm": 0,
                 "label": [],
                 "position": [],
                 "supervoxel_id": [],
                 "input_neuropils": [],
                 "output_neuropils": [],
             }
+
+        log(
+            f"App initialization processing classification data with {len(classification_rows)} rows.."
+        )
+        not_found_classified_root_ids = 0
+        column_index = {}
+        for i, r in enumerate(classification_rows):
+            if i == 0:
+                assert r == get_classification_file_columns()
+                column_index = {c: i for i, c in enumerate(r)}
+                continue
+
+            def _get_value(col, split=False, to_type=None):
+                def convert_type(v):
+                    return to_type(v) if to_type and v != "" else v
+
+                val = r[column_index[col]]
+                if split:
+                    return [convert_type(v) for v in val.split(",")] if val else []
+                else:
+                    return convert_type(val)
+
+            root_id = _get_value("root_id", to_type=int)
+            if root_id not in self.neuron_data:
+                not_found_classified_root_ids += 1
+                continue
+            self.neuron_data[root_id].update(
+                {
+                    "flow": _get_value("flow"),
+                    "super_class": _get_value("super_class"),
+                    "class": _get_value("class"),
+                    "sub_class": _get_value("sub_class"),
+                    "cell_type": _get_value("cell_type"),
+                    "nerve": _get_value("nerve"),
+                    "side": _get_value("side"),
+                    "length_nm": _get_value("length_nm", to_type=int),
+                    "area_nm": _get_value("area_nm", to_type=int),
+                    "size_nm": _get_value("size_nm", to_type=int),
+                }
+            )
+        log(
+            f"App initialization: {not_found_classified_root_ids} classified ids not found in set of neurons"
+        )
 
         log("App initialization processing label data..")
         labels_file_columns = get_labels_file_columns()
@@ -274,6 +317,7 @@ class NeuronDB(object):
             if from_rid not in self.neuron_data:
                 not_found_rids.add(from_rid)
                 continue
+            assert "similar_cell_scores" not in self.neuron_data[from_rid]
             scores_dict = {}
             if r[scores_col_idx]:
                 for score_pair in r[scores_col_idx].split(";"):

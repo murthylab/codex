@@ -302,9 +302,9 @@ def update_cave_data_file(name, db_load_func, cave_client, version):
     comp_backup_and_update_csv(fpath, content=new_content)
 
 
-def compile_neuron_metadata_table(version, summarize_files=False):
+def update_neuron_classification_table_file(version, summarize_files=False):
     # Produces these columns:
-    new_content = [
+    classification_table = [
         [
             "root_id",
             "flow",
@@ -465,7 +465,7 @@ def compile_neuron_metadata_table(version, summarize_files=False):
         print(f"Done processing {f}")
 
     for rid in all_root_ids:
-        new_content.append(
+        classification_table.append(
             [
                 rid,
                 flow_dict.get(rid, NA_STR),
@@ -481,7 +481,10 @@ def compile_neuron_metadata_table(version, summarize_files=False):
             ]
         )
 
-    return new_content
+    neurons_fpath = compiled_data_file_path(
+        version=version, filename="classification.csv.gz"
+    )
+    comp_backup_and_update_csv(fpath=neurons_fpath, content=classification_table)
 
 
 def update_connectome_files(version):
@@ -503,31 +506,7 @@ def update_connectome_files(version):
         filtered_syn_table_content=filtered_rows,
         columns=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES,
     )
-    neuron_metadata = compile_neuron_metadata_table(version=version)
-    assert [
-        "root_id",
-        "flow",
-        "super_class",
-        "class",
-        "sub_class",
-        "cell_type",
-        "side",
-        "nerve",
-        "length_nm",
-        "area_nm",
-        "size_nm",
-    ] == neuron_metadata[0]
-    assert len(set([r[0] for r in neuron_metadata])) == len(neuron_metadata)
-    rid_to_row = {r[0]: i for i, r in enumerate(neuron_metadata)}
-    meta_columns = len(neuron_metadata[0])
-    for i, r in enumerate(neurons):
-        meta_row_idx = rid_to_row.get(r[0])
-        meta_row = (
-            [NA_STR] * meta_columns
-            if meta_row_idx is None
-            else neuron_metadata[meta_row_idx]
-        )
-        r.extend(meta_row[1:])
+
     neurons_fpath = compiled_data_file_path(version=version, filename="neurons.csv.gz")
     comp_backup_and_update_csv(fpath=neurons_fpath, content=neurons)
 
@@ -676,6 +655,7 @@ if __name__ == "__main__":
         "inspect_feather": [],
         # INGEST
         "update_connectome": False,
+        "update_classification": False,
         "update_coordinates": False,
         "update_nblast_scores": False,
         "update_labels": True,
@@ -702,6 +682,8 @@ if __name__ == "__main__":
         # Ingest
         if config["update_connectome"]:
             update_connectome_files(version=v)
+        if config["update_classification"]:
+            update_neuron_classification_table_file(version=v)
         if config["update_coordinates"]:
             update_cave_data_file(
                 name="coordinates",
