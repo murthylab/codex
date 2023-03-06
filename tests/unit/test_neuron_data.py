@@ -390,7 +390,7 @@ class NeuronDataTest(TestCase):
             "thermosensory",
             "unknown_sensory",
         ]
-        self.assertEqual(expected_list, self.neuron_db.classes())
+        self.assertEqual(expected_list, self.neuron_db.unique_values("class"))
 
     def test_super_classes(self):
         expected_list = [
@@ -404,7 +404,7 @@ class NeuronDataTest(TestCase):
             "visual_centrifugal",
             "visual_projection",
         ]
-        self.assertEqual(expected_list, self.neuron_db.super_classes())
+        self.assertEqual(expected_list, self.neuron_db.unique_values("super_class"))
 
     def test_sub_classes(self):
         expected_list = [
@@ -416,12 +416,14 @@ class NeuronDataTest(TestCase):
             "taste peg",
             "uniglomerular",
         ]
-        self.assertEqual(expected_list, self.neuron_db.sub_classes())
+        self.assertEqual(expected_list, self.neuron_db.unique_values("sub_class"))
 
     def test_cell_types(self):
         expected_list_length = 1412
         if False:  # TODO: revive once data is available
-            self.assertEqual(expected_list_length, len(self.neuron_db.cell_types()))
+            self.assertEqual(
+                expected_list_length, len(self.neuron_db.unique_values("cell_type"))
+            )
 
     def test_sizes(self):
         for nd in self.neuron_db.neuron_data.values():
