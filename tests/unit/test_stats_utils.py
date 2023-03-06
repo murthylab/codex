@@ -69,7 +69,7 @@ class Test(TestCase):
                 "Flow",
                 "Nerve",
                 "Neurotransmitter Types",
-                "Soma Side",
+                "Side",
                 "Sub Class",
                 "Super Class",
                 "Top Input Regions",

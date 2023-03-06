@@ -2,7 +2,7 @@ from collections import defaultdict, namedtuple
 
 from src.data.brain_regions import NEUROPIL_DESCRIPTIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
-from src.utils.formatting import nanos_to_formatted_micros, format_number
+from src.utils.formatting import nanos_to_formatted_micros, display
 
 
 def group_counts(count_pairs):
@@ -82,7 +82,9 @@ def make_chart_from_list(
 
 
 def _make_data_charts(data_list):
-    StatGroupProps = namedtuple("StatGroupProps", "title filter_key type descriptions")
+    StatGroupProps = namedtuple(
+        "StatGroupProps", "title filter_key type descriptions", defaults=(None,)
+    )
     stat_groups = {
         "nt_type": StatGroupProps(
             "Neurotransmitter Types", "nt", "bar", NEURO_TRANSMITTER_NAMES
@@ -93,14 +95,20 @@ def _make_data_charts(data_list):
         "output_neuropils": StatGroupProps(
             "Top Output Regions", "output_neuropil", "bar", NEUROPIL_DESCRIPTIONS
         ),
-        "flow": StatGroupProps("Flow", "flow", "donut", None),
-        "super_class": StatGroupProps("Super Class", "super_class", "donut", None),
-        "class": StatGroupProps("Class", "class", "bar", None),
-        "sub_class": StatGroupProps("Sub Class", "sub_class", "bar", None),
-        "cell_type": StatGroupProps("Cell Type", "cell_type", "bar", None),
-        "side": StatGroupProps("Soma Side", "side", "donut", None),
-        "nerve_type": StatGroupProps("Nerve", "nerve", "bar", None),
     }
+    stat_groups.update(
+        {
+            k: StatGroupProps(display(k), k, "donut")
+            for k in ["side", "flow", "super_class"]
+        }
+    )
+    stat_groups.update(
+        {
+            k: StatGroupProps(display(k), k, "bar")
+            for k in ["class", "sub_class", "cell_type", "nerve"]
+        }
+    )
+
     stat_lists = {k: [] for k in stat_groups.keys()}
     unknown_key = "Unknown"
 
@@ -185,13 +193,9 @@ def _make_data_stats(neuron_data, label_data, include_leaderboard=False):
     return result
 
 
-def _format_val(val):
-    return format_number(val) if isinstance(val, int) else val
-
-
 def format_for_display(dict_of_dicts):
     def _format_dict(dct):
-        return {k: _format_val(v) for k, v in dct.items()}
+        return {k: display(v) for k, v in dct.items()}
 
     return {k: _format_dict(d) for k, d in dict_of_dicts.items()}
 

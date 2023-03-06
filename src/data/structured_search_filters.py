@@ -50,10 +50,10 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
     ),
     SearchAttribute(
         name="nerve",
-        value_getter=lambda nd: nd["nerve_type"],
+        value_getter=lambda nd: nd["nerve"],
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
-        description="Nerve type",
+        description="Nerve",
         value_range="data_nerve_range",
     ),
     SearchAttribute(

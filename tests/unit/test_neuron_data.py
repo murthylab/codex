@@ -53,7 +53,7 @@ class NeuronDataTest(TestCase):
             "cell_type": 150000,  # TODO: adjust once cell type data is available
             "flow": 5150,
             "side": 14000,
-            "nerve_type": 110000,
+            "nerve": 110000,
             "input_cells": 4000,
             "input_neuropils": 4000,
             "input_synapses": 4000,
@@ -485,7 +485,7 @@ class NeuronDataTest(TestCase):
         sparse_attrs = {
             "similar_cell_scores",
             "label",
-            "nerve_type",
+            "nerve",
             "oct_avg",
             "ser_avg",
             "class",

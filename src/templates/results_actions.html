@@ -1,6 +1,6 @@
 {% if filter_string %}
 <div class="card bg-light mb-3">
-<span style="margin-left: 15px; margin-top: 5px; color: black; font-size: 12px;">{{format_number(num_items) + (" matches, further analysis:" if num_items else " matches")}}</span>
+<span style="margin-left: 15px; margin-top: 5px; color: black; font-size: 12px;">{{display(num_items) + (" matches, further analysis:" if num_items else " matches")}}</span>
 {% if num_items %}
 <div class="row flex-row flex-nowrap" style="overflow-x: auto; padding-left: 20px;">
     {% if num_items == 1%}

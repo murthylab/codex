@@ -7,6 +7,7 @@ from src.utils.formatting import (
     truncate,
     nanometer_to_flywire_coordinates,
     nanos_to_formatted_micros,
+    display,
 )
 
 
@@ -160,3 +161,10 @@ class TestHighlighting(TestCase):
             "78,775,445,549 &#181;m<sup>3</sup>",
             nanos_to_formatted_micros(78775445548744654654, 3),
         )
+
+    def test_display(self):
+        self.assertEqual("Side", display("side"))
+        self.assertEqual("Soma Side", display("soma_side"))
+        self.assertEqual("123,456", display(123456))
+        self.assertEqual(123456.0, display(123456.0))
+        self.assertEqual(None, display(None))

@@ -37,7 +37,7 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "sub_class",
     "cell_type",
     "flow",
-    "nerve_type",
+    "nerve",
     "side",
 ]
 
@@ -69,7 +69,7 @@ NEURON_DATA_ATTRIBUTES = {
     "supervoxel_id": list,
     "label": list,
     "flow": str,
-    "nerve_type": str,
+    "nerve": str,
     "side": str,
     "length_nm": int,
     "area_nm": int,
@@ -130,7 +130,7 @@ class NeuronDB(object):
                 "class": _get_value("class"),
                 "sub_class": _get_value("sub_class"),
                 "cell_type": "",  # TODO: revive this once updated table is provided _get_value("cell_type"),
-                "nerve_type": _get_value("nerve_type"),
+                "nerve": _get_value("nerve_type"),  # TODO: rename in compile to nerve
                 "side": _get_value("side"),
                 "length_nm": _get_value("length_nm", to_type=int, default=0),
                 "area_nm": _get_value("area_nm", to_type=int, default=0),
@@ -435,8 +435,8 @@ class NeuronDB(object):
                 labels[c] += 1
             if nd.get("flow"):
                 flows[nd.get("flow")] += 1
-            if nd.get("nerve_type"):
-                nerves[nd.get("nerve_type")] += 1
+            if nd.get("nerve"):
+                nerves[nd.get("nerve")] += 1
             if nd.get("side"):
                 sides[nd.get("side")] += 1
             if nd.get("group"):
@@ -645,7 +645,7 @@ class NeuronDB(object):
             "flow",
             "side",
             "nt_type",
-            "nerve_type",
+            "nerve",
         }
         multi_val_attr_names = set()
 

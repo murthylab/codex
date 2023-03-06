@@ -12,7 +12,7 @@ from src.utils.formatting import (
     concat_labels,
     nanometer_to_flywire_coordinates,
     nanos_to_formatted_micros,
-    format_number,
+    display,
 )
 from src.utils.graph_algos import reachable_node_counts
 
@@ -43,11 +43,11 @@ def cached_cell_details(
         "</small>",
         "Partners<br><small>Synapses</small>": '<a href="'
         + url_for("app.search", filter_string=f"{OP_UPSTREAM} {root_id}")
-        + f'" target="_blank"><i class="fa-solid fa-arrow-up"></i> {format_number(nd["input_cells"])} in</a>'
+        + f'" target="_blank"><i class="fa-solid fa-arrow-up"></i> {display(nd["input_cells"])} in</a>'
         + f' &#183; <a href="{url_for("app.search", filter_string=f"{OP_DOWNSTREAM} {root_id}")}'
-        + f'" target="_blank">{format_number(nd["output_cells"])} out <i class="fa-solid fa-arrow-down"></i></a>'
-        + f'<br><small><i class="fa-solid fa-arrow-up"></i> {format_number(nd["input_synapses"])} in &#183; '
-        + f'{format_number(nd["output_synapses"])} out <i class="fa-solid fa-arrow-down"></i></small>',
+        + f'" target="_blank">{display(nd["output_cells"])} out <i class="fa-solid fa-arrow-down"></i></a>'
+        + f'<br><small><i class="fa-solid fa-arrow-up"></i> {display(nd["input_synapses"])} in &#183; '
+        + f'{display(nd["output_synapses"])} out <i class="fa-solid fa-arrow-down"></i></small>',
         "NT Type": nd["nt_type"]
         + f' ({lookup_nt_type_name(nd["nt_type"])})<br><small>predictions '
         + ", ".join(
@@ -75,7 +75,7 @@ def cached_cell_details(
                 f"{cl[0]}: <b>{nd[cl[1]]}</b>"
                 for cl in [
                     ("Side", "side"),
-                    ("Nerve", "nerve_type"),
+                    ("Nerve", "nerve"),
                     ("Flow", "flow"),
                     ("Super Class", "super_class"),
                     ("Class", "class"),
@@ -97,7 +97,7 @@ def cached_cell_details(
     def insert_neuron_list_links(key, num_neurons, icon, search_endpoint):
         if num_neurons:
             related_cells.append(
-                f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{icon}&nbsp; {format_number(num_neurons)} {key}</a>'
+                f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{icon}&nbsp; {display(num_neurons)} {key}</a>'
             )
 
     connectivity_table = neuron_db.connections(ids=[root_id], min_syn_count=min_syn_cnt)

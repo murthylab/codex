@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from src.data.brain_regions import REGIONS, neuropil_hemisphere
 from src.data.neuron_data_factory import NeuronDataFactory
+from src.utils.formatting import display
 from src.utils.graph_vis import make_graph_html
 
 
@@ -31,7 +32,7 @@ def compile_network_html(
                 "none",
             ]:
                 return None
-            res = f"{nd['class']}".replace(" neuron", "").replace("_", " ")
+            res = display(f"{nd['class']}".replace(" neuron", ""))
             if nd["side"] and nd["side"].lower() not in [
                 "na",
                 "undefined",

@@ -4,7 +4,7 @@ from collections import defaultdict
 from flask import render_template, url_for
 
 from src.data.brain_regions import neuropil_description, lookup_neuropil_set
-from src.utils.formatting import shorten_and_concat_labels, format_number
+from src.utils.formatting import shorten_and_concat_labels, display
 
 INPUT_NEUROPIL_COLOR = "#97c2fc"
 OUTPUT_NEUROPIL_COLOR = "#fcc297"
@@ -89,11 +89,11 @@ def make_graph_html(
     if layers is None and show_warnings:
         if aggregated_con_count > connections_cap:
             warning_msg = (
-                f"Top {format_number(connections_cap)} connections out of {format_number(aggregated_con_count)} "
-                f"({format_number(total_syn_count)} of {format_number(aggregated_syn_count)} syn.)"
+                f"Top {display(connections_cap)} connections out of {display(aggregated_con_count)} "
+                f"({display(total_syn_count)} of {display(aggregated_syn_count)} syn.)"
             )
         else:
-            warning_msg = f"{format_number(len(connection_table))} connections ({format_number(total_syn_count)} syn.)"
+            warning_msg = f"{display(len(connection_table))} connections ({display(total_syn_count)} syn.)"
     else:
         warning_msg = None
 
@@ -175,7 +175,7 @@ def make_graph_html(
         )
 
     def edge_title(num):
-        return f"{format_number(num)} synapses"
+        return f"{display(num)} synapses"
 
     def nt_color(nt_type):
         return NT_COLORS.get(nt_type.lower() if nt_type else None, UNKNOWN_NT_COLOR)
@@ -183,9 +183,9 @@ def make_graph_html(
     def edge_label(weight):
         if large_weights:
             rk = round(weight / 1000)
-            return format_number(rk) + "K" if rk > 0 else format_number(weight)
+            return display(rk) + "K" if rk > 0 else display(weight)
         else:
-            return format_number(weight)
+            return display(weight)
 
     def edge_width(weight):
         if large_weights or layers is not None:
