@@ -194,8 +194,11 @@ def _make_data_stats(neuron_data, label_data, include_leaderboard=False):
 
 
 def format_for_display(dict_of_dicts):
+    def _format_val(val):
+        return display(val) if isinstance(val, int) else val
+
     def _format_dict(dct):
-        return {k: display(v) for k, v in dct.items()}
+        return {k: _format_val(v) for k, v in dct.items()}
 
     return {k: _format_dict(d) for k, d in dict_of_dicts.items()}
 
