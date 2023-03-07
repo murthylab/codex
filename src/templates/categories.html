@@ -2,25 +2,6 @@
 {% block title %} Explore Categories {% endblock title %}
 {% block content %}
 
-<form class="form-inline">
-    <label style="margin: 20px;">Num Top Values</label>
-    <select style="margin: 20px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit()"
-            aria-label="Num Top Values" name="top_values">
-        {% for k in [10, 50, 100, 500, 1000] %}
-        <option value="{{k}}" {{
-        'selected' if top_values==k}}>{{k}}</option>
-        {% endfor %}
-    </select>
-    <label style="margin: 20px;">Data version</label>
-    <select style="margin: 20px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit()"
-            aria-label="Data Version" name="data_version">
-        {% for k, v in data_versions.items() %}
-        <option value="{{k}}" {{
-        'selected' if data_version==k}}>{{v}}</option>
-        {% endfor %}
-    </select>
-</form>
-
 
 <div class="card-columns custom-columns" id="data_container" style="padding: 1px;">
     {% for category_data in categories %}
@@ -51,5 +32,25 @@
     </div>
     {% endfor %}
 </div>
+
+<form class="form-inline">
+    <label style="margin: 20px;">Num Top Values</label>
+    <select style="margin: 20px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit()"
+            aria-label="Num Top Values" name="top_values">
+        {% for k in [10, 69, 420, 888] %}
+        <option value="{{k}}" {{
+        'selected' if top_values==k}}>{{k}}</option>
+        {% endfor %}
+    </select>
+    <label style="margin: 20px;">Data version</label>
+    <select style="margin: 20px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit()"
+            aria-label="Data Version" name="data_version">
+        {% for k, v in data_versions.items() %}
+        <option value="{{k}}" {{
+        'selected' if data_version==k}}>{{v}}</option>
+        {% endfor %}
+    </select>
+</form>
+
 
 {% endblock content %}
