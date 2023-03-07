@@ -296,12 +296,23 @@
                 "smooth": {
                     "enabled": true,
                     "type": "dynamic"
+                },
+                "hoverWidth": function (width) {
+                    return width * 1.2;
+                }
+            },
+            "nodes": {
+                "chosen": {
+                    "node": function (values, id, selected, hovering) {
+                        values.size *= 2;
+                    }
                 }
             },
             "interaction": {
                 "dragNodes": true,
                 "hideEdgesOnDrag": nodes.length > 50,
-                "hideNodesOnDrag": false
+                "hideNodesOnDrag": false,
+                "hover": true
             },
             "physics": {
                 "solver": solver,
@@ -399,7 +410,7 @@
             }
         });
 
-        network.on("release", function(params) {
+        network.on("release", function (params) {
             network.selectNodes([]);
         });
 
