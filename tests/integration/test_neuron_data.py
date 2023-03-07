@@ -35,11 +35,11 @@ class NeuronDataTest(TestCase):
         )
 
         expected_sizes = {
-            "connection_rows": "646 M",
-            "label_data": "53 M",
+            "connection_rows": "762 M",
+            "label_data": "59 M",
             "labels_file_timestamp": "64 B",
-            "neuron_data": "365 M",
-            "search_index": "156 M",
+            "neuron_data": "419 M",
+            "search_index": "189 M",
         }
 
         def approx_size(ob):
@@ -72,6 +72,7 @@ class NeuronDataTest(TestCase):
                 if ve_vals[1] != va_vals[1] or not (
                     0.8 * int(ve_vals[0]) <= int(va_vals[0]) <= 1.2 * int(ve_vals[0])
                 ):
+                    print(f"Mismatch: {exp=} {act=}")
                     return False
             return True
 

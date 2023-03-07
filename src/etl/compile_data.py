@@ -302,8 +302,53 @@ def update_cave_data_file(name, db_load_func, cave_client, version):
     comp_backup_and_update_csv(fpath, content=new_content)
 
 
-def update_neuron_classification_table_file(version, summarize_files=False):
-    # Produces these columns:
+def patch_neuron_classification_table_file(version, caveclient):
+    tbl = read_csv(
+        f"static/raw_data/{version}/meta/annotation_export_for_codex_020323.csv"
+    )
+    supervoxel_ids = [int(r[1]) for r in tbl[1:]]
+    mat_timestamp = caveclient.materialize.get_version_metadata(version)["time_stamp"]
+    root_ids = caveclient.chunkedgraph.get_roots(
+        supervoxel_ids, timestamp=mat_timestamp
+    )
+    print(f"Mapped to version {version}.")
+    for i, r in enumerate(tbl[1:]):
+        r[0] = root_ids[i]
+
+    new_table = [
+        [
+            "root_id",
+            "flow",
+            "super_class",
+            "class",
+            "sub_class",
+            "cell_type",
+            "hemibrain_type",
+            "hemilineage",
+            "side",
+            "nerve",
+        ]
+    ]
+    processed_root_ids = set()
+    for r in sorted(tbl[1:], key=lambda x: len([v for v in x if v]), reverse=True):
+        if r[0] not in processed_root_ids:
+            processed_root_ids.add(r[0])
+        else:
+            continue
+        new_table.append([r[0]] + r[3:])
+    print(f"Writing {len(new_table)} rows...")
+    write_csv(
+        filename=f"static/data/{version}/classification.csv.gz",
+        rows=new_table,
+        compress=True,
+    )
+
+
+def update_neuron_classification_table_file(version):
+    dirpath = raw_data_file_path(version=version, filename="meta")
+    files = os.listdir(dirpath)
+    print(f"Loading metadata files from {dirpath}: {files}")
+
     classification_table = [
         [
             "root_id",
@@ -312,38 +357,22 @@ def update_neuron_classification_table_file(version, summarize_files=False):
             "class",
             "sub_class",
             "cell_type",
+            "hemibrain_type",
+            "hemilineage",
             "side",
             "nerve",
-            "length_nm",
-            "area_nm",
-            "size_nm",
         ]
     ]
-
-    dirpath = raw_data_file_path(version=version, filename="meta")
-    files = os.listdir(dirpath)
-    print(f"Loading metadata files from {dirpath}: {files}")
-
-    def summarize(rows):
-        res = ""
-        for i, c in enumerate(rows[0]):
-            if c in ["x", "y", "z", "supervoxel_id"]:
-                continue
-            vals = set([row[i] for row in rows[1:]])
-            vals_str = str(vals) if len(vals) < 20 else ""
-            res += f"{c}: {len(vals)} {vals_str}\n"
-        return res
 
     super_class_dict = {}
     class_dict = {}
     sub_class_dict = {}
     cell_type_dict = {}
+    hemibrain_type = {}
+    hemilineage = {}
     flow_dict = {}
     nerve_dict = {}
     side_dict = {}
-    length_dict = {}
-    area_dict = {}
-    size_dict = {}
     all_root_ids = set()
 
     for f in files:
@@ -353,12 +382,6 @@ def update_neuron_classification_table_file(version, summarize_files=False):
         print(f"Processing file: {f}..")
         fpath = os.path.join(dirpath, f)
         f_content = load_feather_data_to_table(fpath)
-        if summarize_files:
-            print(
-                f"=================\n"
-                f"{f}, {len(f_content)}:\n{f_content[:2]}\n{summarize(f_content)}\n"
-                f"------------------"
-            )
 
         def load(dct, tbl, rid_col, val_col):
             for r in tbl[1:]:
@@ -434,33 +457,8 @@ def update_neuron_classification_table_file(version, summarize_files=False):
                 rid_col=f_content[0].index("root_id"),
                 val_col=f_content[0].index("side"),
             )
-        elif f == "cell_stats.feather":
-            # older than 571:
-            if int(version) < 571:
-                size_cols = ["area_nm2", "size_nm3", "path_length_nm"]
-            else:
-                size_cols = ["area", "volume", "path_length"]
-            assert all([col in f_content[0] for col in ["root_id"] + size_cols])
-            load(
-                dct=area_dict,
-                tbl=f_content,
-                rid_col=f_content[0].index("root_id"),
-                val_col=f_content[0].index(size_cols[0]),
-            )
-            load(
-                dct=size_dict,
-                tbl=f_content,
-                rid_col=f_content[0].index("root_id"),
-                val_col=f_content[0].index(size_cols[1]),
-            )
-            load(
-                dct=length_dict,
-                tbl=f_content,
-                rid_col=f_content[0].index("root_id"),
-                val_col=f_content[0].index(size_cols[2]),
-            )
         else:
-            assert f"Unknown file: {f}" is None
+            print(f"!! Skipping unknown file: {f} !!")
 
         print(f"Done processing {f}")
 
@@ -473,11 +471,10 @@ def update_neuron_classification_table_file(version, summarize_files=False):
                 class_dict.get(rid),
                 sub_class_dict.get(rid),
                 cell_type_dict.get(rid),
+                hemibrain_type.get(rid),
+                hemilineage.get(rid),
                 side_dict.get(rid, NA_STR),
                 nerve_dict.get(rid, NA_STR),
-                round(float(length_dict.get(rid, NA_INT))),
-                round(float(area_dict.get(rid, NA_INT))),
-                round(float(size_dict.get(rid, NA_INT))),
             ]
         )
 
@@ -485,6 +482,80 @@ def update_neuron_classification_table_file(version, summarize_files=False):
         version=version, filename="classification.csv.gz"
     )
     comp_backup_and_update_csv(fpath=neurons_fpath, content=classification_table)
+
+
+def update_cell_stats_table_file(version):
+    # Produces these columns:
+    stats_table = [
+        [
+            "root_id",
+            "length_nm",
+            "area_nm",
+            "size_nm",
+        ]
+    ]
+
+    fpath = raw_data_file_path(version=version, filename="meta/cell_stats.feather")
+    if not os.path.isfile(fpath):
+        print(f"File {fpath} not found. Skipping.")
+        return
+
+    print(f"Loading cell stats from {fpath}...")
+    f_content = load_feather_data_to_table(fpath)
+    print(f"Loaded {len(f_content)} rows from {fpath}")
+
+    length_dict = {}
+    area_dict = {}
+    size_dict = {}
+    all_root_ids = set()
+
+    def load(dct, tbl, rid_col, val_col):
+        for r in tbl[1:]:
+            assert r[rid_col] not in dct
+            dct[r[rid_col]] = r[val_col]
+            all_root_ids.add(r[rid_col])
+
+    # older than 571:
+    if int(version) < 571:
+        size_cols = ["area_nm2", "size_nm3", "path_length_nm"]
+    else:
+        size_cols = ["area", "volume", "path_length"]
+    assert all([col in f_content[0] for col in ["root_id"] + size_cols])
+    load(
+        dct=area_dict,
+        tbl=f_content,
+        rid_col=f_content[0].index("root_id"),
+        val_col=f_content[0].index(size_cols[0]),
+    )
+    load(
+        dct=size_dict,
+        tbl=f_content,
+        rid_col=f_content[0].index("root_id"),
+        val_col=f_content[0].index(size_cols[1]),
+    )
+    load(
+        dct=length_dict,
+        tbl=f_content,
+        rid_col=f_content[0].index("root_id"),
+        val_col=f_content[0].index(size_cols[2]),
+    )
+
+    print(f"Done processing {fpath}")
+
+    for rid in all_root_ids:
+        stats_table.append(
+            [
+                rid,
+                round(float(length_dict.get(rid, NA_INT))),
+                round(float(area_dict.get(rid, NA_INT))),
+                round(float(size_dict.get(rid, NA_INT))),
+            ]
+        )
+
+    compiled_stats_file_fpath = compiled_data_file_path(
+        version=version, filename="cell_stats.csv.gz"
+    )
+    comp_backup_and_update_csv(fpath=compiled_stats_file_fpath, content=stats_table)
 
 
 def update_connectome_files(version):
@@ -656,6 +727,7 @@ if __name__ == "__main__":
         # INGEST
         "update_connectome": False,
         "update_classification": False,
+        "update_cell_stats": False,
         "update_coordinates": False,
         "update_nblast_scores": False,
         "update_labels": True,
@@ -683,7 +755,13 @@ if __name__ == "__main__":
         if config["update_connectome"]:
             update_connectome_files(version=v)
         if config["update_classification"]:
-            update_neuron_classification_table_file(version=v)
+            # TODO: get rid of this once classification files are officially exported
+            if str(v) == "571":
+                patch_neuron_classification_table_file(version=v, caveclient=client)
+            else:
+                update_neuron_classification_table_file(version=v)
+        if config["update_cell_stats"]:
+            update_cell_stats_table_file(version=v)
         if config["update_coordinates"]:
             update_cave_data_file(
                 name="coordinates",

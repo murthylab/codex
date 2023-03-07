@@ -50,7 +50,9 @@ class NeuronDataTest(TestCase):
             "super_class": 5200,
             "class": 37000,
             "sub_class": 116000,
-            "cell_type": 150000,  # TODO: adjust once cell type data is available
+            "cell_type": 110000,
+            "hemibrain_type": 93000,
+            "hemilineage": 93000,
             "flow": 5150,
             "side": 14000,
             "nerve": 110000,
@@ -364,19 +366,21 @@ class NeuronDataTest(TestCase):
             "ALLN",
             "ALON",
             "ALPN",
-            "AMMC",
             "AN",
             "CSD",
             "CX",
             "DAN",
             "DN",
             "Kenyon_Cell",
+            "L1-5",
             "LHCENT",
             "MBIN",
             "MBON",
+            "TuBu",
             "bilateral",
             "endocrine",
             "fragment",
+            "glia",
             "gustatory",
             "hygrosensory",
             "mAL",
@@ -385,10 +389,10 @@ class NeuronDataTest(TestCase):
             "ocellar",
             "olfactory",
             "optic_lobes",
-            "putative_glia",
             "ring neuron",
             "thermosensory",
             "unknown_sensory",
+            "visual",
         ]
         self.assertEqual(expected_list, self.neuron_db.unique_values("class"))
 
@@ -399,6 +403,7 @@ class NeuronDataTest(TestCase):
             "descending",
             "endocrine",
             "motor",
+            "not_a_neuron",
             "optic",
             "sensory",
             "visual_centrifugal",
@@ -408,22 +413,40 @@ class NeuronDataTest(TestCase):
 
     def test_sub_classes(self):
         expected_list = [
+            "accessory_pharyngeal_nerve_sensory_group1",
+            "accessory_pharyngeal_nerve_sensory_group2",
+            "antennal_nerve_ascending_sensory",
             "auditory",
             "eye bristle",
+            "head bristle",
+            "mechanosensory",
             "multiglomerular",
             "ocellar_interneuron",
-            "taste bristle",
+            "pharyngeal_nerve_sensory_group1",
+            "pharyngeal_nerve_sensory_group2",
             "taste peg",
             "uniglomerular",
+            "unknown sensory",
         ]
         self.assertEqual(expected_list, self.neuron_db.unique_values("sub_class"))
 
     def test_cell_types(self):
-        expected_list_length = 1412
-        if False:  # TODO: revive once data is available
-            self.assertEqual(
-                expected_list_length, len(self.neuron_db.unique_values("cell_type"))
-            )
+        expected_list_length = 918
+        self.assertEqual(
+            expected_list_length, len(self.neuron_db.unique_values("cell_type"))
+        )
+
+    def test_hemibrain_types(self):
+        expected_list_length = 2781
+        self.assertEqual(
+            expected_list_length, len(self.neuron_db.unique_values("hemibrain_type"))
+        )
+
+    def test_hemilineage(self):
+        expected_list_length = 178
+        self.assertEqual(
+            expected_list_length, len(self.neuron_db.unique_values("hemilineage"))
+        )
 
     def test_sizes(self):
         for nd in self.neuron_db.neuron_data.values():
@@ -491,6 +514,8 @@ class NeuronDataTest(TestCase):
             "class",
             "sub_class",
             "cell_type",
+            "hemibrain_type",
+            "hemilineage",
         }
         for k, v in NEURON_DATA_ATTRIBUTE_TYPES.items():
             if k in sparse_attrs:

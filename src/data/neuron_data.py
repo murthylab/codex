@@ -10,6 +10,7 @@ from src.data.catalog import (
     get_connections_file_columns,
     get_nblast_file_columns,
     get_classification_file_columns,
+    get_cell_stats_file_columns,
 )
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.search_index import SearchIndex
@@ -55,6 +56,8 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     "class": str,
     "sub_class": str,
     "cell_type": str,
+    "hemibrain_type": str,
+    "hemilineage": str,
     "nerve": str,
     "side": str,
     # I/O counts + regions
@@ -85,6 +88,8 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "sub_class",
     "cell_type",
     "flow",
+    "hemibrain_type",
+    "hemilineage",
     "nerve",
     "side",
 ]
@@ -95,6 +100,7 @@ class NeuronDB(object):
         self,
         neuron_file_rows,
         classification_rows,
+        cell_stats_rows,
         connection_rows,
         label_rows,
         labels_file_timestamp,
@@ -106,7 +112,7 @@ class NeuronDB(object):
         self.labels_file_timestamp = labels_file_timestamp
 
         def _get_value(row, column_index, attr_name):
-            attr_val = row[column_index[attr_name]]
+            attr_val = make_web_safe(row[column_index[attr_name]])
             attr_type = NEURON_DATA_ATTRIBUTE_TYPES[attr_name]
             return attr_type(attr_val) if attr_val else attr_type()
 
@@ -145,11 +151,31 @@ class NeuronDB(object):
                     for attr_name in get_classification_file_columns()[1:]
                 }
             )
-            # TODO: remove this line once cell types are ingested correctly
-            self.neuron_data[root_id]["cell_type"] = ""
         log(
             f"App initialization: {not_found_classified_root_ids} classified ids not found in set of neurons"
         )
+
+        if cell_stats_rows:
+            log(
+                f"App initialization processing cell stats data with {len(cell_stats_rows)} rows.."
+            )
+            not_found_stats_root_ids = 0
+            assert cell_stats_rows[0] == get_cell_stats_file_columns()
+            cell_stats_column_index = {c: i for i, c in enumerate(cell_stats_rows[0])}
+            for i, r in enumerate(cell_stats_rows[1:]):
+                root_id = _get_value(r, cell_stats_column_index, "root_id")
+                if root_id not in self.neuron_data:
+                    not_found_stats_root_ids += 1
+                    continue
+                self.neuron_data[root_id].update(
+                    {
+                        attr_name: _get_value(r, cell_stats_column_index, attr_name)
+                        for attr_name in get_cell_stats_file_columns()[1:]
+                    }
+                )
+            log(
+                f"App initialization: {not_found_stats_root_ids} stats root ids not found in set of neurons"
+            )
 
         log("App initialization processing label data..")
         labels_file_columns = get_labels_file_columns()
@@ -651,6 +677,8 @@ class NeuronDB(object):
             "class",
             "sub_class",
             "cell_type",
+            "hemibrain_type",
+            "hemilineage",
             "flow",
             "side",
             "nt_type",

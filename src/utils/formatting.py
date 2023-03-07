@@ -9,7 +9,9 @@ WEB_SAFE_MAP.update({c: "`" for c in ['"', "'"]})  # String delimiters
 
 
 def make_web_safe(txt):
-    return "".join([WEB_SAFE_MAP.get(c, c) for c in txt])
+    return (
+        "".join([WEB_SAFE_MAP.get(c, c) for c in txt]) if isinstance(txt, str) else txt
+    )
 
 
 def synapse_table_to_csv_string(table):
