@@ -3,7 +3,7 @@ from unittest import TestCase
 from collections import defaultdict
 
 from src.data.brain_regions import REGIONS
-from src.data.neuron_data import NEURON_DATA_ATTRIBUTES, NeuronDB
+from src.data.neuron_data import NEURON_DATA_ATTRIBUTE_TYPES, NeuronDB
 from src.data.local_data_loader import (
     unpickle_all_neuron_db_versions,
     unpickle_neuron_db,
@@ -71,7 +71,7 @@ class NeuronDataTest(TestCase):
             "ser_avg": 61000,
         }
 
-        for k in NEURON_DATA_ATTRIBUTES.keys():
+        for k in NEURON_DATA_ATTRIBUTE_TYPES.keys():
             check_num_values_missing(k, expected_missing_value_bounds.get(k, 0))
 
     def test_annotations_web_safe(self):
@@ -492,7 +492,7 @@ class NeuronDataTest(TestCase):
             "sub_class",
             "cell_type",
         }
-        for k, v in NEURON_DATA_ATTRIBUTES.items():
+        for k, v in NEURON_DATA_ATTRIBUTE_TYPES.items():
             if k in sparse_attrs:
                 continue
             num_vals = len([n[k] for n in self.neuron_db.neuron_data.values() if n[k]])

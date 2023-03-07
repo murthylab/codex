@@ -72,17 +72,17 @@ def cached_cell_details(
     cell_annotations = {
         "Classification": concat_labels(
             [
-                f"{cl[0]}: <b>{nd[cl[1]]}</b>"
+                f"{display(cl)}: <b>{nd[cl]}</b>"
                 for cl in [
-                    ("Side", "side"),
-                    ("Nerve", "nerve"),
-                    ("Flow", "flow"),
-                    ("Super Class", "super_class"),
-                    ("Class", "class"),
-                    ("Sub Class", "sub_class"),
-                    ("Cell Type", "cell_type"),
+                    "side",
+                    "nerve",
+                    "flow",
+                    "super_class",
+                    "class",
+                    "sub_class",
+                    "cell_type",
                 ]
-                if nd[cl[1]]
+                if nd[cl]
             ]
         ),
         "Identification Labels": concat_labels(labels),

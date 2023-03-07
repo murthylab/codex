@@ -27,7 +27,7 @@ from src.utils.formatting import (
 )
 from src.utils.logging import log
 
-NEURON_DATA_ATTRIBUTES = {
+NEURON_DATA_ATTRIBUTE_TYPES = {
     # auto assigned based on most prominent input and output neuropils
     "group": str,
     # group + running id (to make unique)
@@ -105,87 +105,48 @@ class NeuronDB(object):
         self.label_data = {}
         self.labels_file_timestamp = labels_file_timestamp
 
+        def _get_value(row, column_index, attr_name):
+            attr_val = row[column_index[attr_name]]
+            attr_type = NEURON_DATA_ATTRIBUTE_TYPES[attr_name]
+            return attr_type(attr_val) if attr_val else attr_type()
+
         log("App initialization processing neuron data..")
-        column_index = {}
-        for i, r in enumerate(neuron_file_rows):
-            if i == 0:
-                assert r == get_neurons_file_columns()
-                column_index = {c: i for i, c in enumerate(r)}
-                continue
-
-            def _get_value(col, to_type=None):
-                def convert_type(v):
-                    return to_type(v) if to_type and v != "" else v
-
-                return convert_type(r[column_index[col]])
-
-            root_id = _get_value("root_id", to_type=int)
+        assert neuron_file_rows[0] == get_neurons_file_columns()
+        neurons_column_index = {c: i for i, c in enumerate(neuron_file_rows[0])}
+        for i, r in enumerate(neuron_file_rows[1:]):
+            root_id = _get_value(r, neurons_column_index, "root_id")
             assert root_id not in self.neuron_data
-            self.neuron_data[root_id] = {
-                "root_id": root_id,
-                "name": _get_value("name"),
-                "group": _get_value("group"),
-                "nt_type": _get_value("nt_type"),
-                "nt_type_score": _get_value("nt_type_score", to_type=float),
-                "gaba_avg": _get_value("gaba_avg", to_type=float),
-                "ach_avg": _get_value("ach_avg", to_type=float),
-                "glut_avg": _get_value("glut_avg", to_type=float),
-                "oct_avg": _get_value("oct_avg", to_type=float),
-                "ser_avg": _get_value("ser_avg", to_type=float),
-                "da_avg": _get_value("da_avg", to_type=float),
-                # empty slots (populated below)
-                "flow": "",
-                "super_class": "",
-                "class": "",
-                "sub_class": "",
-                "cell_type": "",
-                "nerve": "",
-                "side": "",
-                "length_nm": 0,
-                "area_nm": 0,
-                "size_nm": 0,
-                "label": [],
-                "position": [],
-                "supervoxel_id": [],
-                "input_neuropils": [],
-                "output_neuropils": [],
-            }
+            self.neuron_data[root_id] = {"root_id": root_id}
+            self.neuron_data[root_id].update(
+                {
+                    attr_name: _get_value(r, neurons_column_index, attr_name)
+                    if attr_name in neurons_column_index
+                    else attr_type()
+                    for attr_name, attr_type in NEURON_DATA_ATTRIBUTE_TYPES.items()
+                }
+            )
 
         log(
             f"App initialization processing classification data with {len(classification_rows)} rows.."
         )
         not_found_classified_root_ids = 0
-        column_index = {}
-        for i, r in enumerate(classification_rows):
-            if i == 0:
-                assert r == get_classification_file_columns()
-                column_index = {c: i for i, c in enumerate(r)}
-                continue
-
-            def _get_value(col, to_type=None):
-                def convert_type(v):
-                    return to_type(v) if to_type and v != "" else v
-
-                return convert_type(r[column_index[col]])
-
-            root_id = _get_value("root_id", to_type=int)
+        assert classification_rows[0] == get_classification_file_columns()
+        classification_column_index = {
+            c: i for i, c in enumerate(classification_rows[0])
+        }
+        for i, r in enumerate(classification_rows[1:]):
+            root_id = _get_value(r, classification_column_index, "root_id")
             if root_id not in self.neuron_data:
                 not_found_classified_root_ids += 1
                 continue
             self.neuron_data[root_id].update(
                 {
-                    "flow": _get_value("flow"),
-                    "super_class": _get_value("super_class"),
-                    "class": _get_value("class"),
-                    "sub_class": _get_value("sub_class"),
-                    # TODO: [uncomment once clean data is available] "cell_type": _get_value("cell_type"),
-                    "nerve": _get_value("nerve"),
-                    "side": _get_value("side"),
-                    "length_nm": _get_value("length_nm", to_type=int),
-                    "area_nm": _get_value("area_nm", to_type=int),
-                    "size_nm": _get_value("size_nm", to_type=int),
+                    attr_name: _get_value(r, classification_column_index, attr_name)
+                    for attr_name in get_classification_file_columns()[1:]
                 }
             )
+            # TODO: remove this line once cell types are ingested correctly
+            self.neuron_data[root_id]["cell_type"] = ""
         log(
             f"App initialization: {not_found_classified_root_ids} classified ids not found in set of neurons"
         )
@@ -321,7 +282,7 @@ class NeuronDB(object):
             if from_rid not in self.neuron_data:
                 not_found_rids.add(from_rid)
                 continue
-            assert "similar_cell_scores" not in self.neuron_data[from_rid]
+            assert not self.neuron_data[from_rid]["similar_cell_scores"]
             scores_dict = {}
             if r[scores_col_idx]:
                 for score_pair in r[scores_col_idx].split(";"):
