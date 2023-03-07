@@ -1,0 +1,7 @@
+{% if attr_val %}
+<div>
+    <small><span style="color: teal" title="{{tooltip}}">{{caption}}</span>
+        {{', '.join(attr_val)}}
+    </small>
+</div>
+{% endif %}

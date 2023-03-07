@@ -130,11 +130,11 @@
 
                 {% with caption="Cell Type", tooltip="Cell types are derived from a mapping to the Janelia hemibrain dataset",
                     attr_key="cell_type", attr_val=neuron.cell_type, multi_val_attrs=multi_val_attrs
-                %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
+                %} {% include "attribute_with_multiple_values.html" %} {% endwith %}
 
                 {% with caption="Hemibrain Type", tooltip="Matching type(s) in Janelia hemibrain dataset",
                     attr_key="hemibrain_type", attr_val=neuron.hemibrain_type, multi_val_attrs=multi_val_attrs
-                %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
+                %} {% include "attribute_with_multiple_values.html" %} {% endwith %}
 
                 {% with caption="Hemilineage", tooltip="Mapped lineage from Janelia hemibrain dataset",
                     attr_key="hemilineage", attr_val=neuron.hemilineage, multi_val_attrs=multi_val_attrs

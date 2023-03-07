@@ -431,13 +431,13 @@ class NeuronDataTest(TestCase):
         self.assertEqual(expected_list, self.neuron_db.unique_values("sub_class"))
 
     def test_cell_types(self):
-        expected_list_length = 918
+        expected_list_length = 925
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("cell_type"))
         )
 
     def test_hemibrain_types(self):
-        expected_list_length = 2781
+        expected_list_length = 3001
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("hemibrain_type"))
         )

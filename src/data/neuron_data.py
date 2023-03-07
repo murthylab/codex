@@ -56,8 +56,8 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     "super_class": str,
     "class": str,
     "sub_class": str,
-    "cell_type": str,
-    "hemibrain_type": str,
+    "cell_type": list,
+    "hemibrain_type": list,
     "hemilineage": str,
     "nerve": str,
     "side": str,
@@ -115,7 +115,12 @@ class NeuronDB(object):
         def _get_value(row, column_index, attr_name):
             attr_val = make_web_safe(row[column_index[attr_name]])
             attr_type = NEURON_DATA_ATTRIBUTE_TYPES[attr_name]
-            return attr_type(attr_val) if attr_val else attr_type()
+            if not attr_val:
+                return attr_type()
+            elif attr_type == list:
+                return attr_val.split(",")
+            else:
+                return attr_type(attr_val)
 
         log("App initialization processing neuron data..")
         assert neuron_file_rows[0] == get_neurons_file_columns()
@@ -453,9 +458,14 @@ class NeuronDB(object):
 
     @lru_cache
     def unique_values(self, attr_name):
-        return sorted(
-            set([nd[attr_name] for nd in self.neuron_data.values() if nd[attr_name]])
-        )
+        vals = set()
+        for nd in self.neuron_data.values():
+            if nd[attr_name]:
+                if isinstance(nd[attr_name], list):
+                    vals |= set(nd[attr_name])
+                else:
+                    vals.add(nd[attr_name])
+        return sorted(vals)
 
     @lru_cache
     def categories(self, top_values=10):
@@ -656,8 +666,6 @@ class NeuronDB(object):
             "super_class",
             "class",
             "sub_class",
-            "cell_type",
-            "hemibrain_type",
             "hemilineage",
             "flow",
             "side",
