@@ -101,15 +101,11 @@ class NeuronDB(object):
                 column_index = {c: i for i, c in enumerate(r)}
                 continue
 
-            def _get_value(col, split=False, to_type=None):
+            def _get_value(col, to_type=None):
                 def convert_type(v):
                     return to_type(v) if to_type and v != "" else v
 
-                val = r[column_index[col]]
-                if split:
-                    return [convert_type(v) for v in val.split(",")] if val else []
-                else:
-                    return convert_type(val)
+                return convert_type(r[column_index[col]])
 
             root_id = _get_value("root_id", to_type=int)
             assert root_id not in self.neuron_data
@@ -154,15 +150,11 @@ class NeuronDB(object):
                 column_index = {c: i for i, c in enumerate(r)}
                 continue
 
-            def _get_value(col, split=False, to_type=None):
+            def _get_value(col, to_type=None):
                 def convert_type(v):
                     return to_type(v) if to_type and v != "" else v
 
-                val = r[column_index[col]]
-                if split:
-                    return [convert_type(v) for v in val.split(",")] if val else []
-                else:
-                    return convert_type(val)
+                return convert_type(r[column_index[col]])
 
             root_id = _get_value("root_id", to_type=int)
             if root_id not in self.neuron_data:
