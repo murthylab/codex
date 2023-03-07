@@ -12,11 +12,12 @@ from src.utils.logging import log_user_help
 api = Blueprint("api", __name__, url_prefix="/api")
 
 DOWNLOADABLE_PRODUCTS = {
-    "neurons": "Cell / neuron features",
+    "neurons": "Cell name, group and NT type predictions",
+    "classification": "Classification annotations and size stats",
     "connections": "Connectivity table",
-    "labels": "Labels (free form annotations)",
+    "labels": "Identification tags (labeled by FlyWire community)",
     "coordinates": "Marked neuron coordinates",
-    "neuropil_synapse_table": "Neurons input/output synapse and partner counts in each neuropil",
+    "neuropil_synapse_table": "In-out synapse & partner counts by neuropil",
 }
 
 
