@@ -13,7 +13,8 @@ api = Blueprint("api", __name__, url_prefix="/api")
 
 DOWNLOADABLE_PRODUCTS = {
     "neurons": "Cell name, group and NT type predictions",
-    "classification": "Classification annotations and size stats",
+    "classification": "Classification / hierarchical annotations",
+    "cell_stats": "Cell size measurements",
     "connections": "Connectivity table",
     "labels": "Identification tags (labeled by FlyWire community)",
     "coordinates": "Marked neuron coordinates",
