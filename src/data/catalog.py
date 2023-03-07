@@ -21,8 +21,14 @@ _CODEX_DATA_SCHEMA = {
         "class",
         "sub_class",
         "cell_type",
+        "hemibrain_type",
+        "hemilineage",
         "side",
         "nerve",
+    ],
+    # one row per id
+    "cell_stats": [
+        "root_id",
         "length_nm",
         "area_nm",
         "size_nm",
@@ -66,6 +72,10 @@ def get_neurons_file_columns():
 
 def get_classification_file_columns():
     return list(_CODEX_DATA_SCHEMA["classification"])
+
+
+def get_cell_stats_file_columns():
+    return list(_CODEX_DATA_SCHEMA["cell_stats"])
 
 
 def get_labels_file_columns():

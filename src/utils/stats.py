@@ -105,7 +105,14 @@ def _make_data_charts(data_list):
     stat_groups.update(
         {
             k: StatGroupProps(display(k), k, "bar")
-            for k in ["class", "sub_class", "cell_type", "nerve"]
+            for k in [
+                "class",
+                "sub_class",
+                "cell_type",
+                "nerve",
+                "hemibrain_type",
+                "hemilineage",
+            ]
         }
     )
 

@@ -139,6 +139,22 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_range="data_class_range",
     ),
     SearchAttribute(
+        name="hemibrain_type",
+        value_getter=lambda nd: nd["hemibrain_type"],
+        value_convertor=None,
+        list_convertor=lambda x: tokenize(x),
+        description="Cell typing attribute from Janelia hemibrain dataset.",
+        value_range="data_class_range",
+    ),
+    SearchAttribute(
+        name="hemilineage",
+        value_getter=lambda nd: nd["hemilineage"],
+        value_convertor=None,
+        list_convertor=lambda x: tokenize(x),
+        description="Lineage from Janelia hemibrain dataset.",
+        value_range="data_class_range",
+    ),
+    SearchAttribute(
         name="group",
         value_getter=lambda nd: nd["group"],
         value_convertor=None,

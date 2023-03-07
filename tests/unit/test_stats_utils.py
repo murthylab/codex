@@ -64,7 +64,7 @@ class Test(TestCase):
         )
         self.assertEqual(
             [
-                # TODO: revive once cell type data is available "Cell Type",
+                "Cell Type",
                 "Class",
                 "Flow",
                 "Nerve",

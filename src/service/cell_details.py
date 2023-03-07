@@ -81,6 +81,8 @@ def cached_cell_details(
                     "class",
                     "sub_class",
                     "cell_type",
+                    "hemibrain_type",
+                    "hemilineage",
                 ]
                 if nd[cl]
             ]

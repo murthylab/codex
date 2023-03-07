@@ -326,6 +326,8 @@ def download_search_results():
         "class",
         "sub_class",
         "cell_type",
+        "hemibrain_type",
+        "hemilineage",
         "nerve",
         "side",
         "input_synapses",
