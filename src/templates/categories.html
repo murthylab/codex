@@ -2,22 +2,15 @@
 {% block title %} Explore Categories {% endblock title %}
 {% block content %}
 
-{% for category_data in categories %}
-<div class="card bg-light mb-3" style="margin: 10px;">
-    <div class="card-header">
-        {{category_data['caption']}}
-    </div>
-    <div class="card-body">
-        {% for val, count in category_data['counts'] %}
-        <a class="btn btn btn-link my-2 my-sm-0"
-           href="{{url_for('app.search', filter_string=category_data['key'] + ' == ' + val, data_version=data_version)}}">{{val}}
-            ({{'{:,}'.format(count)}})</a>
-        {% endfor %}
-    </div>
-</div>
-{% endfor %}
-
 <form class="form-inline">
+    <label style="margin: 20px;">Num Top Values</label>
+    <select style="margin: 20px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit()"
+            aria-label="Num Top Values" name="top_values">
+        {% for k in [10, 50, 100, 500, 1000] %}
+        <option value="{{k}}" {{
+        'selected' if top_values==k}}>{{k}}</option>
+        {% endfor %}
+    </select>
     <label style="margin: 20px;">Data version</label>
     <select style="margin: 20px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit()"
             aria-label="Data Version" name="data_version">
@@ -27,5 +20,36 @@
         {% endfor %}
     </select>
 </form>
+
+
+<div class="card-columns custom-columns" id="data_container" style="padding: 1px;">
+    {% for category_data in categories %}
+    <div class="card" style="margin: 5px; padding: 0px;">
+        <div class="card-header" style="color: purple;" >
+            {{category_data['caption']}}
+        </div>
+        <div class="card-body" style="margin: 0px; padding: 0px;">
+            <table>
+                <tr style="color: grey"><td>value</td><td># cells</td></tr>
+            {% for val, count in category_data['counts'] %}
+                <tr>
+                    <td style="width: 100%; text-align: left; margin: 0px; padding: 0px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 100px;">
+                        <a class="btn btn btn-link my-2 my-sm-0" title="{{val}}"
+                            href="{{url_for('app.search', filter_string=category_data['key'] + ' == ' + val, data_version=data_version)}}">{{val}}
+                        </a>
+                    </td>
+                    <td>
+                        <a class="btn btn btn-link my-2 my-sm-0"
+                            href="{{url_for('app.search', filter_string=category_data['key'] + ' == ' + val, data_version=data_version)}}">
+                            {{display(count)}}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 
 {% endblock content %}

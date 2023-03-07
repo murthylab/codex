@@ -112,7 +112,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Cell typing attribute. Indicates function or other property of the cell.",
-        value_range="data_class_range",
+        value_range="data_super_class_range",
     ),
     SearchAttribute(
         name="class",
@@ -128,7 +128,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Cell typing attribute. Indicates function or other property of the cell.",
-        value_range="data_class_range",
+        value_range="data_sub_class_range",
     ),
     SearchAttribute(
         name="cell_type",
@@ -136,7 +136,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Cell typing attribute. Indicates function or other property of the cell.",
-        value_range="data_class_range",
+        value_range="data_cell_type_range",
     ),
     SearchAttribute(
         name="hemibrain_type",
@@ -144,7 +144,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Cell typing attribute from Janelia hemibrain dataset.",
-        value_range="data_class_range",
+        value_range="data_hemibrain_type_range",
     ),
     SearchAttribute(
         name="hemilineage",
@@ -152,7 +152,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Lineage from Janelia hemibrain dataset.",
-        value_range="data_class_range",
+        value_range="data_hemilineage_range",
     ),
     SearchAttribute(
         name="group",

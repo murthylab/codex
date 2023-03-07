@@ -2,7 +2,7 @@ from collections import defaultdict
 from functools import lru_cache
 
 from src.utils.logging import log_error
-from src.utils.formatting import percentage
+from src.utils.formatting import percentage, display
 
 
 # computes the set of nodes reachable in 1 hop from given sources
@@ -45,7 +45,7 @@ def reachable_node_counts(sources, neighbor_sets, total_count):
         agg_val = sum([res[j] for j in range(1, i + 1)])
         aggregated[
             f"{i} hop{'s' if i > 1 else ''}"
-        ] = f"{'{:,}'.format(agg_val)} ({percentage(agg_val, total_count)})"
+        ] = f"{display(agg_val)} ({percentage(agg_val, total_count)})"
     return aggregated
 
 

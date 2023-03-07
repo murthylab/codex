@@ -25,6 +25,7 @@ from src.utils.formatting import (
     nanometer_to_flywire_coordinates,
     truncate,
     make_web_safe,
+    display,
 )
 from src.utils.logging import log
 
@@ -457,80 +458,59 @@ class NeuronDB(object):
         )
 
     @lru_cache
-    def categories(self):
-        classes = defaultdict(int)
-        flows = defaultdict(int)
-        nerves = defaultdict(int)
-        sides = defaultdict(int)
-        labels = defaultdict(int)
-        groups = defaultdict(int)
+    def categories(self, top_values=10):
+        counts_dict = defaultdict(lambda: defaultdict(int))
+        category_names = {
+            "Identification Labels": "label",
+            "Flows": "flow",
+            "Super Classes": "super_class",
+            "Classes": "class",
+            "Sub Classes": "sub_class",
+            "Cell Types": "cell_type",
+            "Hemibrain Types": "hemibrain_type",
+            "Hemilineages": "hemilineage",
+            "Cell Body Sides": "side",
+            "Nerve Types": "nerve",
+            "Max In/Out Neuropil Groups": "group",
+        }
         for nd in self.neuron_data.values():
-            classes[nd["class"]] += 1
-            for c in nd.get("label", []):
-                labels[c] += 1
-            if nd.get("flow"):
-                flows[nd.get("flow")] += 1
-            if nd.get("nerve"):
-                nerves[nd.get("nerve")] += 1
-            if nd.get("side"):
-                sides[nd.get("side")] += 1
-            if nd.get("group"):
-                groups[nd.get("group")] += 1
-
-        # Limit to most common categories.
-        CATEGORY_LIMIT = 100
+            for v in category_names.values():
+                val = nd[v]
+                if not val:
+                    continue
+                if isinstance(val, list):
+                    for c in val:
+                        counts_dict[v][c] += 1
+                else:
+                    counts_dict[v][val] += 1
 
         def _caption(name, length):
-            if length > CATEGORY_LIMIT:
-                return f"{name} (showing top {CATEGORY_LIMIT} out of {'{:,}'.format(length)})"
+            if length > top_values:
+                return f"{name} (top {top_values} values out of {display(length)})"
             elif length > 10:
-                return f"{name} ({'{:,}'.format(length)})"
+                return f"{name} ({display(length)} values)"
             else:
                 return name
 
         def _sorted_counts(d):
             lst_all = sorted([(k, v) for k, v in d.items() if k], key=lambda p: -p[1])
-            return lst_all[:CATEGORY_LIMIT]
+            return lst_all[:top_values]
 
-        all_cats = [
+        return [
             {
-                "caption": _caption("Classes", len(classes)),
-                "key": "class",
-                "counts": _sorted_counts(classes),
-            },
-            {
-                "caption": _caption("Flows", len(flows)),
-                "key": "flow",
-                "counts": _sorted_counts(flows),
-            },
-            {
-                "caption": _caption("Nerve Types", len(nerves)),
-                "key": "nerve",
-                "counts": _sorted_counts(nerves),
-            },
-            {
-                "caption": _caption("Cell Body Side", len(sides)),
-                "key": "side",
-                "counts": _sorted_counts(sides),
-            },
-            {
-                "caption": _caption("Identification labels", len(labels)),
-                "key": "label",
-                "counts": _sorted_counts(labels),
-            },
-            {
-                "caption": _caption("Max In/Out Neuropil Groups", len(groups)),
-                "key": "group",
-                "counts": _sorted_counts(groups),
-            },
+                "caption": _caption(ck, len(counts_dict[cv])),
+                "key": cv,
+                "counts": _sorted_counts(counts_dict[cv]),
+            }
+            for ck, cv in category_names.items()
+            if cv
         ]
-        return [cat for cat in all_cats if cat["counts"]]
 
     # Returns value ranges for all attributes with not too many different values. Used for advanced search dropdowns.
     @lru_cache
     def dynamic_ranges(self):
         res = {}
-        for dct in self.categories():
+        for dct in self.categories(top_values=20):
             if len(dct["counts"]) < 20:
                 res[f"data_{dct['key']}_range"] = [p[0] for p in dct["counts"]]
         return res
