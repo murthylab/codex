@@ -36,6 +36,7 @@ SORT_BY_OPTIONS = {
     "labels": "# Labels (low -> high)",
     "twin_cells": "# Twin cells (high -> low)",
     "nt_type": "Neurotransmitter Type",
+    "morphology_cluster": "Morphology Cluster",
 }
 
 
@@ -69,6 +70,7 @@ def sort_search_results(
     output_sets,
     label_count_getter,
     nt_type_getter,
+    morphology_cluster_getter,
     synapse_neuropil_count_getter,
     size_getter,
     partner_count_getter,
@@ -103,6 +105,26 @@ def sort_search_results(
             if sort_by == "nt_type":
                 ids = sorted(ids, key=lambda x: nt_type_getter(x))
                 return ids, None
+            if sort_by == "morphology_cluster":
+                cluster_to_rids = defaultdict(list)
+                for rid in ids:
+                    cluster = morphology_cluster_getter(rid)
+                    if cluster:
+                        cluster_to_rids[cluster].append(rid)
+                # useful size clusters first
+                sorted_ids = []
+                for p in sorted(
+                    cluster_to_rids.items(), key=lambda x: abs(30 - len(x[1]))
+                ):
+                    sorted_ids.extend(p[1])
+                sorted_ids.extend(list(set(ids) - set(sorted_ids)))
+                dct = {rid: morphology_cluster_getter(rid) for rid in ids}
+                extra_data = {
+                    "title": "Morphologically Cluster",
+                    "column_name": "Cluster",
+                    "values_dict": dct,
+                }
+                return sorted_ids, extra_data
             if sort_by in ["synapse_neuropils", "-synapse_neuropils"]:
                 dct = {rid: synapse_neuropil_count_getter(rid) for rid in ids}
                 extra_data = {

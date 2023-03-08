@@ -11,6 +11,7 @@ from src.data.catalog import (
     get_nblast_file_columns,
     get_classification_file_columns,
     get_cell_stats_file_columns,
+    get_morphology_clusters_columns,
 )
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.search_index import SearchIndex
@@ -76,6 +77,8 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     "length_nm": int,
     "area_nm": int,
     "size_nm": int,
+    # morphology clusters (based on NBLAST scores + SCC analysis)
+    "cluster": str,
 }
 
 # Keywords will be matched against these attributes
@@ -93,6 +96,7 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "hemilineage",
     "nerve",
     "side",
+    "cluster",
 ]
 
 
@@ -107,6 +111,7 @@ class NeuronDB(object):
         labels_file_timestamp,
         coordinate_rows,
         nblast_rows,
+        morphology_cluster_rows,
     ):
         self.neuron_data = {}
         self.label_data = {}
@@ -181,6 +186,32 @@ class NeuronDB(object):
                 )
             log(
                 f"App initialization: {not_found_stats_root_ids} stats root ids not found in set of neurons"
+            )
+
+        if morphology_cluster_rows:
+            log(
+                f"App initialization processing morpho cluster data with {len(morphology_cluster_rows)} rows.."
+            )
+            not_found_morpho_cluster_root_ids = 0
+            assert morphology_cluster_rows[0] == get_morphology_clusters_columns()
+            morpho_clusters_column_index = {
+                c: i for i, c in enumerate(morphology_cluster_rows[0])
+            }
+            for i, r in enumerate(morphology_cluster_rows[1:]):
+                root_id = _get_value(r, morpho_clusters_column_index, "root_id")
+                if root_id not in self.neuron_data:
+                    not_found_morpho_cluster_root_ids += 1
+                    continue
+                self.neuron_data[root_id].update(
+                    {
+                        attr_name: _get_value(
+                            r, morpho_clusters_column_index, attr_name
+                        )
+                        for attr_name in get_morphology_clusters_columns()[1:]
+                    }
+                )
+            log(
+                f"App initialization: {not_found_morpho_cluster_root_ids} morpho cluster ids not found"
             )
 
         log("App initialization processing label data..")

@@ -62,7 +62,6 @@ class NeuronDataTest(TestCase):
             "output_cells": 4000,
             "output_neuropils": 4000,
             "output_synapses": 4000,
-            "similar_cell_scores": 76000,  # TODO: import 571 NBLAST scores and reduce bound
             "nt_type": 11000,
             "nt_type_score": 10000,
             "ach_avg": 4000,
@@ -71,6 +70,8 @@ class NeuronDataTest(TestCase):
             "glut_avg": 6500,
             "oct_avg": 35000,
             "ser_avg": 61000,
+            "similar_cell_scores": 76000,  # TODO: import 571 NBLAST scores and reduce bound
+            "cluster": 84000,
         }
 
         for k in NEURON_DATA_ATTRIBUTE_TYPES.keys():
@@ -516,6 +517,7 @@ class NeuronDataTest(TestCase):
             "cell_type",
             "hemibrain_type",
             "hemilineage",
+            "cluster",
         }
         for k, v in NEURON_DATA_ATTRIBUTE_TYPES.items():
             if k in sparse_attrs:

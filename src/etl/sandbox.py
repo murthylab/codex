@@ -5,6 +5,7 @@ from networkx import Graph, DiGraph, connected_components, strongly_connected_co
 
 from src.data.local_data_loader import write_csv, unpickle_neuron_db
 from src.data.neuron_data_factory import NeuronDataFactory
+from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 
 """
 Clusters a set of neurons by morphological similarity. Uses iterative application of the connected component analysis on
@@ -147,7 +148,7 @@ def compare_versions():
     )
 
 
-if __name__ == "__main__":
+def cluster_SEZ_cells():
     SEZ_PILS = {"PRW", "GNG", "SAD", "AMMC_R", "AMMC_L"}
 
     def is_sez(ndata):
@@ -161,3 +162,41 @@ if __name__ == "__main__":
         csv_filename="sez_clusters_v2.csv",
         print_markdown=True,
     )
+
+
+def assign_morphology_cluster_groups():
+    neuron_db = NeuronDataFactory().get()
+    G = DiGraph()
+    for rid, ndata in neuron_db.neuron_data.items():
+        G.add_node(rid)
+    for rid, ndata in neuron_db.neuron_data.items():
+        for rid_to, score in ndata["similar_cell_scores"].items():
+            if score >= 5:
+                G.add_edge(rid, rid_to)
+
+    clusters_dict = {}
+    component_id = 0
+    max_xluster_size = 0
+    for s in sorted(list(strongly_connected_components(G)), key=lambda x: -len(x)):
+        if len(s) > 1:
+            max_xluster_size = max(max_xluster_size, len(s))
+            component_id += 1
+            cluster_name = f"C{component_id}.{len(s)}"
+            for rid in s:
+                clusters_dict[rid] = cluster_name
+            # print(f"Created {cluster_name}: {s}")
+
+    print(f"Total clustered rids: {len(clusters_dict)}, {max_xluster_size=}")
+    clusters_table = [["root_id", "cluster"]]
+    for rid, cl in clusters_dict.items():
+        clusters_table.append([rid, cl])
+
+    write_csv(
+        filename=f"static/data/{DEFAULT_DATA_SNAPSHOT_VERSION}/morphology_clusters.csv.gz",
+        rows=clusters_table,
+        compress=True,
+    )
+
+
+if __name__ == "__main__":
+    assign_morphology_cluster_groups()

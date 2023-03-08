@@ -63,6 +63,8 @@ _CODEX_DATA_SCHEMA = {
         "root_id",
         "scores",
     ],
+    # one row (or none) per id
+    "morphology_clusters": ["root_id", "cluster"],
 }
 
 
@@ -92,3 +94,7 @@ def get_coordinates_file_columns():
 
 def get_nblast_file_columns():
     return list(_CODEX_DATA_SCHEMA["nblast"])
+
+
+def get_morphology_clusters_columns():
+    return list(_CODEX_DATA_SCHEMA["morphology_clusters"])
