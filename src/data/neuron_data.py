@@ -516,7 +516,7 @@ class NeuronDB(object):
         }
         for nd in self.neuron_data.values():
             for v in category_names.values():
-                val = nd[v]
+                val = nd.get(v)
                 if not val:
                     continue
                 if isinstance(val, list):
@@ -708,6 +708,8 @@ class NeuronDB(object):
         for cell_id in ids:
             nd = self.neuron_data[cell_id]
             for attr_name in candidate_attr_names:
+                if attr_name not in nd:
+                    continue
                 attr_vals[attr_name].add(nd[attr_name])
                 if len(attr_vals[attr_name]) > 1:
                     multi_val_attr_names.add(attr_name)

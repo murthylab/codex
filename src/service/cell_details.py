@@ -84,7 +84,7 @@ def cached_cell_details(
                     "hemibrain_type",
                     "hemilineage",
                 ]
-                if nd[cl]
+                if nd.get(cl)
             ]
         ),
         "Identification Labels": concat_labels(labels),
