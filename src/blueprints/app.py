@@ -154,7 +154,7 @@ def explore():
     data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     top_values = request.args.get("top_values", type=int, default=10)
     return render_template(
-        "categories.html",
+        "explore.html",
         data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
         data_version=data_version,
         top_values=top_values,
