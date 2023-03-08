@@ -5,7 +5,7 @@ import os
 import pickle
 from datetime import datetime
 
-from src.data.neuron_data import NeuronDB
+from src.data.neuron_data import NeuronDB, NEURON_DATA_ATTRIBUTE_TYPES
 from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS
 from src.utils.logging import log, log_error
 from src.utils.networking import download
@@ -128,6 +128,18 @@ def unpickle_neuron_db(version, data_root_path=DATA_ROOT_PATH):
         with gzip.open(pf, "rb") as handle:
             gc.disable()
             db = pickle.load(handle)
+            # For the default data version, we want to make sure the data schema of the sourcecode is consistent with
+            # the pre-pickled data file.
+            if version == DEFAULT_DATA_SNAPSHOT_VERSION:
+                for nd in db.neuron_data.values():
+                    if NEURON_DATA_ATTRIBUTE_TYPES != {
+                        k: type(v) for k, v in nd.items()
+                    }:
+                        log_error(
+                            f"Failed to load data {version=}.\nPickled data file is inconsistent with source. "
+                            f"If running a local server, delete cached pickle files in the data folder and try again."
+                        )
+                        exit(1)
             gc.enable()
             log(f"App initialization pickle loaded for version {version}")
             return db
