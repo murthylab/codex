@@ -524,3 +524,11 @@ class NeuronDataTest(TestCase):
                 continue
             num_vals = len([n[k] for n in self.neuron_db.neuron_data.values() if n[k]])
             self.assertGreater(num_vals / len(self.neuron_db.neuron_data), 0.9, k)
+
+    def test_nblast_scores_consistency(self):
+        for from_rid, nd in self.neuron_db.neuron_data.items():
+            for to_rid, score in nd["similar_cell_scores"].items():
+                self.assertEqual(
+                    score,
+                    self.neuron_db.neuron_data[to_rid]["similar_cell_scores"][from_rid],
+                )
