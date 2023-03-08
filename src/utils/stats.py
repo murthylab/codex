@@ -121,7 +121,7 @@ def _make_data_charts(data_list):
 
     for d in data_list:
         for k, props in stat_groups.items():
-            val = d.get(k)
+            val = d[k]
             if isinstance(val, list):
                 stat_lists[k].extend(val)
             elif (
