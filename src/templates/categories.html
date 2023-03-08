@@ -10,23 +10,25 @@
             {{category_data['caption']}}
         </div>
         <div class="card-body" style="margin: 0px; padding: 0px;">
-            <table>
-                <tr style="color: grey"><td>value</td><td># cells</td></tr>
+            <table class="table table-hover">
+                <thead>
+                    <tr style="color: grey"><td>value</td><td class='text-nowrap'># cells</td></tr>
+                </thead>
+                <tbody>
             {% for val, count in category_data['counts'] %}
                 <tr>
-                    <td style="width: 100%; text-align: left; margin: 0px; padding: 0px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 100px;">
+                    <td class="align-middle" style="width: 100%; text-align: left; margin: 0px; padding: 0px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 100px;">
                         <a class="btn btn btn-link my-2 my-sm-0" title="{{val}}"
-                            href="{{url_for('app.search', filter_string=category_data['key'] + ' == ' + val, data_version=data_version)}}">{{val}}
+                            href="{{url_for('app.search', filter_string=category_data['key'] + ' == ' + val, data_version=data_version)}}">
+                            {{val}}
                         </a>
                     </td>
                     <td>
-                        <a class="btn btn btn-link my-2 my-sm-0"
-                            href="{{url_for('app.search', filter_string=category_data['key'] + ' == ' + val, data_version=data_version)}}">
                             {{display(count)}}
-                        </a>
                     </td>
                 </tr>
             {% endfor %}
+            </tbody>
             </table>
         </div>
     </div>
