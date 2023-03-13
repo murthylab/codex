@@ -532,3 +532,33 @@ class NeuronDataTest(TestCase):
                     score,
                     self.neuron_db.neuron_data[to_rid]["similar_cell_scores"][from_rid],
                 )
+
+    def test_annotation_redundancy(self):
+        complete_redundancy_cnt = 0
+        partial_redundancy_cnt = 0
+        for nd in self.neuron_db.neuron_data.values():
+            annos = (
+                [
+                    nd["hemilineage"],
+                    nd["side"],
+                    nd["nt_type"],
+                    NEURO_TRANSMITTER_NAMES.get(nd["nt_type"]),
+                    nd["super_class"],
+                    nd["sub_class"],
+                    nd["class"],
+                ]
+                + nd["cell_type"]
+                + nd["hemibrain_type"]
+            )
+            annos = set([a.lower() for a in annos if a])
+            if annos:
+                for lbl in nd["label"]:
+                    lbl_tokens = set([t.strip() for t in lbl.lower().split(";")])
+                    if lbl_tokens.issubset(annos):
+                        complete_redundancy_cnt += 1
+                    elif lbl_tokens.intersection(annos):
+                        print(f"Not subset: {lbl_tokens}, {annos}")
+                        print(f'{lbl} --> {"; ".join(lbl_tokens - annos)}')
+                        partial_redundancy_cnt += 1
+        self.assertEqual(0, complete_redundancy_cnt)
+        self.assertEqual(0, partial_redundancy_cnt)
