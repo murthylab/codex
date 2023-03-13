@@ -469,6 +469,7 @@ def logout():
 
 @base.route("/auth_token", methods=["GET"])
 @request_wrapper
+@require_data_access
 def auth_token():
     log_activity("Showing auth token")
     token = fetch_flywire_token(session)
