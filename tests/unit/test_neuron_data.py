@@ -3,13 +3,15 @@ from unittest import TestCase
 from collections import defaultdict
 
 from src.data.brain_regions import REGIONS
-from src.data.neuron_data import NeuronDB
 from src.data.local_data_loader import (
     unpickle_all_neuron_db_versions,
     unpickle_neuron_db,
     read_csv,
 )
-from src.data.neuron_data_initializer import NEURON_DATA_ATTRIBUTE_TYPES
+from src.data.neuron_data_initializer import (
+    NEURON_DATA_ATTRIBUTE_TYPES,
+    hemisphere_fingerprint,
+)
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, DEFAULT_DATA_SNAPSHOT_VERSION
 from src.utils.formatting import compact_label, make_web_safe
 from tests import TEST_DATA_ROOT_PATH
@@ -47,7 +49,7 @@ class NeuronDataTest(TestCase):
             )
 
         expected_missing_value_bounds = {
-            "label": 76000,
+            "label": 79000,
             "super_class": 5200,
             "class": 37000,
             "sub_class": 116000,
@@ -141,7 +143,7 @@ class NeuronDataTest(TestCase):
 
     def test_search(self):
         # search results
-        self.assertGreater(len(self.neuron_db.search("da")), 6000)
+        self.assertGreater(len(self.neuron_db.search("da")), 5600)
         self.assertEqual(len(self.neuron_db.search("dadadeadbeef")), 0)
 
     def test_structured_search(self):
@@ -464,18 +466,18 @@ class NeuronDataTest(TestCase):
     def test_hemisphere_fingerprint(self):
         self.assertEqual(
             "Left/Right",
-            NeuronDB.hemisphere_fingerprint(["AMMC_L", "IPS_L"], ["IPS_R"]),
+            hemisphere_fingerprint(["AMMC_L", "IPS_L"], ["IPS_R"]),
         )
         self.assertEqual(
             "Mix/Mix",
-            NeuronDB.hemisphere_fingerprint(
+            hemisphere_fingerprint(
                 ["AMMC_L", "GNG", "IPS_L", "IPS_R", "SAD"], ["GNG", "IPS_R", "SAD"]
             ),
         )
         self.assertEqual(
-            "None/Mix", NeuronDB.hemisphere_fingerprint([], ["GNG", "IPS_R", "SAD"])
+            "None/Mix", hemisphere_fingerprint([], ["GNG", "IPS_R", "SAD"])
         )
-        self.assertEqual("", NeuronDB.hemisphere_fingerprint([], []))
+        self.assertEqual("", hemisphere_fingerprint([], []))
 
     def test_get_neuron_data(self):
         self.assertGreater(
@@ -534,32 +536,29 @@ class NeuronDataTest(TestCase):
                     self.neuron_db.neuron_data[to_rid]["similar_cell_scores"][from_rid],
                 )
 
-    def test_annotation_redundancy(self):
+    def test_labels_redundancy(self):
         complete_redundancy_cnt = 0
         partial_redundancy_cnt = 0
         for nd in self.neuron_db.neuron_data.values():
-            annos = (
-                [
-                    nd["hemilineage"],
-                    nd["side"],
-                    nd["nt_type"],
-                    NEURO_TRANSMITTER_NAMES.get(nd["nt_type"]),
-                    nd["super_class"],
-                    nd["sub_class"],
-                    nd["class"],
-                ]
-                + nd["cell_type"]
-                + nd["hemibrain_type"]
-            )
+            annos = []
+            for k, v in nd.items():
+                if k == "label":
+                    continue
+                if isinstance(v, str):
+                    annos.append(v)
+                elif isinstance(v, list):
+                    for vv in v:
+                        if isinstance(vv, str):
+                            annos.append(vv)
             annos = set([a.lower() for a in annos if a])
             if annos:
                 for lbl in nd["label"]:
                     lbl_tokens = set([t.strip() for t in lbl.lower().split(";")])
                     if lbl_tokens.issubset(annos):
+                        print(f"Subset: {lbl_tokens}, {annos}")
                         complete_redundancy_cnt += 1
                     elif lbl_tokens.intersection(annos):
                         print(f"Not subset: {lbl_tokens}, {annos}")
-                        print(f'{lbl} --> {"; ".join(lbl_tokens - annos)}')
                         partial_redundancy_cnt += 1
         self.assertEqual(0, complete_redundancy_cnt)
         self.assertEqual(0, partial_redundancy_cnt)

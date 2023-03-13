@@ -188,6 +188,8 @@ def initialize_neuron_data(
     label_col_idx = labels_file_columns.index("label")
     not_found_rids = set()
     not_found_labels = defaultdict(int)
+    filtered_labels = 0
+    reduced_labels = 0
 
     def label_row_to_dict(row):
         res = {}
@@ -214,8 +216,18 @@ def initialize_neuron_data(
             continue
         label_dict = label_row_to_dict(r)
         assert label_dict["label"]
-        if label_dict["label"] not in neuron_attributes[rid]["label"]:
-            neuron_attributes[rid]["label"].append(label_dict["label"])
+        filtered_label = remove_redundant_parts(
+            label_dict["label"], neuron_attributes[rid]
+        )
+        if not filtered_label:
+            filtered_labels += 1
+            continue
+        if filtered_label != label_dict["label"]:
+            label_dict["label"] = filtered_label
+            reduced_labels += 1
+
+        if filtered_label not in neuron_attributes[rid]["label"]:
+            neuron_attributes[rid]["label"].append(filtered_label)
         label_data[rid].append(label_dict)
     log(
         f"App initialization labels loaded for {len(label_data)} root ids, "
@@ -257,7 +269,8 @@ def initialize_neuron_data(
         f"App initialization coordinates loaded for "
         f"{len([nd for nd in neuron_attributes.values() if nd['position']])} root ids, supervoxel ids loaded for "
         f"{len([nd for nd in neuron_attributes.values() if nd['supervoxel_id']])} root ids, "
-        f"not found rids: {len(not_found_rids)}, max list val: {max([(len(nd['position']), nd['root_id']) for nd in neuron_attributes.values()])}"
+        f"not found rids: {len(not_found_rids)}, max list val: {max([(len(nd['position']), nd['root_id']) for nd in neuron_attributes.values()])} "
+        f"{filtered_labels=} {reduced_labels=}"
     )
 
     log("App initialization loading connections..")
@@ -362,3 +375,35 @@ def hemisphere_fingerprint(input_pils, output_pils):
         return f"{fp(input_pils)}/{fp(output_pils)}"
     else:
         return ""
+
+
+def remove_redundant_parts(label, neuron_data):
+    attribs_lc = set(
+        [
+            attrib.lower()
+            for attrib in (
+                [
+                    neuron_data[k]
+                    for k in [
+                        "nt_type",
+                        "flow",
+                        "super_class",
+                        "class",
+                        "sub_class",
+                        "hemilineage",
+                        "side",
+                        "nerve",
+                    ]
+                ]
+                + neuron_data["cell_type"]
+                + neuron_data["hemibrain_type"]
+                + [NEURO_TRANSMITTER_NAMES.get(neuron_data["nt_type"])]
+            )
+            if attrib
+        ]
+    )
+
+    filtered_label = ";".join(
+        [part for part in label.split(";") if part.lower().strip() not in attribs_lc]
+    )
+    return filtered_label.strip()
