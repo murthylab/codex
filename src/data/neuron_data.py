@@ -114,7 +114,7 @@ class NeuronDB(object):
         morphology_cluster_rows,
     ):
         self.neuron_data = {}
-        self.label_data = {}
+        self.label_data = defaultdict(list)
         self.labels_file_timestamp = labels_file_timestamp
 
         def _get_value(row, column_index, attr_name):
@@ -244,17 +244,11 @@ class NeuronDB(object):
                 not_found_rids.add(rid)
                 not_found_labels[r[label_col_idx]] += 1
                 continue
-            label_data_list = self.label_data.get(rid)
-            if not label_data_list:
-                label_data_list = []
-                self.label_data[rid] = label_data_list
             label_dict = label_row_to_dict(r)
-            label_data_list.append(label_dict)
-            if (
-                label_dict["label"]
-                and label_dict["label"] not in self.neuron_data[rid]["label"]
-            ):
+            assert label_dict["label"]
+            if label_dict["label"] not in self.neuron_data[rid]["label"]:
                 self.neuron_data[rid]["label"].append(label_dict["label"])
+            self.label_data[rid].append(label_dict)
         log(
             f"App initialization labels loaded for {len(self.label_data)} root ids, "
             f"not found rids: {len(not_found_rids)}"
