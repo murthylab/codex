@@ -13,6 +13,7 @@ from flask import (
     Blueprint,
     session,
 )
+from user_agents import parse as parse_ua
 
 from src.blueprints.base import (
     request_wrapper,
@@ -62,7 +63,6 @@ from src.utils.graph_algos import distance_matrix
 from src.utils.logging import (
     log_activity,
     format_link,
-    user_agent,
     log,
     log_user_help,
     log_warning,
@@ -428,13 +428,24 @@ def flywire_url():
 
 
 def ngl_redirect_with_browser_check(ngl_url):
-    ua = (user_agent() or "").lower()
-    if "chrome" in ua or "firefox" in ua:
+    min_supported = {
+        "Chrome": 51,
+        "Edge": 51,
+        "Firefox": 46,
+        "Safari": 15,
+    }
+    ua_parsed = parse_ua(str(request.user_agent))
+    browser = ua_parsed.browser.family
+    version = ua_parsed.browser.version[0]
+    if browser in min_supported and version >= min_supported[browser]:
         return redirect(ngl_url, code=302)
     else:
+        supported = ", ".join(
+            [f"{browser} >= {version}" for browser, version in min_supported.items()]
+        )
         return warning_with_redirect(
             title="Browser not supported",
-            message="Neuroglancer (3D neuron rendering) is not supported on your browser. Use Chrome or Firefox.",
+            message=f"Neuroglancer (3D neuron rendering) may not be supported on your browser ({browser} v{version}). Try: {supported}",
             redirect_url=ngl_url,
             redirect_button_text="Proceed anyway",
         )
