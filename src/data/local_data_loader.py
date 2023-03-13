@@ -5,8 +5,7 @@ import os
 import pickle
 from datetime import datetime
 
-from src.data.neuron_data import NEURON_DATA_ATTRIBUTE_TYPES
-from src.data.neuron_data_initializer import initialize_neuron_data
+from src.data.neuron_data_initializer import initialize_neuron_data, NEURON_DATA_ATTRIBUTE_TYPES
 from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS
 from src.utils.logging import log, log_error
 from src.utils.networking import download

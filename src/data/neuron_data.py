@@ -16,57 +16,6 @@ from src.utils.formatting import (
 )
 from src.utils.logging import log
 
-NEURON_DATA_ATTRIBUTE_TYPES = {
-    # auto assigned based on most prominent input and output neuropils
-    "group": str,
-    # group + running id (to make unique)
-    "name": str,
-    # FlyWire identifiers. Root IDs change with every edit -> not stable across data snapshots.
-    "root_id": int,
-    "supervoxel_id": list,
-    # community identification labels
-    "label": list,
-    # nblast-based similarity. Cell ids + 1-digit scores, mapping all negative to 0 and multiplying by 10,
-    # e.g.: 0.14 -> 1, 0.28 -> 3, -0.5 -> 0)
-    "similar_cell_scores": dict,
-    # neurotransmitter type info with prediction confidence scores
-    "nt_type": str,
-    "nt_type_score": float,
-    "ach_avg": float,
-    "gaba_avg": float,
-    "glut_avg": float,
-    "ser_avg": float,
-    "oct_avg": float,
-    "da_avg": float,
-    # hierarchical annotations & classification
-    "flow": str,
-    "super_class": str,
-    "class": str,
-    "sub_class": str,
-    "cell_type": list,
-    "hemibrain_type": list,
-    "hemilineage": str,
-    "nerve": str,
-    "side": str,
-    # I/O counts + regions
-    "input_cells": int,
-    "input_synapses": int,
-    "input_neuropils": list,
-    "output_cells": int,
-    "output_synapses": int,
-    "output_neuropils": list,
-    # Left/Center/Right X In/Out
-    "hemisphere_fingerprint": str,
-    # Marked coordinates by FlyWire community
-    "position": list,
-    # Cell size measurements
-    "length_nm": int,
-    "area_nm": int,
-    "size_nm": int,
-    # morphology clusters (based on NBLAST scores + SCC analysis)
-    "cluster": str,
-}
-
 # Keywords will be matched against these attributes
 NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "root_id",

@@ -3,12 +3,13 @@ from unittest import TestCase
 from collections import defaultdict
 
 from src.data.brain_regions import REGIONS
-from src.data.neuron_data import NEURON_DATA_ATTRIBUTE_TYPES, NeuronDB
+from src.data.neuron_data import NeuronDB
 from src.data.local_data_loader import (
     unpickle_all_neuron_db_versions,
     unpickle_neuron_db,
     read_csv,
 )
+from src.data.neuron_data_initializer import NEURON_DATA_ATTRIBUTE_TYPES
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, DEFAULT_DATA_SNAPSHOT_VERSION
 from src.utils.formatting import compact_label, make_web_safe
 from tests import TEST_DATA_ROOT_PATH

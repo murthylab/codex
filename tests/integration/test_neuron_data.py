@@ -4,7 +4,7 @@ from src.data.local_data_loader import (
     load_neuron_db,
     unpickle_neuron_db,
 )
-from src.data.neuron_data import NEURON_DATA_ATTRIBUTE_TYPES
+from src.data.neuron_data_initializer import NEURON_DATA_ATTRIBUTE_TYPES
 
 from src.data.versions import DATA_SNAPSHOT_VERSIONS, DEFAULT_DATA_SNAPSHOT_VERSION
 from tests import TEST_DATA_ROOT_PATH, TEST_NEURON_DATA_FACTORY
