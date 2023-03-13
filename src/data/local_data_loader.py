@@ -5,7 +5,8 @@ import os
 import pickle
 from datetime import datetime
 
-from src.data.neuron_data import NeuronDB, NEURON_DATA_ATTRIBUTE_TYPES
+from src.data.neuron_data import NEURON_DATA_ATTRIBUTE_TYPES
+from src.data.neuron_data_initializer import initialize_neuron_data
 from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS
 from src.utils.logging import log, log_error
 from src.utils.networking import download
@@ -91,7 +92,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         f"   {len(coordinate_rows)} coordinate rows\n"
         f"   {len(nblast_rows)} nblast rows\n"
     )
-    neuron_db = NeuronDB(
+    neuron_db = initialize_neuron_data(
         neuron_file_rows=neuron_rows,
         classification_rows=classification_rows,
         cell_stats_rows=cell_stats_rows,
