@@ -93,16 +93,6 @@ def request_wrapper(func):
         log_lines.extend([f"############# Finished {signature}", "\n"])
         log("\n".join(log_lines))
 
-        for previous_domains in [
-            "flywireindex.pniapps.org",
-            "code.pniapps.org",
-            "codex.pniapps.org",
-        ]:
-            if previous_domains in request.url:
-                new_url = request.url.replace(previous_domains, "codex.flywire.ai")
-                log_activity(f"Redirecting base URL from  {request.url}: {new_url}")
-                return redirect(new_url)
-
         if not is_user_authenticated(session) and not _should_bypass_auth():
             if request.endpoint not in ["base.login", "base.logout"]:
                 return render_auth_page(redirect_to=request.url)
