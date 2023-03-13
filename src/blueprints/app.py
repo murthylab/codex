@@ -19,7 +19,6 @@ from src.blueprints.base import (
     require_data_access,
     activity_suffix,
     render_error,
-    warning_with_redirect,
 )
 from src.configuration import MIN_SYN_COUNT, MAX_NEURONS_FOR_DOWNLOAD
 from src.data.brain_regions import (
@@ -62,7 +61,6 @@ from src.utils.graph_algos import distance_matrix
 from src.utils.logging import (
     log_activity,
     format_link,
-    user_agent,
     log,
     log_user_help,
     log_warning,
@@ -407,7 +405,7 @@ def search_results_flywire_url():
     log_activity(
         f"Redirecting results {activity_suffix(filter_string, data_version)} to FlyWire {format_link(url)}"
     )
-    return ngl_redirect_with_browser_check(ngl_url=url)
+    return redirect(url)
 
 
 @app.route("/flywire_url")
@@ -424,20 +422,7 @@ def flywire_url():
         log_activity(
             f"Redirecting for {root_ids} to FlyWire {format_link(url)}, {proofreading_url=}"
         )
-    return ngl_redirect_with_browser_check(ngl_url=url)
-
-
-def ngl_redirect_with_browser_check(ngl_url):
-    ua = (user_agent() or "").lower()
-    if "chrome" in ua or "firefox" in ua:
-        return redirect(ngl_url, code=302)
-    else:
-        return warning_with_redirect(
-            title="Browser not supported",
-            message="Neuroglancer (3D neuron rendering) is not supported on your browser. Use Chrome or Firefox.",
-            redirect_url=ngl_url,
-            redirect_button_text="Proceed anyway",
-        )
+    return redirect(url)
 
 
 @app.route("/cell_coordinates/<path:data_version>/<path:cell_id>")
@@ -847,7 +832,7 @@ def flywire_neuropil_url():
     selected = request.args.get("selected")
     segment_ids = [REGIONS[r][0] for r in selected.split(",") if r in REGIONS]
     url = nglui.url_for_neuropils(segment_ids)
-    return ngl_redirect_with_browser_check(ngl_url=url)
+    return redirect(url)
 
 
 @app.route("/neuropils")
