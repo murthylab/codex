@@ -82,8 +82,8 @@ def make_graph_html(
     node_ids = set([r[0] for r in connection_table]).union(
         [r[1] for r in connection_table]
     )
-    total_syn_count = sum([r[3] for r in connection_table])
-    max_syn_count = max([r[3] for r in connection_table])
+    total_syn_count = sum([r[3] for r in connection_table]) if connection_table else 0
+    max_syn_count = max([r[3] for r in connection_table]) if connection_table else 0
     large_weights = total_syn_count >= 50000
 
     if layers is None and show_warnings:
