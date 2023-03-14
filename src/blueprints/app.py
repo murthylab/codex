@@ -434,10 +434,12 @@ def ngl_redirect_with_browser_check(ngl_url):
         "Firefox": 46,
         "Safari": 15,
     }
-    ua_parsed = parse_ua(str(request.user_agent))
-    browser = ua_parsed.browser.family
-    version = ua_parsed.browser.version[0]
-    if browser in min_supported and version >= min_supported[browser]:
+    ua = parse_ua(str(request.user_agent))
+    # browser_family can contain other parts, e.g. "Mobile Safari", or "Chrome Mobile". Use substring match.
+    browser = next(
+        k for k in min_supported.keys() if k.lower() in ua.browser.family.lower()
+    )
+    if browser in min_supported and ua.browser.version[0] >= min_supported[browser]:
         return redirect(ngl_url, code=302)
     else:
         supported = ", ".join(
@@ -445,7 +447,7 @@ def ngl_redirect_with_browser_check(ngl_url):
         )
         return warning_with_redirect(
             title="Browser not supported",
-            message=f"Neuroglancer (3D neuron rendering) may not be supported on your browser ({browser} v{version}). Try: {supported}",
+            message=f"Neuroglancer (3D neuron rendering) may not be supported on your browser {ua.get_browser()}. Try: {supported}",
             redirect_url=ngl_url,
             redirect_button_text="Proceed anyway",
         )
