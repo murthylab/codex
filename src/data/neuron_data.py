@@ -169,14 +169,14 @@ class NeuronDB(object):
     def categories(self, top_values=10):
         counts_dict = defaultdict(lambda: defaultdict(int))
         category_names = {
-            "Identification Labels": "label",
-            "Flows": "flow",
             "Super Classes": "super_class",
+            "Hemilineages": "hemilineage",
+            "Flows": "flow",
             "Classes": "class",
             "Sub Classes": "sub_class",
             "Cell Types": "cell_type",
             "Hemibrain Types": "hemibrain_type",
-            "Hemilineages": "hemilineage",
+            "Community Identifications": "label",
             "Cell Body Sides": "side",
             "Nerve Types": "nerve",
             "Max In/Out Neuropil Groups": "group",

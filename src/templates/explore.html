@@ -39,7 +39,7 @@
     <label style="margin: 20px;">Num Top Values</label>
     <select style="margin: 20px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit()"
             aria-label="Num Top Values" name="top_values">
-        {% for k in [10, 69, 420, 888] %}
+        {% for k in [15, 69, 420, 888] %}
         <option value="{{k}}" {{
         'selected' if top_values==k}}>{{k}}</option>
         {% endfor %}
