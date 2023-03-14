@@ -60,11 +60,10 @@ def url_for_root_ids(
             view_kws=view_options,
         )
 
-        url = sb.render_state(
-            return_as="url",
-            url_prefix="https://ngl.flywire.ai",
-        )
-        return url
+        config = sb.render_state(return_as="dict")
+        config["selectedLayer"] = {"layer": "Production segmentation", "visible": True}
+
+        return f"https://ngl.flywire.ai/#!{urllib.parse.quote(json.dumps(config))}"
     else:
         seg_ids = ",".join([f'"{rid}"' for rid in root_ids])
         payload = urllib.parse.quote(f"{_prefix(version)}{seg_ids}{_suffix(version)}")
