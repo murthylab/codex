@@ -491,7 +491,7 @@ def cell_details():
         if not annotation_coordinates:
             ndata = neuron_db.get_neuron_data(annotation_cell_id)
             annotation_coordinates = ndata["position"][0] if ndata["position"] else None
-        fw_user_id = fetch_flywire_user_id(session)
+        fw_user_id = fetch_flywire_user_id(session, required=True)
         log_user_help(
             f"Submitting annotation '{annotation_text}' for cell {annotation_cell_id} "
             f"with user id {fw_user_id} and coordinates {annotation_coordinates}"

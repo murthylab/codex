@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from src.utils.auth import extract_access_token
+from src.utils.flywire_access import extract_access_token
 
 
 class AuthUtilTest(TestCase):

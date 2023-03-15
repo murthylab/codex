@@ -30,7 +30,8 @@ from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
 )
-from src.utils.auth import extract_access_token
+from src.utils.analytics import report_request
+from src.utils.flywire_access import extract_access_token
 from src.utils.cookies import (
     store_flywire_data_access,
     is_user_authenticated,
@@ -52,9 +53,14 @@ from src.utils.logging import (
     uptime,
     host_name,
     proc_id,
-    _should_bypass_auth,
     APP_ENVIRONMENT,
     log_warning,
+)
+from src.utils.request_context import (
+    should_bypass_auth,
+    build_request_context,
+    set_elapsed_time,
+    set_exception,
 )
 from src.utils.thumbnails import url_for_skeleton
 
@@ -74,40 +80,39 @@ def request_wrapper(func):
     def wrap(*args, **kwargs):
         global num_requests_processed
         global num_request_errors
-        global total_request_serving_time_millis
         start_millis = current_milli_time()
         num_requests_processed += 1
-        log_verbose = False
+        request_context = build_request_context(func.__name__)
 
-        signature = (
-            f"func: {func.__name__} endpoint: {request.endpoint} url: {request.url}"
-        )
-        log_lines = ["\n", f"########### Processing {signature}"]
-        if request.args:
-            log_lines.extend([f"### Arg {k}: {v}" for k, v in request.args.items()])
-        if request.form:
-            log_lines.extend([f"### Form {k}: {v}" for k, v in request.form.items()])
-        if log_verbose:
-            log_lines.append(f"### Headers: {request.headers}")
-            log_lines.append(f"### Environ: {request.environ}")
-        log_lines.extend([f"############# Finished {signature}", "\n"])
-        log("\n".join(log_lines))
-
-        if not is_user_authenticated(session) and not _should_bypass_auth():
+        if not is_user_authenticated(session) and not should_bypass_auth():
             if request.endpoint not in ["base.login", "base.logout"]:
+                log(
+                    f"Redirecting Codex request to auth page with context: {request_context}"
+                )
                 return render_auth_page(redirect_to=request.url)
-        elif log_verbose:
-            log(f"Executing authenticated request for: {fetch_user_email(session)}")
+        log(f"Processing Codex request with context: {request_context}")
+
+        def update_elapsed_time():
+            elapsed_time_millis = current_milli_time() - start_millis
+            global total_request_serving_time_millis
+            total_request_serving_time_millis += elapsed_time_millis
+            set_elapsed_time(request_context, elapsed_time_millis)
 
         # if we got here, this could be authenticated or non-authenticated request
         try:
             exec_res = func(*args, **kwargs)
-            total_request_serving_time_millis += current_milli_time() - start_millis
+            update_elapsed_time()
+            log(f"Processed Codex request with context: {request_context}")
+            report_request(request_context)
             return exec_res
         except Exception as e:
             traceback.print_exc()
-            log_error(f"Exception when executing {signature}: {e}")
             num_request_errors += 1
+            update_elapsed_time()
+            set_exception(request_context, e)
+            log(f"Failed to process Codex request with context: {request_context}")
+            report_request(request_context)
+            log_error(f"Exception when executing {request.url}: {e}")
             if APP_ENVIRONMENT == "DEV":
                 raise e
             else:
@@ -120,7 +125,7 @@ def request_wrapper(func):
 def require_data_access(func):
     @wraps(func)
     def wrap(*args, **kwargs):
-        if not is_granted_data_access(session) and not _should_bypass_auth():
+        if not is_granted_data_access(session) and not should_bypass_auth():
             if request.endpoint not in [
                 "base.login",
                 "base.logout",
@@ -479,6 +484,7 @@ def render_info(title="Info", message="Operation complete."):
 
 
 @base.route("/todo_list", methods=["GET"])
+@request_wrapper
 def todo_list():
     log_activity("Loading todo list")
     return redirect(
@@ -487,6 +493,7 @@ def todo_list():
 
 
 @base.route("/demo_clip", methods=["GET"])
+@request_wrapper
 def demo_clip():
     log_activity("Loading demo clips")
     return redirect("https://www.youtube.com/@flywireprinceton4189/search?query=codex")

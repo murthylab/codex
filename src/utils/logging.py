@@ -5,7 +5,6 @@ from multiprocessing import Process
 
 import requests
 from flask import session, request, has_request_context
-from user_agents import parse as parse_ua
 
 from src.configuration import proc_id, host_name, APP_ENVIRONMENT
 from src.utils.cookies import (
@@ -14,6 +13,7 @@ from src.utils.cookies import (
     is_granted_data_access,
     fetch_flywire_user_affiliation,
 )
+from src.utils.request_context import should_bypass_auth, user_agent, ip_addr
 
 startup_time = datetime.datetime.now()
 
@@ -39,30 +39,9 @@ SLCKHKHB = os.environ.get("HK_DEV")
 SLCKHKSOS = os.environ.get("HK_HELP")
 
 
-def user_agent():
-    try:
-        return str(parse_ua(str(request.user_agent)))
-    except Exception:
-        return ""
-
-
-def _should_bypass_auth():
-    try:
-        is_smoke_test = request.args.get("smoke_test", "") == os.environ.get(
-            "SMOKE_TEST_KEY"
-        )
-        is_auth_bypass = (
-            os.environ.get("BYPASS_AUTH") and os.environ.get("APP_ENVIRONMENT") == "DEV"
-        )
-    except Exception:
-        return False
-    return is_smoke_test or is_auth_bypass
-
-
 def _fetch_client_info():
     try:
-        ip_addr = request.headers.get("X-Forwarded-For", request.remote_addr)
-        return f"<https://ipinfo.io/{ip_addr}|{user_agent()}>"
+        return f"<https://ipinfo.io/{ip_addr()}|{user_agent()}>"
     except Exception:
         return None
 
@@ -138,7 +117,7 @@ def _post_to_slk(username, access_granted, text, real_user_activity, extra_hk):
 
 
 def post_to_slk(text, hk=None):
-    real_user_activity = APP_ENVIRONMENT != "DEV" and not _should_bypass_auth()
+    real_user_activity = APP_ENVIRONMENT != "DEV" and not should_bypass_auth()
     if has_request_context():
         username = fetch_user_name(session)
         access_granted = is_granted_data_access(session)

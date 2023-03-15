@@ -1,7 +1,8 @@
 # Prerequisites:
 # pip install google-cloud-logging
-# <download codex dev secret json to secrets/>
+# <download codex dev secret json to secrets>
 # export GOOGLE_APPLICATION_CREDENTIALS=static/secrets/codex_dev_gcp_secret.json
+
 from google.cloud import logging
 
 from src.data.local_data_loader import write_csv
@@ -14,27 +15,34 @@ LOG_TYPES = {
 }
 
 if __name__ == "__main__":
+    max_results = 1000
     client = logging.Client()
 
-    def get_logs(log_type, max_results=10):
+    def get_logs(log_type, date_str):
         return client.logging_api.list_entries(
             resource_names=["projects/murthy-lab-sleap"],
             filter_="resource.type = cloud_run_revision "
             "resource.labels.service_name = codex "
             "resource.labels.location = us-east1 "
+            f'timestamp < "{date_str}T23:59:59.0Z" '
+            f'timestamp > "{date_str}T00:00:00.0Z" '
             '"@" '
             f'"{LOG_TYPES[log_type]}"',
             max_results=max_results,
         )
 
-    def extract_activity_log(res):
-        parts = str(res).split("payload=")
-        return f"Meta: {parts[0]}\nPayload: {parts[1]}\n"
-
     for lt in LOG_TYPES.keys():
-        print(f"===============\n Logs of type {lt}:")
-        log_lines = []
-        for result in get_logs(log_type=lt, max_results=2000):
-            log_lines.append(extract_activity_log(result))
-        print(f"Fetched {len(log_lines)}")
-        write_csv(filename=f"logs/{lt}_logs.csv", rows=log_lines)
+        for date_str in ["2023-03-01", "2022-12-10", "2023-02-01", "2023-01-10"]:
+            print(f"===============\nFetching logs of type {lt} for {date_str}..")
+            log_lines = [["instance", "timestamp", "payload"]]
+            for result in get_logs(log_type=lt, date_str=date_str):
+                log_data = result.to_api_repr()
+                instance_id = log_data["labels"]["instanceId"]
+                timestamp = log_data["timestamp"]
+                payload = log_data["textPayload"]
+                log_lines.append([instance_id, timestamp, payload])
+            print(f"Fetched {len(log_lines) - 1}. Saving..")
+            write_csv(
+                filename=f"logs/{date_str}_{lt}_{len(log_lines) - 1}_logs.csv",
+                rows=log_lines,
+            )
