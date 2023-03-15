@@ -1,16 +1,18 @@
 import json
-import os
 
 from google.cloud import bigquery
 
+from src.configuration import APP_ENVIRONMENT
 from src.utils.logging import log_error
 
-client = bigquery.Client()
+__client = None
+__requests_table = None
 
 _DATASET_NAME = "CODEX"
-_DATASET_REF = client.create_dataset(dataset=_DATASET_NAME, exists_ok=True)
-_REQUESTS_TABLE_NAME = f"{os.environ.get('APP_ENVIRONMENT')}_REQUESTS"
-_REQUESTS_TABLE_ID = f"{_DATASET_REF.project}.{_DATASET_NAME}.{_REQUESTS_TABLE_NAME}"
+_REQUESTS_TABLE_NAME = f"{APP_ENVIRONMENT}_REQUESTS"
+
+# !! Try to avoid changing this schema. Use 'extra_data' JSON for adding more attributes in future.
+# If changing the schema is necessary, it will require creating a new BQ table (e.g. <env>_REQUESTS_V2).
 _REQUESTS_TABLE_SCHEMA = [
     ("timestamp", "DATETIME"),
     ("func_name", "STRING"),
@@ -34,10 +36,25 @@ _REQUESTS_TABLE_SCHEMA = [
     ("extra_data", "JSON"),
 ]
 
-schema = [bigquery.SchemaField(p[0], p[1]) for p in _REQUESTS_TABLE_SCHEMA]
-table = client.create_table(
-    table=bigquery.Table(_REQUESTS_TABLE_ID, schema=schema), exists_ok=True
-)
+
+def _client():
+    global __client
+    if __client is None:
+        __client = bigquery.Client()
+    return __client
+
+def _requests_table():
+    global __requests_table
+    if __requests_table is None:
+        client = _client()
+        dataset_ref = client.create_dataset(dataset=_DATASET_NAME, exists_ok=True)
+        table_id = f"{dataset_ref.project}.{_DATASET_NAME}.{_REQUESTS_TABLE_NAME}"
+        schema = [bigquery.SchemaField(p[0], p[1]) for p in _REQUESTS_TABLE_SCHEMA]
+        __requests_table = client.create_table(
+            table=bigquery.Table(table_id, schema=schema), exists_ok=True
+        )
+
+    return __requests_table
 
 
 def report_request(request_ctx):
@@ -50,10 +67,11 @@ def report_request(request_ctx):
         row = tuple(
             [_convert(request_ctx.get(p[0]), p[1]) for p in _REQUESTS_TABLE_SCHEMA]
         )
-        errors = client.insert_rows(table, [row])
+        errors = _client().insert_rows(_requests_table(), [row])
         if errors:
             log_error(
                 f"Analytics record insertion failed. Errors: {errors}, row: {row}"
             )
     except Exception as e:
-        log_error(f"Analytics reporting crashed: {e}")
+        if APP_ENVIRONMENT != "DEV":
+            log_error(f"Analytics reporting crashed: {e}")

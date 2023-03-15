@@ -259,7 +259,13 @@ def search():
         if len(filtered_root_id_list) == 1:
             if filter_string == str(filtered_root_id_list[0]):
                 log_activity("Single cell match, redirecting to cell details")
-                return redirect(url_for("app.cell_details", root_id=filtered_root_id_list[0], data_version=data_version))
+                return redirect(
+                    url_for(
+                        "app.cell_details",
+                        root_id=filtered_root_id_list[0],
+                        data_version=data_version,
+                    )
+                )
 
         log_activity(
             f"Loaded {len(filtered_root_id_list)} search results for page {page_number} "
