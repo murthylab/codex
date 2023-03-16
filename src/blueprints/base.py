@@ -23,6 +23,7 @@ from src.configuration import (
     BUILD_TIMESTAMP,
     GOOGLE_CLIENT_ID,
     SUPPORT_EMAIL,
+    ADMIN_DASHBOARD_URL,
 )
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data_factory import NeuronDataFactory
@@ -42,6 +43,8 @@ from src.utils.cookies import (
     delete_cookies,
     store_user_info,
     fetch_flywire_token,
+    fetch_flywire_user_affiliation,
+    is_flywire_lab_member,
 )
 from src.utils.formatting import truncate, display
 from src.utils.logging import (
@@ -259,8 +262,17 @@ def account():
         "account.html",
         user_email=fetch_user_email(session),
         user_name=fetch_user_name(session),
+        affiliation=fetch_flywire_user_affiliation(session) or "Unknown Affiliation",
         user_picture=fetch_user_picture(session),
+        show_admin_dashboard_link=is_flywire_lab_member(session),
     )
+
+
+@base.route("/admin_dashboard", methods=["GET"])
+@request_wrapper
+def admin_dashboard():
+    log_activity("Loading Admin Dashboard")
+    return redirect(ADMIN_DASHBOARD_URL)
 
 
 @base.route("/faq", methods=["GET", "POST"])

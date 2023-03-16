@@ -13,10 +13,15 @@ Account
         <div>
             <img src="{{user_picture|safe}}">
             <p style="margin-left: 10px; display: inline-block; vertical-align: top;">
-                {{user_name}}<br>{{user_email}}<br><br>
-                <a href="/auth_token"><small><i class="fa-solid fa-key"></i></small> Auth token</a>
-                &nbsp;&#8286;&nbsp;
-                <a href="/logout">&#10132 Sign out</a></p>
+                <b>{{user_name}}<b></b><br><span style="color:grey">{{affiliation}}</span><br><small>{{user_email}}</small><br><br>
+                <a href="/auth_token"><small><i class="fa-solid fa-key"></i></small> &nbsp; FlyWire / Cave access token</a>
+                <br><br>
+                {% if show_admin_dashboard_link %}
+                <a href="/admin_dashboard" target="_blank"><i class="fa-solid fa-chart-line"></i> &nbsp; Admin Dashboard (limited access)</a>
+                <br><br>
+                {% endif %}
+                <a href="/logout">&#10132 &nbsp; Sign out</a>
+            </p>
         </div>
     </div>
 </div>

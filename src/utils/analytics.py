@@ -43,6 +43,7 @@ def _client():
         __client = bigquery.Client()
     return __client
 
+
 def _requests_table():
     global __requests_table
     if __requests_table is None:

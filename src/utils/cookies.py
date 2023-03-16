@@ -44,7 +44,7 @@ FlyWire
 
 def store_flywire_data_access(storage, access_token, access_payload):
     storage[_FLYWIRE_TOKEN_KEY] = access_token
-    storage[_GOOGLE_ID_KEY] = access_payload
+    storage[_FLYWIRE_DATA_ACCESS_KEY] = access_payload
 
 
 def fetch_flywire_token(storage):
@@ -65,12 +65,19 @@ def is_granted_data_access(storage):
     return _FLYWIRE_TOKEN_KEY in storage
 
 
+def is_flywire_lab_member(storage):
+    affiliation = fetch_flywire_user_affiliation(storage)
+    if not affiliation:
+        return False
+    return any([pi in affiliation for pi in ["Mala Murthy", "Sebastian Seung"]])
+
+
 """
 Clear / sign out
 """
 
 
 def delete_cookies(storage):
-    for k in [_GOOGLE_ID_KEY, _GOOGLE_ID_KEY, _FLYWIRE_TOKEN_KEY]:
+    for k in [_GOOGLE_ID_KEY, _FLYWIRE_DATA_ACCESS_KEY, _FLYWIRE_TOKEN_KEY]:
         if k in storage:
             del storage[k]
