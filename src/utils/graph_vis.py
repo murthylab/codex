@@ -97,6 +97,11 @@ def make_graph_html(
     else:
         warning_msg = None
 
+    layer_heights = defaultdict(int)
+    if layers is not None:
+        for node in layers:
+            layer_heights[layers[node][0]] += 1
+
     def node_size(nid):
         nsz = size_getter(nid)
         res = (10 if nid in center_ids else 5) * math.sqrt(math.sqrt(nsz))
@@ -115,12 +120,16 @@ def make_graph_html(
         return "ellipse" if nid in center_ids else "dot"
 
     def node_position(nid):
-        return None, None
-
-    def node_level(nid):
         if layers is None:
-            return None
-        return layers[int(nid)]
+            return None, None
+
+        layer, layer_pos = layers[int(nid)]
+        layer_pos -= (layer_heights[layer] - 1) / 2
+        width = 1600
+        height = 900
+        x = layer * width / len(layer_heights)
+        y = layer_pos * height / layer_heights[layer]
+        return x, y
 
     def node_color(nid):
         return nt_color(nt_type_getter(nid)) if nt_type_getter else UNSPECIFIED_COLOR
@@ -195,7 +204,7 @@ def make_graph_html(
 
     net = Network(
         show_edge_weights=show_edge_weights,
-        layers=layers[center_ids[1]] + 1 if layers is not None else 0,
+        layers=layers[center_ids[1]][0] + 1 if layers is not None else 0,
     )
 
     added_cell_nodes = set()
@@ -211,7 +220,6 @@ def make_graph_html(
                 shape=node_shape(nid),
                 size=node_size(nid),
                 mass=node_mass(nid),
-                level=node_level(nid),
                 x=x,
                 y=y,
                 cluster_inputs=node_clusterable(nid),
@@ -319,7 +327,7 @@ def make_graph_html(
 
 class Network(object):
     def __init__(
-        self, show_edge_weights, edge_physics=True, node_physics=False, layers=0
+        self, show_edge_weights, edge_physics=True, node_physics=False, layers=None
     ):
         self.edges = []
         self.node_map = {}

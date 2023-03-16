@@ -5,71 +5,61 @@ from src.configuration import MIN_SYN_COUNT
 from src.utils.graph_algos import pathways
 
 
-def sort_connections(node_layers, cons):
-    # TODO improve matching algorithm
-
+def sort_layers(node_layers, cons):
     # layers: {i: [nodes in layer i]}
     layers = defaultdict(list)
     for node in node_layers:
         layer = node_layers[node]
         layers[layer].append(node)
-    if len(layers) <= 3:
-        return cons
 
-    # node_cons: {node id: [(connected node id, weight of connection) for all connections]}
-    node_cons = defaultdict(list)
-    for con in cons:
-        node_cons[con[0]].append((con[1], con[2]))
-        node_cons[con[1]].append((con[0], con[2]))
+    if len(layers) > 3:
+        # node_cons: {node id: [(connected node id, weight of connection) for all connections]}
+        node_cons = defaultdict(list)
+        for con in cons:
+            node_cons[con[0]].append((con[1], con[2]))
+            node_cons[con[1]].append((con[0], con[2]))
 
-    # layer1_weights: {node id: total weight of node's connections to layer 2} for all layer 1 nodes
-    layer1_weights = defaultdict(int)
-    for node in layers[1]:
-        for con in node_cons[node]:
-            if node_layers[con[0]] == 2:
-                layer1_weights[node] += con[1]
+        # layer1_weights: {node id: total weight of node's connections to layer 2} for all layer 1 nodes
+        layer1_weights = defaultdict(int)
+        for node in layers[1]:
+            for con in node_cons[node]:
+                if node_layers[con[0]] == 2:
+                    layer1_weights[node] += con[1]
 
-    layers[1].sort(key=lambda x: layer1_weights[x], reverse=True)
+        # initially sort first layer by weights from root
+        layers[1].sort(key=lambda x: layer1_weights[x], reverse=True)
 
-    # sort layer lists by best matching with prior layer
-    for i in range(1, len(layers) - 2):
-        layer_l = layers[i]
-        layer_r = layers[i + 1]
-        best_weight = 0
-        best_node = None
-        layer_matches = {}
-        for rnode in layer_r:
-            for con in node_cons[rnode]:
-                if node_layers[con[0]] == i and con[1] > best_weight:
-                    best_weight = con[1]
-                    best_node = con[0]
-            match_pos = layer_l.index(best_node)
-            layer_matches[rnode] = match_pos
-        layer_r.sort(key=lambda x: layer_matches[x])
+        def sort_layer(sort_i, ref_i):
+            print("Matching layers", sort_i, ref_i)
+            layer_ref = layers[ref_i]
+            layer_sort = layers[sort_i]
+            layer_matches = {}
+            for rnode in layer_sort:
+                print("Matching node", rnode)
+                best_weight = 0
+                best_node = None
+                for con in node_cons[rnode]:
+                    if node_layers[con[0]] == ref_i and con[1] > best_weight:
+                        print("New best con", con)
+                        best_weight = con[1]
+                        best_node = con[0]
+                match_pos = layer_ref.index(best_node)
+                print("Match pos:", match_pos)
+                layer_matches[rnode] = match_pos
+            layer_sort.sort(key=lambda x: layer_matches[x])
 
-    # sort node_cons lists by layer and position within layer
-    def layer_pos(node):
-        n = node[0]
-        layer_i = node_layers[n]
+        # sort layer lists by best matching with prior layer
+        for i in range(1, len(layers) - 2):
+            sort_layer(i + 1, i)
+
+        # re-sort first layer to match second layer
+        sort_layer(1, 2)
+
+    # add node position in layer to node_layers
+    for node in node_layers:
+        layer_i = node_layers[node]
         layer = layers[layer_i]
-        return layer_i * 100 + layer.index(n)
-
-    for node in node_cons:
-        node_con = node_cons[node]
-        node_con.sort(key=layer_pos)
-
-    # sorted_cons: [(node 1, node 2, weight) for each node connection]
-    # same as cons but in proper matched order
-    sorted_cons = []
-    for layer_i in layers:
-        layer = layers[layer_i]
-        for layer_node in layer:
-            node_con = node_cons[layer_node]
-            for con in node_con:
-                if (con[0], layer_node, con[1]) not in sorted_cons:
-                    sorted_cons.append((layer_node, con[0], con[1]))
-
-    return sorted_cons
+        node_layers[node] = (layer_i, layer.index(node))
 
 
 @lru_cache
@@ -109,6 +99,6 @@ def pathway_chart_data_rows(source, target, neuron_db, min_syn_count=MIN_SYN_COU
                 combined_edge_weights[(p[0], p[1])],
             ]
         )
-    data_rows = sort_connections(pathway_nodes, data_rows)
+    sort_layers(pathway_nodes, data_rows)
 
     return pathway_nodes, data_rows

@@ -329,17 +329,16 @@
 
         const layers = {{layers|tojson}};
         if (layers) {
-            options["layout"] = {
-                "hierarchical": {
-                    "direction": "LR",
-                    "nodeSpacing": 40,
-                    "levelSeparation": 800 / (layers - 1)
-                }
+            options["nodes"]["fixed"] = {
+                "x": true
             };
             options["edges"]["smooth"] = {
-                type: "cubicBezier",
-                forceDirection: "horizontal",
-                roundness: 0.8
+                "type": "cubicBezier",
+                "forceDirection": "horizontal",
+                "roundness": 0.8
+            };
+            options["physics"] = {
+                "enabled": false
             };
         }
 
