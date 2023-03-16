@@ -30,21 +30,17 @@ def sort_layers(node_layers, cons):
         layers[1].sort(key=lambda x: layer1_weights[x], reverse=True)
 
         def sort_layer(sort_i, ref_i):
-            print("Matching layers", sort_i, ref_i)
             layer_ref = layers[ref_i]
             layer_sort = layers[sort_i]
             layer_matches = {}
             for rnode in layer_sort:
-                print("Matching node", rnode)
                 best_weight = 0
                 best_node = None
                 for con in node_cons[rnode]:
                     if node_layers[con[0]] == ref_i and con[1] > best_weight:
-                        print("New best con", con)
                         best_weight = con[1]
                         best_node = con[0]
                 match_pos = layer_ref.index(best_node)
-                print("Match pos:", match_pos)
                 layer_matches[rnode] = match_pos
             layer_sort.sort(key=lambda x: layer_matches[x])
 
