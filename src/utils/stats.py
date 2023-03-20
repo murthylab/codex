@@ -168,17 +168,13 @@ def _make_data_stats(neuron_data, label_data, include_leaderboard=False):
             "Cells": len(neuron_data),
             "- With label(s)": labeled_neurons,
             "- Classified": classified_neurons,
-            "- Avg. length": nanos_to_formatted_micros(
-                total_length / len(neuron_data), 1
-            )
+            "- Combined length": nanos_to_formatted_micros(total_length, 1)
             if neuron_data
             else "NA",
-            "- Avg. area": nanos_to_formatted_micros(total_area / len(neuron_data), 2)
+            "- Combined area": nanos_to_formatted_micros(total_area, 2)
             if neuron_data
             else "NA",
-            "- Avg. volume": nanos_to_formatted_micros(
-                total_volume / len(neuron_data), 3
-            )
+            "- Combined volume": nanos_to_formatted_micros(total_volume, 3)
             if neuron_data
             else "NA",
         }

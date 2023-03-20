@@ -30,9 +30,9 @@ class Test(TestCase):
         self.assertEqual(
             {
                 "": {
-                    "- Avg. area": "NA",
-                    "- Avg. length": "NA",
-                    "- Avg. volume": "NA",
+                    "- Combined area": "NA",
+                    "- Combined length": "NA",
+                    "- Combined volume": "NA",
                     "- Classified": "0",
                     "- With label(s)": "0",
                     "Cells": "0",
