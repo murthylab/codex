@@ -3,8 +3,43 @@ from collections import defaultdict
 from functools import lru_cache
 
 from src.data.neuron_data_factory import NeuronDataFactory
-from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.utils.formatting import display
+
+GROUP_BY_ATTRIBUTES = {
+    "Side": "side",
+    "Flow": "flow",
+    "NT Type": "nt_type",
+    "Super Class": "super_class",
+    "Class": "super_class",
+    "Sub Class": "sub_class",
+}
+
+ALL = "All"
+
+def attribute_for_display(nd, attr_key):
+    val = nd[attr_key]
+    if not val or val.lower() in ["na"]:
+        val = "unknown"
+    return display(val)
+
+def update_counts(counts_dict, from_group, to_group, count):
+    counts_dict[f"{from_group}:{to_group}"] += count
+    counts_dict[f"{ALL}:{to_group}"] += count
+    counts_dict[f"{from_group}:{ALL}"] += count
+    counts_dict[f"{ALL}:{ALL}"] += count
+
+def heatmap_color(value, min_value, mid_value, max_value):
+    cold_color = "#AAAAAA"
+    hot_color = "#00FF00"
+    if value <= mid_value:
+        color = cold_color
+        offset = math.sqrt((mid_value - value) / (mid_value - min_value))
+    else:
+        color = hot_color
+        offset = math.sqrt((value - mid_value) / (max_value - mid_value))
+
+    opacity = max(0, min(99, round(offset * 100)))
+    return f"{color}{opacity}"
 
 
 @lru_cache
@@ -13,91 +48,51 @@ def synapse_density_cached(data_version, normalized, directed, group_by):
 
     num_cells = len(neuron_db.neuron_data)
     group_to_rids = defaultdict(set)
-    rid_to_class = {}
+    rid_to_group = {}
 
-    def class_group_name(nd):
-        return display(
-            nd["class"]
-            .lower()
-            .replace(" neuron", "")
-            .replace("ending", "")
-            .replace("ection", "")
-            .replace("optic", "opt")
-            .replace("central", "centr")
-            .replace("bilateral", "bi")
-            .replace("visual", "vis")
-        )
-
-    def nt_type_group_name(nd):
-        return NEURO_TRANSMITTER_NAMES.get(nd["nt_type"], "unknown").capitalize()
-
-    group_by_options = {
-        "Neuron Class": class_group_name,
-        "NT Type": nt_type_group_name,
-    }
     if not group_by:
-        group_by = list(group_by_options.keys())[0]
-    group_func = group_by_options[group_by]
+        group_by = list(GROUP_BY_ATTRIBUTES.keys())[0]
+    group_attr = GROUP_BY_ATTRIBUTES[group_by]
 
-    all_groups = "All"
     for v in neuron_db.neuron_data.values():
-        cl = group_func(v)
+        cl = attribute_for_display(v, group_attr)
         rid = v["root_id"]
         group_to_rids[cl].add(rid)
-        group_to_rids[all_groups].add(rid)
-        rid_to_class[rid] = cl
+        group_to_rids[ALL].add(rid)
+        rid_to_group[rid] = cl
 
-    tot_syn_cnt = 0
-    group_to_group_syn_cnt = defaultdict(int)
-
-    def update_syn_counts(cf, ct, syn):
-        group_to_group_syn_cnt[f"{cf}:{ct}"] += syn
-        group_to_group_syn_cnt[f"{all_groups}:{ct}"] += syn
-        group_to_group_syn_cnt[f"{cf}:{all_groups}"] += syn
-        group_to_group_syn_cnt[f"{all_groups}:{all_groups}"] += syn
+    tot_cnt = 0
+    group_to_group_cnt = defaultdict(int)
 
     for r in neuron_db.connection_rows:
         assert r[0] != r[1]
-        clfrom = rid_to_class[r[0]]
-        clto = rid_to_class[r[1]]
-        tot_syn_cnt += r[3]
-        update_syn_counts(clfrom, clto, r[3])
+        clfrom = rid_to_group[r[0]]
+        clto = rid_to_group[r[1]]
+        tot_cnt += r[3]
+        update_counts(group_to_group_cnt, clfrom, clto, r[3])
         if not directed:
-            update_syn_counts(clto, clfrom, r[3])
+            update_counts(group_to_group_cnt, clto, clfrom, r[3])
     if not directed:  # reverse double counting
-        group_to_group_syn_cnt = {
-            k: round(v / 2) for k, v in group_to_group_syn_cnt.items()
+        group_to_group_cnt = {
+            k: round(v / 2) for k, v in group_to_group_cnt.items()
         }
 
-    tot_density = tot_syn_cnt / (num_cells * (num_cells - 1))
+    tot_density = tot_cnt / (num_cells * (num_cells - 1))
     group_to_group_density = {}
-    for k, v in group_to_group_syn_cnt.items():
+    for k, v in group_to_group_cnt.items():
         if normalized:
             parts = k.split(":")
             sizefrom = (
-                len(group_to_rids[parts[0]]) if parts[0] != all_groups else num_cells
+                len(group_to_rids[parts[0]]) if parts[0] != ALL else num_cells
             )
             sizeto = (
-                len(group_to_rids[parts[1]]) if parts[1] != all_groups else num_cells
+                len(group_to_rids[parts[1]]) if parts[1] != ALL else num_cells
             )
             density = v / (sizefrom * sizeto)
             density /= tot_density
         else:
             density = v
         group_to_group_density[k] = density
-
-    def heatmap_color(value, min_value, mid_value, max_value):
-        cold_color = "#AAAAAA"
-        hot_color = "#00FF00"
-        if value <= mid_value:
-            color = cold_color
-            offset = math.sqrt((mid_value - value) / (mid_value - min_value))
-        else:
-            color = hot_color
-            offset = math.sqrt((value - mid_value) / (max_value - mid_value))
-
-        opacity = round(max(0, min(99, offset * 100)))
-        return f"{color}{opacity}"
 
     classes = sorted(group_to_rids.keys(), key=lambda x: -len(group_to_rids[x]))
 
@@ -111,13 +106,13 @@ def synapse_density_cached(data_version, normalized, directed, group_by):
                 return "+0% (baseline)"
             return ("+" if pct_diff >= 0 else "") + display(pct_diff) + "%"
         else:
-            pct = round(100 * d / tot_syn_cnt)
+            pct = round(100 * d / tot_cnt)
             return display(d) + f"<br><small>{pct}%</small>"
 
     table = [["from \\ to"] + [class_caption(c) for c in classes]]
     min_density = min(group_to_group_density.values())
     max_density = max(group_to_group_density.values())
-    mid_density = 1 if normalized else tot_syn_cnt / len(group_to_group_density)
+    mid_density = 1 if normalized else tot_cnt / len(group_to_group_density)
     for c1 in classes:
         row = [(class_caption(c1), 0)]
         for c2 in classes:
@@ -141,5 +136,5 @@ def synapse_density_cached(data_version, normalized, directed, group_by):
         directed=directed,
         normalized=normalized,
         group_by=group_by,
-        group_by_options=list(group_by_options.keys()),
+        group_by_options=list(GROUP_BY_ATTRIBUTES.keys()),
     )
