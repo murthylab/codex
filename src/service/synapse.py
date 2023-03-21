@@ -16,17 +16,20 @@ GROUP_BY_ATTRIBUTES = {
 
 ALL = "All"
 
+
 def attribute_for_display(nd, attr_key):
     val = nd[attr_key]
     if not val or val.lower() in ["na"]:
         val = "unknown"
     return display(val)
 
+
 def update_counts(counts_dict, from_group, to_group, count):
     counts_dict[f"{from_group}:{to_group}"] += count
     counts_dict[f"{ALL}:{to_group}"] += count
     counts_dict[f"{from_group}:{ALL}"] += count
     counts_dict[f"{ALL}:{ALL}"] += count
+
 
 def heatmap_color(value, min_value, mid_value, max_value):
     cold_color = "#AAAAAA"
@@ -42,12 +45,51 @@ def heatmap_color(value, min_value, mid_value, max_value):
     return f"{color}{opacity}"
 
 
+def make_table(group_to_group_density, group_sizes, num_cells, tot_cnt, normalized):
+    groups = sorted(group_sizes.keys(), key=lambda x: -group_sizes[x])
+
+    def header_caption(cln):
+        return f"<b>{cln}</b>&nbsp;<small>{round(100 * group_sizes[cln] / num_cells)}%</small>"
+
+    def density_caption(d):
+        if normalized:
+            pct_diff = round(100 * (density - 1))
+            if pct_diff == 0:
+                return "+0% (baseline)"
+            return ("+" if pct_diff >= 0 else "") + display(pct_diff) + "%"
+        else:
+            pct = round(100 * d / tot_cnt)
+            return display(d) + f"<br><small>{pct}%</small>"
+
+    table = [["from \\ to"] + [header_caption(c) for c in groups]]
+    min_density = min(group_to_group_density.values())
+    max_density = max(group_to_group_density.values())
+    mid_density = 1 if normalized else tot_cnt / len(group_to_group_density)
+    for c1 in groups:
+        row = [(header_caption(c1), 0)]
+        for c2 in groups:
+            density = group_to_group_density.get(f"{c1}:{c2}", 0)
+            row.append(
+                (
+                    density_caption(density),
+                    heatmap_color(
+                        value=density,
+                        min_value=min_density,
+                        mid_value=mid_density,
+                        max_value=max_density,
+                    ),
+                )
+            )
+        table.append(row)
+    return table
+
+
 @lru_cache
 def synapse_density_cached(data_version, normalized, directed, group_by):
     neuron_db = NeuronDataFactory.instance().get(data_version)
 
     num_cells = len(neuron_db.neuron_data)
-    group_to_rids = defaultdict(set)
+    group_sizes = defaultdict(int)
     rid_to_group = {}
 
     if not group_by:
@@ -57,8 +99,8 @@ def synapse_density_cached(data_version, normalized, directed, group_by):
     for v in neuron_db.neuron_data.values():
         cl = attribute_for_display(v, group_attr)
         rid = v["root_id"]
-        group_to_rids[cl].add(rid)
-        group_to_rids[ALL].add(rid)
+        group_sizes[cl] += 1
+        group_sizes[ALL] += 1
         rid_to_group[rid] = cl
 
     tot_cnt = 0
@@ -73,62 +115,28 @@ def synapse_density_cached(data_version, normalized, directed, group_by):
         if not directed:
             update_counts(group_to_group_cnt, clto, clfrom, r[3])
     if not directed:  # reverse double counting
-        group_to_group_cnt = {
-            k: round(v / 2) for k, v in group_to_group_cnt.items()
-        }
+        group_to_group_cnt = {k: round(v / 2) for k, v in group_to_group_cnt.items()}
 
     tot_density = tot_cnt / (num_cells * (num_cells - 1))
     group_to_group_density = {}
     for k, v in group_to_group_cnt.items():
         if normalized:
             parts = k.split(":")
-            sizefrom = (
-                len(group_to_rids[parts[0]]) if parts[0] != ALL else num_cells
-            )
-            sizeto = (
-                len(group_to_rids[parts[1]]) if parts[1] != ALL else num_cells
-            )
+            sizefrom = group_sizes[parts[0]] if parts[0] != ALL else num_cells
+            sizeto = group_sizes[parts[1]] if parts[1] != ALL else num_cells
             density = v / (sizefrom * sizeto)
             density /= tot_density
         else:
             density = v
         group_to_group_density[k] = density
 
-    classes = sorted(group_to_rids.keys(), key=lambda x: -len(group_to_rids[x]))
-
-    def class_caption(cln):
-        return f"<b>{cln}</b>&nbsp;<small>{round(100 * len(group_to_rids[cln]) / num_cells)}%</small>"
-
-    def density_caption(d):
-        if normalized:
-            pct_diff = round(100 * (density - 1))
-            if pct_diff == 0:
-                return "+0% (baseline)"
-            return ("+" if pct_diff >= 0 else "") + display(pct_diff) + "%"
-        else:
-            pct = round(100 * d / tot_cnt)
-            return display(d) + f"<br><small>{pct}%</small>"
-
-    table = [["from \\ to"] + [class_caption(c) for c in classes]]
-    min_density = min(group_to_group_density.values())
-    max_density = max(group_to_group_density.values())
-    mid_density = 1 if normalized else tot_cnt / len(group_to_group_density)
-    for c1 in classes:
-        row = [(class_caption(c1), 0)]
-        for c2 in classes:
-            density = group_to_group_density.get(f"{c1}:{c2}", 0)
-            row.append(
-                (
-                    density_caption(density),
-                    heatmap_color(
-                        value=density,
-                        min_value=min_density,
-                        mid_value=mid_density,
-                        max_value=max_density,
-                    ),
-                )
-            )
-        table.append(row)
+    table = make_table(
+        group_to_group_density=group_to_group_density,
+        group_sizes=group_sizes,
+        num_cells=num_cells,
+        tot_cnt=tot_cnt,
+        normalized=normalized,
+    )
 
     return dict(
         table=table,
