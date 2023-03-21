@@ -529,3 +529,10 @@ def skeleton_thumbnail_url():
             f"Fetching skeleton URL for {cell_or_neuropil}: {format_link(url)}"
         )
     return redirect(url, code=302)
+
+
+@base.route("/flywire_homepage")
+@request_wrapper
+def flywire_homepage():
+    log_activity("Redirecting to homepage.")
+    return redirect("https://flywire.ai", code=302)
