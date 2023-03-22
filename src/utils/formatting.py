@@ -1,4 +1,6 @@
 import string
+from math import floor, log10
+
 from src.utils.parsing import tokenize, tokenize_and_fold_for_highlight
 
 
@@ -169,6 +171,11 @@ def display(w):
         return w.replace("_", " ").title()
     elif isinstance(w, int):
         return "{:,}".format(w)
+    elif isinstance(w, float):
+        if w >= 10:
+            return display(round(w))
+        else:
+            return round(w, 3 - int(floor(log10(abs(w)))) - 1)
     else:
         return w
 

@@ -11,16 +11,6 @@
             <option value="{{v}}" {{'selected' if group_by==v}}>{{v}}</option>
             {% endfor %}
         </select>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" id="normalized"
-                   name="normalized" value="1" {{ 'checked' if normalized==1}}>
-            <label class="form-check-label" for="normalized">Normalized</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" id="directed" name="directed"
-                   value="1" {{ 'checked' if directed==1}}>
-            <label class="form-check-label" for="directed">Directed</label>
-        </div>
         <button class="btn btn btn-link my-2 my-sm-0" type="submit" onclick="loading(event);">
             <i class="fa-solid fa-rotate"></i>
         </button>
