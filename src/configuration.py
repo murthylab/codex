@@ -18,7 +18,7 @@ SUPPORT_EMAIL = "arie@princeton.edu"
 
 BUILD_GIT_SHA = os.environ.get("BUILD_GIT_SHA", "na")
 BUILD_TIMESTAMP = os.environ.get("BUILD_TIMESTAMP", "na")
-APP_ENVIRONMENT = str(os.environ.get("APP_ENVIRONMENT", "PROD"))
+APP_ENVIRONMENT = str(os.environ.get("APP_ENVIRONMENT", "DEV"))
 
 proc_id = str(uuid.uuid4())[-4:] + f"-{APP_ENVIRONMENT[:1]}"
 host_name = socket.gethostname()
