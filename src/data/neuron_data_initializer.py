@@ -73,6 +73,8 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     "cluster": str,
 }
 
+GROUP_BY_ATTRIBUTES = ["side", "flow", "nt_type", "super_class", "class", "sub_class"]
+
 
 def initialize_neuron_data(
     neuron_file_rows,
@@ -355,10 +357,34 @@ def initialize_neuron_data(
         nd["input_cells"] = len(input_cells[rid])
         nd["output_cells"] = len(output_cells[rid])
 
-    log("App initialization building search index..")
+    log("App initialization calculating grouped synapse counts..")
+    grouped_synapse_counts = {attr: defaultdict(int) for attr in GROUP_BY_ATTRIBUTES}
+    for r in neuron_connection_rows:
+        from_neuron = neuron_attributes[r[0]]
+        to_neuron = neuron_attributes[r[1]]
+        for attr in GROUP_BY_ATTRIBUTES:
+            from_group = from_neuron[attr]
+            to_group = to_neuron[attr]
+            grouped_synapse_counts[attr][(from_group, to_group)] += r[3]
+
+    log("App initialization calculating reciprocal connections..")
+    connected_pairs = set()
+    for r in neuron_connection_rows:
+        connected_pairs.add((r[0], r[1]))
+    reciprocal_connections = set(
+        [p for p in connected_pairs if (p[1], p[0]) in connected_pairs]
+    )
+    log(
+        f"App initialization found {len(reciprocal_connections)} reciprocal connections.."
+    )
 
     return NeuronDB(
-        neuron_attributes, neuron_connection_rows, label_data, labels_file_timestamp
+        neuron_attributes=neuron_attributes,
+        neuron_connection_rows=neuron_connection_rows,
+        label_data=label_data,
+        labels_file_timestamp=labels_file_timestamp,
+        grouped_synapse_counts=grouped_synapse_counts,
+        reciprocal_connections=reciprocal_connections,
     )
 
 

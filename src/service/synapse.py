@@ -4,14 +4,6 @@ from functools import lru_cache
 
 from src.utils.formatting import display
 
-GROUP_BY_ATTRIBUTES = {
-    "Side": "side",
-    "Flow": "flow",
-    "NT Type": "nt_type",
-    "Super Class": "super_class",
-    "Class": "class",
-    "Sub Class": "sub_class",
-}
 
 ALL = "All"
 UNKNOWN = "Unknown"
@@ -87,23 +79,16 @@ def make_table(counts_data, group_sizes):
 
 @lru_cache
 def group_data(neuron_db):
-    raw_counts = {attr: defaultdict(int) for attr in GROUP_BY_ATTRIBUTES.values()}
-    for r in neuron_db.connection_rows:
-        from_neuron = neuron_db.get_neuron_data(r[0])
-        to_neuron = neuron_db.get_neuron_data(r[1])
-        for attr in GROUP_BY_ATTRIBUTES.values():
-            from_group = for_display(from_neuron[attr])
-            to_group = for_display(to_neuron[attr])
-            raw_counts[attr][(from_group, to_group)] += r[3]
-
-    # this is broken into 2 steps for performance considerations
-    # len(neuron_db.connection_rows) is huge and we want to minimize operations when iterating over it
-    all_counts = {attr: defaultdict(int) for attr in GROUP_BY_ATTRIBUTES.values()}
-    for attr, counts in raw_counts.items():
+    all_counts = {
+        attr: defaultdict(int) for attr in neuron_db.grouped_synapse_counts.keys()
+    }
+    for attr, counts in neuron_db.grouped_synapse_counts.items():
         for k, v in counts.items():
-            all_counts[attr][k] = v
-            all_counts[attr][(ALL, k[1])] += v
-            all_counts[attr][(k[0], ALL)] += v
+            from_p = for_display(k[0])
+            to_p = for_display(k[1])
+            all_counts[attr][(from_p, to_p)] += v
+            all_counts[attr][(ALL, to_p)] += v
+            all_counts[attr][(from_p, ALL)] += v
             all_counts[attr][(ALL, ALL)] += v
     return all_counts
 
@@ -118,8 +103,12 @@ def compute_group_sizes(neuron_db, group_attr):
 
 
 def synapse_density_data(neuron_db, group_by):
-    group_by = group_by or list(GROUP_BY_ATTRIBUTES.keys())[0]
-    group_attr = GROUP_BY_ATTRIBUTES[group_by]
+    group_by_attributes = {
+        display(attr): attr for attr in neuron_db.grouped_synapse_counts.keys()
+    }
+
+    group_by = group_by or list(group_by_attributes.keys())[0]
+    group_attr = group_by_attributes[group_by]
     group_sizes = compute_group_sizes(neuron_db, group_attr)
     # make a copy to not mutate cached values
     attr_group_data = group_data(neuron_db)[group_attr].copy()
@@ -132,5 +121,5 @@ def synapse_density_data(neuron_db, group_by):
     return dict(
         table=table,
         group_by=group_by,
-        group_by_options=list(GROUP_BY_ATTRIBUTES.keys()),
+        group_by_options=list(group_by_attributes.keys()),
     )

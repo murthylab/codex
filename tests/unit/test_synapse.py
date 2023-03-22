@@ -11,7 +11,6 @@ from src.service.synapse import (
     compute_group_sizes,
     synapse_density_data,
     group_data,
-    GROUP_BY_ATTRIBUTES,
 )
 from tests import TEST_DATA_ROOT_PATH
 
@@ -114,8 +113,11 @@ class Test(TestCase):
         self.assertEqual(expected_side_data, gdata["side"])
         total_count = sum(expected_side_data.values())
         self.assertEqual(
-            [total_count] * len(GROUP_BY_ATTRIBUTES),
-            [sum(gdata[attr].values()) for attr in GROUP_BY_ATTRIBUTES.values()],
+            [total_count] * len(self.neuron_db.grouped_synapse_counts),
+            [
+                sum(gdata[attr].values())
+                for attr in self.neuron_db.grouped_synapse_counts.keys()
+            ],
         )
 
     def test_compute_group_sizes(self):
@@ -164,7 +166,7 @@ class Test(TestCase):
             "group_by_options": [
                 "Side",
                 "Flow",
-                "NT Type",
+                "Nt Type",
                 "Super Class",
                 "Class",
                 "Sub Class",
