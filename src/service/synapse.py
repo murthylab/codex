@@ -87,18 +87,25 @@ def make_table(counts_data, group_sizes):
 
 @lru_cache
 def group_data(neuron_db):
-    res = {attr: defaultdict(int) for attr in GROUP_BY_ATTRIBUTES.values()}
+    raw_counts = {attr: defaultdict(int) for attr in GROUP_BY_ATTRIBUTES.values()}
     for r in neuron_db.connection_rows:
         from_neuron = neuron_db.get_neuron_data(r[0])
         to_neuron = neuron_db.get_neuron_data(r[1])
         for attr in GROUP_BY_ATTRIBUTES.values():
             from_group = for_display(from_neuron[attr])
             to_group = for_display(to_neuron[attr])
-            res[attr][(from_group, to_group)] += r[3]
-            res[attr][(ALL, to_group)] += r[3]
-            res[attr][(from_group, ALL)] += r[3]
-            res[attr][(ALL, ALL)] += r[3]
-    return res
+            raw_counts[attr][(from_group, to_group)] += r[3]
+
+    # this is broken into 2 steps for performance considerations
+    # len(neuron_db.connection_rows) is huge and we want to minimize operations when iterating over it
+    all_counts = {attr: defaultdict(int) for attr in GROUP_BY_ATTRIBUTES.values()}
+    for attr, counts in raw_counts.items():
+        for k, v in counts.items():
+            all_counts[attr][k] = v
+            all_counts[attr][(ALL, k[1])] += v
+            all_counts[attr][(k[0], ALL)] += v
+            all_counts[attr][(ALL, ALL)] += v
+    return all_counts
 
 
 def compute_group_sizes(neuron_db, group_attr):
