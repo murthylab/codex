@@ -24,12 +24,13 @@ class NeuronDataTest(TestCase):
         self.assertEqual(
             sorted(
                 [
-                    "connection_rows",
-                    "grouped_synapse_counts",
                     "label_data",
                     "labels_file_timestamp",
                     "neuron_data",
-                    "reciprocal_connections",
+                    "connection_rows",
+                    "grouped_synapse_counts",
+                    "grouped_connection_counts",
+                    "grouped_reciprocal_connection_counts",
                     "search_index",
                 ]
             ),
@@ -42,8 +43,9 @@ class NeuronDataTest(TestCase):
             "labels_file_timestamp": "64 B",
             "neuron_data": "419 M",
             "search_index": "189 M",
-            "reciprocal_connections": "46 M",
             "grouped_synapse_counts": "112 K",
+            "grouped_connection_counts": "110 K",
+            "grouped_reciprocal_connection_counts": "64 K",
         }
 
         def approx_size(ob):
@@ -64,8 +66,13 @@ class NeuronDataTest(TestCase):
             "search_index": approx_size(loaded_db.search_index),
             "label_data": approx_size(loaded_db.label_data),
             "labels_file_timestamp": approx_size(loaded_db.labels_file_timestamp),
-            "reciprocal_connections": approx_size(loaded_db.reciprocal_connections),
             "grouped_synapse_counts": approx_size(loaded_db.grouped_synapse_counts),
+            "grouped_connection_counts": approx_size(
+                loaded_db.grouped_connection_counts
+            ),
+            "grouped_reciprocal_connection_counts": approx_size(
+                loaded_db.grouped_reciprocal_connection_counts
+            ),
         }
 
         def compare_approx_sizes(exp, act):

@@ -172,8 +172,10 @@ def display(w):
     elif isinstance(w, int):
         return "{:,}".format(w)
     elif isinstance(w, float):
-        if w >= 10:
+        if w >= 10 or round(w) == w:
             return display(round(w))
+        elif w <= 0.0:
+            return w
         else:
             return round(w, 3 - int(floor(log10(abs(w)))) - 1)
     else:

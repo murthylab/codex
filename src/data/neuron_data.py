@@ -43,14 +43,16 @@ class NeuronDB(object):
         label_data,
         labels_file_timestamp,
         grouped_synapse_counts,
-        reciprocal_connections,
+        grouped_connection_counts,
+        grouped_reciprocal_connection_counts,
     ):
         self.neuron_data = neuron_attributes
         self.connection_rows = neuron_connection_rows
         self.label_data = label_data
         self.labels_file_timestamp = labels_file_timestamp
         self.grouped_synapse_counts = grouped_synapse_counts
-        self.reciprocal_connections = reciprocal_connections
+        self.grouped_connection_counts = grouped_connection_counts
+        self.grouped_reciprocal_connection_counts = grouped_reciprocal_connection_counts
 
         log("App initialization building search index..")
 

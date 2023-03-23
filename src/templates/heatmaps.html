@@ -4,19 +4,32 @@
 
 <nav class="navbar navbar-light bg-light">
     <form class="form-inline">
-        <label >Group By</label>
-        <select style="margin: 15px;" class="form-select form-select-lg mb-3"
+        <label >Group cells by</label>
+        <select style="margin: 15px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit();"
                 aria-label="Group Neurons By" name="group_by">
             {% for v in group_by_options %}
             <option value="{{v}}" {{'selected' if group_by==v}}>{{v}}</option>
             {% endfor %}
         </select>
-        <button class="btn btn btn-link my-2 my-sm-0" type="submit" onclick="loading(event);">
-            <i class="fa-solid fa-rotate"></i>
-        </button>
+        <label >Count</label>
+        <select style="margin: 15px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit();"
+                aria-label="Count" name="count_type">
+            {% for v in count_type_options %}
+            <option value="{{v}}" {{'selected' if count_type==v}}>{{v}}</option>
+            {% endfor %}
+        </select>
     </form>
 </nav>
 
+<div>
+    <small style="color: teal">
+    <ul>
+    {% for exp in explanations %}
+        <li>{{exp|safe}}</li>
+    {% endfor %}
+    </ul>
+    </small>
+</div>
 
 <div style="overflow-x:auto;">
     <table class="table">

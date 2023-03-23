@@ -43,7 +43,7 @@ from src.service.cell_details import cached_cell_details
 from src.service.network import compile_network_html
 from src.service.search import pagination_data, DEFAULT_PAGE_SIZE
 from src.service.stats import stats_cached, leaderboard_cached
-from src.service.synapse import synapse_density_data
+from src.service.heatmaps import heatmap_data
 from src.utils import nglui
 from src.utils.cookies import (
     fetch_flywire_user_id,
@@ -903,20 +903,22 @@ def neuropils():
     )
 
 
-@app.route("/synapse_density")
+@app.route("/heatmaps")
 @request_wrapper
 @require_data_access
-def synapse_density():
+def heatmaps():
     data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     group_by = request.args.get("group_by")
-    log_activity(f"Rendering synapse_density page with {data_version=} {group_by=}")
+    count_type = request.args.get("count_type")
+    log_activity(f"Rendering heatmaps page with {data_version=} {group_by=}")
 
-    dct = synapse_density_data(
+    dct = heatmap_data(
         neuron_db=NeuronDataFactory.instance().get(data_version),
         group_by=group_by,
+        count_type=count_type,
     )
 
-    return render_template("synapse_density.html", **dct)
+    return render_template("heatmaps.html", **dct)
 
 
 @app.route("/matching_lines/")
