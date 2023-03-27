@@ -366,7 +366,7 @@ def index(path):
             {
                 "header": "Network Graphs",
                 "body": "Visualize connectivity of neurons and their synaptic links",
-                "asset_filename": "card-network.jpg",
+                "asset_filename": "card-network.png",
                 "url": "app.connectivity",
             },
             {
