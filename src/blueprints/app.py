@@ -565,10 +565,6 @@ def pathways():
             )
 
     data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
-    connections_cap = request.args.get("cap", 0, type=int)
-    reduce = request.args.get("reduce", 0, type=int)
-    group_regions = request.args.get("group_regions", 0, type=int)
-    hide_weights = request.args.get("hide_weights", 0, type=int)
 
     root_ids = [source, target]
 
@@ -585,11 +581,11 @@ def pathways():
         root_ids=root_ids,
         contable=cons,
         data_version=data_version,
-        group_regions=group_regions,
-        reduce=reduce,
-        connections_cap=connections_cap,
-        hide_weights=hide_weights,
-        log_request=False,
+        group_regions=0,
+        reduce=0,
+        connections_cap=0,
+        hide_weights=0,
+        log_request=True,
         layers=layers,
     )
 
