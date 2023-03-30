@@ -757,6 +757,9 @@ def connectivity():
                 title="No matching cells found",
                 message=f"Could not find any cells matching '{cell_names_or_ids}'",
             )
+        elif len(root_ids) == 1:
+            # if only one match found, show some connections to it's partners (instead of lonely point)
+            include_partners = True
 
         contable = neuron_db.connections(
             ids=root_ids,
