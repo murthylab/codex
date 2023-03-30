@@ -79,8 +79,10 @@ def make_graph_html(
             group_regions=group_regions,
         )
 
-    node_ids = set([r[0] for r in connection_table]).union(
-        [r[1] for r in connection_table]
+    node_ids = (
+        set([r[0] for r in connection_table])
+        .union([r[1] for r in connection_table])
+        .union(center_ids)
     )
     total_syn_count = sum([r[3] for r in connection_table]) if connection_table else 0
     max_syn_count = max([r[3] for r in connection_table]) if connection_table else 0
@@ -254,10 +256,11 @@ def make_graph_html(
             net.add_legend("Output Neuropil", color=OUTPUT_NEUROPIL_COLOR)
         return node_name
 
+    for n in node_ids:
+        add_cell_node(n)
+
     if layers is not None:
         for r in connection_table:
-            add_cell_node(r[0])
-            add_cell_node(r[1])
             net.add_edge(
                 source=r[0],
                 target=r[1],
@@ -275,8 +278,6 @@ def make_graph_html(
                 cell_loop_counts[r[0]] += r[3]
 
         for k, v in cell_to_cell_counts.items():
-            add_cell_node(k[0])
-            add_cell_node(k[1])
             net.add_edge(
                 source=k[0],
                 target=k[1],
@@ -302,7 +303,6 @@ def make_graph_html(
             pil_to_cell_counts[(pil_name, r[1])] += r[3]
 
         for k, v in cell_to_pil_counts.items():
-            add_cell_node(k[0])
             pnid = add_pil_node(k[1], is_input=k[0] not in center_ids)
             net.add_edge(
                 source=k[0],
@@ -312,7 +312,6 @@ def make_graph_html(
                 title=edge_title(v),
             )
         for k, v in pil_to_cell_counts.items():
-            add_cell_node(k[1])
             pnid = add_pil_node(k[0], is_input=k[1] in center_ids)
             net.add_edge(
                 source=pnid,

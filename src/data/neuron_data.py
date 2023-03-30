@@ -100,11 +100,20 @@ class NeuronDB(object):
                 outs[r[0]].add(r[2])
         return ins, outs
 
-    def connections(self, ids, min_syn_count=MIN_SYN_COUNT, nt_type=None):
+    def connections(
+        self, ids, induced=False, min_syn_count=MIN_SYN_COUNT, nt_type=None
+    ):
         idset = set(ids)
         cons = []
         if self.connection_rows:  # avail in mem cache
-            cons = [r for r in self.connection_rows if (r[0] in idset or r[1] in idset)]
+            if induced:
+                cons = [
+                    r for r in self.connection_rows if (r[0] in idset and r[1] in idset)
+                ]
+            else:
+                cons = [
+                    r for r in self.connection_rows if (r[0] in idset or r[1] in idset)
+                ]
         if min_syn_count:
             cons = [r for r in cons if r[3] >= min_syn_count]
         if nt_type:

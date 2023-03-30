@@ -724,13 +724,14 @@ def path_length():
 @request_wrapper
 @require_data_access
 def connectivity():
-    sample_input = "720575940626843194, 720575940631740497, 720575940608893891"
+    sample_input = "720575940625622530 720575940631110095 720575940623607221"
     data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     nt_type = request.args.get("nt_type", None)
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     connections_cap = request.args.get("cap", 20, type=int)
     reduce = request.args.get("reduce", 0, type=int)
-    group_regions = request.args.get("group_regions", 0, type=int)
+    group_regions = request.args.get("group_regions", 1, type=int)
+    include_partners = request.args.get("include_partners", 0, type=int)
     hide_weights = request.args.get("hide_weights", 0, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     if (
@@ -763,12 +764,11 @@ def connectivity():
             )
 
         contable = neuron_db.connections(
-            ids=root_ids, nt_type=nt_type, min_syn_count=min_syn_cnt
+            ids=root_ids,
+            nt_type=nt_type,
+            induced=include_partners == 0,
+            min_syn_count=min_syn_cnt,
         )
-        if len(contable) <= 1:
-            return render_error(
-                f"Connections for {min_syn_cnt=}, {nt_type=} and Cell IDs {root_ids} are unavailable."
-            )
         max_cap = min(len(contable), 200)
         if log_request:
             log_activity(
@@ -841,6 +841,7 @@ def connectivity():
                 data_version=data_version,
                 reduce=reduce,
                 group_regions=group_regions,
+                include_partners=include_partners,
                 hide_weights=hide_weights,
             )
     else:
