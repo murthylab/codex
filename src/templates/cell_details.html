@@ -141,6 +141,8 @@ div.google-visualization-tooltip { width:250px; }
         <div class="card-header" style="color: purple;">
             <a href="{{url_for('app.flywire_url', data_version=data_version, root_ids=[cell_id], log_request=0)}}" target="_blank">3D Rendering <i
                     style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i></a>
+            <a class="btn btn-outline-primary btn-sm" style="float: right;" href="{{url_for('base.skeleton_thumbnail_url', cell_or_neuropil=cell_id, file_type='swc')}}" target="_blank">
+                <i class="fa-solid fa-download"></i> SWC</a>
         </div>
         <iframe style="width: 100%; height: 100%;"
                 src="{{url_for('app.flywire_url', data_version=data_version, root_ids=[cell_id], log_request=0)}}" title="neuroglancer"

@@ -185,8 +185,8 @@ def render_neuron_list(
     display_data = [neuron_db.get_neuron_data(i) for i in page_ids]
     skeleton_thumbnail_urls = {
         nd["root_id"]: (
-            url_for_skeleton(nd["root_id"], animated=False),
-            url_for_skeleton(nd["root_id"], animated=True),
+            url_for_skeleton(nd["root_id"], file_type="png"),
+            url_for_skeleton(nd["root_id"], file_type="gif"),
         )
         for nd in display_data
     }

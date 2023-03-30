@@ -521,9 +521,9 @@ def activity_suffix(filter_string, data_version):
 @request_wrapper
 def skeleton_thumbnail_url():
     cell_or_neuropil = request.args.get("cell_or_neuropil")
-    animated = request.args.get("animated", type=bool, default=False)
+    file_type = request.args.get("file_type", type=str, default="png")
     log_request = request.args.get("log_request", default=1, type=int)
-    url = url_for_skeleton(cell_or_neuropil=cell_or_neuropil, animated=animated)
+    url = url_for_skeleton(cell_or_neuropil=cell_or_neuropil, file_type=file_type)
     if log_request:
         log_activity(
             f"Fetching skeleton URL for {cell_or_neuropil}: {format_link(url)}"
