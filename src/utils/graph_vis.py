@@ -20,12 +20,12 @@ UNKNOWN_NT_COLOR = "#cccccc"
 UNSPECIFIED_COLOR = "#fafafa"
 
 
-def aggregate_and_cap(connection_table, connections_cap, group_regions):
+def aggregate_and_cap(connection_table, connections_cap, show_regions):
     def row_key(row):
-        if group_regions:
-            return row[0], row[1], None
-        else:
+        if show_regions:
             return row[0], row[1], row[2]
+        else:
+            return row[0], row[1], None
 
     syn_counts = defaultdict(int)
     aggregated_syn_count = 0
@@ -56,7 +56,7 @@ def make_graph_html(
     class_getter,
     nt_type_getter,
     size_getter,
-    group_regions,
+    show_regions,
     show_edge_weights,
     show_warnings,
     layers=None,
@@ -76,13 +76,13 @@ def make_graph_html(
         ) = aggregate_and_cap(
             connection_table=connection_table,
             connections_cap=connections_cap,
-            group_regions=group_regions,
+            show_regions=show_regions,
         )
 
     node_ids = (
         set([r[0] for r in connection_table])
         .union([r[1] for r in connection_table])
-        .union(center_ids)
+        .union(center_ids[:connections_cap])
     )
     total_syn_count = sum([r[3] for r in connection_table]) if connection_table else 0
     max_syn_count = max([r[3] for r in connection_table]) if connection_table else 0
@@ -268,7 +268,7 @@ def make_graph_html(
                 label=edge_label(r[3]),
                 title=edge_title(r[3]),
             )
-    elif group_regions:
+    elif not show_regions:
         cell_to_cell_counts = defaultdict(int)
         cell_loop_counts = defaultdict(int)
         for r in connection_table:

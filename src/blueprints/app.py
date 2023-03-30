@@ -581,7 +581,7 @@ def pathways():
         root_ids=root_ids,
         contable=cons,
         data_version=data_version,
-        group_regions=0,
+        show_regions=0,
         reduce=0,
         connections_cap=0,
         hide_weights=0,
@@ -720,13 +720,13 @@ def path_length():
 @request_wrapper
 @require_data_access
 def connectivity():
-    sample_input = "720575940625622530 720575940631110095 720575940623607221"
+    sample_input = "720575940623725972 720575940630057979 720575940633300148 720575940644300323 720575940640176848 720575940627796298"
     data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     nt_type = request.args.get("nt_type", None)
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     connections_cap = request.args.get("cap", 20, type=int)
     reduce = request.args.get("reduce", 0, type=int)
-    group_regions = request.args.get("group_regions", 1, type=int)
+    show_regions = request.args.get("show_regions", 0, type=int)
     include_partners = request.args.get("include_partners", 0, type=int)
     hide_weights = request.args.get("hide_weights", 0, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
@@ -747,7 +747,6 @@ def connectivity():
             + " network for '{cell_names_or_ids}'"
         )
 
-    root_ids = []
     message = None
 
     if cell_names_or_ids:
@@ -765,7 +764,7 @@ def connectivity():
             induced=include_partners == 0,
             min_syn_count=min_syn_cnt,
         )
-        max_cap = min(len(contable), 200)
+        max_cap = min(max(len(root_ids), len(contable)), 200)
         if log_request:
             log_activity(
                 f"Generated connections table for {len(root_ids)} cells with {connections_cap=}, {download=} {min_syn_cnt=} {nt_type=}"
@@ -813,7 +812,7 @@ def connectivity():
             root_ids=root_ids,
             contable=contable,
             data_version=data_version,
-            group_regions=group_regions,
+            show_regions=show_regions,
             reduce=reduce,
             connections_cap=connections_cap,
             hide_weights=hide_weights,
@@ -836,7 +835,7 @@ def connectivity():
                 data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
                 data_version=data_version,
                 reduce=reduce,
-                group_regions=group_regions,
+                show_regions=show_regions,
                 include_partners=include_partners,
                 hide_weights=hide_weights,
             )
@@ -857,7 +856,7 @@ def connectivity():
             data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
             data_version=data_version,
             reduce=reduce,
-            group_regions=group_regions,
+            show_regions=show_regions,
             hide_weights=hide_weights,
         )
 
