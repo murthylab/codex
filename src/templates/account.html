@@ -14,13 +14,15 @@ Account
             <img src="{{user_picture|safe}}">
             <p style="margin-left: 10px; display: inline-block; vertical-align: top;">
                 <b>{{user_name}}<b></b><br><span style="color:grey">{{affiliation}}</span><br><small>{{user_email}}</small><br><br>
-                <a href="/auth_token"><small><i class="fa-solid fa-key"></i></small> &nbsp; FlyWire / Cave access token</a>
+                <a href="{{url_for('base.auth_token')}}"><small><i class="fa-solid fa-key"></i></small> &nbsp; FlyWire / Cave access token</a>
                 <br><br>
                 {% if show_admin_dashboard_link %}
-                <a href="/admin_dashboard" target="_blank"><i class="fa-solid fa-chart-line"></i> &nbsp; Admin Dashboard (limited access)</a>
+                <a href="{{url_for('base.admin_dashboard')}}" target="_blank"><i class="fa-solid fa-chart-line"></i> &nbsp; Usage Dashboard</a>
+                <br><br>
+                <a href="{{url_for('base.admin_dashboard', type='details')}}" target="_blank"><i class="fa-solid fa-chart-line"></i> &nbsp; Admin Dashboard (limited access)</a>
                 <br><br>
                 {% endif %}
-                <a href="/logout">&#10132 &nbsp; Sign out</a>
+                <a href="{{url_for('base.logout')}}">&#10132 &nbsp; Sign out</a>
             </p>
         </div>
     </div>

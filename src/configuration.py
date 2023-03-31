@@ -10,9 +10,10 @@ GOOGLE_CLIENT_ID = (
     "356707763910-l9ovf7f2at2vc23f3u2j356aokr4eb99.apps.googleusercontent.com"
 )
 
-ADMIN_DASHBOARD_URL = (
-    "https://lookerstudio.google.com/reporting/980e9b4f-1bd7-41e5-90a1-0e7c443d3fa9"
-)
+ADMIN_DASHBOARD_URLS = {
+    "trends": "https://lookerstudio.google.com/reporting/28c81476-62f4-454e-8be2-3feb473e5568",
+    "details": "https://lookerstudio.google.com/reporting/980e9b4f-1bd7-41e5-90a1-0e7c443d3fa9",
+}
 
 SUPPORT_EMAIL = "arie@princeton.edu"
 

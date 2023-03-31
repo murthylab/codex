@@ -23,7 +23,7 @@ from src.configuration import (
     BUILD_TIMESTAMP,
     GOOGLE_CLIENT_ID,
     SUPPORT_EMAIL,
-    ADMIN_DASHBOARD_URL,
+    ADMIN_DASHBOARD_URLS,
 )
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data_factory import NeuronDataFactory
@@ -271,8 +271,9 @@ def account():
 @base.route("/admin_dashboard", methods=["GET"])
 @request_wrapper
 def admin_dashboard():
-    log_activity("Loading Admin Dashboard")
-    return redirect(ADMIN_DASHBOARD_URL)
+    tp = request.args.get("type", "trends")
+    log_activity(f"Loading Admin Dashboard ({tp})")
+    return redirect(ADMIN_DASHBOARD_URLS[tp])
 
 
 @base.route("/faq", methods=["GET", "POST"])
