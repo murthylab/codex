@@ -287,6 +287,9 @@ class NeuronDB(object):
     def all_label_data(self):
         return list(self.label_data.values())
 
+    def cell_ids_with_label_data(self):
+        return list(self.label_data.keys())
+
     def labels_ingestion_timestamp(self):
         return self.labels_file_timestamp
 

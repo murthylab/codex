@@ -21,6 +21,7 @@ from src.blueprints.base import (
     activity_suffix,
     render_error,
     warning_with_redirect,
+    render_info,
 )
 from src.configuration import MIN_SYN_COUNT, MAX_NEURONS_FOR_DOWNLOAD
 from src.data.brain_regions import (
@@ -945,3 +946,32 @@ def matching_lines():
         return {"error": str(e)}, 500
     result["email"] = email
     return result
+
+
+@app.route("/my_labels/")
+@request_wrapper
+@require_data_access
+def my_labels():
+    log_activity("Fetching my labeled cells")
+    neuron_db = NeuronDataFactory.instance().get()
+    user_id = fetch_flywire_user_id(session, required=True)
+    rids = []
+    for rid in neuron_db.cell_ids_with_label_data():
+        for ld_dict in neuron_db.get_label_data(rid):
+            if ld_dict["user_id"] == user_id:
+                rids.append(rid)
+                break
+    if not rids:
+        return render_error(
+            title="Not found",
+            message=f"The current data snapshot does not contain any cells labeled by user ID {user_id} ({fetch_user_email(session)})",
+        )
+    else:
+        rids_str = ", ".join([str(r) for r in rids])
+        if len(rids_str) <= 1000:
+            return redirect(url_for("app.search", filter_string=rids_str))
+        else:
+            return render_info(
+                title=f"Cells labeled by user ID {user_id} ({fetch_user_email(session)})",
+                message=f"{rids_str}",
+            )
