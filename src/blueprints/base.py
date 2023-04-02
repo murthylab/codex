@@ -247,8 +247,8 @@ def about_codex():
 
 @base.route("/about_flywire", methods=["GET", "POST"])
 @request_wrapper
-def about_flywire():
-    log_activity("Loading About FlyWire Dataset page")
+def about_flywire_connectome():
+    log_activity("Loading FlyWire Connectome page")
     return render_template(
         "about_flywire.html",
     )
@@ -492,7 +492,7 @@ def render_error(
 
 
 def render_info(title="Info", message="Operation complete."):
-    log_activity(f"Rendering info: {message}")
+    log_activity(f"Rendering info: {truncate(message, 100, include_length=True)}")
     return render_template("info.html", title=title, message=message)
 
 

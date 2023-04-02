@@ -34,11 +34,11 @@
 
             <h2 style="color: purple;">FlyWire Dataset (v{{default_version}})</h2>
             <p>Codex provides access to <a href="details" data-toggle="modal" data-target="#dataVersionsModal">
-                static snapshots
+                proofread static snapshots
             </a>
-                of the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome. Current
-                default snapshot version is {{default_version}}, and other versions are available from search settings.
-                See <a href="/faq">FAQs</a> page for details.</p>
+                of the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome, excluding connections and cells
+                with less than 5 synapses. Current
+                default snapshot in Codex is v{{default_version}} and it includes</p>
 
             <table cellspacing="0" cellpadding="0" style="border: none; border-collapse: collapse;">
                 <tr style="background: none; margin: 0; padding: 0;">
@@ -52,6 +52,10 @@
                     <td style="padding: 0px;">labels</td>
                 </tr>
             </table>
+            <br>
+            Other versions are available from search settings.
+            See <a href="/about_flywire">FlyWire Connectome</a> and <a href="/faq">FAQs</a> pages for more details.
+            <br>
             <br>
             <form id="searchForm">
                 <input class="form-control mr-sm-2" autocomplete="off" autofocus type="search"

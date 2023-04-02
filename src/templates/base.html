@@ -33,10 +33,10 @@
                   More
                 </a>
                 <div class="dropdown-menu" aria-labelledby="nav_more_active">
-                  <a class="dropdown-item" id="nav_faq" href="{{url_for('base.faq')}}">FAQ</a>
-                  <a class="dropdown-item" id="nav_leaderboard" href="{{url_for('app.leaderboard')}}">Leaderboard</a>
                   <a class="dropdown-item" id="nav_about_codex" href="{{url_for('base.about_codex')}}">About Codex</a>
-                  <a class="dropdown-item" id="nav_about_flywire" href="{{url_for('base.about_flywire')}}">About FlyWire</a>
+                  <a class="dropdown-item" id="nav_about_flywire_connectome" href="{{url_for('base.about_flywire_connectome')}}">FlyWire Connectome</a>
+                  <a class="dropdown-item" id="nav_faq" href="{{url_for('base.faq')}}">FAQ</a>
+                  <a class="dropdown-item" id="nav_leaderboard" href="{{url_for('app.leaderboard')}}">Labeling Leaderboard</a>
                   <a class="dropdown-item" id="nav_download" href="{{url_for('api.download')}}">Download Data</a>
                   <a class="dropdown-item" id="nav_account" href="{{url_for('base.account')}}">Account</a>
                 </div>
@@ -54,7 +54,7 @@
                     }
                 }
 
-                let more_tabs = ['faq', 'leaderboard', 'about_codex', 'about_flywire', 'download', 'account'];
+                let more_tabs = ['about_codex', 'faq', 'about_flywire_connectome', 'leaderboard', 'download', 'account'];
                 for (const tab of more_tabs){
                     if (cur_url.includes(tab)) {
                       document.getElementById('nav_more_active').text = document.getElementById('nav_' + tab).text;

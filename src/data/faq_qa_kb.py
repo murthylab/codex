@@ -27,7 +27,11 @@ FAQ_QA_KB = {
     "data_version": {
         "q": "What version of FlyWire data is shown?",
         "a": "<b>Codex</b> provides access to static FlyWire connectome data releases (sometimes referred to as"
-        " 'snapshots' or 'versions'). To switch from the default data snapshot one of the older releases use "
+        " 'snapshots' or 'versions'). These releases include only cells that were marked as proofread. In addition, "
+        "Codex excludes weak connections and weakly connected cells. Specifically, for any pair of cells and for any brain region "
+        "(neuropil), if total synapse count between these cells in the region is below 5 then this connection is excluded. After "
+        "excluding all weak connections, cells that remain without any partners (singletons) are excluded too. "
+        "To switch from the default data snapshot one of the older releases use "
         "the <b>Data Version</b> selector under the search settings menu. And for live queries against the "
         "proofreading database tables use the "
         '<a href="https://github.com/seung-lab/CAVEclient">Cave Client Python library</a> instead.',
