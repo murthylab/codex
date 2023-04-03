@@ -16,6 +16,7 @@ def compile_network_html(
     hide_weights,
     log_request,
     layers=None,
+    page_title="Network Graph",
 ):
     neuron_db = NeuronDataFactory.instance().get(version=data_version)
     if show_regions and layers is None:  # exclude unknown region connections
@@ -127,5 +128,6 @@ def compile_network_html(
         show_regions=show_regions,
         show_edge_weights=not hide_weights,
         show_warnings=log_request,
+        page_title=page_title,
         layers=layers,
     )

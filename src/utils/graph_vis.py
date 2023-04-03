@@ -59,6 +59,7 @@ def make_graph_html(
     show_regions,
     show_edge_weights,
     show_warnings,
+    page_title,
     layers=None,
 ):
     """
@@ -321,7 +322,7 @@ def make_graph_html(
                 title=edge_title(v),
             )
 
-    return net.generate_html(warning_msg=warning_msg)
+    return net.generate_html(warning_msg=warning_msg, page_title=page_title)
 
 
 class Network(object):
@@ -424,7 +425,7 @@ class Network(object):
         if legend_entry not in self.legend:
             self.legend.append(legend_entry)
 
-    def generate_html(self, warning_msg):
+    def generate_html(self, warning_msg, page_title):
         return render_template(
             "network_graph.html",
             nodes=list(self.node_map.values()),
@@ -434,4 +435,5 @@ class Network(object):
             legend=self.legend,
             layers=self.layers,
             warning_msg=warning_msg,
+            page_title=page_title,
         )

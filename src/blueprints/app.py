@@ -588,6 +588,7 @@ def pathways():
         hide_weights=0,
         log_request=True,
         layers=layers,
+        page_title="Pathways",
     )
 
 
