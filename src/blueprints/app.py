@@ -616,43 +616,39 @@ def path_length():
 
     if source_cell_names_or_ids or target_cell_names_or_ids:
         neuron_db = NeuronDataFactory.instance().get()
-        root_ids = set()
+        root_ids_src = set()
+        root_ids_target = set()
         if source_cell_names_or_ids:
-            root_ids |= set(neuron_db.search(search_query=source_cell_names_or_ids))
-        if (
-            target_cell_names_or_ids
-            and target_cell_names_or_ids != source_cell_names_or_ids
-        ):
-            root_ids |= set(neuron_db.search(search_query=target_cell_names_or_ids))
-        root_ids = sorted(root_ids)
-        if not root_ids:
+            root_ids_src = set(neuron_db.search(search_query=source_cell_names_or_ids))
+        if target_cell_names_or_ids:
+            root_ids_target = set(neuron_db.search(search_query=target_cell_names_or_ids))
+        root_ids_src = sorted(root_ids_src)
+        root_ids_target = sorted(root_ids_target)
+        if not root_ids_src or not root_ids_target:
             return render_error(
                 title="No matching cells found",
                 message=f"Could not find any cells matching '{source_cell_names_or_ids} -> {target_cell_names_or_ids}'",
             )
-        elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
+        elif len(root_ids_src) + len(root_ids_target) > MAX_NEURONS_FOR_DOWNLOAD:
+            too_long_len = len(root_ids_src) + len(root_ids_target)
+            root_ids_src = root_ids_src[: MAX_NEURONS_FOR_DOWNLOAD // 2]
+            root_ids_target = root_ids_target[: MAX_NEURONS_FOR_DOWNLOAD // 2]
             message = (
-                f"{len(root_ids)} cells match your query. "
-                f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
-            )
-            root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
-        elif len(root_ids) == 1:
-            return render_error(
-                message=f"Only one match found in the data: {root_ids}. Need 2 or more cells for pairwise pathway(s).",
-                title="Cell list is too short",
+                f"{too_long_len} cells match your query. "
+                f"Fetching pathways for the first {len(root_ids_src) + len(root_ids_target)} matches."
             )
 
         matrix = distance_matrix(
-            sources=root_ids,
-            targets=root_ids,
+            sources=root_ids_src,
+            targets=root_ids_target,
             neuron_db=neuron_db,
             min_syn_count=min_syn_count,
         )
         if len(matrix) <= 1:
             return render_error(
-                f"Path lengths for Cell IDs {root_ids} are not available."
+                f"Path lengths for Cell IDs {root_ids_src} -> {root_ids_target} are not available."
             )
-        log_activity(f"Generated path lengths table for {root_ids} {download=}")
+        log_activity(f"Generated path lengths table for {root_ids_src} -> {root_ids_target} {download=}")
     else:
         matrix = []
 
