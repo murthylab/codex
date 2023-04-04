@@ -621,7 +621,9 @@ def path_length():
         if source_cell_names_or_ids:
             root_ids_src = set(neuron_db.search(search_query=source_cell_names_or_ids))
         if target_cell_names_or_ids:
-            root_ids_target = set(neuron_db.search(search_query=target_cell_names_or_ids))
+            root_ids_target = set(
+                neuron_db.search(search_query=target_cell_names_or_ids)
+            )
         root_ids_src = sorted(root_ids_src)
         root_ids_target = sorted(root_ids_target)
         if not root_ids_src or not root_ids_target:
@@ -648,7 +650,9 @@ def path_length():
             return render_error(
                 f"Path lengths for Cell IDs {root_ids_src} -> {root_ids_target} are not available."
             )
-        log_activity(f"Generated path lengths table for {root_ids_src} -> {root_ids_target} {download=}")
+        log_activity(
+            f"Generated path lengths table for {root_ids_src} -> {root_ids_target} {download=}"
+        )
     else:
         matrix = []
 
