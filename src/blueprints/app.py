@@ -677,11 +677,11 @@ def path_length():
                         to_root_id = int(matrix[0][j])
                         if min_syn_count == MIN_SYN_COUNT:
                             q = f"{from_root_id} {OP_PATHWAYS} {to_root_id}"
-                            slink = f'<a href="{url_for("app.search", filter_string=q)}" target="_blank" ><i class="fa-solid fa-list"></i></a>'
+                            slink = f'<a href="{url_for("app.search", filter_string=q)}" target="_blank" ><i class="fa-solid fa-list"></i> View cells as list</a>'
                         else:
                             slink = ""  # search by pathways is only available for default threshold
-                        plink = f'<a href="{url_for("app.pathways", source_cell_id=from_root_id, target_cell_id=to_root_id, min_syn_count=min_syn_count)}" target="_blank" ><i class="fa-solid fa-route"></i></a>'
-                        r[j] = f"{val} hops <br> <small>{plink} &nbsp; {slink}</small>"
+                        plink = f'<a href="{url_for("app.pathways", source_cell_id=from_root_id, target_cell_id=to_root_id, min_syn_count=min_syn_count)}" target="_blank" ><i class="fa-solid fa-route"></i> View Pathways chart</a>'
+                        r[j] = f"{val} hops <br> <small>{plink} <br> {slink}</small>"
                     elif val == 0:
                         r[j] = ""
                     elif val == -1:
