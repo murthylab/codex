@@ -1,9 +1,23 @@
+opt=$1
 TIMESTAMP=$(date)
 GIT_SHA=$(git log | head -1 | cut -d " " -f 2)
 
-pip install pytest && \
-python3 -m pytest tests/integration -x && \
-python3 -m pytest tests/unit -x && \
+pip install pytest | grep -v 'already satisfied'
+
+set -e
+set -o pipefail
+
+if [ "$opt" = "-nt" ]; then
+   echo "!!! Skipping ALL tests !!!"
+elif [ "$opt" = "-ni" ]; then
+   echo "! Skipping integration tests !"
+   python3 -m pytest tests/unit -x
+else
+   echo "Running tests.."
+   python3 -m pytest tests/integration -x
+   python3 -m pytest tests/unit -x
+fi
+
 gcloud run deploy --source . \
         --set-env-vars "APP_ENVIRONMENT=PROD" \
         --set-env-vars "BUILD_GIT_SHA=${GIT_SHA}" \
