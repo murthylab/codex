@@ -99,7 +99,7 @@ class Test(TestCase):
                 "# rows": f"{display(len(rows) - 1)} (+ header)",
                 "# columns": display(len(rows[0])),
             }
-            if len(rows[0]) < 50:
+            if len(rows[0]) < 500:
                 res.update(
                     {
                         f"col {i + 1} - {col}": col_stats(i)
