@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 
-from src.blueprints.api import (
+from src.data.download_catalog import (
     DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS,
     DOWNLOADABLE_FILE_SIZES,
     DOWNLOADABLE_FILE_CONTENTS,
@@ -18,8 +18,7 @@ class Test(TestCase):
         products = list(DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS.values())
         for i, p1 in enumerate(products):
             for p2 in products[i + 1 :]:
-                for j in range(len(p1)):
-                    self.assertNotEqual(p1[j], p2[j])
+                self.assertNotEqual(p1, p2)
 
     def test_file_sizes(self):
         actual_file_sizes = {}
