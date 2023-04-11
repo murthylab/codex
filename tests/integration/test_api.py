@@ -60,12 +60,10 @@ class Test(TestCase):
                     # not int/float, return none
                     return None
 
-                if "float" in types_set:
-                    return "float"
-                elif "int" in types_set:
-                    return "int"
-                else:
-                    self.fail(f"Unexpected types: {types_set=} {val_set=}")
+                for tp in ["float", "int"]:  # from broadest to narrowest
+                    if tp in types_set:
+                        return tp
+                self.fail(f"Unexpected types: {types_set=} {val_set=}")
 
             def col_stats(col_idx):
                 nonempty_val_list = [r[col_idx] for r in rows[1:] if r[col_idx]]
@@ -75,21 +73,26 @@ class Test(TestCase):
                 missing_count = len(rows) - (len(nonempty_val_list) + 1)
                 iof = infer_int_or_float(nonempty_val_set)
 
+                def type_and_range():
+                    if not iof or rows[0][col_idx].endswith("_id"):
+                        return ""
+                    tp = eval(iof)
+                    self.assertTrue(tp in [float, int])
+                    typed_vals = [tp(val) for val in nonempty_val_set]
+                    return f" of type {iof.upper()} in range [{display(min(typed_vals))} .. {display(max(typed_vals))}]"
+
                 if missing_count == 0 and len(nonempty_val_list) == len(
                     nonempty_val_set
                 ):
-                    col_attrs = "all rows contain unique values"
-                    if iof:
-                        col_attrs += f" of type {iof}"
+                    col_attrs = "all rows contain unique values" + type_and_range()
                 else:
-                    col_attrs = f"{display(len(nonempty_val_set))} unique values"
-                    if iof:
-                        col_attrs += f" of type {iof}"
+                    col_attrs = (
+                        f"{display(len(nonempty_val_set))} unique values"
+                        + type_and_range()
+                    )
                     if missing_count:
                         col_attrs += f" in {display(len(nonempty_val_list))} rows"
-                        col_attrs += (
-                            f", empty in remaining {display(missing_count)} rows"
-                        )
+                        col_attrs += f", empty in {display(missing_count)} rows"
 
                 return col_attrs
 
@@ -100,7 +103,7 @@ class Test(TestCase):
             if len(rows[0]) < 50:
                 res.update(
                     {
-                        f"column  {i + 1}: {col}": col_stats(i)
+                        f"col {i + 1} - {col}": col_stats(i)
                         for i, col in enumerate(rows[0])
                     }
                 )
