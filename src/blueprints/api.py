@@ -27,7 +27,7 @@ DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS = {
     "classification": (
         "Classification / hierarchical annotations",
         "Soma side, Nerve Type and hierarchical classification for each cell in the dataset. Annotated by the Jefferis"
-        ' Lab - more details <a href="about_classification">here</a>',
+        ' Lab (<a href="" data-toggle="modal" data-target="#cellAnnotationsModal">additional info</a>)',
     ),
     "cell_stats": (
         "Cell size measurements",
