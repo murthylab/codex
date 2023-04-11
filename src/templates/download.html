@@ -5,7 +5,7 @@
 
 <div class="card bg-light mb-3" style="margin: 10px;" id="info">
     <div class="card-header" style="color: purple; font-size: 18px;">
-         Download Data
+         Download FlyWire Connectome Data
     </div>
     <div class="card-body">
         <p> Dear <b>{{user_name}}</b>, beware
@@ -16,35 +16,56 @@
             Do not share or forward the data to anyone without <b>written permission</b> from <b>flywire@princeton.edu</b>
             <i style="margin-left: 5px; color: red;" class="fa-solid fa-warning"></i>
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" value="" id="agree_chk"
+              <input class="form-check-input" type="checkbox" value="" id="agree_chk" {{'checked' if agree_chk}}
                      onchange="document.getElementById('download_form').hidden=!document.getElementById('agree_chk').checked;">
               <label class="form-check-label" for="agree_chk">
                 I understand and agree to not share data without permission
               </label>
             </div>
         </p>
-        <form class="form-inline" id="download_form" hidden>
-            <label style="margin: 20px;">Data version</label>
-            <select style="margin: 20px;" class="form-select form-select-lg mb-3"
-                    aria-label="Data Version" name="data_version">
-                {% for k, v in data_versions.items() %}
-                <option value="{{k}}" {{
-                'selected' if data_version==k}}>{{v}}</option>
-                {% endfor %}
-            </select>
-            <label style="margin: 20px;">Data product</label>
-            <select style="margin: 20px;" class="form-select form-select-lg mb-3"
-                    aria-label="Data Product" name="data_product">
-                {% for product, description in data_products.items() %}
-                <option value="{{product}}" {{
-                'selected' if data_product==v}}>{{description}}</option>
-                {% endfor %}
-            </select>
-            <button class="btn btn btn-link my-2 my-sm-0" type="submit"><i class="fa-solid fa-download"></i>
-                </button>
+        <form id="download_form" {{'hidden' if not agree_chk}}>
+                <label>Snapshot / version</label>
+                <select class="form-select form-select-lg mb-3"
+                        aria-label="Data Version"
+                        id="data_version_select"
+                        name="data_version"
+                        onchange="this.form.submit();">
+                    {% for k, v in data_versions.items() %}
+                        <option value="{{k}}" {{'selected' if data_version==k}}>
+                            {{v}}
+                        </option>
+                    {% endfor %}
+                </select>
 
+            {% for k, v in download_catalog.items() %}
+                <div class="card bg-light mb-3" style="margin: 10px;">
+                    <div class="card-header" style="color: purple; font-size: 18px;">
+                        {{display(k)}}
+                    </div>
+                    <div class="card-body">
+                        <b>Summary</b><br>{{v.title}}
+                        <br><br>
+                        <b>Description</b><br>{{v.description|safe}}
+                        <br><br>
+                        <b>File format and size</b><br>{{v.file_format}}<br>{{v.file_size}}
+                        <br><br>
+                        <b>Content stats</b><br>
+                        <table class="table table-hover table-sm">
+                            {% for sk, sv in v.file_content.items() %}
+                            <tr>
+                                <td>{{sk}}</td>
+                                <td>{{sv}}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                        <br>
+                        <button class="btn btn btn-primary my-2 my-sm-0" type="submit" name="data_product" value="{{k}}">
+                            <i class="fa-solid fa-download"></i> &nbsp; {{v.file_name}}
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
         </form>
-
     </div>
 </div>
 
