@@ -617,7 +617,7 @@ def path_length():
     if not source_cell_names_or_ids or not target_cell_names_or_ids:
         return render_error(
             title="No cells provided",
-            message=f"Both source and target cells must be specified.",
+            message="Both source and target cells must be specified.",
         )
     neuron_db = NeuronDataFactory.instance().get()
     root_ids_src = set()
