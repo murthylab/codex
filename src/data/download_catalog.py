@@ -35,23 +35,23 @@ DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS = {
 
 DOWNLOADABLE_FILE_SIZES = {
     "526": {
-        "cell_stats.csv.gz": "1,952,932 bytes",
-        "classification.csv.gz": "584,952 bytes",
-        "connections.csv.gz": "27,426,837 bytes",
-        "coordinates.csv.gz": "3,624,667 bytes",
-        "labels.csv.gz": "2,536,462 bytes",
-        "neurons.csv.gz": "1,679,896 bytes",
-        "neuropil_synapse_table.csv.gz": "2,531,010 bytes",
+        "cell_stats.csv.gz": 1952932,
+        "classification.csv.gz": 584952,
+        "connections.csv.gz": 27426837,
+        "coordinates.csv.gz": 3624667,
+        "labels.csv.gz": 2536462,
+        "neurons.csv.gz": 1679896,
+        "neuropil_synapse_table.csv.gz": 2531010,
     },
     "571": {
-        "cell_stats.csv.gz": "2,257,920 bytes",
-        "classification.csv.gz": "808,205 bytes",
-        "connections.csv.gz": "32,220,716 bytes",
-        "coordinates.csv.gz": "3,945,113 bytes",
-        "labels.csv.gz": "2,536,852 bytes",
-        "morphology_clusters.csv.gz": "206,854 bytes",
-        "neurons.csv.gz": "1,926,110 bytes",
-        "neuropil_synapse_table.csv.gz": "2,866,446 bytes",
+        "cell_stats.csv.gz": 2257920,
+        "classification.csv.gz": 808205,
+        "connections.csv.gz": 32220716,
+        "coordinates.csv.gz": 3945113,
+        "labels.csv.gz": 2536852,
+        "morphology_clusters.csv.gz": 206854,
+        "neurons.csv.gz": 1926110,
+        "neuropil_synapse_table.csv.gz": 2866446,
     },
 }
 

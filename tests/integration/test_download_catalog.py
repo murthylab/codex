@@ -28,9 +28,7 @@ class Test(TestCase):
                 fname = f"{p}{DOWNLOADABLE_FILE_EXTENSION}"
                 fpath = f"{TEST_DATA_ROOT_PATH}/{v}/{fname}"
                 if os.path.isfile(fpath):
-                    actual_file_sizes[v][
-                        fname
-                    ] = f"{display(os.path.getsize(fpath))} bytes"
+                    actual_file_sizes[v][fname] = os.path.getsize(fpath)
         self.assertEqual(DOWNLOADABLE_FILE_SIZES, actual_file_sizes)
 
     def test_file_contents(self):

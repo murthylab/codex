@@ -38,21 +38,22 @@
                 </select>
 
             {% for k, v in download_catalog.items() %}
-                <div class="card bg-light mb-3" style="margin: 10px;">
-                    <div class="card-header" style="color: purple; font-size: 18px;">
-                        {{display(k)}}
-                    </div>
-                    <div class="card-body">
+                <div class="card bg-light mb-3" style="margin: 5px;">
+                    <a class="card-header" style="color: purple; font-size: 18px;" data-toggle="collapse" href="#collapse{{k}}" role="button" aria-expanded="false" aria-controls="collapse{{k}}">
+                        <i class="fa-solid fa-file-csv"></i> &nbsp; {{display(k)}} ({{display(v.file_size / 1000000)}} MB) &nbsp; <i class="fa-solid fa-angle-down"></i>
+                    </a>
+                    <div class="collapse" id="collapse{{k}}">
+                      <div class="card-body">
                         <b>Description</b><br>{{v.description|safe}}
                         <br><br>
-                        <b>File format and size</b><br>{{v.file_format}}<br>{{v.file_size}}
+                        <b>File info</b><br>{{display(v.file_size)}} bytes, {{v.file_format}}
                         <br><br>
                         <b>Content stats</b><br>
                         <table class="table table-hover table-sm">
                             {% for sk, sv in v.file_content.items() %}
                             <tr>
-                                <td class="td td-sm">{{sk}}</td>
-                                <td class="td td-sm">{{sv}}</td>
+                                <td>{{sk}}</td>
+                                <td>{{sv}}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -60,6 +61,7 @@
                         <button class="btn btn btn-primary my-2 my-sm-0" type="submit" name="data_product" value="{{k}}">
                             <i class="fa-solid fa-download"></i> &nbsp; {{v.file_name}}
                         </button>
+                      </div>
                     </div>
                 </div>
             {% endfor %}
