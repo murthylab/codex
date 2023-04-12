@@ -614,7 +614,7 @@ def path_length():
     )
     message = None
 
-    if source_cell_names_or_ids and target_cell_names_or_ids:
+    if source_cell_names_or_ids or target_cell_names_or_ids:
         neuron_db = NeuronDataFactory.instance().get()
         root_ids_src = set()
         root_ids_target = set()
