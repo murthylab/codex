@@ -5,7 +5,7 @@ from networkx import Graph, DiGraph, connected_components, strongly_connected_co
 
 from src.data.local_data_loader import write_csv, unpickle_neuron_db
 from src.data.neuron_data_factory import NeuronDataFactory
-from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
+
 
 """
 Clusters a set of neurons by morphological similarity. Uses iterative application of the connected component analysis on
@@ -130,21 +130,21 @@ def cluster_neurons(predicate, directed=True, print_markdown=False, csv_filename
             print(f"1. [{name}]({link})")
 
 
-def compare_versions():
-    ndb526 = unpickle_neuron_db(version="526")
-    ndb571 = unpickle_neuron_db(version="571")
+def compare_versions(v1, v2):
+    ndb1 = unpickle_neuron_db(version=v1)
+    ndb2 = unpickle_neuron_db(version=v2)
 
     print(
-        f"Num neurons in 526: {len(ndb526.neuron_data)}, 571: {len(ndb571.neuron_data)}"
+        f"Num neurons in {v1}: {len(ndb1.neuron_data)}, {v2}: {len(ndb2.neuron_data)}"
     )
     print(
-        f"Num neurons in 526 and 571: {len(set(ndb526.neuron_data.keys()) & set(ndb571.neuron_data.keys()))}"
+        f"Num neurons in {v1} and {v2}: {len(set(ndb1.neuron_data.keys()) & set(ndb2.neuron_data.keys()))}"
     )
     print(
-        f"Num neurons in 526-571: {len(set(ndb526.neuron_data.keys()) - set(ndb571.neuron_data.keys()))}"
+        f"Num neurons in {v1}-{v2}: {len(set(ndb1.neuron_data.keys()) - set(ndb2.neuron_data.keys()))}"
     )
     print(
-        f"Num neurons in 526-571: {len(set(ndb571.neuron_data.keys()) - set(ndb526.neuron_data.keys()))}"
+        f"Num neurons in {v2}-{v1}: {len(set(ndb2.neuron_data.keys()) - set(ndb1.neuron_data.keys()))}"
     )
 
 
@@ -164,39 +164,5 @@ def cluster_SEZ_cells():
     )
 
 
-def assign_morphology_cluster_groups():
-    neuron_db = NeuronDataFactory().get()
-    G = DiGraph()
-    for rid, ndata in neuron_db.neuron_data.items():
-        G.add_node(rid)
-    for rid, ndata in neuron_db.neuron_data.items():
-        for rid_to, score in ndata["similar_cell_scores"].items():
-            if score >= 5:
-                G.add_edge(rid, rid_to)
-
-    clusters_dict = {}
-    component_id = 0
-    max_xluster_size = 0
-    for s in sorted(list(strongly_connected_components(G)), key=lambda x: -len(x)):
-        if len(s) > 1:
-            max_xluster_size = max(max_xluster_size, len(s))
-            component_id += 1
-            cluster_name = f"C{component_id}.{len(s)}"
-            for rid in s:
-                clusters_dict[rid] = cluster_name
-            # print(f"Created {cluster_name}: {s}")
-
-    print(f"Total clustered rids: {len(clusters_dict)}, {max_xluster_size=}")
-    clusters_table = [["root_id", "cluster"]]
-    for rid, cl in clusters_dict.items():
-        clusters_table.append([rid, cl])
-
-    write_csv(
-        filename=f"static/data/{DEFAULT_DATA_SNAPSHOT_VERSION}/morphology_clusters.csv.gz",
-        rows=clusters_table,
-        compress=True,
-    )
-
-
 if __name__ == "__main__":
-    assign_morphology_cluster_groups()
+    compare_versions("571", "630")
