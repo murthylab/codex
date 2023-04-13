@@ -32,18 +32,18 @@
 </div>
 {% endif %}
 
-{% if distance_table %}
+{% if matrix %}
 <div style="overflow-x:auto;">
     <table class="table">
         <thead>
         <tr>
-            {% for hv in distance_table[0] %}
+            {% for hv in matrix[0] %}
             <th scope="col">{{hv|safe}}</th>
             {% endfor %}
         </tr>
         </thead>
         <tbody>
-        {% for row in distance_table[1:] %}
+        {% for row in matrix[1:] %}
         <tr>
             {% for dv in row %}
             <td>{{dv|safe}}</td>

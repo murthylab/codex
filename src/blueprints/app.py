@@ -695,12 +695,12 @@ def path_length():
 
         paths_doc = FAQ_QA_KB["paths"]
         return render_template(
-            "distance_table.html",
+            "path_lengths.html",
             source_cell_names_or_ids=source_cell_names_or_ids,
             target_cell_names_or_ids=target_cell_names_or_ids,
             collect_min_syn_count=True,
             min_syn_count=min_syn_count,
-            distance_table=matrix,
+            matrix=matrix,
             download_url=url_for(
                 "app.path_length",
                 download=1,
