@@ -6,6 +6,43 @@ MIN_SYN_COUNT = 5
 MIN_NBLAST_SCORE_SIMILARITY = 4
 MAX_NEURONS_FOR_DOWNLOAD = 100
 
+DOWNLOADABLE_FILE_EXTENSION = ".csv.gz"
+DOWNLOADABLE_FILE_FORMAT = "compressed CSV file (gzip)"
+# take care of various working directories (tests, app, update scripts)
+DOWNLOADABLE_FILES_METADATA_FILE = (
+    f"{os.getcwd().split('codex')[0]}/codex/src/data/downloadable_files_metadata.json"
+)
+DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS = {
+    "neurons": "Cell name, group and NT type predictions. "
+    "For every cell in the dataset, specifies auto-generated name and group (based on primary input and output "
+    "neuropils) as well as the predicted NT type  of the cell along with the prediction scores for individual "
+    "NT types.",
+    "classification": "Classification / hierarchical annotations. "
+    "Soma side, Nerve Type and hierarchical classification for each cell in the dataset. Annotated by the Jefferis"
+    ' Lab (<a href="" data-toggle="modal" data-target="#cellAnnotationsModal">additional info</a>)',
+    "cell_stats": "Cell size measurements. "
+    "Specifies the surface area, cable length and size/volume for each cell in the dataset. Nanometer units.",
+    "morphology_clusters": "Clustering / grouping of cells based on their morphology. Cells assigned to same cluster should be similar in "
+    "shape.",
+    "connections": "Synaptic connectivity table. "
+    "One row for every connected pair of cells broken by neuropil (region). First and second columns contain the "
+    "FlyWire Root IDs of the connected pair ('pre/from' and 'post/to' respectively), the third column contains the "
+    "neuropil abbreviation, the fourth contains the number of synapses (aggregated across all connection sites of "
+    "the respective pair and neuropil), and the fifth column contains the predicted NT type for the synapses.",
+    "labels": "Identification tags (labeled by FlyWire community). "
+    "Community identification labels with additional information including the author and their affiliation. "
+    "One cell might contain zero or more identification labels.",
+    "coordinates": "Marked neuron coordinates. "
+    "FlyWire Supervoxel IDs and position coordinates for cells in the dataset. One cell might have zero or more "
+    "marked coordinates and supervoxel IDs.",
+    "neuropil_synapse_table": "In-out synapse & partner counts by neuropil. "
+    "For every cell and neuropil (region), contains the number of input and output synapses, as well as the "
+    "number of input and output partners the cell has in that neuropil. One row for each cell with the first "
+    "column containing the FlyWire Root ID of the cell, followed by a column for every combination of neuropil X "
+    "input/output X synapse/partner. Note: this resource is a convenience, it can be derived from the connectivity "
+    "table.",
+}
+
 GOOGLE_CLIENT_ID = (
     "356707763910-l9ovf7f2at2vc23f3u2j356aokr4eb99.apps.googleusercontent.com"
 )
