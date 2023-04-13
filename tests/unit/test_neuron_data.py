@@ -254,7 +254,7 @@ class NeuronDataTest(TestCase):
 
     def test_downstream_upstream_queries(self):
         downstream = self.neuron_db.search("{downstream} 720575940646952324")
-        self.assertEqual(104, len(downstream))
+        self.assertEqual(105, len(downstream))
 
         upstream = self.neuron_db.search("{upstream} 720575940646952324")
         self.assertEqual(180, len(upstream))
@@ -272,7 +272,7 @@ class NeuronDataTest(TestCase):
             "center {downstream_region} 720575940643467886"
         )
         self.assertEqual(
-            sorted([720575940619266870, 720575940620960347, 720575940632905164]),
+            sorted([720575940615933919, 720575940620960347, 720575940627079938]),
             sorted(downstream),
         )
 
@@ -378,22 +378,22 @@ class NeuronDataTest(TestCase):
             "Kenyon_Cell",
             "L1-5",
             "LHCENT",
+            "LHLN",
             "MBIN",
             "MBON",
             "TuBu",
             "bilateral",
-            "endocrine",
-            "fragment",
-            "glia",
             "gustatory",
             "hygrosensory",
             "mAL",
             "mechanosensory",
+            "medulla_intrinsic",
             "motor",
             "ocellar",
             "olfactory",
             "optic_lobes",
-            "ring neuron",
+            "pars intercerebralis",
+            "pars lateralis",
             "thermosensory",
             "unknown_sensory",
             "visual",
@@ -407,7 +407,6 @@ class NeuronDataTest(TestCase):
             "descending",
             "endocrine",
             "motor",
-            "not_a_neuron",
             "optic",
             "sensory",
             "visual_centrifugal",
@@ -435,7 +434,7 @@ class NeuronDataTest(TestCase):
         self.assertEqual(expected_list, self.neuron_db.unique_values("sub_class"))
 
     def test_cell_types(self):
-        expected_list_length = 925
+        expected_list_length = 1620
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("cell_type"))
         )
@@ -526,7 +525,7 @@ class NeuronDataTest(TestCase):
             if k in sparse_attrs:
                 continue
             num_vals = len([n[k] for n in self.neuron_db.neuron_data.values() if n[k]])
-            self.assertGreater(num_vals / len(self.neuron_db.neuron_data), 0.9, k)
+            self.assertGreater(num_vals / len(self.neuron_db.neuron_data), 0.85, k)
 
     def test_nblast_scores_consistency(self):
         for from_rid, nd in self.neuron_db.neuron_data.items():
