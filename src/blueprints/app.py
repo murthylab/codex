@@ -616,43 +616,43 @@ def path_length():
 
     if source_cell_names_or_ids or target_cell_names_or_ids:
         neuron_db = NeuronDataFactory.instance().get()
-        root_ids = set()
-        if source_cell_names_or_ids:
-            root_ids |= set(neuron_db.search(search_query=source_cell_names_or_ids))
-        if (
-            target_cell_names_or_ids
-            and target_cell_names_or_ids != source_cell_names_or_ids
-        ):
-            root_ids |= set(neuron_db.search(search_query=target_cell_names_or_ids))
-        root_ids = sorted(root_ids)
-        if not root_ids:
+        root_ids_src = neuron_db.search(search_query=source_cell_names_or_ids)
+        root_ids_target = neuron_db.search(search_query=target_cell_names_or_ids)
+        if not root_ids_src or not root_ids_target:
             return render_error(
                 title="No matching cells found",
                 message=f"Could not find any cells matching '{source_cell_names_or_ids} -> {target_cell_names_or_ids}'",
             )
-        elif len(root_ids) > MAX_NEURONS_FOR_DOWNLOAD:
+        if len(root_ids_src) > MAX_NEURONS_FOR_DOWNLOAD:
             message = (
-                f"{len(root_ids)} cells match your query. "
-                f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD // 2} matches."
+                f"{len(root_ids_src)} source cells match your query. "
+                f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD} matches."
             )
-            root_ids = root_ids[: MAX_NEURONS_FOR_DOWNLOAD // 2]
-        elif len(root_ids) == 1:
-            return render_error(
-                message=f"Only one match found in the data: {root_ids}. Need 2 or more cells for pairwise pathway(s).",
-                title="Cell list is too short",
+            root_ids_src = root_ids_src[:MAX_NEURONS_FOR_DOWNLOAD]
+        if len(root_ids_target) > MAX_NEURONS_FOR_DOWNLOAD:
+            if message is None:
+                message = ""
+            else:
+                message += "<br>"
+            message += (
+                f"{len(root_ids_target)} target cells match your query. "
+                f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD} matches."
             )
+            root_ids_target = root_ids_target[:MAX_NEURONS_FOR_DOWNLOAD]
 
         matrix = distance_matrix(
-            sources=root_ids,
-            targets=root_ids,
+            sources=root_ids_src,
+            targets=root_ids_target,
             neuron_db=neuron_db,
             min_syn_count=min_syn_count,
         )
         if len(matrix) <= 1:
             return render_error(
-                f"Path lengths for Cell IDs {root_ids} are not available."
+                f"Path lengths for Cell IDs {root_ids_src} -> {root_ids_target} are not available."
             )
-        log_activity(f"Generated path lengths table for {root_ids} {download=}")
+        log_activity(
+            f"Generated path lengths table for {root_ids_src} -> {root_ids_target} {download=}"
+        )
     else:
         matrix = []
 
@@ -677,11 +677,11 @@ def path_length():
                         to_root_id = int(matrix[0][j])
                         if min_syn_count == MIN_SYN_COUNT:
                             q = f"{from_root_id} {OP_PATHWAYS} {to_root_id}"
-                            slink = f'<a href="{url_for("app.search", filter_string=q)}" target="_blank" ><i class="fa-solid fa-list"></i></a>'
+                            slink = f'<a href="{url_for("app.search", filter_string=q)}" target="_blank" ><i class="fa-solid fa-list"></i> View cells as list</a>'
                         else:
                             slink = ""  # search by pathways is only available for default threshold
-                        plink = f'<a href="{url_for("app.pathways", source_cell_id=from_root_id, target_cell_id=to_root_id, min_syn_count=min_syn_count)}" target="_blank" ><i class="fa-solid fa-route"></i></a>'
-                        r[j] = f"{val} hops <br> <small>{plink} &nbsp; {slink}</small>"
+                        plink = f'<a href="{url_for("app.pathways", source_cell_id=from_root_id, target_cell_id=to_root_id, min_syn_count=min_syn_count)}" target="_blank" ><i class="fa-solid fa-route"></i> View Pathways chart</a>'
+                        r[j] = f"{val} hops <br> <small>{plink} <br> {slink}</small>"
                     elif val == 0:
                         r[j] = ""
                     elif val == -1:
