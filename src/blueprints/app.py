@@ -601,42 +601,43 @@ def path_length():
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
     min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
     min_syn_count = max(min_syn_count, MIN_SYN_COUNT)
-
-    if not source_cell_names_or_ids and not target_cell_names_or_ids:
-        if request.args.get("with_sample_input", type=int, default=0):
-            source_cell_names_or_ids = target_cell_names_or_ids = sample_input
-        else:
-            source_cell_names_or_ids = target_cell_names_or_ids = ""
-
     download = request.args.get("download", 0, type=int)
-    log_activity(
-        f"Generating path lengths table for '{source_cell_names_or_ids}' -> '{target_cell_names_or_ids}' {download=}"
-    )
-    message = None
 
-    if source_cell_names_or_ids or target_cell_names_or_ids:
+    if request.args.get("with_sample_input", type=int, default=0):
+        assert not source_cell_names_or_ids and not target_cell_names_or_ids
+        source_cell_names_or_ids = target_cell_names_or_ids = sample_input
+    else:
+        log_activity(
+            f"Generating path lengths table for '{source_cell_names_or_ids}' -> '{target_cell_names_or_ids}' "
+            f"with {min_syn_count=} and {download=}"
+        )
+
+    messages = []
+    if source_cell_names_or_ids and target_cell_names_or_ids:
         neuron_db = NeuronDataFactory.instance().get()
         root_ids_src = neuron_db.search(search_query=source_cell_names_or_ids)
         root_ids_target = neuron_db.search(search_query=target_cell_names_or_ids)
-        if not root_ids_src or not root_ids_target:
+        if not root_ids_src:
             return render_error(
-                title="No matching cells found",
-                message=f"Could not find any cells matching '{source_cell_names_or_ids} -> {target_cell_names_or_ids}'",
+                title="No matching source cells",
+                message=f"Could not find any cells matching '{source_cell_names_or_ids}'",
             )
+        if not root_ids_target:
+            return render_error(
+                title="No matching target cells",
+                message=f"Could not find any cells matching '{target_cell_names_or_ids}'",
+            )
+
         if len(root_ids_src) > MAX_NEURONS_FOR_DOWNLOAD:
-            message = (
-                f"{len(root_ids_src)} source cells match your query. "
-                f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD} matches."
+            messages.append(
+                f"{display(len(root_ids_src))} source cells match your query. "
+                f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD} sources."
             )
             root_ids_src = root_ids_src[:MAX_NEURONS_FOR_DOWNLOAD]
         if len(root_ids_target) > MAX_NEURONS_FOR_DOWNLOAD:
-            if message is None:
-                message = ""
-            else:
-                message += "<br>"
-            message += (
-                f"{len(root_ids_target)} target cells match your query. "
-                f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD} matches."
+            messages.append(
+                f"{display(len(root_ids_target))} target cells match your query. "
+                f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD} targets."
             )
             root_ids_target = root_ids_target[:MAX_NEURONS_FOR_DOWNLOAD]
 
@@ -646,25 +647,29 @@ def path_length():
             neuron_db=neuron_db,
             min_syn_count=min_syn_count,
         )
-        if len(matrix) <= 1:
-            return render_error(
-                f"Path lengths for Cell IDs {root_ids_src} -> {root_ids_target} are not available."
-            )
         log_activity(
-            f"Generated path lengths table for {root_ids_src} -> {root_ids_target} {download=}"
+            f"Generated path lengths table of length {len(matrix)}. "
+            f"{len(root_ids_src)=}, {len(root_ids_target)=}, {min_syn_count=}, {download=}"
         )
+        if len(matrix) <= 1:
+            log_error(
+                f"No paths found from {source_cell_names_or_ids} to {target_cell_names_or_ids} with synapse "
+                f"threshold {min_syn_count}."
+            )
     else:
         matrix = []
+        if source_cell_names_or_ids or target_cell_names_or_ids:
+            messages.append("Please specify both source and target cell queries.")
 
-    if download:
-        fname = "path_lengths.csv"
-        return Response(
-            "\n".join([",".join([str(r) for r in row]) for row in matrix]),
-            mimetype="text/csv",
-            headers={"Content-disposition": f"attachment; filename={fname}"},
-        )
-    else:
-        if matrix:
+    if matrix:
+        if download:
+            fname = "path_lengths.csv"
+            return Response(
+                "\n".join([",".join([str(r) for r in row]) for row in matrix]),
+                mimetype="text/csv",
+                headers={"Content-disposition": f"attachment; filename={fname}"},
+            )
+        else:
             # format matrix with cell info/hyperlinks and pathway hyperlinks
             for i, r in enumerate(matrix[1:]):
                 from_root_id = int(r[0])
@@ -693,29 +698,30 @@ def path_length():
                         j
                     ] = f'<a href="{url_for("app.search", filter_string="id == " + str(val))}">{neuron_db.get_neuron_data(int(val))["name"]}</a><br><small>{val}</small>'
 
-        paths_doc = FAQ_QA_KB["paths"]
-        return render_template(
-            "path_lengths.html",
+    info_text = (
+        "With this tool you can specify one or more source cells + one or more target cells, set a "
+        "minimum synapse threshold per connection, and get a matrix with shortest path lengths for all "
+        "source/target pairs. From there, you can inspect / visualize the pathways between any pair of "
+        f"cells in detail.<br>{FAQ_QA_KB['paths']['a']}"
+    )
+
+    return render_template(
+        "path_lengths.html",
+        source_cell_names_or_ids=source_cell_names_or_ids,
+        target_cell_names_or_ids=target_cell_names_or_ids,
+        collect_min_syn_count=True,
+        min_syn_count=min_syn_count,
+        matrix=matrix,
+        download_url=url_for(
+            "app.path_length",
+            download=1,
             source_cell_names_or_ids=source_cell_names_or_ids,
             target_cell_names_or_ids=target_cell_names_or_ids,
-            collect_min_syn_count=True,
-            min_syn_count=min_syn_count,
-            matrix=matrix,
-            download_url=url_for(
-                "app.path_length",
-                download=1,
-                source_cell_names_or_ids=source_cell_names_or_ids,
-                target_cell_names_or_ids=target_cell_names_or_ids,
-            ),
-            info_text="With this tool you can specify one "
-            "or more source cells + one or more target cells, set a minimum synapse threshold per connection,"
-            " and get a matrix with shortest path lengths for all source/target pairs. From there, you can inspect / "
-            "visualize "
-            "the pathways between any pair of cells in detail.<br>"
-            f"{paths_doc['a']}",
-            sample_input=sample_input,
-            message=message,
-        )
+        ),
+        info_text=info_text,
+        sample_input=sample_input,
+        messages=messages,
+    )
 
 
 @app.route("/connectivity")

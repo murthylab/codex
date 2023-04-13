@@ -21,13 +21,15 @@
     </form>
 </nav>
 
-{% if message %}
+{% if messages %}
 <div class="card" style="margin: 15px;">
-    <div class="card-header" style="color: purple;">
-        Note
+    <div class="card-header" style="color: orange;">
+        <i class="fa-solid fa-triangle-exclamation"></i> &nbsp; Attention
     </div>
     <div class="card-body">
-        {{message|safe}}
+        {% for message in messages %}
+            {{message|safe}}<br>
+        {% endfor %}
     </div>
 </div>
 {% endif %}
