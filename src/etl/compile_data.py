@@ -1,22 +1,24 @@
 import os.path
 import shutil
+
 import numpy as np
 
 import pandas
 from caveclient import CAVEclient
-from networkx import DiGraph, strongly_connected_components
+from networkx import Graph, community
 
 from src.configuration import MIN_SYN_COUNT
 from src.data.local_data_loader import read_csv, write_csv
 
 # FlyWire data snapshots are exported periodically in 2 Google Drive folders (within them snapshot sub-folders are
-# named by internal version, e.g. 526.):
+# named by internal version, e.g. 630.):
 # Raw synapse table with neuro-transmitter types are here:
 # https://drive.google.com/drive/folders/1B1_-yLi-ED7U8af8OJHhCHr8STq3bf1H
-#  - look for file named something like 'neuron_proof_analysis_ntavg_526.feather' (assuming version 526)
+#  - look for file named something like 'neuron_proof_analysis_ntavg_630.feather' (assuming version 630)
 #  - download it into RAW_DATA_ROOT_FOLDER and name it as NEURON_NT_TYPES_FILE_NAME below
 # Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
 # and store it in this file (no quotes)
+from src.data.versions import DATA_SNAPSHOT_VERSIONS
 from src.etl.synapse_table_processor import (
     compile_connection_rows,
     compile_neuron_rows,
@@ -58,7 +60,7 @@ SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES = [
     "da_avg",
 ]
 
-NBLAST_SCORES_FILE_NAME = "nblast_scores.feather"
+NBLAST_SCORES_FILE_NAME = "nblast_scores_thresholded.feather"
 
 NA_STR = ""
 NA_INT = 0
@@ -598,71 +600,42 @@ def process_nblast_file(version):
     df_data = pandas.read_feather(nblast_raw_filepath)
     columns = df_data.columns.to_list()
     print(f"Loaded {len(df_data)} rows with columns: {columns}")
-    if int(version) >= 630:  # process top N matches file (full table has huge size)
-        N = 10
-        id_col_idx = columns.index("id") + 1
-        match_id_col_indices = [columns.index(f"match_{i + 1}") + 1 for i in range(N)]
-        match_score_col_indices = [
-            columns.index(f"score_{i + 1}") + 1 for i in range(N)
-        ]
-        scores_dict = {}
-        rows_scanned = 0
-        for row in df_data.itertuples():
-            rows_scanned += 1
-            from_root_id = row[id_col_idx]
-            if from_root_id in scores_dict:
-                print(f"Warning: more than one rows for {from_root_id}. Ignoring.")
-                continue
-            similar_pairs = []
-            for i in range(N):
-                match_id = row[match_id_col_indices[i]]
-                score = row[match_score_col_indices[i]]
-                assert score < 1
-                if score >= 0.1:
-                    simple_score = int(str(score)[2])
-                    assert 1 <= simple_score <= 9
-                    similar_pairs.append([match_id, simple_score])
-            if similar_pairs:
-                scores_dict[from_root_id] = similar_pairs
-            if rows_scanned % 1000 == 0 or rows_scanned == len(df_data):
-                print(
-                    f"Rows scanned: {rows_scanned}, score dict len: {len(scores_dict)}"
-                )
-    else:
-        df_column_index = {i: int(c.split(",")[0]) for i, c in enumerate(columns[1:])}
-        print(f"Reading {len(columns)} columns: {columns[:5]}...")
 
-        scores_dict = {}
-        rows_scanned = 0
-        for row in df_data.itertuples():
-            rows_scanned += 1
-            if rows_scanned == 1:
-                continue
-            similar_pairs = []
-            for i, score in enumerate(row[2:]):
-                if i == rows_scanned - 1:
-                    assert score == 1.0
-                else:
-                    assert 0 <= score < 1
-                    if score >= 0.1:
-                        simple_score = int(str(score)[2])
-                        assert 1 <= simple_score <= 9
-                        similar_pairs.append([df_column_index[i], simple_score])
-            from_root_id = int(row[1].split(",")[0])
-            if from_root_id in scores_dict:
-                print(f"Warning: more than one rows for {from_root_id}. Ignoring.")
-            else:
-                scores_dict[from_root_id] = similar_pairs
-            if rows_scanned % 1000 == 0 or rows_scanned == len(df_data):
-                print(
-                    f"Rows scanned: {rows_scanned}, score dict len: {len(scores_dict)}"
-                )
+    scores_dict = {}
+    rows_scanned = 0
+    for row in df_data.itertuples():
+        rows_scanned += 1
+        from_root_id = row[1]
+        to_root_id = row[2]
+        score = row[3]
+        if from_root_id == to_root_id:
+            assert score == 1.0
+            continue
+        assert score < 1
+        if score < 0.4:
+            continue
+        if from_root_id not in scores_dict:
+            scores_dict[from_root_id] = {}
+        elif to_root_id in scores_dict[from_root_id]:
+            print(
+                f"Warning: more than one rows for {from_root_id} {to_root_id}. Ignoring."
+            )
+            continue
+        simple_score = int(str(score)[2])
+        assert 1 <= simple_score <= 9
+        scores_dict[from_root_id][to_root_id] = simple_score
+        reverse_score = scores_dict.get(to_root_id, {}).get(from_root_id)
+        if reverse_score is not None:
+            assert reverse_score == simple_score
+
+        if rows_scanned % 1000 == 0 or rows_scanned == len(df_data):
+            print(f"Rows scanned: {rows_scanned}, score dict len: {len(scores_dict)}")
 
     scores_table = [["root_id", "scores"]]
     scores_table.extend(
         [
-            [rid, ";".join([f"{p[0]}:{p[1]}" for p in score_pairs])]
-            for rid, score_pairs in scores_dict.items()
+            [rid, ";".join([f"{k}:{v}" for k, v in scores.items()])]
+            for rid, scores in scores_dict.items()
         ]
     )
     print(f"Sample rows: {scores_table[:5]}")
@@ -673,19 +646,20 @@ def process_nblast_file(version):
 
 
 def generate_morphology_cluster_groups(scores_dict, version):
-    score_threshold = 6
-    G = DiGraph()
-    for rid, pairs in scores_dict.items():
+    score_threshold = 4
+    G = Graph()
+    for rid, scores in scores_dict.items():
         G.add_node(rid)
-        for p in pairs:
-            if p[1] >= score_threshold:
-                G.add_node(p[0])
-                G.add_edge(rid, p[0])
+        for m, s in scores.items():
+            if s >= score_threshold and m > rid:
+                G.add_node(m)
+                G.add_edge(rid, m, weight=s)
 
+    communities_generator = community.louvain_communities(G, resolution=200)
     clusters_dict = {}
     component_id = 0
     max_xluster_size = 0
-    for s in sorted(list(strongly_connected_components(G)), key=lambda x: -len(x)):
+    for s in sorted(communities_generator, key=lambda x: -len(x)):
         if len(s) > 1:
             max_xluster_size = max(max_xluster_size, len(s))
             component_id += 1

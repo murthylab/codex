@@ -158,8 +158,10 @@ def unpickle_all_neuron_db_versions(data_root_path=DATA_ROOT_PATH):
     }
 
 
-def load_and_pickle_all_neuron_db_versions(data_root_path=DATA_ROOT_PATH):
-    for v in DATA_SNAPSHOT_VERSIONS:
+def load_and_pickle_neuron_db_versions(
+    data_root_path=DATA_ROOT_PATH, versions=DATA_SNAPSHOT_VERSIONS
+):
+    for v in versions:
         db = load_neuron_db(version=v, data_root_path=data_root_path)
         pf = f"{data_file_path_for_version(version=v, data_root_path=data_root_path)}/{NEURON_DB_PICKLE_FILE_NAME}"
         print(f"App initialization writing pickle to {pf}..")
