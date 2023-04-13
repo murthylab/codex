@@ -616,12 +616,8 @@ def path_length():
 
     if source_cell_names_or_ids or target_cell_names_or_ids:
         neuron_db = NeuronDataFactory.instance().get()
-        root_ids_src = set()
-        root_ids_target = set()
-        root_ids_src = set(neuron_db.search(search_query=source_cell_names_or_ids))
-        root_ids_target = set(neuron_db.search(search_query=target_cell_names_or_ids))
-        root_ids_src = sorted(root_ids_src)
-        root_ids_target = sorted(root_ids_target)
+        root_ids_src = neuron_db.search(search_query=source_cell_names_or_ids)
+        root_ids_target = neuron_db.search(search_query=target_cell_names_or_ids)
         if not root_ids_src or not root_ids_target:
             return render_error(
                 title="No matching cells found",
@@ -634,7 +630,11 @@ def path_length():
             )
             root_ids_src = root_ids_src[:MAX_NEURONS_FOR_DOWNLOAD]
         if len(root_ids_target) > MAX_NEURONS_FOR_DOWNLOAD:
-            message = (
+            if message is None:
+                message = ""
+            else:
+                message += "<br>"
+            message += (
                 f"{len(root_ids_target)} target cells match your query. "
                 f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD} matches."
             )
