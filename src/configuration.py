@@ -10,9 +10,7 @@ DOWNLOADABLE_FILE_EXTENSION = ".csv.gz"
 DOWNLOADABLE_FILE_FORMAT = "compressed CSV file (gzip)"
 # take care of various working directories (tests, local app, cloud app, update scripts)
 APP_ROOT = os.getenv("APP_HOME", "codex").replace("/", "")
-DOWNLOADABLE_FILES_METADATA_FILE = (
-    f"{os.getcwd().split(APP_ROOT)[0]}/{APP_ROOT}/src/data/downloadable_files_metadata.json"
-)
+DOWNLOADABLE_FILES_METADATA_FILE = f"{os.getcwd().split(APP_ROOT)[0]}/{APP_ROOT}/src/data/downloadable_files_metadata.json"
 DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS = {
     "neurons": "Cell name, group and NT type predictions. "
     "For every cell in the dataset, specifies auto-generated name and group (based on primary input and output "
