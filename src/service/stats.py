@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from src.configuration import MIN_SYN_COUNT
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils.graph_algos import reachable_node_counts
 from src.utils.logging import log_warning
@@ -39,14 +40,18 @@ def stats_cached(filter_string, data_version, case_sensitive, whole_word):
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            data_stats["Downstream Reachable Cells (5+ syn)"] = reachable_counts
+            data_stats[
+                f"Downstream Reachable Cells ({MIN_SYN_COUNT}+ syn)"
+            ] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources=filtered_root_id_list,
             neighbor_sets=neuron_db.input_sets(),
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            data_stats["Upstream Reachable Cells (5+ syn)"] = reachable_counts
+            data_stats[
+                f"Upstream Reachable Cells ({MIN_SYN_COUNT}+ syn)"
+            ] = reachable_counts
     return (
         filtered_root_id_list,
         len(filtered_root_id_list),

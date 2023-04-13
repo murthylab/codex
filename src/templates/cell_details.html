@@ -127,7 +127,7 @@ div.google-visualization-tooltip { width:250px; }
     <div class="card" style="width: 100%; height: 450px;">
         <div class="card-header" style="color: purple; width: 100%;">
             <a href="{{url_for('app.connectivity', data_version=data_version, cell_names_or_ids=cell_names_or_id, show_regions=1)}}" target="_blank">Connections with
-                5+ synapses<i style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i> </a>
+                {{min_syn_cnt}}+ synapses<i style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i> </a>
             <a class="btn btn-outline-primary btn-sm" style="float: right;" href="{{url_for('app.connectivity', data_version=data_version, cell_names_or_ids=cell_names_or_id, show_regions=1, download='csv')}}" target="_blank">
                 <i class="fa-solid fa-download"></i> CSV</a>
         </div>

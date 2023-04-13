@@ -74,10 +74,10 @@ class NeuronDB(object):
             ]
         )
 
-    def input_sets(self, min_syn_count=5):
+    def input_sets(self, min_syn_count=MIN_SYN_COUNT):
         return self.input_output_partner_sets(min_syn_count)[0]
 
-    def output_sets(self, min_syn_count=5):
+    def output_sets(self, min_syn_count=MIN_SYN_COUNT):
         return self.input_output_partner_sets(min_syn_count)[1]
 
     @lru_cache
@@ -126,7 +126,7 @@ class NeuronDB(object):
         return cons
 
     def connections_by_region(
-        self, cell_id, by_neuropil=False, min_syn_count=5, nt_type=None
+        self, cell_id, by_neuropil=False, min_syn_count=MIN_SYN_COUNT, nt_type=None
     ):
         try:
             cell_id = int(cell_id)

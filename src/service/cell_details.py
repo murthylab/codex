@@ -3,6 +3,7 @@ from functools import lru_cache
 
 from flask import url_for
 
+from src.configuration import MIN_SYN_COUNT
 from src.data.brain_regions import neuropil_hemisphere, NEUROPIL_DESCRIPTIONS
 from src.data.neurotransmitters import lookup_nt_type_name, NEURO_TRANSMITTER_NAMES
 from src.data.structured_search_filters import OP_UPSTREAM, OP_DOWNSTREAM, OP_SIMILAR
@@ -117,7 +118,7 @@ def cached_cell_details(
                 input_nt_type_count[r[4].upper()] += r[3]
 
         insert_neuron_list_links(
-            "input cells (upstream) with 5+ synapses",
+            f"input cells (upstream) with {MIN_SYN_COUNT}+ synapses",
             nd["input_cells"],
             '<i class="fa-solid fa-arrow-up"></i>',
             search_endpoint=url_for(
@@ -125,7 +126,7 @@ def cached_cell_details(
             ),
         )
         insert_neuron_list_links(
-            "output cells (downstream) with 5+ synapses",
+            f"output cells (downstream) with {MIN_SYN_COUNT}+ synapses",
             nd["output_cells"],
             '<i class="fa-solid fa-arrow-down"></i>',
             search_endpoint=url_for(
@@ -235,14 +236,18 @@ def cached_cell_details(
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            cell_extra_data["Downstream Reachable Cells (5+ syn)"] = reachable_counts
+            cell_extra_data[
+                f"Downstream Reachable Cells ({MIN_SYN_COUNT}+ syn)"
+            ] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources={root_id},
             neighbor_sets=ins,
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            cell_extra_data["Upstream Reachable Cells (5+ syn)"] = reachable_counts
+            cell_extra_data[
+                f"Upstream Reachable Cells ({MIN_SYN_COUNT}+ syn)"
+            ] = reachable_counts
 
     return dict(
         cell_names_or_id=cell_names_or_id or nd["name"],
@@ -255,4 +260,5 @@ def cached_cell_details(
         related_cells=related_cells,
         charts=charts,
         load_connections=1 if connectivity_table and len(connectivity_table) > 1 else 0,
+        min_syn_cnt=min_syn_cnt,
     )
