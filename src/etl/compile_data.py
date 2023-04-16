@@ -46,6 +46,17 @@ def compiled_data_file_path(version, filename):
     return f"{compiled_data_folder(version)}/{filename}"
 
 
+PROOFREAD_ROOT_IDS_FILE_NAME = "proofread_root_ids.npy"
+NEURONS_WITH_NT_TYPES_FILE_NAME = "neuron_nt_types.feather"
+NEURONS_WITH_NT_TYPES_FILE_COLUMN_NAMES = [
+    "root_id",
+    "ach_avg",
+    "gaba_avg",
+    "glut_avg",
+    "ser_avg",
+    "oct_avg",
+    "da_avg",
+]
 SYNAPSE_TABLE_WITH_NT_TYPES_FILE_NAME = "synapse_table_with_nt_types.feather"
 SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES = [
     "pre_pt_root_id",
@@ -285,48 +296,6 @@ def update_cave_data_file(name, db_load_func, cave_client, version):
     comp_backup_and_update_csv(fpath, content=new_content)
 
 
-def patch_neuron_classification_table_file(version, caveclient):
-    tbl = read_csv(
-        f"static/raw_data/{version}/meta/annotation_export_for_codex_020323.csv"
-    )
-    supervoxel_ids = [int(r[1]) for r in tbl[1:]]
-    mat_timestamp = caveclient.materialize.get_version_metadata(version)["time_stamp"]
-    root_ids = caveclient.chunkedgraph.get_roots(
-        supervoxel_ids, timestamp=mat_timestamp
-    )
-    print(f"Mapped to version {version}.")
-    for i, r in enumerate(tbl[1:]):
-        r[0] = root_ids[i]
-
-    new_table = [
-        [
-            "root_id",
-            "flow",
-            "super_class",
-            "class",
-            "sub_class",
-            "cell_type",
-            "hemibrain_type",
-            "hemilineage",
-            "side",
-            "nerve",
-        ]
-    ]
-    processed_root_ids = set()
-    for r in sorted(tbl[1:], key=lambda x: len([v for v in x if v]), reverse=True):
-        if r[0] not in processed_root_ids:
-            processed_root_ids.add(r[0])
-        else:
-            continue
-        new_table.append([r[0]] + r[3:])
-    print(f"Writing {len(new_table)} rows...")
-    write_csv(
-        filename=f"static/data/{version}/classification.csv.gz",
-        rows=new_table,
-        compress=True,
-    )
-
-
 def update_neuron_classification_table_file(version):
     dirpath = raw_data_file_path(version=version, filename="meta")
     files = os.listdir(dirpath)
@@ -440,6 +409,24 @@ def update_neuron_classification_table_file(version):
                 rid_col=f_content[0].index("root_id"),
                 val_col=f_content[0].index("side"),
             )
+        elif f == "hemilineage_anno.feather":
+            assert all(
+                [col in f_content[0] for col in ["root_id", "ito_lee_hemilineage"]]
+            )
+            load(
+                dct=hemilineage,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("ito_lee_hemilineage"),
+            )
+        elif f == "hemibrain_anno.feather":
+            assert all([col in f_content[0] for col in ["root_id", "hemibrain_type"]])
+            load(
+                dct=hemibrain_type,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("hemibrain_type"),
+            )
         else:
             print(f"!! Skipping unknown file: {f} !!")
 
@@ -542,17 +529,39 @@ def update_cell_stats_table_file(version):
 
 
 def update_connectome_files(version):
-    st_nt_filepath = raw_data_file_path(
+    proofread_rids_filepath = raw_data_file_path(
+        version=version, filename=f"{PROOFREAD_ROOT_IDS_FILE_NAME}"
+    )
+    print(f"Loading proofread rids from {proofread_rids_filepath}..")
+    proofread_rids_set = set(np.load(proofread_rids_filepath))
+    print(f"Loaded {len(proofread_rids_set)} rows")
+
+    neurons_with_nt_filepath = raw_data_file_path(
+        version=version, filename=f"{NEURONS_WITH_NT_TYPES_FILE_NAME}"
+    )
+    print(f"Loading neurons table from {neurons_with_nt_filepath}..")
+    neuron_nt_content = load_feather_data_to_table(neurons_with_nt_filepath)
+    print(f"Loaded {len(neuron_nt_content)} rows")
+
+    syn_table_with_nt_filepath = raw_data_file_path(
         version=version, filename=f"{SYNAPSE_TABLE_WITH_NT_TYPES_FILE_NAME}"
     )
+    print(f"Loading synapse table from {syn_table_with_nt_filepath}")
+    st_nt_content = load_feather_data_to_table(syn_table_with_nt_filepath)
+    print(f"Loaded {len(st_nt_content)} rows")
 
-    print(f"Loading synapse table from {st_nt_filepath}")
-    st_nt_content = load_feather_data_to_table(st_nt_filepath)
+    n_rid_set = set([r[0] for r in neuron_nt_content[1:]])
+    st_rid_set = set([r[0] for r in st_nt_content[1:]]) | set(
+        [r[1] for r in st_nt_content[1:]]
+    )
+    print(f"{len(n_rid_set)=} {len(n_rid_set.intersection(proofread_rids_set))=}")
+    print(f"{len(st_rid_set)=} {len(st_rid_set.intersection(proofread_rids_set))=}")
 
     filtered_rows = filter_connection_rows(
         syn_table_content=st_nt_content,
         columns=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES,
         min_syn_count=MIN_SYN_COUNT,
+        proofread_rids=proofread_rids_set,
     )
 
     # compile neuron rows
@@ -778,13 +787,7 @@ if __name__ == "__main__":
         if config["update_connectome"]:
             update_connectome_files(version=v)
         if config["update_classification"]:
-            # TODO: get rid of this once classification files are officially exported
-            if str(v) == "571":
-                patch_neuron_classification_table_file(
-                    version=v, caveclient=cave_client
-                )
-            else:
-                update_neuron_classification_table_file(version=v)
+            update_neuron_classification_table_file(version=v)
         if config["update_cell_stats"]:
             update_cell_stats_table_file(version=v)
         if config["update_coordinates"]:

@@ -6,7 +6,10 @@ from src.data.local_data_loader import (
 )
 from src.data.neuron_data_initializer import NEURON_DATA_ATTRIBUTE_TYPES
 
-from src.data.versions import DATA_SNAPSHOT_VERSIONS, DEFAULT_DATA_SNAPSHOT_VERSION
+from src.data.versions import (
+    DATA_SNAPSHOT_VERSIONS,
+    TESTING_DATA_SNAPSHOT_VERSION,
+)
 from tests import TEST_DATA_ROOT_PATH, TEST_NEURON_DATA_FACTORY
 from collections import defaultdict
 
@@ -19,7 +22,7 @@ class NeuronDataTest(TestCase):
 
     def test_content(self):
         loaded_db = unpickle_neuron_db(
-            version=DEFAULT_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
+            version=TESTING_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
         )
         self.assertEqual(
             sorted(

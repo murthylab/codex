@@ -21,17 +21,17 @@ class RegionsTest(TestCase):
 
     def test_lookup_neuropil_set_by_side(self):
         pil_set = lookup_neuropil_set("left")
-        self.assertEqual(34, len(pil_set))
+        self.assertEqual(35, len(pil_set))
         for p in pil_set:
             self.assertTrue(p.endswith("_L"))
 
         pil_set = lookup_neuropil_set("right")
-        self.assertEqual(34, len(pil_set))
+        self.assertEqual(35, len(pil_set))
         for p in pil_set:
             self.assertTrue(p.endswith("_R"))
 
         pil_set = lookup_neuropil_set("Center")
-        self.assertEqual(7, len(pil_set))
+        self.assertEqual(8, len(pil_set))
         for p in pil_set:
             self.assertFalse(p.endswith("_L"))
             self.assertFalse(p.endswith("_R"))

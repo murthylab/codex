@@ -1,7 +1,9 @@
 from unittest import TestCase
 
 from src.data.local_data_loader import unpickle_neuron_db
-from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
+from src.data.versions import (
+    TESTING_DATA_SNAPSHOT_VERSION,
+)
 from src.service.heatmaps import (
     for_display,
     heatmap_color,
@@ -19,7 +21,7 @@ class Test(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.neuron_db = unpickle_neuron_db(
-            version=DEFAULT_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
+            version=TESTING_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
         )
 
     def test_for_display(self):
@@ -83,24 +85,24 @@ class Test(TestCase):
 
     def test_group_data(self):
         expected_side_data = {
-            ("All", "All"): 30252793,
-            ("All", "Center"): 96481,
-            ("All", "Left"): 16242241,
-            ("All", "Right"): 13913901,
+            ("All", "All"): 30360387,
+            ("All", "Center"): 96934,
+            ("All", "Left"): 16321615,
+            ("All", "Right"): 13941668,
             ("All", "Unknown"): 170,
-            ("Center", "All"): 87045,
-            ("Center", "Center"): 1956,
-            ("Center", "Left"): 44247,
-            ("Center", "Right"): 40842,
-            ("Left", "All"): 16090377,
-            ("Left", "Center"): 48391,
-            ("Left", "Left"): 13618170,
-            ("Left", "Right"): 2423753,
+            ("Center", "All"): 87644,
+            ("Center", "Center"): 1982,
+            ("Center", "Left"): 44531,
+            ("Center", "Right"): 41131,
+            ("Left", "All"): 16169831,
+            ("Left", "Center"): 48772,
+            ("Left", "Left"): 13696816,
+            ("Left", "Right"): 2424180,
             ("Left", "Unknown"): 63,
-            ("Right", "All"): 14074313,
-            ("Right", "Center"): 46134,
-            ("Right", "Left"): 2579422,
-            ("Right", "Right"): 11448650,
+            ("Right", "All"): 14101854,
+            ("Right", "Center"): 46180,
+            ("Right", "Left"): 2579866,
+            ("Right", "Right"): 11475701,
             ("Right", "Unknown"): 107,
             ("Unknown", "All"): 1058,
             ("Unknown", "Left"): 402,
@@ -122,7 +124,7 @@ class Test(TestCase):
         self.assertEqual(
             {
                 "Alin": 24,
-                "All": 122689,
+                "All": 124733,
                 "Alln": 424,
                 "Alon": 16,
                 "Alpn": 685,
@@ -135,7 +137,7 @@ class Test(TestCase):
                 "Gustatory": 333,
                 "Hygrosensory": 74,
                 "Kenyon Cell": 5177,
-                "L1-5": 4518,
+                "L1-5": 4552,
                 "Lhcent": 42,
                 "Lhln": 479,
                 "Mal": 77,
@@ -144,16 +146,16 @@ class Test(TestCase):
                 "Mechanosensory": 2098,
                 "Medulla Intrinsic": 1514,
                 "Motor": 100,
-                "Ocellar": 43,
+                "Ocellar": 62,
                 "Olfactory": 2169,
-                "Optic Lobes": 67004,
+                "Optic Lobes": 67101,
                 "Pars Intercerebralis": 37,
                 "Pars Lateralis": 26,
                 "Thermosensory": 29,
                 "Tubu": 150,
                 "Unknown": 30190,
                 "Unknown Sensory": 127,
-                "Visual": 668,
+                "Visual": 2562,
             },
             compute_group_sizes(self.neuron_db, "class"),
         )
@@ -193,34 +195,34 @@ class Test(TestCase):
                 ],
                 [
                     ("<b>All</b>&nbsp;<small>100%</small>", 0),
-                    ("100%<small> (30,252,793)<br><b>13</b> avg.</small>", "#AAAAAA0"),
-                    ("54%<small> (16,242,241)<br><b>13</b> avg.</small>", "#00FF0011"),
-                    ("46%<small> (13,913,901)<br><b>13</b> avg.</small>", "#AAAAAA11"),
-                    ("0%<small> (96,481)<br><b>16</b> avg.</small>", "#00FF0083"),
+                    ("100%<small> (30,360,387)<br><b>13</b> avg.</small>", "#AAAAAA0"),
+                    ("54%<small> (16,321,615)<br><b>13</b> avg.</small>", "#00FF0011"),
+                    ("46%<small> (13,941,668)<br><b>13</b> avg.</small>", "#AAAAAA11"),
+                    ("0%<small> (96,934)<br><b>16</b> avg.</small>", "#00FF0083"),
                     ("0%<small> (170)<br><b>6.8</b> avg.</small>", "#AAAAAA92"),
                 ],
                 [
                     ("<b>Left</b>&nbsp;<small>51%</small>", 0),
-                    ("53%<small> (16,090,377)<br><b>13</b> avg.</small>", "#00FF007"),
-                    ("45%<small> (13,618,170)<br><b>12</b> avg.</small>", "#AAAAAA22"),
-                    ("8%<small> (2,423,753)<br><b>15</b> avg.</small>", "#00FF0072"),
-                    ("0%<small> (48,391)<br><b>16</b> avg.</small>", "#00FF0082"),
+                    ("53%<small> (16,169,831)<br><b>13</b> avg.</small>", "#00FF008"),
+                    ("45%<small> (13,696,816)<br><b>12</b> avg.</small>", "#AAAAAA22"),
+                    ("8%<small> (2,424,180)<br><b>15</b> avg.</small>", "#00FF0072"),
+                    ("0%<small> (48,772)<br><b>16</b> avg.</small>", "#00FF0082"),
                     ("0%<small> (63)<br><b>5.73</b> avg.</small>", "#AAAAAA99"),
                 ],
                 [
                     ("<b>Right</b>&nbsp;<small>49%</small>", 0),
-                    ("47%<small> (14,074,313)<br><b>13</b> avg.</small>", "#AAAAAA8"),
-                    ("9%<small> (2,579,422)<br><b>15</b> avg.</small>", "#00FF0073"),
-                    ("38%<small> (11,448,650)<br><b>12</b> avg.</small>", "#AAAAAA27"),
-                    ("0%<small> (46,134)<br><b>16</b> avg.</small>", "#00FF0082"),
+                    ("46%<small> (14,101,854)<br><b>13</b> avg.</small>", "#AAAAAA8"),
+                    ("8%<small> (2,579,866)<br><b>15</b> avg.</small>", "#00FF0074"),
+                    ("38%<small> (11,475,701)<br><b>12</b> avg.</small>", "#AAAAAA27"),
+                    ("0%<small> (46,180)<br><b>16</b> avg.</small>", "#00FF0083"),
                     ("0%<small> (107)<br><b>7.64</b> avg.</small>", "#AAAAAA85"),
                 ],
                 [
                     ("<b>Center</b>&nbsp;<small>0%</small>", 0),
-                    ("0%<small> (87,045)<br><b>17</b> avg.</small>", "#00FF0094"),
-                    ("0%<small> (44,247)<br><b>17</b> avg.</small>", "#00FF0096"),
-                    ("0%<small> (40,842)<br><b>17</b> avg.</small>", "#00FF0092"),
-                    ("0%<small> (1,956)<br><b>17</b> avg.</small>", "#00FF0099"),
+                    ("0%<small> (87,644)<br><b>17</b> avg.</small>", "#00FF0093"),
+                    ("0%<small> (44,531)<br><b>17</b> avg.</small>", "#00FF0095"),
+                    ("0%<small> (41,131)<br><b>16</b> avg.</small>", "#00FF0091"),
+                    ("0%<small> (1,982)<br><b>17</b> avg.</small>", "#00FF0099"),
                     ("0%<small> (0)<br><b>0</b> avg.</small>", "#AAAAAA99"),
                 ],
                 [

@@ -1,7 +1,10 @@
 from unittest import TestCase
 
 from src.data.local_data_loader import unpickle_neuron_db
-from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
+from src.data.versions import (
+    DEFAULT_DATA_SNAPSHOT_VERSION,
+    TESTING_DATA_SNAPSHOT_VERSION,
+)
 from src.utils import stats
 from tests import TEST_DATA_ROOT_PATH
 
@@ -44,7 +47,7 @@ class Test(TestCase):
 
         # actual data
         neuron_db = unpickle_neuron_db(
-            DEFAULT_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
+            TESTING_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
         )
         caption, data_stats, data_charts = stats.compile_data(
             neuron_data=list(neuron_db.neuron_data.values()),
