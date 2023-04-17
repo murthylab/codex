@@ -10,7 +10,7 @@ from src.data.versions import (
     DATA_SNAPSHOT_VERSIONS,
     TESTING_DATA_SNAPSHOT_VERSION,
 )
-from tests import TEST_DATA_ROOT_PATH, TEST_NEURON_DATA_FACTORY
+from tests import TEST_DATA_ROOT_PATH, get_testing_neuron_db
 from collections import defaultdict
 
 
@@ -170,7 +170,7 @@ class NeuronDataTest(TestCase):
             del loaded_db
 
             # check the same for data factory
-            factory_db = TEST_NEURON_DATA_FACTORY.get(version=v)
+            factory_db = get_testing_neuron_db(version=v)
             compare_neuron_dbs(tested=factory_db, golden=unpickled_db)
 
             # check neuron attributes
