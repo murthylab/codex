@@ -7,7 +7,7 @@
     {% for category_data in categories %}
     <div class="card" style="margin: 5px; padding: 0px;">
         <div class="card-header" style="color: purple;" >
-            {{category_data['caption']}}
+            {{category_data['caption']|safe}}
         </div>
         <div class="card-body" style="margin: 0px; padding: 0px;">
             <table class="table table-hover">

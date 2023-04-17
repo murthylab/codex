@@ -13,6 +13,7 @@ from src.configuration import MIN_SYN_COUNT, MIN_NBLAST_SCORE_SIMILARITY
 from src.utils.formatting import (
     truncate,
     display,
+    percentage,
 )
 from src.utils.logging import log
 
@@ -182,39 +183,46 @@ class NeuronDB(object):
 
     @lru_cache
     def categories(self, top_values=10):
-        counts_dict = defaultdict(lambda: defaultdict(int))
+        value_counts_dict = defaultdict(lambda: defaultdict(int))
+        assigned_to_num_cells_dict = defaultdict(int)
         category_names = {
-            "Super Classes": "super_class",
-            "Hemilineages": "hemilineage",
-            "Flows": "flow",
-            "Classes": "class",
-            "Sub Classes": "sub_class",
-            "Cell Types": "cell_type",
-            "Hemibrain Types": "hemibrain_type",
-            "Community Identifications": "label",
-            "Cell Body Sides": "side",
-            "Nerve Types": "nerve",
-            "Max In/Out Neuropil Groups": "group",
-            # TODO: enable this once better clustering is available. "Morphology Clusters": "cluster",
+            "Flow": "flow",
+            "Super Class": "super_class",
+            "Class": "class",
+            "Sub Class": "sub_class",
+            "Cell Type": "cell_type",
+            "Hemibrain Type": "hemibrain_type",
+            "Hemilineage": "hemilineage",
+            "Nerve": "nerve",
+            "Cell Body Side": "side",
+            "Community Identification Label": "label",
+            "Max In/Out Neuropil": "group",
+            # TODO: enable this once better clustering is available. "Morphology Cluster": "cluster",
         }
         for nd in self.neuron_data.values():
             for v in category_names.values():
                 val = nd[v]
                 if not val:
                     continue
+                else:
+                    assigned_to_num_cells_dict[v] += 1
                 if isinstance(val, list):
                     for c in val:
-                        counts_dict[v][c] += 1
+                        value_counts_dict[v][c] += 1
                 else:
-                    counts_dict[v][val] += 1
+                    value_counts_dict[v][val] += 1
 
-        def _caption(name, length):
-            if length > top_values:
-                return f"{name} (top {top_values} values out of {display(length)})"
-            elif length > 10:
-                return f"{name} ({display(length)} values)"
-            else:
-                return name
+        def _caption(name, assigned_to_count, values_count):
+
+            caption = (
+                f"{name}<small>"
+                f"<br>- Assigned to {display(assigned_to_count)} cells / {percentage(assigned_to_count, self.num_cells())}"
+                f"<br>- {display(values_count)} unique values"
+            )
+            if values_count > top_values:
+                caption += f" (see cells for top {top_values})"
+            caption += "</small>"
+            return caption
 
         def _sorted_counts(d):
             lst_all = sorted([(k, v) for k, v in d.items() if k], key=lambda p: -p[1])
@@ -222,9 +230,11 @@ class NeuronDB(object):
 
         return [
             {
-                "caption": _caption(ck, len(counts_dict[cv])),
+                "caption": _caption(
+                    ck, assigned_to_num_cells_dict[cv], len(value_counts_dict[cv])
+                ),
                 "key": cv,
-                "counts": _sorted_counts(counts_dict[cv]),
+                "counts": _sorted_counts(value_counts_dict[cv]),
             }
             for ck, cv in category_names.items()
             if cv
