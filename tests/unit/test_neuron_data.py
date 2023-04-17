@@ -12,7 +12,11 @@ from src.data.neuron_data_initializer import (
     NEURON_DATA_ATTRIBUTE_TYPES,
     hemisphere_fingerprint,
 )
-from src.data.versions import DATA_SNAPSHOT_VERSIONS, DEFAULT_DATA_SNAPSHOT_VERSION
+from src.data.versions import (
+    DATA_SNAPSHOT_VERSIONS,
+    DEFAULT_DATA_SNAPSHOT_VERSION,
+    TESTING_DATA_SNAPSHOT_VERSION,
+)
 from src.utils.formatting import compact_label, make_web_safe
 from tests import TEST_DATA_ROOT_PATH
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
@@ -22,7 +26,7 @@ class NeuronDataTest(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.neuron_db = unpickle_neuron_db(
-            version=DEFAULT_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
+            version=TESTING_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
         )
 
     def test_loading(self):
@@ -52,27 +56,27 @@ class NeuronDataTest(TestCase):
             "label": 79000,
             "super_class": 5200,
             "class": 37000,
-            "sub_class": 116000,
-            "cell_type": 110000,
-            "hemibrain_type": 93000,
-            "hemilineage": 93000,
+            "sub_class": 120000,
+            "cell_type": 115000,
+            "hemibrain_type": 100000,
+            "hemilineage": 95000,
             "flow": 5150,
             "side": 14000,
-            "nerve": 110000,
-            "input_cells": 4000,
-            "input_neuropils": 4000,
-            "input_synapses": 4000,
+            "nerve": 120000,
+            "input_cells": 5500,
+            "input_neuropils": 5500,
+            "input_synapses": 5500,
             "output_cells": 4000,
             "output_neuropils": 4000,
             "output_synapses": 4000,
-            "nt_type": 11000,
+            "nt_type": 13000,
             "nt_type_score": 10000,
-            "ach_avg": 4000,
-            "da_avg": 9500,
-            "gaba_avg": 6000,
-            "glut_avg": 6500,
-            "oct_avg": 35000,
-            "ser_avg": 61000,
+            "ach_avg": 4200,
+            "da_avg": 15500,
+            "gaba_avg": 11000,
+            "glut_avg": 12000,
+            "oct_avg": 37000,
+            "ser_avg": 68000,
             "similar_cell_scores": 76000,  # TODO: import 571 NBLAST scores and reduce bound
             "cluster": 84000,
         }
@@ -143,7 +147,7 @@ class NeuronDataTest(TestCase):
 
     def test_search(self):
         # search results
-        self.assertGreater(len(self.neuron_db.search("da")), 5600)
+        self.assertGreater(len(self.neuron_db.search("da")), 1000)
         self.assertEqual(len(self.neuron_db.search("dadadeadbeef")), 0)
 
     def test_structured_search(self):
@@ -254,7 +258,7 @@ class NeuronDataTest(TestCase):
 
     def test_downstream_upstream_queries(self):
         downstream = self.neuron_db.search("{downstream} 720575940646952324")
-        self.assertEqual(104, len(downstream))
+        self.assertEqual(105, len(downstream))
 
         upstream = self.neuron_db.search("{upstream} 720575940646952324")
         self.assertEqual(180, len(upstream))
@@ -272,16 +276,16 @@ class NeuronDataTest(TestCase):
             "center {downstream_region} 720575940643467886"
         )
         self.assertEqual(
-            sorted([720575940619266870, 720575940620960347, 720575940632905164]),
+            sorted([720575940615933919, 720575940620960347, 720575940627079938]),
             sorted(downstream),
         )
 
         upstream = self.neuron_db.search("left {upstream_region} 720575940643467886")
-        self.assertEqual(34, len(upstream))
+        self.assertEqual(35, len(upstream))
         upstream = self.neuron_db.search("right {upstream_region} 720575940643467886")
         self.assertEqual(0, len(upstream))
         upstream = self.neuron_db.search("center {upstream_region} 720575940643467886")
-        self.assertEqual(5, len(upstream))
+        self.assertEqual(6, len(upstream))
 
     def test_neuropil_queries(self):
         self.assertGreater(
@@ -378,22 +382,22 @@ class NeuronDataTest(TestCase):
             "Kenyon_Cell",
             "L1-5",
             "LHCENT",
+            "LHLN",
             "MBIN",
             "MBON",
             "TuBu",
             "bilateral",
-            "endocrine",
-            "fragment",
-            "glia",
             "gustatory",
             "hygrosensory",
             "mAL",
             "mechanosensory",
+            "medulla_intrinsic",
             "motor",
             "ocellar",
             "olfactory",
             "optic_lobes",
-            "ring neuron",
+            "pars intercerebralis",
+            "pars lateralis",
             "thermosensory",
             "unknown_sensory",
             "visual",
@@ -407,7 +411,6 @@ class NeuronDataTest(TestCase):
             "descending",
             "endocrine",
             "motor",
-            "not_a_neuron",
             "optic",
             "sensory",
             "visual_centrifugal",
@@ -417,37 +420,44 @@ class NeuronDataTest(TestCase):
 
     def test_sub_classes(self):
         expected_list = [
+            "5813010135",
+            "666162219",
+            "LNOa",
             "accessory_pharyngeal_nerve_sensory_group1",
             "accessory_pharyngeal_nerve_sensory_group2",
             "antennal_nerve_ascending_sensory",
             "auditory",
+            "columnar",
+            "descending",
             "eye bristle",
             "head bristle",
-            "mechanosensory",
             "multiglomerular",
+            "ocellar",
             "ocellar_interneuron",
             "pharyngeal_nerve_sensory_group1",
             "pharyngeal_nerve_sensory_group2",
+            "ring neuron",
+            "tangential",
             "taste peg",
             "uniglomerular",
-            "unknown sensory",
+            "unknown",
         ]
         self.assertEqual(expected_list, self.neuron_db.unique_values("sub_class"))
 
     def test_cell_types(self):
-        expected_list_length = 925
+        expected_list_length = 338
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("cell_type"))
         )
 
     def test_hemibrain_types(self):
-        expected_list_length = 3001
+        expected_list_length = 2895
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("hemibrain_type"))
         )
 
     def test_hemilineage(self):
-        expected_list_length = 178
+        expected_list_length = 188
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("hemilineage"))
         )
@@ -500,7 +510,7 @@ class NeuronDataTest(TestCase):
 
     def test_thumbnails(self):
         # Run this first to collect existing skeleton root ids:
-        # gsutil du gs://flywire-data/codex/526/skeleton_thumbnails | grep png | cut -d"/" -f 6 | cut -d "." -f 1 > static/raw_data/526/thumbnails_tmp.csv
+        # gsutil du gs://flywire-data/codex/skeleton_thumbnails | grep png | cut -d"/" -f 6 | cut -d "." -f 1 > static/raw_data/thumbnails_tmp.csv
         fname = f"{TEST_DATA_ROOT_PATH}/../raw_data/{DEFAULT_DATA_SNAPSHOT_VERSION}/thumbnails_tmp.csv"
         if os.path.isfile(fname):
             content = set([int(r[0]) for r in read_csv(fname)])
@@ -526,7 +536,7 @@ class NeuronDataTest(TestCase):
             if k in sparse_attrs:
                 continue
             num_vals = len([n[k] for n in self.neuron_db.neuron_data.values() if n[k]])
-            self.assertGreater(num_vals / len(self.neuron_db.neuron_data), 0.9, k)
+            self.assertGreater(num_vals / len(self.neuron_db.neuron_data), 0.85, k)
 
     def test_nblast_scores_consistency(self):
         for from_rid, nd in self.neuron_db.neuron_data.items():

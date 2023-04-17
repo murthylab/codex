@@ -5,30 +5,6 @@ import json
 
 from src.data.brain_regions import REGIONS, COLORS
 
-_BASE_URL = "https://neuroglancer-demo.appspot.com"
-
-
-def _prefix(data_version):
-    return (
-        '{"dimensions":{"x":[1.6e-8,"m"],"y":[1.6e-8,"m"],"z":[4e-8,"m"]},"projectionScale":30000,"layers":[{"type":'
-        '"image","source":"precomputed://https://bossdb-open-data.s3.amazonaws.com/flywire/fafbv14","tab":"source",'
-        '"name":"EM"},{"source":"precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf",'
-        '"type":"segmentation","selectedAlpha":0,"saturation":0,"objectAlpha":0.1,"segmentColors":{"1":"#b5b5b5"},'
-        '"segments":["1"],"skeletonRendering":{"mode2d":"lines_and_points","mode3d":"lines"},"name":"tissue"},'
-        '{"type":"segmentation","source":"precomputed://gs://flywire_v141_m'
-        f'{data_version}","tab":"source","segments":['
-    )
-
-
-def _suffix(data_version):
-    return (
-        f'],"name":"flywire_v141_m{data_version}"'
-        '}],"showSlices":false,"perspectiveViewBackgroundColor":"#ffffff",'
-        '"showDefaultAnnotations":false, "selectedLayer":{"visible":false,"layer":'
-        f'"flywire_v141_m{data_version}"'
-        '},"layout":"3d"}'
-    )
-
 
 def url_for_root_ids(
     root_ids, version, point_to_proofreading_flywire=False, position=None
@@ -65,9 +41,7 @@ def url_for_root_ids(
 
         return f"https://ngl.flywire.ai/#!{urllib.parse.quote(json.dumps(config))}"
     else:
-        seg_ids = ",".join([f'"{rid}"' for rid in root_ids])
-        payload = urllib.parse.quote(f"{_prefix(version)}{seg_ids}{_suffix(version)}")
-        return f"{_BASE_URL}/#!{payload}"
+        return url_for_cells(segment_ids=root_ids, data_version=version)
 
 
 def url_for_random_sample(root_ids, version, sample_size=50):
@@ -85,23 +59,63 @@ def can_be_flywire_root_id(txt):
         return False
 
 
+def url_for_cells(segment_ids, data_version):
+    config = {
+        "dimensions": {"x": [1.6e-8, "m"], "y": [1.6e-8, "m"], "z": [4e-8, "m"]},
+        "projectionScale": 30000,
+        "layers": [
+            {
+                "type": "image",
+                "source": "precomputed://https://bossdb-open-data.s3.amazonaws.com/flywire/fafbv14",
+                "tab": "source",
+                "name": "EM",
+            },
+            {
+                "source": "precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v3",
+                "type": "segmentation",
+                "objectAlpha": 0.05,
+                "hideSegmentZero": False,
+                "segments": ["1"],
+                "segmentColors": {"1": "#b5b5b5"},
+                "skeletonRendering": {"mode2d": "lines_and_points", "mode3d": "lines"},
+                "name": "brain_mesh_v3",
+            },
+            {
+                "type": "segmentation",
+                "source": f"precomputed://gs://flywire_v141_m{data_version}",
+                "tab": "source",
+                "segments": [
+                    str(sid) for sid in segment_ids
+                ],  # BEWARE: JSON can't handle big ints
+                "name": f"flywire_v141_m{data_version}",
+            },
+        ],
+        "showSlices": False,
+        "perspectiveViewBackgroundColor": "#ffffff",
+        "showDefaultAnnotations": False,
+        "selectedLayer": {"visible": False, "layer": f"flywire_v141_m{data_version}"},
+        "layout": "3d",
+    }
+
+    return f"https://neuroglancer-demo.appspot.com/#!{urllib.parse.quote(json.dumps(config))}"
+
+
 def url_for_neuropils(segment_ids=None):
     config = {
         "layers": [
             {
+                "source": "precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v3",
                 "type": "segmentation",
-                "source": "precomputed://gs://flywire_neuropil_meshes/whole_neuropil/brain_mesh_v141.surf",
-                "tab": "source",
-                "selectedAlpha": 0,
-                "saturation": 0,
                 "objectAlpha": 0.1,
+                "hideSegmentZero": False,
                 "segments": ["1"],
                 "segmentColors": {"1": "#b5b5b5"},
-                "name": "tissue",
+                "skeletonRendering": {"mode2d": "lines_and_points", "mode3d": "lines"},
+                "name": "brain_mesh_v3",
             },
             {
                 "type": "segmentation",
-                "mesh": "precomputed://gs://neuroglancer-fafb-data/elmr-data/FAFBNP.surf/mesh",
+                "mesh": "precomputed://gs://flywire_neuropil_meshes/neuropils/neuropil_mesh_v141_v3",
                 "objectAlpha": 0.90,
                 "tab": "source",
                 "segments": segment_ids,

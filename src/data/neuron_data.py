@@ -195,6 +195,7 @@ class NeuronDB(object):
             "Cell Body Sides": "side",
             "Nerve Types": "nerve",
             "Max In/Out Neuropil Groups": "group",
+            # TODO: enable this once better clustering is available. "Morphology Clusters": "cluster",
         }
         for nd in self.neuron_data.values():
             for v in category_names.values():

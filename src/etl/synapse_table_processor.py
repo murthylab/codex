@@ -261,8 +261,10 @@ def compile_neuropil_synapse_rows(filtered_syn_table_content, columns):
     return res
 
 
-def filter_connection_rows(syn_table_content, columns, min_syn_count):
+def filter_connection_rows(syn_table_content, columns, min_syn_count, proofread_rids):
     filtered_rows = []
+    pre_root_id = columns.index("pre_pt_root_id")
+    post_root_id = columns.index("post_pt_root_id")
     pil_col_id = columns.index("neuropil")
     syn_cnt_col_id = columns.index("syn_count")
     for i, r in enumerate(syn_table_content):
@@ -270,6 +272,10 @@ def filter_connection_rows(syn_table_content, columns, min_syn_count):
             assert r == columns
             filtered_rows.append(r)
         else:
+            pre_rid = r[pre_root_id]
+            post_rid = r[post_root_id]
+            if pre_rid not in proofread_rids or post_rid not in proofread_rids:
+                continue
             syn_cnt = r[syn_cnt_col_id]
             region = r[pil_col_id]
             if syn_cnt >= min_syn_count and region in REGIONS:

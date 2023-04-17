@@ -163,6 +163,14 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_range=None,
     ),
     SearchAttribute(
+        name="cluster",
+        value_getter=lambda nd: nd["cluster"],
+        value_convertor=None,
+        list_convertor=lambda x: tokenize(x),
+        description="Automatically generated morphology clusters (based on pairwise NBLAST scores).",
+        value_range=None,
+    ),
+    SearchAttribute(
         name="name",
         value_getter=lambda nd: nd["name"],
         value_convertor=None,

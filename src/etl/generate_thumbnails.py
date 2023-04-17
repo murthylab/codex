@@ -21,6 +21,10 @@ Instructions:
 - From the project root folder, run `python -m src.etl.generate_thumbnails`. For each `<root_id>.h5` skeleton file, a corresponding thumbnail in the thumbnails folder named `<root_id>.png` will be created.
     - For animated thumbnails: run `python -m src.etl.generate_thumbnails animated`
     - For neuropil thumbnails: run `python -m src.etl.generate_thumbnails neuropils`
+- Once the assets are generated, they can by synced to GCS as follows:
+    - gsutil -m rsync -r -x '^(?!.*\.png$).*' . gs://flywire-data/codex/skeleton_thumbnails
+    - gsutil -m rsync -r -x '^(?!.*\.gif).*' . gs://flywire-data/codex/skeleton_thumbnail_gifs
+    - gsutil -m rsync -r -x '^(?!.*\.swc).*' . gs://flywire-data/codex/skeleton_swcs
 """
 
 BASE_PATH = os.path.join("src", "etl")
