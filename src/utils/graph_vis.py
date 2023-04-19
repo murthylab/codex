@@ -327,7 +327,7 @@ def make_graph_html(
 
 class Network(object):
     def __init__(
-        self, show_edge_weights, edge_physics=True, node_physics=False, layers=None
+        self, show_edge_weights, edge_physics=True, node_physics=True, layers=None
     ):
         self.edges = []
         self.node_map = {}

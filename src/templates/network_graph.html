@@ -325,6 +325,10 @@
                     "iterations": 1000,
                     "onlyDynamicEdges": false,
                     "updateInterval": 50
+                },
+                "barnesHut": {
+                    "gravitationalConstant": -1000,
+                    "centralGravity": 1
                 }
             }
         };
@@ -413,6 +417,12 @@
 
         network.on("release", function (params) {
             network.selectNodes([]);
+        });
+
+        network.on("stabilizationIterationsDone", function () {
+            network.setOptions({
+                physics: false
+            });
         });
 
         return network;
