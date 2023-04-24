@@ -11,7 +11,6 @@ from src.data.structured_search_filters import (
 )
 from src.configuration import MIN_SYN_COUNT, MIN_NBLAST_SCORE_SIMILARITY
 from src.utils.formatting import (
-    truncate,
     display,
     percentage,
 )
@@ -260,12 +259,6 @@ class NeuronDB(object):
             log(f"No data exists for {root_id} in {len(self.neuron_data)} records")
             nd = {}
         return nd
-
-    def get_neuron_caption(self, root_id):
-        nd = self.get_neuron_data(root_id)
-        labels = sorted(nd["label"], key=lambda x: len(x))
-        lbl = labels[0] if labels else nd["name"]
-        return truncate(lbl, 15)
 
     def get_similar_cells(
         self,

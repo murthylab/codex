@@ -99,7 +99,7 @@ def compile_network_html(
             return neuron_db.get_neuron_data(x)["name"]
 
         def caption_getter(x):
-            return neuron_db.get_neuron_caption(x)
+            return neuron_db.get_neuron_data(x)["name"]
 
         def label_getter(x):
             return neuron_db.get_neuron_data(x)["label"]
