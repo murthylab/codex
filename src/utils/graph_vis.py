@@ -9,13 +9,14 @@ from src.utils.formatting import shorten_and_concat_labels, display
 INPUT_NEUROPIL_COLOR = "#97c2fc"
 OUTPUT_NEUROPIL_COLOR = "#fcc297"
 NT_COLORS = {
-    "ach": "#ff9999",
-    "gaba": "#99ff99",
-    "glut": "#9999ff",
-    "oct": "#ffff99",
-    "ser": "#ff99ff",
-    "da": "#99ffff",
+    "ach": "#95A3CE",
+    "gaba": "#D5A848",
+    "glut": "#86A859",
+    "oct": "#725C98",
+    "ser": "#8C6295",
+    "da": "#B87969",
 }
+
 UNKNOWN_NT_COLOR = "#cccccc"
 UNSPECIFIED_COLOR = "#fafafa"
 
@@ -232,7 +233,7 @@ def make_graph_html(
             if nt_type_getter:
                 nt_type = nt_type_getter(nid)
                 net.add_legend(
-                    nt_type.upper() if nt_type else "Unspecified NT type",
+                    (nt_type.upper() if nt_type else "Unspecified NT type") + " cell",
                     color=nt_color(nt_type),
                 )
 
