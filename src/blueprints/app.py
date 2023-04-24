@@ -596,27 +596,31 @@ def pathways():
 @request_wrapper
 @require_data_access
 def path_length():
-    sample_input = "720575940626843194, 720575940631740497, 720575940608893891"
     source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
     min_syn_count = max(min_syn_count, MIN_SYN_COUNT)
     download = request.args.get("download", 0, type=int)
 
-    if request.args.get("with_sample_input", type=int, default=0):
-        assert not source_cell_names_or_ids and not target_cell_names_or_ids
-        source_cell_names_or_ids = target_cell_names_or_ids = sample_input
-    else:
-        log_activity(
-            f"Generating path lengths table for '{source_cell_names_or_ids}' -> '{target_cell_names_or_ids}' "
-            f"with {min_syn_count=} and {download=}"
-        )
-
     messages = []
+
     if source_cell_names_or_ids and target_cell_names_or_ids:
-        neuron_db = NeuronDataFactory.instance().get()
-        root_ids_src = neuron_db.search(search_query=source_cell_names_or_ids)
-        root_ids_target = neuron_db.search(search_query=target_cell_names_or_ids)
+        neuron_db = NeuronDataFactory.instance().get(data_version)
+
+        if source_cell_names_or_ids == target_cell_names_or_ids == "__sample_cells__":
+            root_ids_src = neuron_db.search(search_query="gustatory")[:3]
+            root_ids_target = neuron_db.search(search_query="motor")[:5]
+            source_cell_names_or_ids = ", ".join([str(rid) for rid in root_ids_src])
+            target_cell_names_or_ids = ", ".join([str(rid) for rid in root_ids_target])
+            log_activity("Generating path lengths table for sample cells")
+        else:
+            root_ids_src = neuron_db.search(search_query=source_cell_names_or_ids)
+            root_ids_target = neuron_db.search(search_query=target_cell_names_or_ids)
+            log_activity(
+                f"Generating path lengths table for '{source_cell_names_or_ids}' -> '{target_cell_names_or_ids}' "
+                f"with {min_syn_count=} and {download=}"
+            )
         if not root_ids_src:
             return render_error(
                 title="No matching source cells",
@@ -719,7 +723,6 @@ def path_length():
             target_cell_names_or_ids=target_cell_names_or_ids,
         ),
         info_text=info_text,
-        sample_input=sample_input,
         messages=messages,
     )
 
@@ -728,7 +731,6 @@ def path_length():
 @request_wrapper
 @require_data_access
 def connectivity():
-    sample_input = "720575940623725972 720575940630057979 720575940633300148 720575940644300323 720575940640176848 720575940627796298"
     data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     nt_type = request.args.get("nt_type", None)
     min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
@@ -738,28 +740,56 @@ def connectivity():
     include_partners = request.args.get("include_partners", 0, type=int)
     hide_weights = request.args.get("hide_weights", 0, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
-    if (
-        request.args.get("with_sample_input", type=int, default=0)
-        and not cell_names_or_ids
-    ):
-        cell_names_or_ids = sample_input
     download = request.args.get("download")
     # headless network view (no search box / nav bar etc.)
     headless = request.args.get("headless", default=0, type=int)
     log_request = request.args.get(
         "log_request", default=0 if headless else 1, type=int
     )
-    if log_request:
-        log_activity(
-            (f"Downloading {download}" if download else "Generating")
-            + " network for '{cell_names_or_ids}'"
-        )
 
     message = None
 
-    if cell_names_or_ids:
+    if not cell_names_or_ids:
+        con_doc = FAQ_QA_KB["connectivity"]
+        return render_template(
+            "connectivity.html",
+            cell_names_or_ids=cell_names_or_ids,
+            min_syn_cnt=min_syn_cnt,
+            nt_type=nt_type,
+            cap=1,
+            max_cap=1,
+            network_html=None,
+            info_text="With this tool you can specify one or more cells and visualize their connectivity network.<br>"
+            f"{con_doc['a']}",
+            message=None,
+            data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
+            data_version=data_version,
+            reduce=reduce,
+            show_regions=show_regions,
+            hide_weights=hide_weights,
+        )
+    else:
         neuron_db = NeuronDataFactory.instance().get(data_version)
-        root_ids = neuron_db.search(search_query=cell_names_or_ids)
+        if cell_names_or_ids == "__sample_cells__":
+            root_ids = [
+                720575940623725972,
+                720575940630057979,
+                720575940633300148,
+                720575940644300323,
+                720575940640176848,
+                720575940627796298,
+            ]
+            root_ids = [r for r in root_ids if neuron_db.is_in_dataset(r)]
+            cell_names_or_ids = ", ".join([str(rid) for rid in root_ids])
+            log_activity("Generating connectivity network for sample cells")
+        else:
+            root_ids = neuron_db.search(search_query=cell_names_or_ids)
+            if log_request:
+                log_activity(
+                    ("Downloading " if download else "Generating ")
+                    + f"network for '{cell_names_or_ids}'"
+                )
+
         if not root_ids:
             return render_error(
                 title="No matching cells found",
@@ -841,7 +871,6 @@ def connectivity():
                 max_cap=max_cap,
                 network_html=network_html,
                 info_text=None,
-                sample_input=None,
                 message=message,
                 data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
                 data_version=data_version,
@@ -850,26 +879,6 @@ def connectivity():
                 include_partners=include_partners,
                 hide_weights=hide_weights,
             )
-    else:
-        con_doc = FAQ_QA_KB["connectivity"]
-        return render_template(
-            "connectivity.html",
-            cell_names_or_ids=cell_names_or_ids,
-            min_syn_cnt=min_syn_cnt,
-            nt_type=nt_type,
-            cap=1,
-            max_cap=1,
-            network_html=None,
-            info_text="With this tool you can specify one or more cells and visualize their connectivity network.<br>"
-            f"{con_doc['a']}",
-            sample_input=sample_input,
-            message=None,
-            data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
-            data_version=data_version,
-            reduce=reduce,
-            show_regions=show_regions,
-            hide_weights=hide_weights,
-        )
 
 
 @app.route("/flywire_neuropil_url")
