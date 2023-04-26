@@ -423,11 +423,18 @@
             network.setOptions({
                 physics: false
             });
+            if (parent.clear_loading) {
+                parent.clear_loading();
+            }
         });
 
         return network;
     }
 
+    if (parent.loading && parent.document.title === "Network Graphs") {
+        // only activate loading spinner for network graphs page, not cell details page
+        parent.loading();
+    }
     drawGraph("barnesHut");
 
     function getMousePos(canvas, evt) {
