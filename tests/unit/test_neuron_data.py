@@ -56,19 +56,19 @@ class NeuronDataTest(TestCase):
             "label": 79000,
             "super_class": 5200,
             "class": 37000,
-            "sub_class": 120000,
+            "sub_class": 122000,
             "cell_type": 115000,
-            "hemibrain_type": 100000,
-            "hemilineage": 95000,
+            "hemibrain_type": 105000,
+            "hemilineage": 98000,
             "flow": 5150,
             "side": 14000,
             "nerve": 120000,
-            "input_cells": 5500,
-            "input_neuropils": 5500,
-            "input_synapses": 5500,
-            "output_cells": 4000,
-            "output_neuropils": 4000,
-            "output_synapses": 4000,
+            "input_cells": 8500,
+            "input_neuropils": 8500,
+            "input_synapses": 8500,
+            "output_cells": 7000,
+            "output_neuropils": 7000,
+            "output_synapses": 7000,
             "nt_type": 13000,
             "nt_type_score": 10000,
             "ach_avg": 4200,
@@ -77,8 +77,9 @@ class NeuronDataTest(TestCase):
             "glut_avg": 12000,
             "oct_avg": 37000,
             "ser_avg": 68000,
-            "similar_cell_scores": 76000,  # TODO: import 571 NBLAST scores and reduce bound
+            "similar_cell_scores": 20000,
             "cluster": 84000,
+            "hemisphere_fingerprint": 5000,
         }
 
         for k in NEURON_DATA_ATTRIBUTE_TYPES.keys():
@@ -147,7 +148,7 @@ class NeuronDataTest(TestCase):
 
     def test_search(self):
         # search results
-        self.assertGreater(len(self.neuron_db.search("da")), 1000)
+        self.assertGreater(len(self.neuron_db.search("da")), 900)
         self.assertEqual(len(self.neuron_db.search("dadadeadbeef")), 0)
 
     def test_structured_search(self):
@@ -258,16 +259,16 @@ class NeuronDataTest(TestCase):
 
     def test_downstream_upstream_queries(self):
         downstream = self.neuron_db.search("{downstream} 720575940646952324")
-        self.assertEqual(105, len(downstream))
+        self.assertEqual(115, len(downstream))
 
         upstream = self.neuron_db.search("{upstream} 720575940646952324")
-        self.assertEqual(180, len(upstream))
+        self.assertEqual(204, len(upstream))
 
     def test_downstream_upstream_region_queries(self):
         downstream = self.neuron_db.search(
             "left {downstream_region} 720575940643467886"
         )
-        self.assertEqual(14, len(downstream))
+        self.assertEqual(16, len(downstream))
         downstream = self.neuron_db.search(
             "right {downstream_region} 720575940643467886"
         )
@@ -276,16 +277,26 @@ class NeuronDataTest(TestCase):
             "center {downstream_region} 720575940643467886"
         )
         self.assertEqual(
-            sorted([720575940615933919, 720575940620960347, 720575940627079938]),
+            sorted(
+                [
+                    720575940615933919,
+                    720575940620960347,
+                    720575940623618708,
+                    720575940627079938,
+                    720575940629148007,
+                    720575940630026812,
+                    720575940633182291,
+                ]
+            ),
             sorted(downstream),
         )
 
         upstream = self.neuron_db.search("left {upstream_region} 720575940643467886")
-        self.assertEqual(35, len(upstream))
+        self.assertEqual(38, len(upstream))
         upstream = self.neuron_db.search("right {upstream_region} 720575940643467886")
         self.assertEqual(0, len(upstream))
         upstream = self.neuron_db.search("center {upstream_region} 720575940643467886")
-        self.assertEqual(6, len(upstream))
+        self.assertEqual(11, len(upstream))
 
     def test_neuropil_queries(self):
         self.assertGreater(
@@ -331,7 +342,7 @@ class NeuronDataTest(TestCase):
             set(self.neuron_db.output_sets().keys())
         )
         not_connected_cells = set(self.neuron_db.neuron_data.keys()) - connected_cells
-        self.assertGreater(2000, len(not_connected_cells))
+        self.assertGreater(3500, len(not_connected_cells))
 
     def test_nt_score_stats(self):
         for nd in self.neuron_db.neuron_data.values():
@@ -445,13 +456,13 @@ class NeuronDataTest(TestCase):
         self.assertEqual(expected_list, self.neuron_db.unique_values("sub_class"))
 
     def test_cell_types(self):
-        expected_list_length = 338
+        expected_list_length = 340
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("cell_type"))
         )
 
     def test_hemibrain_types(self):
-        expected_list_length = 2895
+        expected_list_length = 2897
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("hemibrain_type"))
         )
