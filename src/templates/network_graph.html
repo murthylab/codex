@@ -437,12 +437,16 @@
             y: evt.clientY - rect.top
         };
     }
-  
+
     var canvas = document.querySelector("canvas");
     canvas.addEventListener("mousemove", function(evt) {
         mousePos = getMousePos(canvas, evt);
     }, false);
 
+    const ctx = canvas.getContext("2d");
+    ctx.font = "24px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Rendering...", window.innerWidth / 2, window.innerHeight / 2);
 </script>
 </body>
 </html>
