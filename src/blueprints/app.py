@@ -23,7 +23,7 @@ from src.blueprints.base import (
     warning_with_redirect,
     render_info,
 )
-from src.configuration import MAX_NEURONS_FOR_DOWNLOAD
+from src.configuration import MAX_NEURONS_FOR_DOWNLOAD, MIN_SYN_THRESHOLD
 from src.data.brain_regions import (
     REGIONS,
     NEUROPIL_DESCRIPTIONS,
@@ -486,7 +486,6 @@ def cell_coordinates(data_version, cell_id):
 @request_wrapper
 @require_data_access
 def cell_details():
-    min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
     data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     reachability_stats = request.args.get("reachability_stats", 0, type=int)
     neuron_db = NeuronDataFactory.instance().get(data_version)
@@ -540,9 +539,9 @@ def cell_details():
         root_id=root_id,
         neuron_db=neuron_db,
         data_version=data_version,
-        min_syn_cnt=min_syn_cnt,
         reachability_stats=reachability_stats,
     )
+    dct["min_syn_threshold"] = MIN_SYN_THRESHOLD
     log_activity(
         f"Generated neuron info for {root_id} with {len(dct['cell_attributes']) + len(dct['cell_annotations']) + len(dct['related_cells'])} items"
     )
@@ -731,12 +730,12 @@ def path_length():
 def connectivity():
     data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     nt_type = request.args.get("nt_type", None)
-    min_syn_cnt = request.args.get("min_syn_cnt", 5, type=int)
-    connections_cap = request.args.get("cap", 20, type=int)
-    reduce = request.args.get("reduce", 0, type=int)
-    show_regions = request.args.get("show_regions", 0, type=int)
-    include_partners = request.args.get("include_partners", 0, type=int)
-    hide_weights = request.args.get("hide_weights", 0, type=int)
+    min_syn_cnt = request.args.get("min_syn_cnt", default=0, type=int)
+    connections_cap = request.args.get("cap", default=20, type=int)
+    reduce = request.args.get("reduce", default=0, type=int)
+    show_regions = request.args.get("show_regions", default=0, type=int)
+    include_partners = request.args.get("include_partners", default=0, type=int)
+    hide_weights = request.args.get("hide_weights", default=0, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     download = request.args.get("download")
     # headless network view (no search box / nav bar etc.)
@@ -754,8 +753,6 @@ def connectivity():
             cell_names_or_ids=cell_names_or_ids,
             min_syn_cnt=min_syn_cnt,
             nt_type=nt_type,
-            cap=1,
-            max_cap=1,
             network_html=None,
             info_text="With this tool you can specify one or more cells and visualize their connectivity network.<br>"
             f"{con_doc['a']}",
@@ -803,7 +800,6 @@ def connectivity():
             induced=include_partners == 0,
             min_syn_count=min_syn_cnt,
         )
-        max_cap = min(max(len(root_ids), len(contable)), 200)
         if log_request:
             log_activity(
                 f"Generated connections table for {len(root_ids)} cells with {connections_cap=}, {download=} {min_syn_cnt=} {nt_type=}"
@@ -866,7 +862,7 @@ def connectivity():
                 min_syn_cnt=min_syn_cnt,
                 nt_type=nt_type,
                 cap=connections_cap,
-                max_cap=max_cap,
+                max_cap=200,
                 network_html=network_html,
                 info_text=None,
                 message=message,

@@ -1,3 +1,4 @@
+from src.configuration import MIN_SYN_THRESHOLD
 from src.data.structured_search_filters import (
     STRUCTURED_SEARCH_UNARY_OPERATORS,
     STRUCTURED_SEARCH_BINARY_OPERATORS,
@@ -87,7 +88,7 @@ FAQ_QA_KB = {
         "q": "What is a pathway length?",
         "a": "Shortest path length is equivalent to the minimum number of 'hops' "
         "required to reach from the source cell to the target via synaptic connections "
-        "in the connectome network.<br><b>NOTE</b> Only connections with 5+ synapses are "
+        f"in the connectome network.<br><b>NOTE</b> Only connections with {MIN_SYN_THRESHOLD}+ synapses are "
         "taken into account.",
     },
 }

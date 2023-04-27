@@ -20,7 +20,7 @@ from src.utils.graph_algos import reachable_node_counts
 
 @lru_cache
 def cached_cell_details(
-    cell_names_or_id, root_id, neuron_db, data_version, min_syn_cnt, reachability_stats
+    cell_names_or_id, root_id, neuron_db, data_version, reachability_stats
 ):
     nd = neuron_db.get_neuron_data(root_id=root_id)
     labels_data = neuron_db.get_label_data(root_id=root_id)
@@ -103,7 +103,7 @@ def cached_cell_details(
                 f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{icon}&nbsp; {display(num_neurons)} {key}</a>'
             )
 
-    connectivity_table = neuron_db.connections(ids=[root_id], min_syn_count=min_syn_cnt)
+    connectivity_table = neuron_db.connections(ids=[root_id])
 
     if connectivity_table:
         input_neuropil_synapse_count = defaultdict(int)
@@ -212,7 +212,6 @@ def cached_cell_details(
         rurl = url_for(
             "app.cell_details",
             cell_names_or_id=cell_names_or_id,
-            min_syn_cnt=min_syn_cnt,
             data_version=data_version,
             reachability_stats=1,
         )
@@ -260,5 +259,4 @@ def cached_cell_details(
         related_cells=related_cells,
         charts=charts,
         load_connections=1 if connectivity_table and len(connectivity_table) > 1 else 0,
-        min_syn_cnt=min_syn_cnt,
     )
