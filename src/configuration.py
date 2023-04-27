@@ -2,7 +2,7 @@ import os
 import uuid
 import socket
 
-MIN_SYN_COUNT = 5
+MIN_SYN_THRESHOLD = 5
 MIN_NBLAST_SCORE_SIMILARITY = 4
 MAX_NEURONS_FOR_DOWNLOAD = 100
 

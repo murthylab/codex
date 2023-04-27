@@ -1,7 +1,6 @@
 from collections import defaultdict
 from functools import lru_cache
 
-from src.configuration import MIN_SYN_COUNT
 from src.utils.graph_algos import pathways
 
 
@@ -59,7 +58,7 @@ def sort_layers(node_layers, cons):
 
 
 @lru_cache
-def pathway_chart_data_rows(source, target, neuron_db, min_syn_count=MIN_SYN_COUNT):
+def pathway_chart_data_rows(source, target, neuron_db, min_syn_count=0):
     input_sets = neuron_db.input_sets(min_syn_count=min_syn_count)
     output_sets = neuron_db.output_sets(min_syn_count=min_syn_count)
     pathway_nodes = pathways(

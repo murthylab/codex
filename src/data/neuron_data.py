@@ -9,7 +9,7 @@ from src.data.structured_search_filters import (
     apply_chaining_rule,
     parse_search_query,
 )
-from src.configuration import MIN_SYN_COUNT, MIN_NBLAST_SCORE_SIMILARITY
+from src.configuration import MIN_NBLAST_SCORE_SIMILARITY
 from src.utils.formatting import (
     display,
     percentage,
@@ -74,14 +74,14 @@ class NeuronDB(object):
             ]
         )
 
-    def input_sets(self, min_syn_count=MIN_SYN_COUNT):
+    def input_sets(self, min_syn_count=0):
         return self.input_output_partner_sets(min_syn_count)[0]
 
-    def output_sets(self, min_syn_count=MIN_SYN_COUNT):
+    def output_sets(self, min_syn_count=0):
         return self.input_output_partner_sets(min_syn_count)[1]
 
     @lru_cache
-    def input_output_partner_sets(self, min_syn_count=MIN_SYN_COUNT):
+    def input_output_partner_sets(self, min_syn_count=0):
         ins = defaultdict(set)
         outs = defaultdict(set)
         for r in self.connection_rows:
@@ -91,7 +91,7 @@ class NeuronDB(object):
         return ins, outs
 
     @lru_cache
-    def input_output_neuropil_sets(self, min_syn_count=MIN_SYN_COUNT):
+    def input_output_neuropil_sets(self, min_syn_count=0):
         ins = defaultdict(set)
         outs = defaultdict(set)
         for r in self.connection_rows:
@@ -100,9 +100,7 @@ class NeuronDB(object):
                 outs[r[0]].add(r[2])
         return ins, outs
 
-    def connections(
-        self, ids, induced=False, min_syn_count=MIN_SYN_COUNT, nt_type=None
-    ):
+    def connections(self, ids, induced=False, min_syn_count=0, nt_type=None):
         idset = set(ids)
         cons = []
         if self.connection_rows:  # avail in mem cache
@@ -126,7 +124,7 @@ class NeuronDB(object):
         return cons
 
     def connections_by_region(
-        self, cell_id, by_neuropil=False, min_syn_count=MIN_SYN_COUNT, nt_type=None
+        self, cell_id, by_neuropil=False, min_syn_count=0, nt_type=None
     ):
         try:
             cell_id = int(cell_id)

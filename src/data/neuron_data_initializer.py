@@ -14,7 +14,7 @@ from src.data.catalog import (
 from src.data.neuron_data import NeuronDB
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
-from src.configuration import MIN_SYN_COUNT, MIN_NBLAST_SCORE_SIMILARITY
+from src.configuration import MIN_NBLAST_SCORE_SIMILARITY
 from src.utils.formatting import (
     compact_label,
     nanometer_to_flywire_coordinates,
@@ -294,7 +294,6 @@ def initialize_neuron_data(
             r[4].upper(),
         )
         assert from_node in neuron_attributes and to_node in neuron_attributes
-        assert syn_count >= MIN_SYN_COUNT
         assert nt_type in NEURO_TRANSMITTER_NAMES
         assert neuropil in REGIONS
         input_cells[to_node].add(from_node)

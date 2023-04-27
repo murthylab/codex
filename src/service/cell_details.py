@@ -3,7 +3,7 @@ from functools import lru_cache
 
 from flask import url_for
 
-from src.configuration import MIN_SYN_COUNT
+from src.configuration import MIN_SYN_THRESHOLD
 from src.data.brain_regions import neuropil_hemisphere, NEUROPIL_DESCRIPTIONS
 from src.data.neurotransmitters import lookup_nt_type_name, NEURO_TRANSMITTER_NAMES
 from src.data.structured_search_filters import OP_UPSTREAM, OP_DOWNSTREAM, OP_SIMILAR
@@ -118,7 +118,7 @@ def cached_cell_details(
                 input_nt_type_count[r[4].upper()] += r[3]
 
         insert_neuron_list_links(
-            f"input cells (upstream) with {MIN_SYN_COUNT}+ synapses",
+            f"input cells (upstream) with {MIN_SYN_THRESHOLD}+ synapses",
             nd["input_cells"],
             '<i class="fa-solid fa-arrow-up"></i>',
             search_endpoint=url_for(
@@ -126,7 +126,7 @@ def cached_cell_details(
             ),
         )
         insert_neuron_list_links(
-            f"output cells (downstream) with {MIN_SYN_COUNT}+ synapses",
+            f"output cells (downstream) with {MIN_SYN_THRESHOLD}+ synapses",
             nd["output_cells"],
             '<i class="fa-solid fa-arrow-down"></i>',
             search_endpoint=url_for(
@@ -237,7 +237,7 @@ def cached_cell_details(
         )
         if reachable_counts:
             cell_extra_data[
-                f"Downstream Reachable Cells ({MIN_SYN_COUNT}+ syn)"
+                f"Downstream Reachable Cells ({MIN_SYN_THRESHOLD}+ syn)"
             ] = reachable_counts
         reachable_counts = reachable_node_counts(
             sources={root_id},
@@ -246,7 +246,7 @@ def cached_cell_details(
         )
         if reachable_counts:
             cell_extra_data[
-                f"Upstream Reachable Cells ({MIN_SYN_COUNT}+ syn)"
+                f"Upstream Reachable Cells ({MIN_SYN_THRESHOLD}+ syn)"
             ] = reachable_counts
 
     return dict(

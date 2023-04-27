@@ -23,7 +23,7 @@ from src.blueprints.base import (
     warning_with_redirect,
     render_info,
 )
-from src.configuration import MIN_SYN_COUNT, MAX_NEURONS_FOR_DOWNLOAD
+from src.configuration import MAX_NEURONS_FOR_DOWNLOAD
 from src.data.brain_regions import (
     REGIONS,
     NEUROPIL_DESCRIPTIONS,
@@ -555,8 +555,7 @@ def cell_details():
 def pathways():
     source = request.args.get("source_cell_id", type=int)
     target = request.args.get("target_cell_id", type=int)
-    min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
-    min_syn_count = max(min_syn_count, MIN_SYN_COUNT)
+    min_syn_count = request.args.get("min_syn_count", type=int)
     log_activity(f"Rendering pathways from {source} to {target} with {min_syn_count=}")
     neuron_db = NeuronDataFactory.instance().get()
     for rid in [source, target]:
@@ -599,8 +598,7 @@ def path_length():
     source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
     data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
-    min_syn_count = request.args.get("min_syn_count", type=int, default=MIN_SYN_COUNT)
-    min_syn_count = max(min_syn_count, MIN_SYN_COUNT)
+    min_syn_count = request.args.get("min_syn_count", type=int)
     download = request.args.get("download", 0, type=int)
 
     messages = []
@@ -684,7 +682,7 @@ def path_length():
                         ] = f'<a href="{url_for("app.search", filter_string="id == " + str(from_root_id))}">{neuron_db.get_neuron_data(from_root_id)["name"]}</a><br><small>{from_root_id}</small>'
                     elif val > 0:
                         to_root_id = int(matrix[0][j])
-                        if min_syn_count == MIN_SYN_COUNT:
+                        if not min_syn_count:
                             q = f"{from_root_id} {OP_PATHWAYS} {to_root_id}"
                             slink = f'<a href="{url_for("app.search", filter_string=q)}" target="_blank" ><i class="fa-solid fa-list"></i> View cells as list</a>'
                         else:
