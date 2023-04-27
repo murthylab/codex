@@ -52,13 +52,6 @@ def url_for_random_sample(root_ids, version, sample_size=50):
     return url_for_root_ids(root_ids, version=version)
 
 
-def can_be_flywire_root_id(txt):
-    try:
-        return len(txt) == 18 and txt.startswith("72") and int(txt)
-    except Exception:
-        return False
-
-
 def url_for_cells(segment_ids, data_version):
     config = {
         "dimensions": {"x": [1.6e-8, "m"], "y": [1.6e-8, "m"], "z": [4e-8, "m"]},

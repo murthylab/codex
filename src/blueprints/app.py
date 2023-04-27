@@ -69,7 +69,7 @@ from src.utils.logging import (
     log_warning,
     log_error,
 )
-from src.utils.nglui import can_be_flywire_root_id
+from src.utils.formatting import can_be_flywire_root_id
 from src.utils.pathway_vis import pathway_chart_data_rows
 from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton

@@ -258,6 +258,11 @@ def neuropil_hemisphere(pil):
         return CENTER
 
 
+def without_side_suffix(pil):
+    pil = pil.upper()
+    return pil[:-2] if pil.endswith("_L") or pil.endswith("_R") else pil
+
+
 def neuropil_description(txt):
     pil = match_to_neuropil(txt)
     if pil not in REGIONS:

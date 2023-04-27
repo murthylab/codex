@@ -196,3 +196,11 @@ def nanos_to_formatted_micros(nanos, degree):
     divisor = pow(1000, degree)
     micros = round(nanos / divisor)
     return f"{display(micros)} &#181;m" + (f"<sup>{degree}</sup>" if degree > 1 else "")
+
+
+def can_be_flywire_root_id(txt):
+    try:
+        txt = str(txt)
+        return len(txt) == 18 and txt.startswith("72") and int(txt)
+    except Exception:
+        return False

@@ -6,6 +6,8 @@ from src.data.brain_regions import (
     neuropil_description,
     REGIONS,
     REGION_CATEGORIES,
+    neuropil_hemisphere,
+    without_side_suffix,
 )
 
 
@@ -73,3 +75,21 @@ class RegionsTest(TestCase):
         for p in REGIONS.keys():
             self.assertEqual(1, len(dct[p]), p)
             self.assertGreater(len(dct[p][0]), 5)
+
+    def test_neuropil_hemisphere(self):
+        for k, v in REGIONS.items():
+            if k.endswith("_L"):
+                self.assertEqual("Left", neuropil_hemisphere(k))
+            elif k.endswith("_R"):
+                self.assertEqual("Right", neuropil_hemisphere(k))
+            else:
+                self.assertEqual("Center", neuropil_hemisphere(k))
+
+    def test_without_side_suffix(self):
+        for k, v in REGIONS.items():
+            if k.endswith("_L"):
+                self.assertEqual(k.replace("_L", ""), without_side_suffix(k))
+            elif k.endswith("_R"):
+                self.assertEqual(k.replace("_R", ""), without_side_suffix(k))
+            else:
+                self.assertEqual(k, without_side_suffix(k))
