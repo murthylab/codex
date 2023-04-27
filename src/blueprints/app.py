@@ -554,7 +554,7 @@ def cell_details():
 def pathways():
     source = request.args.get("source_cell_id", type=int)
     target = request.args.get("target_cell_id", type=int)
-    min_syn_count = request.args.get("min_syn_count", type=int)
+    min_syn_count = request.args.get("min_syn_count", type=int, default=0)
     log_activity(f"Rendering pathways from {source} to {target} with {min_syn_count=}")
     neuron_db = NeuronDataFactory.instance().get()
     for rid in [source, target]:
@@ -597,7 +597,7 @@ def path_length():
     source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
     data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
-    min_syn_count = request.args.get("min_syn_count", type=int)
+    min_syn_count = request.args.get("min_syn_count", type=int, default=0)
     download = request.args.get("download", 0, type=int)
 
     messages = []
