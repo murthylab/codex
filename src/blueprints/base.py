@@ -24,6 +24,7 @@ from src.configuration import (
     GOOGLE_CLIENT_ID,
     SUPPORT_EMAIL,
     ADMIN_DASHBOARD_URLS,
+    MIN_SYN_THRESHOLD,
 )
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data_factory import NeuronDataFactory
@@ -394,6 +395,7 @@ def index(path):
             num_synapses=display(neuron_db.num_synapses()),
             num_labels=display(neuron_db.num_labels()),
             default_version=DEFAULT_DATA_SNAPSHOT_VERSION,
+            min_syn_threshold=MIN_SYN_THRESHOLD,
         )
 
 

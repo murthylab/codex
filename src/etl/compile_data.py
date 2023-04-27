@@ -7,7 +7,7 @@ import pandas
 from caveclient import CAVEclient
 from networkx import Graph, community
 
-from src.configuration import MIN_SYN_COUNT
+from src.configuration import MIN_SYN_THRESHOLD
 from src.data.local_data_loader import read_csv, write_csv
 
 # FlyWire data snapshots are exported periodically in 2 Google Drive folders (within them snapshot sub-folders are
@@ -18,13 +18,13 @@ from src.data.local_data_loader import read_csv, write_csv
 #  - download it into RAW_DATA_ROOT_FOLDER and name it as NEURON_NT_TYPES_FILE_NAME below
 # Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
 # and store it in this file (no quotes)
-from src.data.versions import DATA_SNAPSHOT_VERSIONS
 from src.etl.synapse_table_processor import (
     compile_connection_rows,
     compile_neuron_rows,
     filter_connection_rows,
     compile_neuropil_synapse_rows,
 )
+from src.utils.formatting import can_be_flywire_root_id
 
 CAVE_AUTH_TOKEN_FILE_NAME = "static/secrets/cave_auth_token.txt"
 CAVE_DATASTACK_NAME = "flywire_fafb_production"
@@ -48,7 +48,7 @@ def compiled_data_file_path(version, filename):
 
 PROOFREAD_ROOT_IDS_FILE_NAME = "proofread_root_ids.npy"
 NEURONS_WITH_NT_TYPES_FILE_NAME = "neuron_nt_types.feather"
-NEURONS_WITH_NT_TYPES_FILE_COLUMN_NAMES = [
+NEURON_NT_TYPE_PREDICTIONS_COLUMN_NAMES = [
     "root_id",
     "ach_avg",
     "gaba_avg",
@@ -534,6 +534,7 @@ def update_connectome_files(version):
     )
     print(f"Loading proofread rids from {proofread_rids_filepath}..")
     proofread_rids_set = set(np.load(proofread_rids_filepath))
+    assert all([can_be_flywire_root_id(rid) for rid in proofread_rids_set])
     print(f"Loaded {len(proofread_rids_set)} rows")
 
     neurons_with_nt_filepath = raw_data_file_path(
@@ -541,6 +542,9 @@ def update_connectome_files(version):
     )
     print(f"Loading neurons table from {neurons_with_nt_filepath}..")
     neuron_nt_content = load_feather_data_to_table(neurons_with_nt_filepath)
+    assert all(
+        [c in neuron_nt_content[0] for c in NEURON_NT_TYPE_PREDICTIONS_COLUMN_NAMES]
+    )
     print(f"Loaded {len(neuron_nt_content)} rows")
 
     syn_table_with_nt_filepath = raw_data_file_path(
@@ -554,20 +558,29 @@ def update_connectome_files(version):
     st_rid_set = set([r[0] for r in st_nt_content[1:]]) | set(
         [r[1] for r in st_nt_content[1:]]
     )
-    print(f"{len(n_rid_set)=} {len(n_rid_set.intersection(proofread_rids_set))=}")
-    print(f"{len(st_rid_set)=} {len(st_rid_set.intersection(proofread_rids_set))=}")
+    print(
+        f"Proofread root IDs vs Neuron NT root IDs: {len(proofread_rids_set)} : {len(n_rid_set)} (intersection: {len(proofread_rids_set.intersection(n_rid_set))})"
+    )
+    print(
+        f"Proofread root IDs vs Synapse Table root IDs: {len(proofread_rids_set)} : {len(st_rid_set)} (intersection: {len(proofread_rids_set.intersection(st_rid_set))})"
+    )
+    print(
+        f"Neuron NT root IDs vs Synapse Table root IDs: {len(n_rid_set)} : {len(st_rid_set)} (intersection: {len(n_rid_set.intersection(st_rid_set))})"
+    )
 
     filtered_rows = filter_connection_rows(
         syn_table_content=st_nt_content,
         columns=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES,
-        min_syn_count=MIN_SYN_COUNT,
+        min_syn_count=MIN_SYN_THRESHOLD,
         proofread_rids=proofread_rids_set,
     )
 
     # compile neuron rows
     neurons = compile_neuron_rows(
-        filtered_syn_table_content=filtered_rows,
-        columns=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES,
+        proofread_rids_set=proofread_rids_set,
+        neuron_nt_type_predictions_content=neuron_nt_content,
+        syn_table_content=filtered_rows,
+        syn_table_columns=SYNAPSE_TABLE_WITH_NT_TYPES_COLUMN_NAMES,
     )
 
     neurons_fpath = compiled_data_file_path(version=version, filename="neurons.csv.gz")
