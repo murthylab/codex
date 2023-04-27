@@ -154,7 +154,7 @@ class NeuronDataTest(TestCase):
                     set(tested.output_sets().keys())
                 )
                 not_connected_cells = set(tested.neuron_data.keys()) - connected_cells
-                self.assertGreater(2000, len(not_connected_cells))
+                self.assertGreater(4000, len(not_connected_cells))
 
             # compare optional label data
             self.assertEqual(tested.label_data, golden.label_data)
