@@ -423,18 +423,11 @@
             network.setOptions({
                 physics: false
             });
-            if (parent.clear_loading) {
-                parent.clear_loading();
-            }
         });
 
         return network;
     }
 
-    if (parent.loading && parent.document.title === "Network Graphs") {
-        // only activate loading spinner for network graphs page, not cell details page
-        parent.loading();
-    }
     drawGraph("barnesHut");
 
     function getMousePos(canvas, evt) {
@@ -444,12 +437,16 @@
             y: evt.clientY - rect.top
         };
     }
-  
+
     var canvas = document.querySelector("canvas");
     canvas.addEventListener("mousemove", function(evt) {
         mousePos = getMousePos(canvas, evt);
     }, false);
 
+    const ctx = canvas.getContext("2d");
+    ctx.font = "48px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Rendering...", canvas.width / 2, canvas.height / 2);
 </script>
 </body>
 </html>
