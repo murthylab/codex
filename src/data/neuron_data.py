@@ -101,6 +101,10 @@ class NeuronDB(object):
                 outs[r[0]].add(r[2])
         return ins, outs
 
+    @lru_cache
+    def cell_connections(self, cell_id):
+        return list(self.connections_.rows(cell_id=cell_id))
+
     def connections(self, ids, induced=False, min_syn_count=0, nt_type=None):
         idset = set(ids)
         cons = []
@@ -128,16 +132,13 @@ class NeuronDB(object):
             cons = [r for r in cons if r[2] == nt_type]
         return cons
 
-    def connections_by_region(
-        self, cell_id, by_neuropil=False, min_syn_count=0, nt_type=None
-    ):
+    @lru_cache
+    def connections_up_down(self, cell_id, by_neuropil=False):
         try:
             cell_id = int(cell_id)
         except ValueError:
             raise ValueError(f"'{cell_id}' is not a valid cell ID")
-        table = self.connections(
-            ids=[cell_id], min_syn_count=min_syn_count, nt_type=nt_type
-        )
+        table = self.cell_connections(cell_id)
         if by_neuropil:
             downstream = defaultdict(list)
             upstream = defaultdict(list)
@@ -342,7 +343,7 @@ class NeuronDB(object):
                 structured_terms=structured_terms,
                 input_sets_getter=self.input_sets,
                 output_sets_getter=self.output_sets,
-                connections_loader=self.connections_by_region,
+                connections_loader=self.connections_up_down,
                 similar_cells_loader=self.get_similar_cells,
                 case_sensitive=case_sensitive,
             )

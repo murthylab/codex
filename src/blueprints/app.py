@@ -289,7 +289,7 @@ def search():
             similarity_scores_getter=lambda x: neuron_db.get_similar_cells(
                 x, as_dict_with_scores=True
             ),
-            connections_getter=lambda x: neuron_db.connections(ids=[x]),
+            connections_getter=lambda x: neuron_db.cell_connections(x),
             sort_by=sort_by,
         )
     else:

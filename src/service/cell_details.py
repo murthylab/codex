@@ -103,7 +103,7 @@ def cached_cell_details(
                 f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{icon}&nbsp; {display(num_neurons)} {key}</a>'
             )
 
-    connectivity_table = neuron_db.connections(ids=[root_id])
+    connectivity_table = neuron_db.cell_connections(root_id)
 
     if connectivity_table:
         input_neuropil_synapse_count = defaultdict(int)

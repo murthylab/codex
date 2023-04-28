@@ -23,17 +23,21 @@ class Connections(object):
             from_dict[to_rid] = SYN_COUNT_MULTIPLIER * syn_cnt + NT_TO_ID[nt_type]
             self.synapse_count += syn_cnt
 
-    def rows(self):
+    def rows(self, cell_id=None):
         for pil, pil_dict in self.compact_connections_representation.items():
             for from_id, from_dict in pil_dict.items():
+                from_rid = self.rids_list[from_id]
                 for to_id, syn_cnt_and_nt_type in from_dict.items():
+                    to_rid = self.rids_list[to_id]
+                    if cell_id and not (cell_id == from_rid or cell_id == to_rid):
+                        continue
                     syn_cnt, nt_type_idx = divmod(
                         syn_cnt_and_nt_type, SYN_COUNT_MULTIPLIER
                     )
                     nt_type = ID_TO_NT[nt_type_idx]
                     yield [
-                        self.rids_list[from_id],
-                        self.rids_list[to_id],
+                        from_rid,
+                        to_rid,
                         pil,
                         syn_cnt,
                         nt_type,
