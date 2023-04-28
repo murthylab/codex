@@ -528,8 +528,8 @@ def _make_has_predicate(rhs):
 
 def _make_predicate(
     structured_term,
-    input_sets,
-    output_sets,
+    input_sets_getter,
+    output_sets_getter,
     connections_loader,
     similar_cells_loader,
     case_sensitive,
@@ -615,8 +615,8 @@ def _make_predicate(
         pathway_distance_map = pathways(
             source=lhs,
             target=rhs,
-            input_sets=input_sets,
-            output_sets=output_sets,
+            input_sets=input_sets_getter(),
+            output_sets=output_sets_getter(),
         )
         pathway_distance_map = pathway_distance_map or {}
         return lambda x: x["root_id"] in pathway_distance_map
@@ -631,8 +631,8 @@ def _make_predicate(
 def make_structured_terms_predicate(
     chaining_rule,
     structured_terms,
-    input_sets,
-    output_sets,
+    input_sets_getter,
+    output_sets_getter,
     connections_loader,
     similar_cells_loader,
     case_sensitive,
@@ -640,8 +640,8 @@ def make_structured_terms_predicate(
     predicates = [
         _make_predicate(
             structured_term=t,
-            input_sets=input_sets,
-            output_sets=output_sets,
+            input_sets_getter=input_sets_getter,
+            output_sets_getter=output_sets_getter,
             connections_loader=connections_loader,
             similar_cells_loader=similar_cells_loader,
             case_sensitive=case_sensitive,

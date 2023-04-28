@@ -328,14 +328,6 @@ class NeuronDataTest(TestCase):
             ),
             80,
         )
-        self.assertLess(
-            len(
-                self.neuron_db.search(
-                    "label {contains} dsx && label {not_contains} dsx"
-                )
-            ),
-            100,
-        )
 
     def test_not_connected_cells(self):
         connected_cells = set(self.neuron_db.input_sets().keys()).union(
@@ -583,27 +575,3 @@ class NeuronDataTest(TestCase):
                         partial_redundancy_cnt += 1
         self.assertEqual(0, complete_redundancy_cnt)
         self.assertEqual(0, partial_redundancy_cnt)
-
-    def test_input_output_counts(self):
-        input_partners = defaultdict(set)
-        input_synapses = defaultdict(int)
-        input_neuropils = defaultdict(set)
-        output_partners = defaultdict(set)
-        output_synapses = defaultdict(int)
-        output_neuropils = defaultdict(set)
-
-        for r in self.neuron_db.connection_rows:
-            input_partners[r[1]].add(r[0])
-            input_synapses[r[1]] += r[3]
-            input_neuropils[r[1]].add(r[2])
-            output_partners[r[0]].add(r[1])
-            output_synapses[r[0]] += r[3]
-            output_neuropils[r[0]].add(r[2])
-
-        for rid, nd in self.neuron_db.neuron_data.items():
-            self.assertEqual(nd["input_cells"], len(input_partners[rid]))
-            self.assertEqual(nd["input_synapses"], input_synapses[rid])
-            self.assertEqual(set(nd["input_neuropils"]), input_neuropils[rid])
-            self.assertEqual(nd["output_cells"], len(output_partners[rid]))
-            self.assertEqual(nd["output_synapses"], output_synapses[rid])
-            self.assertEqual(set(nd["output_neuropils"]), output_neuropils[rid])

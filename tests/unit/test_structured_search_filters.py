@@ -46,7 +46,7 @@ class Test(TestCase):
             else:
                 self.fail(f"Unknown op type: {op}")
 
-            def mock_con_loader(cell_id, by_neuropil):
+            def mock_con_loader(cell_id=None, by_neuropil=None):
                 if by_neuropil:
                     return {}, {}
                 else:
@@ -58,8 +58,8 @@ class Test(TestCase):
             self.assertIsNotNone(
                 _make_predicate(
                     st,
-                    {},
-                    {},
+                    mock_con_loader,
+                    mock_con_loader,
                     connections_loader=mock_con_loader,
                     similar_cells_loader=mock_sim_loader,
                     case_sensitive=False,
@@ -68,8 +68,8 @@ class Test(TestCase):
             self.assertIsNotNone(
                 _make_predicate(
                     st,
-                    {},
-                    {},
+                    mock_con_loader,
+                    mock_con_loader,
                     connections_loader=mock_con_loader,
                     similar_cells_loader=mock_sim_loader,
                     case_sensitive=True,

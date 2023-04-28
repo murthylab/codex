@@ -19,11 +19,11 @@ class NeuronDataTest(TestCase):
         # this allows to temporarily disable some checks when updating the schema of data files. should be kept empty
         # after the updates are tested and complete
         self.exclude_keys = set([])
-
-    def test_content(self):
-        loaded_db = unpickle_neuron_db(
+        self.neuron_db = unpickle_neuron_db(
             version=TESTING_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
         )
+
+    def test_content(self):
         self.assertEqual(
             sorted(
                 [
@@ -37,7 +37,7 @@ class NeuronDataTest(TestCase):
                     "search_index",
                 ]
             ),
-            sorted(loaded_db.__dict__.keys()),
+            sorted(self.neuron_db.__dict__.keys()),
         )
 
         expected_sizes = {
@@ -64,17 +64,19 @@ class NeuronDataTest(TestCase):
                 return f"{sz_bytes} B"
 
         actual_sizes = {
-            "connection_rows": approx_size(loaded_db.connection_rows),
-            "neuron_data": approx_size(loaded_db.neuron_data),
-            "search_index": approx_size(loaded_db.search_index),
-            "label_data": approx_size(loaded_db.label_data),
-            "labels_file_timestamp": approx_size(loaded_db.labels_file_timestamp),
-            "grouped_synapse_counts": approx_size(loaded_db.grouped_synapse_counts),
+            "connection_rows": approx_size(self.neuron_db.connection_rows),
+            "neuron_data": approx_size(self.neuron_db.neuron_data),
+            "search_index": approx_size(self.neuron_db.search_index),
+            "label_data": approx_size(self.neuron_db.label_data),
+            "labels_file_timestamp": approx_size(self.neuron_db.labels_file_timestamp),
+            "grouped_synapse_counts": approx_size(
+                self.neuron_db.grouped_synapse_counts
+            ),
             "grouped_connection_counts": approx_size(
-                loaded_db.grouped_connection_counts
+                self.neuron_db.grouped_connection_counts
             ),
             "grouped_reciprocal_connection_counts": approx_size(
-                loaded_db.grouped_reciprocal_connection_counts
+                self.neuron_db.grouped_reciprocal_connection_counts
             ),
         }
 
@@ -194,3 +196,27 @@ class NeuronDataTest(TestCase):
     # this is a helper test to not forget clean up excluded keys once schema has updated
     def test_no_keys_excluded(self):
         self.assertEqual(0, len(self.exclude_keys))
+
+    def test_input_output_counts(self):
+        input_partners = defaultdict(set)
+        input_synapses = defaultdict(int)
+        input_neuropils = defaultdict(set)
+        output_partners = defaultdict(set)
+        output_synapses = defaultdict(int)
+        output_neuropils = defaultdict(set)
+
+        for r in self.neuron_db.connection_rows:
+            input_partners[r[1]].add(r[0])
+            input_synapses[r[1]] += r[3]
+            input_neuropils[r[1]].add(r[2])
+            output_partners[r[0]].add(r[1])
+            output_synapses[r[0]] += r[3]
+            output_neuropils[r[0]].add(r[2])
+
+        for rid, nd in self.neuron_db.neuron_data.items():
+            self.assertEqual(nd["input_cells"], len(input_partners[rid]))
+            self.assertEqual(nd["input_synapses"], input_synapses[rid])
+            self.assertEqual(set(nd["input_neuropils"]), input_neuropils[rid])
+            self.assertEqual(nd["output_cells"], len(output_partners[rid]))
+            self.assertEqual(nd["output_synapses"], output_synapses[rid])
+            self.assertEqual(set(nd["output_neuropils"]), output_neuropils[rid])

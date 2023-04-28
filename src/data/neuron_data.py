@@ -335,8 +335,8 @@ class NeuronDB(object):
             predicate = make_structured_terms_predicate(
                 chaining_rule=chaining_rule,
                 structured_terms=structured_terms,
-                input_sets=self.input_sets(),
-                output_sets=self.output_sets(),
+                input_sets_getter=self.input_sets,
+                output_sets_getter=self.output_sets,
                 connections_loader=self.connections_by_region,
                 similar_cells_loader=self.get_similar_cells,
                 case_sensitive=case_sensitive,
