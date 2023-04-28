@@ -794,12 +794,16 @@ def connectivity():
             # if only one match found, show some connections to it's partners (instead of lonely point)
             include_partners = True
 
-        contable = neuron_db.connections(
-            ids=root_ids,
-            nt_type=nt_type,
-            induced=include_partners == 0,
-            min_syn_count=min_syn_cnt,
-        )
+        if len(root_ids) == 1 and not nt_type and not min_syn_cnt:
+            # this simplest case (also used in cell details page) can be handled more efficiently
+            contable = neuron_db.cell_connections(root_ids[0])
+        else:
+            contable = neuron_db.connections(
+                ids=root_ids,
+                nt_type=nt_type,
+                induced=include_partners == 0,
+                min_syn_count=min_syn_cnt,
+            )
         if log_request:
             log_activity(
                 f"Generated connections table for {len(root_ids)} cells with {connections_cap=}, {download=} {min_syn_cnt=} {nt_type=}"
