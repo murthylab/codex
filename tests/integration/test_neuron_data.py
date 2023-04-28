@@ -1,8 +1,11 @@
 from unittest import TestCase
 from pympler import asizeof
+
+from src.data.brain_regions import REGIONS
 from src.data.local_data_loader import (
     load_neuron_db,
     unpickle_neuron_db,
+    unpickle_all_neuron_db_versions,
 )
 from src.data.neuron_data_initializer import NEURON_DATA_ATTRIBUTE_TYPES
 
@@ -220,3 +223,28 @@ class NeuronDataTest(TestCase):
             self.assertEqual(nd["output_cells"], len(output_partners[rid]))
             self.assertEqual(nd["output_synapses"], output_synapses[rid])
             self.assertEqual(set(nd["output_neuropils"]), output_neuropils[rid])
+
+    def test_loading(self):
+        # check that all versions loaded
+        neuron_dbs = unpickle_all_neuron_db_versions(data_root_path=TEST_DATA_ROOT_PATH)
+        for v in DATA_SNAPSHOT_VERSIONS:
+            self.assertIsNotNone(neuron_dbs[v])
+            self.assertEqual(
+                set(neuron_dbs[v].neuron_data.keys()),
+                set(neuron_dbs[v].search_index.all_doc_ids()),
+            )
+
+    def test_neuropils(self):
+        input_neuropils = defaultdict(set)
+        output_neuropils = defaultdict(set)
+        for r in self.neuron_db.connection_rows:
+            self.assertTrue(r[2] in REGIONS)
+            input_neuropils[r[1]].add(r[2])
+            output_neuropils[r[0]].add(r[2])
+        for nd in self.neuron_db.neuron_data.values():
+            self.assertEqual(
+                sorted(input_neuropils[nd["root_id"]]), sorted(nd["input_neuropils"])
+            )
+            self.assertEqual(
+                sorted(output_neuropils[nd["root_id"]]), sorted(nd["output_neuropils"])
+            )

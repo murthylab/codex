@@ -1,10 +1,8 @@
 import os
 from unittest import TestCase
-from collections import defaultdict
 
 from src.data.brain_regions import REGIONS
 from src.data.local_data_loader import (
-    unpickle_all_neuron_db_versions,
     unpickle_neuron_db,
     read_csv,
 )
@@ -13,7 +11,6 @@ from src.data.neuron_data_initializer import (
     hemisphere_fingerprint,
 )
 from src.data.versions import (
-    DATA_SNAPSHOT_VERSIONS,
     DEFAULT_DATA_SNAPSHOT_VERSION,
     TESTING_DATA_SNAPSHOT_VERSION,
 )
@@ -28,16 +25,6 @@ class NeuronDataTest(TestCase):
         cls.neuron_db = unpickle_neuron_db(
             version=TESTING_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
         )
-
-    def test_loading(self):
-        # check that all versions loaded
-        neuron_dbs = unpickle_all_neuron_db_versions(data_root_path=TEST_DATA_ROOT_PATH)
-        for v in DATA_SNAPSHOT_VERSIONS:
-            self.assertIsNotNone(neuron_dbs[v])
-            self.assertEqual(
-                set(neuron_dbs[v].neuron_data.keys()),
-                set(neuron_dbs[v].search_index.all_doc_ids()),
-            )
 
     def test_index_data(self):
         self.assertGreater(len(self.neuron_db.neuron_data), 100000)
@@ -356,20 +343,6 @@ class NeuronDataTest(TestCase):
             for p in nd["output_neuropils"]:
                 res.add(p)
         self.assertEqual(set(REGIONS.keys()), res)
-
-        input_neuropils = defaultdict(set)
-        output_neuropils = defaultdict(set)
-        for r in self.neuron_db.connection_rows:
-            self.assertTrue(r[2] in REGIONS)
-            input_neuropils[r[1]].add(r[2])
-            output_neuropils[r[0]].add(r[2])
-        for nd in self.neuron_db.neuron_data.values():
-            self.assertEqual(
-                sorted(input_neuropils[nd["root_id"]]), sorted(nd["input_neuropils"])
-            )
-            self.assertEqual(
-                sorted(output_neuropils[nd["root_id"]]), sorted(nd["output_neuropils"])
-            )
 
     def test_classes(self):
         expected_list = [
