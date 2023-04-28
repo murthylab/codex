@@ -226,7 +226,7 @@ def cached_cell_details(
     cell_annotations = {k: v for k, v in cell_annotations.items() if v}
 
     cell_extra_data = {}
-    if neuron_db.connection_rows and reachability_stats:
+    if reachability_stats:
         ins, outs = neuron_db.input_output_partner_sets()
 
         reachable_counts = reachable_node_counts(

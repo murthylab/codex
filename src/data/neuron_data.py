@@ -2,6 +2,7 @@ from collections import defaultdict
 from functools import lru_cache
 from random import choice
 
+from src.data.connections import Connections
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.search_index import SearchIndex
 from src.data.structured_search_filters import (
@@ -47,7 +48,7 @@ class NeuronDB(object):
         grouped_reciprocal_connection_counts,
     ):
         self.neuron_data = neuron_attributes
-        self.connection_rows = neuron_connection_rows
+        self.connections_ = Connections(neuron_connection_rows)
         self.label_data = label_data
         self.labels_file_timestamp = labels_file_timestamp
         self.grouped_synapse_counts = grouped_synapse_counts
@@ -84,7 +85,7 @@ class NeuronDB(object):
     def input_output_partner_sets(self, min_syn_count=0):
         ins = defaultdict(set)
         outs = defaultdict(set)
-        for r in self.connection_rows:
+        for r in self.connections_.rows():
             if not min_syn_count or r[3] >= min_syn_count:
                 ins[r[1]].add(r[0])
                 outs[r[0]].add(r[1])
@@ -94,7 +95,7 @@ class NeuronDB(object):
     def input_output_neuropil_sets(self, min_syn_count=0):
         ins = defaultdict(set)
         outs = defaultdict(set)
-        for r in self.connection_rows:
+        for r in self.connections_.rows():
             if not min_syn_count or r[3] >= min_syn_count:
                 ins[r[1]].add(r[2])
                 outs[r[0]].add(r[2])
@@ -103,14 +104,18 @@ class NeuronDB(object):
     def connections(self, ids, induced=False, min_syn_count=0, nt_type=None):
         idset = set(ids)
         cons = []
-        if self.connection_rows:  # avail in mem cache
+        if self.connections_.rows():  # avail in mem cache
             if induced:
                 cons = [
-                    r for r in self.connection_rows if (r[0] in idset and r[1] in idset)
+                    r
+                    for r in self.connections_.rows()
+                    if (r[0] in idset and r[1] in idset)
                 ]
             else:
                 cons = [
-                    r for r in self.connection_rows if (r[0] in idset or r[1] in idset)
+                    r
+                    for r in self.connections_.rows()
+                    if (r[0] in idset or r[1] in idset)
                 ]
         if min_syn_count:
             cons = [r for r in cons if r[3] >= min_syn_count]
@@ -161,7 +166,7 @@ class NeuronDB(object):
 
     @lru_cache
     def num_synapses(self):
-        return sum([r[3] for r in self.connection_rows])
+        return self.connections_.num_synapses()
 
     @lru_cache
     def num_labels(self):

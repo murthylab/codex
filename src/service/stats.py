@@ -33,25 +33,25 @@ def stats_cached(filter_string, data_version, case_sensitive, whole_word):
         match_words=whole_word,
         data_version=data_version,
     )
-    if neuron_db.connection_rows:
-        reachable_counts = reachable_node_counts(
-            sources=filtered_root_id_list,
-            neighbor_sets=neuron_db.output_sets(),
-            total_count=neuron_db.num_cells(),
-        )
-        if reachable_counts:
-            data_stats[
-                f"Downstream Reachable Cells ({MIN_SYN_THRESHOLD}+ syn)"
-            ] = reachable_counts
-        reachable_counts = reachable_node_counts(
-            sources=filtered_root_id_list,
-            neighbor_sets=neuron_db.input_sets(),
-            total_count=neuron_db.num_cells(),
-        )
-        if reachable_counts:
-            data_stats[
-                f"Upstream Reachable Cells ({MIN_SYN_THRESHOLD}+ syn)"
-            ] = reachable_counts
+
+    reachable_counts = reachable_node_counts(
+        sources=filtered_root_id_list,
+        neighbor_sets=neuron_db.output_sets(),
+        total_count=neuron_db.num_cells(),
+    )
+    if reachable_counts:
+        data_stats[
+            f"Downstream Reachable Cells ({MIN_SYN_THRESHOLD}+ syn)"
+        ] = reachable_counts
+    reachable_counts = reachable_node_counts(
+        sources=filtered_root_id_list,
+        neighbor_sets=neuron_db.input_sets(),
+        total_count=neuron_db.num_cells(),
+    )
+    if reachable_counts:
+        data_stats[
+            f"Upstream Reachable Cells ({MIN_SYN_THRESHOLD}+ syn)"
+        ] = reachable_counts
     return (
         filtered_root_id_list,
         len(filtered_root_id_list),

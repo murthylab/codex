@@ -2,10 +2,12 @@ from unittest import TestCase
 from pympler import asizeof
 
 from src.data.brain_regions import REGIONS
+from src.data.connections import Connections
 from src.data.local_data_loader import (
     load_neuron_db,
     unpickle_neuron_db,
     unpickle_all_neuron_db_versions,
+    read_csv,
 )
 from src.data.neuron_data_initializer import NEURON_DATA_ATTRIBUTE_TYPES
 
@@ -33,7 +35,7 @@ class NeuronDataTest(TestCase):
                     "label_data",
                     "labels_file_timestamp",
                     "neuron_data",
-                    "connection_rows",
+                    "connections_",
                     "grouped_synapse_counts",
                     "grouped_connection_counts",
                     "grouped_reciprocal_connection_counts",
@@ -44,7 +46,7 @@ class NeuronDataTest(TestCase):
         )
 
         expected_sizes = {
-            "connection_rows": "1 G",
+            "connections_": "341 M",
             "neuron_data": "525 M",
             "search_index": "221 M",
             "label_data": "60 M",
@@ -67,7 +69,7 @@ class NeuronDataTest(TestCase):
                 return f"{sz_bytes} B"
 
         actual_sizes = {
-            "connection_rows": approx_size(self.neuron_db.connection_rows),
+            "connections_": approx_size(self.neuron_db.connections_),
             "neuron_data": approx_size(self.neuron_db.neuron_data),
             "search_index": approx_size(self.neuron_db.search_index),
             "label_data": approx_size(self.neuron_db.label_data),
@@ -145,14 +147,11 @@ class NeuronDataTest(TestCase):
                 0,
                 len(diff_keys),
                 f"Diff keys not empty: {diff_keys=}\n\n {len(diff_vals)=}\n\n {diff_vals=}"[
-                    :1000
+                    :100
                 ],
             )
             # compare optional output sets (adjacency)
-            self.assertEqual(len(tested.connection_rows), len(golden.connection_rows))
-            for r1, r2 in zip(
-                sorted(tested.connection_rows), sorted(golden.connection_rows)
-            ):
+            for r1, r2 in zip(tested.connections_.rows(), golden.connections_.rows()):
                 self.assertEqual(r1, r2)
             if tested.input_sets():
                 connected_cells = set(tested.input_sets().keys()).union(
@@ -208,7 +207,7 @@ class NeuronDataTest(TestCase):
         output_synapses = defaultdict(int)
         output_neuropils = defaultdict(set)
 
-        for r in self.neuron_db.connection_rows:
+        for r in self.neuron_db.connections_.rows():
             input_partners[r[1]].add(r[0])
             input_synapses[r[1]] += r[3]
             input_neuropils[r[1]].add(r[2])
@@ -237,7 +236,7 @@ class NeuronDataTest(TestCase):
     def test_neuropils(self):
         input_neuropils = defaultdict(set)
         output_neuropils = defaultdict(set)
-        for r in self.neuron_db.connection_rows:
+        for r in self.neuron_db.connections_.rows():
             self.assertTrue(r[2] in REGIONS)
             input_neuropils[r[1]].add(r[2])
             output_neuropils[r[0]].add(r[2])
@@ -248,3 +247,16 @@ class NeuronDataTest(TestCase):
             self.assertEqual(
                 sorted(output_neuropils[nd["root_id"]]), sorted(nd["output_neuropils"])
             )
+
+    def test_connections_representation(self):
+        con_rows = [
+            [int(r[0]), int(r[1]), r[2], int(r[3]), r[4]]
+            for r in read_csv(
+                f"{TEST_DATA_ROOT_PATH}/{TESTING_DATA_SNAPSHOT_VERSION}/connections.csv.gz"
+            )[1:]
+        ]
+        cons = Connections(con_rows[:1000])
+        self.assertEqual(sorted(con_rows[:1000]), sorted(cons.rows()))
+        cons = Connections(con_rows)
+        for r in zip(cons.rows(), self.neuron_db.connections_.rows()):
+            self.assertEqual(r[0], r[1])
