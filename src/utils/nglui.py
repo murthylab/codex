@@ -123,14 +123,14 @@ def url_for_neuropils(segment_ids=None):
             "pose": {
                 "position": {
                     "voxelSize": [4, 4, 40],
-                    "voxelCoordinates": [144710, 55390, 512],
+                    "voxelCoordinates": [132000, 55390, 512],
                 }
             },
             "zoomFactor": 40.875984234132744,
         },
         "showAxisLines": False,
         "perspectiveViewBackgroundColor": "#ffffff",
-        "perspectiveZoom": 3000,
+        "perspectiveZoom": 4000,
         "showSlices": False,
         "gpuMemoryLimit": 2000000000,
         "showDefaultAnnotations": False,

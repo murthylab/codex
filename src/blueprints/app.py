@@ -902,11 +902,12 @@ def neuropils():
             caption = ", ".join([NEUROPIL_DESCRIPTIONS[r] for r in selected_ids])
         else:
             caption = NEUROPIL_DESCRIPTIONS[selected_ids[0]]
+        caption = display(caption)
         selected = ",".join(selected_ids)
     else:
         selected = ",".join(REGIONS.keys())
         landing = True
-        caption = "All neuropils"
+        caption = '<i class="fa-solid fa-arrow-down"></i> use links to select regions <i class="fa-solid fa-arrow-down"></i>'
 
     return render_template(
         "neuropils.html",

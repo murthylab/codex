@@ -91,15 +91,6 @@ class NeuronDB(object):
         return ins, outs
 
     @lru_cache
-    def input_output_neuropil_sets(self, min_syn_count=0):
-        ins = defaultdict(set)
-        outs = defaultdict(set)
-        for r in self.connections_.all_rows(min_syn_count=min_syn_count):
-            ins[r[1]].add(r[2])
-            outs[r[0]].add(r[2])
-        return ins, outs
-
-    @lru_cache
     def cell_connections(self, cell_id):
         return list(self.connections_.rows_for_cell(cell_id))
 
