@@ -548,3 +548,20 @@ class NeuronDataTest(TestCase):
                         partial_redundancy_cnt += 1
         self.assertEqual(0, complete_redundancy_cnt)
         self.assertEqual(0, partial_redundancy_cnt)
+
+    def test_connection_filters(self):
+        rid_list = list(self.neuron_db.neuron_data.keys())[:100]
+        cons = self.neuron_db.connections(
+            rid_list, induced=False, min_syn_count=5, nt_type="GABA"
+        )
+        self.assertGreater(len(cons), 0)
+        for r in cons:
+            self.assertTrue(r[0] in rid_list or r[1] in rid_list)
+            self.assertGreaterEqual(r[3], 5)
+            self.assertEqual("GABA", r[4])
+
+        rid_list = list(self.neuron_db.neuron_data.keys())[:10000]
+        cons = self.neuron_db.connections(rid_list, induced=True)
+        self.assertGreater(len(cons), 0)
+        for r in cons:
+            self.assertTrue(r[0] in rid_list and r[1] in rid_list)

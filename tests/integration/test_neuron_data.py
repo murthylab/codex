@@ -151,7 +151,9 @@ class NeuronDataTest(TestCase):
                 ],
             )
             # compare optional output sets (adjacency)
-            for r1, r2 in zip(tested.connections_.rows(), golden.connections_.rows()):
+            for r1, r2 in zip(
+                tested.connections_.all_rows(), golden.connections_.all_rows()
+            ):
                 self.assertEqual(r1, r2)
             if tested.input_sets():
                 connected_cells = set(tested.input_sets().keys()).union(
@@ -207,7 +209,7 @@ class NeuronDataTest(TestCase):
         output_synapses = defaultdict(int)
         output_neuropils = defaultdict(set)
 
-        for r in self.neuron_db.connections_.rows():
+        for r in self.neuron_db.connections_.all_rows():
             input_partners[r[1]].add(r[0])
             input_synapses[r[1]] += r[3]
             input_neuropils[r[1]].add(r[2])
@@ -236,7 +238,7 @@ class NeuronDataTest(TestCase):
     def test_neuropils(self):
         input_neuropils = defaultdict(set)
         output_neuropils = defaultdict(set)
-        for r in self.neuron_db.connections_.rows():
+        for r in self.neuron_db.connections_.all_rows():
             self.assertTrue(r[2] in REGIONS)
             input_neuropils[r[1]].add(r[2])
             output_neuropils[r[0]].add(r[2])
@@ -256,7 +258,7 @@ class NeuronDataTest(TestCase):
             )[1:]
         ]
         cons = Connections(con_rows[:1000])
-        self.assertEqual(sorted(con_rows[:1000]), sorted(cons.rows()))
+        self.assertEqual(sorted(con_rows[:1000]), sorted(cons.all_rows()))
         cons = Connections(con_rows)
-        for r in zip(cons.rows(), self.neuron_db.connections_.rows()):
+        for r in zip(cons.all_rows(), self.neuron_db.connections_.all_rows()):
             self.assertEqual(r[0], r[1])

@@ -85,52 +85,41 @@ class NeuronDB(object):
     def input_output_partner_sets(self, min_syn_count=0):
         ins = defaultdict(set)
         outs = defaultdict(set)
-        for r in self.connections_.rows():
-            if not min_syn_count or r[3] >= min_syn_count:
-                ins[r[1]].add(r[0])
-                outs[r[0]].add(r[1])
+        for r in self.connections_.all_rows(min_syn_count=min_syn_count):
+            ins[r[1]].add(r[0])
+            outs[r[0]].add(r[1])
         return ins, outs
 
     @lru_cache
     def input_output_neuropil_sets(self, min_syn_count=0):
         ins = defaultdict(set)
         outs = defaultdict(set)
-        for r in self.connections_.rows():
-            if not min_syn_count or r[3] >= min_syn_count:
-                ins[r[1]].add(r[2])
-                outs[r[0]].add(r[2])
+        for r in self.connections_.all_rows(min_syn_count=min_syn_count):
+            ins[r[1]].add(r[2])
+            outs[r[0]].add(r[2])
         return ins, outs
 
     @lru_cache
     def cell_connections(self, cell_id):
-        return list(self.connections_.rows(cell_id=cell_id))
+        return list(self.connections_.rows_for_cell(cell_id))
 
     def connections(self, ids, induced=False, min_syn_count=0, nt_type=None):
-        idset = set(ids)
-        cons = []
-        if self.connections_.rows():  # avail in mem cache
-            if induced:
-                cons = [
-                    r
-                    for r in self.connections_.rows()
-                    if (r[0] in idset and r[1] in idset)
-                ]
-            else:
-                cons = [
-                    r
-                    for r in self.connections_.rows()
-                    if (r[0] in idset or r[1] in idset)
-                ]
-        if min_syn_count:
-            cons = [r for r in cons if r[3] >= min_syn_count]
-        if nt_type:
-            nt_type = nt_type.upper()
-            if nt_type not in NEURO_TRANSMITTER_NAMES:
-                raise ValueError(
-                    f"Unknown NT type: {nt_type}, must be one of {NEURO_TRANSMITTER_NAMES}"
+        if nt_type and nt_type not in NEURO_TRANSMITTER_NAMES:
+            raise ValueError(
+                f"Unknown NT type: {nt_type}, must be one of {NEURO_TRANSMITTER_NAMES}"
+            )
+        if induced:
+            return list(
+                self.connections_.rows_between_sets(
+                    ids, ids, min_syn_count=min_syn_count, nt_type=nt_type
                 )
-            cons = [r for r in cons if r[2] == nt_type]
-        return cons
+            )
+        else:
+            return list(
+                self.connections_.rows_for_set(
+                    ids, min_syn_count=min_syn_count, nt_type=nt_type
+                )
+            )
 
     @lru_cache
     def connections_up_down(self, cell_id, by_neuropil=False):
