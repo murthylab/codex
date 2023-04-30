@@ -610,7 +610,7 @@ def update_connectome_files(version):
     )
 
 
-def process_nblast_file(version):
+def load_nblast_scores(version, score_threshold=0.4):
     nblast_raw_filepath = raw_data_file_path(
         version=version, filename=f"{NBLAST_SCORES_FILE_NAME}"
     )
@@ -628,6 +628,9 @@ def process_nblast_file(version):
     rows_scanned = 0
     for row in df_data.itertuples():
         rows_scanned += 1
+        if rows_scanned % 1000000 == 0 or rows_scanned == len(df_data):
+            print(f"Rows scanned: {rows_scanned}, score dict len: {len(scores_dict)}")
+
         from_root_id = row[1]
         to_root_id = row[2]
         score = row[3]
@@ -635,7 +638,7 @@ def process_nblast_file(version):
             assert score == 1.0
             continue
         assert score < 1
-        if score < 0.4:
+        if score < score_threshold:
             continue
         if from_root_id not in scores_dict:
             scores_dict[from_root_id] = {}
@@ -651,33 +654,38 @@ def process_nblast_file(version):
         if reverse_score is not None:
             assert reverse_score == simple_score
 
-        if rows_scanned % 1000 == 0 or rows_scanned == len(df_data):
-            print(f"Rows scanned: {rows_scanned}, score dict len: {len(scores_dict)}")
+    return scores_dict
 
+def update_nblast_scores(version):
+    scores_dict = load_nblast_scores(version)
     scores_table = [["root_id", "scores"]]
     scores_table.extend(
         [
-            [rid, ";".join([f"{k}:{v}" for k, v in scores.items()])]
+            [rid, ";".join([f"{to_rid}:{score}" for to_rid, score in scores.items()])]
             for rid, scores in scores_dict.items()
         ]
     )
     print(f"Sample rows: {scores_table[:5]}")
     nblast_fpath = compiled_data_file_path(version=version, filename="nblast.csv.gz")
     comp_backup_and_update_csv(fpath=nblast_fpath, content=scores_table)
-    # group cells into morphology clusters based on similarity matches
-    generate_morphology_cluster_groups(scores_dict, version)
 
 
-def generate_morphology_cluster_groups(scores_dict, version):
-    score_threshold = 4
+def update_morphology_clusters(version):
+    scores_dict = load_nblast_scores(version)
+    if not scores_dict:
+        print(f"No scores loaded for version {version}")
+        return
+
+    print(f"Building score graph..")
     G = Graph()
     for rid, scores in scores_dict.items():
         G.add_node(rid)
         for m, s in scores.items():
-            if s >= score_threshold and m > rid:
+            if m > rid:
                 G.add_node(m)
                 G.add_edge(rid, m, weight=s)
 
+    print(f"Running community analysis..")
     communities_generator = community.louvain_communities(G, resolution=200)
     clusters_dict = {}
     component_id = 0
@@ -776,7 +784,8 @@ if __name__ == "__main__":
         "update_cell_stats": False,
         "update_coordinates": False,
         "update_nblast_scores": False,
-        "update_labels": True,
+        "update_morphology_clusters": True,
+        "update_labels": False,
     }
 
     cave_client = init_cave_client()
@@ -819,4 +828,6 @@ if __name__ == "__main__":
                 version=v,
             )
         if config["update_nblast_scores"]:
-            process_nblast_file(version=v)
+            update_nblast_scores(version=v)
+        if config["update_morphology_clusters"]:
+            update_morphology_clusters(version=v)
