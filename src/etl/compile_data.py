@@ -656,6 +656,7 @@ def load_nblast_scores(version, score_threshold=0.4):
 
     return scores_dict
 
+
 def update_nblast_scores(version):
     scores_dict = load_nblast_scores(version)
     scores_table = [["root_id", "scores"]]
@@ -676,7 +677,7 @@ def update_morphology_clusters(version):
         print(f"No scores loaded for version {version}")
         return
 
-    print(f"Building score graph..")
+    print("Building score graph..")
     G = Graph()
     for rid, scores in scores_dict.items():
         G.add_node(rid)
@@ -685,7 +686,7 @@ def update_morphology_clusters(version):
                 G.add_node(m)
                 G.add_edge(rid, m, weight=s)
 
-    print(f"Running community analysis..")
+    print("Running community analysis..")
     communities_generator = community.louvain_communities(G, resolution=200)
     clusters_dict = {}
     component_id = 0

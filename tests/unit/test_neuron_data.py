@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 from unittest import TestCase
 
 from src.data.brain_regions import REGIONS
@@ -565,3 +566,22 @@ class NeuronDataTest(TestCase):
         self.assertGreater(len(cons), 0)
         for r in cons:
             self.assertTrue(r[0] in rid_list and r[1] in rid_list)
+
+    def test_nt_types_consistency(self):
+        rid_to_nt_counts = {}
+        for r in self.neuron_db.connections_.all_rows():
+            self.assertTrue(r[4] in NEURO_TRANSMITTER_NAMES.keys())
+            ntd = rid_to_nt_counts.setdefault(r[0], {})
+            ntd[r[4]] = ntd.get(r[4], 0) + r[3]
+
+        rid_to_con_nts = {rid: max(v, key=v.get) for rid, v in rid_to_nt_counts.items()}
+        eq, df = 0, 0
+        diff_pairs = defaultdict(int)
+        for rid, nd in self.neuron_db.neuron_data.items():
+            if nd["nt_type"] == rid_to_con_nts.get(rid):
+                eq += 1
+            else:
+                diff_pairs[(nd["nt_type"], rid_to_con_nts.get(rid))] += 1
+                df += 1
+        print(diff_pairs)
+        self.assertGreater(20000, df)
