@@ -174,23 +174,23 @@ div.google-visualization-tooltip { width:250px; }
     <!-- Contribute -->
     <div class="card" style="width: 100%;">
         <div class="card-header" style="color: purple;">
-            Contribute
+            Annotate this cell
         </div>
         <div class="body">
             <form style="margin: 10px;" target="_blank">
-                <h7 style="color: purple;"> <i class="fa-solid fa-pen-to-square"></i> Label / identify cell</h7>
+                <h7 style="color: purple;"> <i class="fa-solid fa-pen-to-square"></i> Tag / identification label</h7>
                 <textarea class="form-control" id="annotation_text" minlength="2" rows="2" name="annotation_text"
-                      placeholder="label, annotate, or identify this cell" required></textarea>
+                      placeholder="free-form textual annotation" required></textarea>
                 <br>
                 <h7 style="color: purple;"> <i class="fa-solid fa-map-pin"></i> Coordinates (in nm)</h7>
                 <input style="margin-top: 10px;" class="form-control mr-sm-2" autocomplete="off" minlength="11" required
-                    id="annotation_coordinates" name="annotation_coordinates" placeholder="coordinates: x y z (in nano)"
+                    id="annotation_coordinates" name="annotation_coordinates" placeholder="annotation coordinates: x y z (in nano)"
                     aria-label="Soma Coordinates in Nanometers" value="{{cell_coordinates}}">
                 <input type="hidden" id="annotation_cell_id" name="annotation_cell_id" value="{{cell_id}}"/>
                 <br>
-                <small style="color: grey;"><i class="fa-solid fa-circle-info"></i> Identification labels can be anchored to specific coordinates on the cell (where the identification was made). See the FlyWire and Coordinates links on the Cell Info panel for reference.</small>
+                <small style="color: grey;"><i class="fa-solid fa-circle-info"></i> Annotations should be anchored to specific coordinates on the cell (where the identification was made). See the FlyWire and Coordinates links on the Cell Info panel for reference.</small>
                 <br><br>
-                <small style="color: grey;"><i class="fa-solid fa-circle-info"></i> After you fill in the annotation info and hit Continue, you will be taken to the Flywire annotation management system to submit it with one click. If accepted, your annotation will show up in Codex the next work day.</small>
+                <small style="color: grey;"><i class="fa-solid fa-circle-info"></i> After filling out this form, you'll be forwarded to the Flywire annotation management system, where you can submit your annotation with one click. New annotations are reviewed and imported into Codex daily.</small>
                 <br>
                 <br>
                 <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">
