@@ -13,9 +13,10 @@ static/secrets/
 # Mac
 .DS_Store
 
-# Logs
+# Logs and temp files
 log.txt
 logs/*
+tmp/*
 
 # applications
 apps
