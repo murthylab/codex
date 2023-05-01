@@ -1,12 +1,12 @@
 {
   "file_sizes": {
     "630": {
-      "neurons.csv.gz": 1991422,
-      "classification.csv.gz": 993066,
+      "neurons.csv.gz": 2010205,
+      "classification.csv.gz": 992741,
       "cell_stats.csv.gz": 2399653,
-      "morphology_clusters.csv.gz": 733879,
-      "connections.csv.gz": 49282625,
-      "labels.csv.gz": 2475923,
+      "morphology_clusters.csv.gz": 733814,
+      "connections.csv.gz": 26120393,
+      "labels.csv.gz": 2499601,
       "coordinates.csv.gz": 4584155,
       "neuropil_synapse_table.csv.gz": 4479325
     },
@@ -29,14 +29,14 @@
         "col 1 - root_id": "all rows contain unique values",
         "col 2 - name": "all rows contain unique values",
         "col 3 - group": "628 unique values",
-        "col 4 - nt_type": "6 unique values in 117,842 rows, empty in 10,136 rows",
+        "col 4 - nt_type": "6 unique values in 118,564 rows, empty in 9,414 rows",
         "col 5 - nt_type_score": "74 unique values of type FLOAT in range [-1 .. 1]",
-        "col 6 - da_avg": "98 unique values of type FLOAT in range [0 .. 0.96]",
-        "col 7 - ser_avg": "102 unique values of type FLOAT in range [0 .. 1]",
-        "col 8 - gaba_avg": "102 unique values of type FLOAT in range [0 .. 1]",
-        "col 9 - glut_avg": "101 unique values of type FLOAT in range [0 .. 0.99]",
-        "col 10 - ach_avg": "102 unique values of type FLOAT in range [0 .. 1]",
-        "col 11 - oct_avg": "82 unique values of type FLOAT in range [0 .. 1]"
+        "col 6 - da_avg": "97 unique values of type FLOAT in range [0 .. 0.96]",
+        "col 7 - ser_avg": "101 unique values of type FLOAT in range [0 .. 1]",
+        "col 8 - gaba_avg": "101 unique values of type FLOAT in range [0 .. 1]",
+        "col 9 - glut_avg": "100 unique values of type FLOAT in range [0 .. 0.99]",
+        "col 10 - ach_avg": "101 unique values of type FLOAT in range [0 .. 1]",
+        "col 11 - oct_avg": "84 unique values of type FLOAT in range [0 .. 1]"
       },
       "classification.csv.gz": {
         "# rows": "127,978 (+ header)",
@@ -45,11 +45,11 @@
         "col 2 - flow": "3 unique values",
         "col 3 - super_class": "9 unique values",
         "col 4 - class": "31 unique values in 97,672 rows, empty in 30,306 rows",
-        "col 5 - sub_class": "21 unique values in 6,662 rows, empty in 121,316 rows",
+        "col 5 - sub_class": "18 unique values in 6,610 rows, empty in 121,368 rows",
         "col 6 - cell_type": "327 unique values in 16,286 rows, empty in 111,692 rows",
         "col 7 - hemibrain_type": "2,707 unique values in 25,509 rows, empty in 102,469 rows",
         "col 8 - hemilineage": "188 unique values in 30,707 rows, empty in 97,271 rows",
-        "col 9 - side": "4 unique values in 127,976 rows, empty in 2 rows",
+        "col 9 - side": "3 unique values in 127,953 rows, empty in 25 rows",
         "col 10 - nerve": "8 unique values in 9,611 rows, empty in 118,367 rows"
       },
       "cell_stats.csv.gz": {
@@ -61,10 +61,10 @@
         "col 4 - size_nm": "127,494 unique values of type INT in range [1,173,073,920 .. 16,315,626,424,320]"
       },
       "morphology_clusters.csv.gz": {
-        "# rows": "124,981 (+ header)",
+        "# rows": "124,982 (+ header)",
         "# columns": "2",
         "col 1 - root_id": "all rows contain unique values",
-        "col 2 - cluster": "3,906 unique values"
+        "col 2 - cluster": "3,908 unique values"
       },
       "connections.csv.gz": {
         "# rows": "3,793,849 (+ header)",
@@ -76,16 +76,16 @@
         "col 5 - nt_type": "6 unique values"
       },
       "labels.csv.gz": {
-        "# rows": "97,678 (+ header)",
+        "# rows": "98,468 (+ header)",
         "# columns": "8",
-        "col 1 - root_id": "64,490 unique values",
-        "col 2 - label": "6,277 unique values",
+        "col 1 - root_id": "65,213 unique values",
+        "col 2 - label": "6,281 unique values",
         "col 3 - user_id": "125 unique values",
-        "col 4 - position": "76,229 unique values",
-        "col 5 - supervoxel_id": "75,449 unique values",
+        "col 4 - position": "77,018 unique values",
+        "col 5 - supervoxel_id": "76,237 unique values",
         "col 6 - label_id": "all rows contain unique values",
-        "col 7 - user_name": "122 unique values in 97,026 rows, empty in 652 rows",
-        "col 8 - user_affiliation": "50 unique values in 96,964 rows, empty in 714 rows"
+        "col 7 - user_name": "122 unique values in 97,816 rows, empty in 652 rows",
+        "col 8 - user_affiliation": "50 unique values in 97,754 rows, empty in 714 rows"
       },
       "coordinates.csv.gz": {
         "# rows": "207,700 (+ header)",
