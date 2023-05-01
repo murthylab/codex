@@ -26,20 +26,10 @@ def compile_network_html(
     if reduce:
 
         def node_projection(nd):
-            if not nd["class"] or nd["class"].lower() in [
-                "na",
-                "undefined",
-                "unspecified",
-                "none",
-            ]:
+            if not nd["class"]:
                 return None
             res = display(f"{nd['class']}".replace(" neuron", ""))
-            if nd["side"] and nd["side"].lower() not in [
-                "na",
-                "undefined",
-                "unspecified",
-                "none",
-            ]:
+            if nd["side"]:
                 res += f"/{nd['side']}"
             return res
 

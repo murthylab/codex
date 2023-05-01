@@ -9,6 +9,20 @@ from src.utils.parsing import tokenize, tokenize_and_fold_for_highlight
 WEB_SAFE_MAP = {c: " " for c in set(string.whitespace)}  # Whitespaces
 WEB_SAFE_MAP.update({c: "`" for c in ['"', "'"]})  # String delimiters
 
+UNDEFINED_THINGS = [
+    "",
+    "na",
+    "nan",
+    "none",
+    "null",
+    "nil",
+    "unknown",
+    "undefined",
+    "unspecified",
+    "unassigned",
+    "unavailable",
+]
+
 
 def make_web_safe(txt):
     return (
@@ -203,4 +217,14 @@ def can_be_flywire_root_id(txt):
         txt = str(txt)
         return len(txt) == 18 and txt.startswith("72") and int(txt)
     except Exception:
+        return False
+
+
+def is_proper_textual_annotation(t):
+    if isinstance(t, str):
+        t = t.lower()
+        return (
+            any([c in t for c in string.ascii_lowercase]) and t not in UNDEFINED_THINGS
+        )
+    else:
         return False

@@ -2,8 +2,7 @@ import math
 from collections import defaultdict
 from functools import lru_cache
 
-from src.utils.formatting import display
-
+from src.utils.formatting import display, UNDEFINED_THINGS
 
 ALL = "All"
 UNKNOWN = "Unknown"
@@ -12,7 +11,7 @@ COUNT_TYPE_OPTIONS = ["Synapses", "Connections", "Reciprocal Connections"]
 
 @lru_cache
 def for_display(val):
-    if not val or val.lower() in ["na"]:
+    if val is None or val.lower() in UNDEFINED_THINGS:
         val = UNKNOWN
     return display(val)
 
