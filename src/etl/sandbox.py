@@ -3,9 +3,9 @@ import random
 
 from networkx import Graph, DiGraph, connected_components, strongly_connected_components
 
-from src.data.local_data_loader import write_csv, unpickle_neuron_db
+from src.data.local_data_loader import write_csv, unpickle_neuron_db, read_csv
 from src.data.neuron_data_factory import NeuronDataFactory
-
+from src.utils.formatting import percentage
 
 """
 Clusters a set of neurons by morphological similarity. Uses iterative application of the connected component analysis on
@@ -162,6 +162,121 @@ def cluster_SEZ_cells():
         csv_filename="sez_clusters_v2.csv",
         print_markdown=True,
     )
+
+
+def generate_con_jacard_similarity_table(neuron_db):
+    s = 0
+    combined_score = 0
+
+    region_projection_buckets = defaultdict(list)
+    for rid, nd in neuron_db.neuron_data.items():
+        region_projection_buckets[
+            f"{nd['side']}:{nd['input_neuropils']}:{nd['output_neuropils']}"
+        ].append(rid)
+    print(
+        f"{len(region_projection_buckets)=} {max([len(v) for v in region_projection_buckets.values()])=}"
+    )
+
+    for k, v in region_projection_buckets.items():
+        if len(v) > 5000:
+            print(f"{k}: {len(v)}")
+
+    ins, outs = neuron_db.input_output_partner_sets()
+
+    def jacard(s1, s2):
+        return len(s1.intersection(s2)) / len(s1.union(s2)) if s1 or s2 else 0
+
+    tbl = [["id1", "id2", "jacard score"]]
+    for i, rids in enumerate(region_projection_buckets.values()):
+        if i % 100 == 0:
+            print(f"{percentage(i, len(region_projection_buckets))}")
+        for j, r1 in enumerate(rids):
+            r1_ins = ins[r1]
+            r1_outs = outs[r1]
+            for k, r2 in enumerate(rids[j + 1 :]):
+                r2_ins = ins[r2]
+                r2_outs = outs[r2]
+                jscore = jacard(r1_ins, r2_ins) + jacard(r1_outs, r2_outs)
+                combined_score += jscore
+                s += 1
+                if jscore > 0.5:
+                    tbl.append([r1, r2, jscore])
+    print(f"{s} {combined_score}")
+    write_csv(
+        filename="../../static/experimental_data/jacard_scores.csv.gz",
+        rows=tbl,
+        compress=True,
+    )
+
+
+def analyse_con_jacard_similarities(neuron_db):
+    scores_table = read_csv(
+        filename="../../static/experimental_data/jacard_scores.csv.gz"
+    )
+    print(f"{len(scores_table)=}")
+
+    scores_dict = {}
+    tot_score = 0.0
+    for r in scores_table[1:]:
+        scores_dict[(int(r[0]), int(r[1]))] = float(r[2])
+        tot_score += float(r[2])
+
+    print(f"Avg score: {tot_score / len(scores_dict)}")
+
+    def measure_internal_score(attr_name):
+        def same_attr(pair):
+            nd1, nd2 = (
+                neuron_db.neuron_data[pair[0]],
+                neuron_db.neuron_data[pair[1]],
+            )
+            attr1, attr2 = nd1[attr_name], nd2[attr_name]
+            if not attr1 or not attr2:
+                return None
+            if isinstance(nd1[attr_name], list):
+                return len(set(nd1[attr_name]).intersection(nd2[attr_name])) > 0
+            else:
+                return nd1[attr_name] == nd2[attr_name]
+
+        def diff_attr(pair):
+            nd1, nd2 = (
+                neuron_db.neuron_data[pair[0]],
+                neuron_db.neuron_data[pair[1]],
+            )
+            attr1, attr2 = nd1[attr_name], nd2[attr_name]
+            if not attr1 or not attr2:
+                return None
+            if isinstance(nd1[attr_name], list):
+                return len(set(nd1[attr_name]).intersection(nd2[attr_name])) == 0
+            else:
+                return nd1[attr_name] != nd2[attr_name]
+
+        same_scores = 0
+        same_pairs = 0
+        diff_scores = 0
+        diff_pairs = 0
+        for p, s in scores_dict.items():
+            if same_attr(p):
+                same_scores += s
+                same_pairs += 1
+            elif diff_attr(p):
+                diff_scores += s
+                diff_pairs += 1
+
+        print(
+            f"in {attr_name}\n   "
+            f"avg same: {same_scores / same_pairs} from {same_pairs} pairs\n   "
+            f"avg diff: {diff_scores / diff_pairs} from {diff_pairs} pairs"
+        )
+
+    measure_internal_score("cell_type")
+    measure_internal_score("hemibrain_type")
+    measure_internal_score("cluster")
+    measure_internal_score("class")
+    measure_internal_score("super_class")
+    measure_internal_score("label")
+    measure_internal_score("sub_class")
+    measure_internal_score("group")
+    measure_internal_score("nerve")
 
 
 if __name__ == "__main__":

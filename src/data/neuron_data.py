@@ -169,6 +169,7 @@ class NeuronDB(object):
         value_counts_dict = defaultdict(lambda: defaultdict(int))
         assigned_to_num_cells_dict = defaultdict(int)
         category_names = {
+            "Neurotransmitter Type": "nt_type",
             "Flow": "flow",
             "Super Class": "super_class",
             "Class": "class",
@@ -180,6 +181,7 @@ class NeuronDB(object):
             "Cell Body Side": "side",
             "Community Identification Label": "label",
             "Max In/Out Neuropil": "group",
+            "Similarity cluster": "cluster",
             # TODO: enable this once better clustering is available. "Morphology Cluster": "cluster",
         }
         for nd in self.neuron_data.values():
