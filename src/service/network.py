@@ -95,7 +95,10 @@ def compile_network_html(
             return neuron_db.get_neuron_data(x)["nt_type"]
 
         def size_getter(x):
-            return 1
+            if x in center_ids:
+                return max(1, 100 // len(center_ids))
+            else:
+                return 1
 
     return make_graph_html(
         connection_table=contable,

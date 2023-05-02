@@ -428,7 +428,16 @@
         return network;
     }
 
-    drawGraph("forceAtlas2Based");
+    const nodeslist = {{nodes|tojson}};
+    const edgeslist = {{edges|tojson}};
+    const density = edgeslist.length / nodeslist.length;
+    if (density < 1.5) {
+        drawGraph("barnesHut");
+    } else if (density <= 3) {
+        drawGraph("repulsion");
+    } else {
+        drawGraph("forceAtlas2Based");
+    }
 
     function getMousePos(canvas, evt) {
         var rect = canvas.getBoundingClientRect();
