@@ -86,6 +86,7 @@ REGIONS = {
     "LA_L": [75, "lamina of the compound eyes"],
     "LA_R": [76, "lamina of the compound eyes"],
     "OCG": [77, "ocellar ganglion"],
+    "UNASGD": [-1, "unassigned"],
 }
 
 REGION_CATEGORIES = {
@@ -164,6 +165,7 @@ REGION_CATEGORIES = {
     ],
     "gnathal ganglia": ["GNG"],
     "ocelli": ["OCG"],
+    "other regions": ["UNASGD"],
 }
 
 COLORS = {
@@ -245,6 +247,7 @@ COLORS = {
     "LA_L": "#a21a78",
     "LA_R": "#a21a78",
     "OCG": "#ea4bea",
+    "UNASGD": "#ff0000",
 }
 
 

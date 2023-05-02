@@ -94,6 +94,9 @@ def url_for_cells(segment_ids, data_version):
 
 
 def url_for_neuropils(segment_ids=None):
+    if segment_ids:
+        # exclude "dummy" neuropils, e.g. unassigned, which by convention have negative ids
+        segment_ids = [s for s in segment_ids if s >= 0]
     config = {
         "layers": [
             {
@@ -113,7 +116,10 @@ def url_for_neuropils(segment_ids=None):
                 "tab": "source",
                 "segments": segment_ids,
                 "segmentColors": {
-                    seg_id: COLORS[key] for key, (seg_id, _) in REGIONS.items()
+                    # exclude "dummy" neuropil colors, e.g. unassigned, which by convention have negative ids
+                    seg_id: COLORS[key]
+                    for key, (seg_id, _) in REGIONS.items()
+                    if seg_id >= 0
                 },
                 "skeletonRendering": {"mode2d": "lines_and_points", "mode3d": "lines"},
                 "name": "neuropil-regions-surface",

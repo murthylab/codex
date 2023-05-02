@@ -33,7 +33,7 @@ class RegionsTest(TestCase):
             self.assertTrue(p.endswith("_R"))
 
         pil_set = lookup_neuropil_set("Center")
-        self.assertEqual(8, len(pil_set))
+        self.assertEqual(9, len(pil_set))
         for p in pil_set:
             self.assertFalse(p.endswith("_L"))
             self.assertFalse(p.endswith("_R"))
