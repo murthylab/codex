@@ -96,7 +96,7 @@ def compile_network_html(
 
         def size_getter(x):
             if x in center_ids:
-                return max(1, 100 // len(center_ids))
+                return max(1, 20 // len(center_ids))
             else:
                 return 1
 

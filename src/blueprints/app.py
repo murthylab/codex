@@ -446,12 +446,16 @@ def ngl_redirect_with_browser_check(ngl_url):
         "Edge": 51,
         "Firefox": 46,
         "Safari": 15,
+        "Opera": 95,
     }
     ua = parse_ua(str(request.user_agent))
     # browser_family can contain other parts, e.g. "Mobile Safari", or "Chrome Mobile". Use substring match.
-    browser = next(
-        k for k in min_supported.keys() if k.lower() in ua.browser.family.lower()
-    )
+    browser = None
+    bfl = ua.browser.family.lower()
+    for k in min_supported.keys():
+        if k.lower() in bfl:
+            browser = k
+            break
     if browser in min_supported and ua.browser.version[0] >= min_supported[browser]:
         return redirect(ngl_url, code=302)
     else:
