@@ -73,7 +73,23 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     "cluster": str,
 }
 
-GROUP_BY_ATTRIBUTES = ["side", "flow", "nt_type", "super_class", "class", "sub_class"]
+HEATMAP_GROUP_BY_ATTRIBUTES = [
+    "side",
+    "flow",
+    "nt_type",
+    "super_class",
+    "class",
+    "sub_class",
+]
+NETWORK_GROUP_BY_ATTRIBUTES = [
+    "side",
+    "flow",
+    "nt_type",
+    "super_class",
+    "class",
+    "sub_class",
+    "cluster",
+]
 
 
 def initialize_neuron_data(
@@ -357,10 +373,14 @@ def initialize_neuron_data(
         nd["output_cells"] = len(output_cells[rid])
 
     log("App initialization calculating grouped counts..")
-    grouped_synapse_counts = {attr: defaultdict(int) for attr in GROUP_BY_ATTRIBUTES}
-    grouped_connection_counts = {attr: defaultdict(int) for attr in GROUP_BY_ATTRIBUTES}
+    grouped_synapse_counts = {
+        attr: defaultdict(int) for attr in HEATMAP_GROUP_BY_ATTRIBUTES
+    }
+    grouped_connection_counts = {
+        attr: defaultdict(int) for attr in HEATMAP_GROUP_BY_ATTRIBUTES
+    }
     grouped_reciprocal_connection_counts = {
-        attr: defaultdict(int) for attr in GROUP_BY_ATTRIBUTES
+        attr: defaultdict(int) for attr in HEATMAP_GROUP_BY_ATTRIBUTES
     }
     connected_pairs = set()
     # update synapse counts and collect connected pairs (de-duped across regions)
@@ -368,7 +388,7 @@ def initialize_neuron_data(
         from_neuron = neuron_attributes[r[0]]
         to_neuron = neuron_attributes[r[1]]
         connected_pairs.add((r[0], r[1]))
-        for attr in GROUP_BY_ATTRIBUTES:
+        for attr in HEATMAP_GROUP_BY_ATTRIBUTES:
             from_group = from_neuron[attr]
             to_group = to_neuron[attr]
             grouped_synapse_counts[attr][(from_group, to_group)] += r[3]
@@ -376,7 +396,7 @@ def initialize_neuron_data(
     for p in connected_pairs:
         from_neuron = neuron_attributes[p[0]]
         to_neuron = neuron_attributes[p[1]]
-        for attr in GROUP_BY_ATTRIBUTES:
+        for attr in HEATMAP_GROUP_BY_ATTRIBUTES:
             from_group = from_neuron[attr]
             to_group = to_neuron[attr]
             grouped_connection_counts[attr][(from_group, to_group)] += 1
@@ -387,7 +407,7 @@ def initialize_neuron_data(
     for p in reciprocal_connections:
         from_neuron = neuron_attributes[p[0]]
         to_neuron = neuron_attributes[p[1]]
-        for attr in GROUP_BY_ATTRIBUTES:
+        for attr in HEATMAP_GROUP_BY_ATTRIBUTES:
             from_group = from_neuron[attr]
             to_group = to_neuron[attr]
             grouped_reciprocal_connection_counts[attr][(from_group, to_group)] += 1

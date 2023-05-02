@@ -104,7 +104,7 @@
 <div id="mynetwork"></div>
 
 {% if warning_msg %}
-<div id="warning-msg">{{warning_msg}}</div><br>
+<div id="warning-msg" style="color: purple">{{warning_msg}}</div><br>
 {% endif %}
 <div id="legend">
     {% for entry in legend %}
@@ -428,7 +428,7 @@
         return network;
     }
 
-    drawGraph("barnesHut");
+    drawGraph("forceAtlas2Based");
 
     function getMousePos(canvas, evt) {
         var rect = canvas.getBoundingClientRect();

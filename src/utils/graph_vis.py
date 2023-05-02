@@ -80,6 +80,8 @@ def make_graph_html(
             connections_cap=connections_cap,
             show_regions=show_regions,
         )
+    else:
+        aggregated_con_count, aggregated_syn_count = 0, 0
 
     node_ids = (
         set([r[0] for r in connection_table])
@@ -93,11 +95,11 @@ def make_graph_html(
     if layers is None and show_warnings:
         if aggregated_con_count > connections_cap:
             warning_msg = (
-                f"Top {display(connections_cap)} connections out of {display(aggregated_con_count)} "
+                f"Top {display(len(node_ids))} nodes and {display(connections_cap)} connections out of {display(aggregated_con_count)} "
                 f"({display(total_syn_count)} of {display(aggregated_syn_count)} syn.)"
             )
         else:
-            warning_msg = f"{display(len(connection_table))} connections ({display(total_syn_count)} syn.)"
+            warning_msg = f"{display(len(node_ids))} nodes and {display(len(connection_table))} connections ({display(total_syn_count)} syn.)"
     else:
         warning_msg = None
 
@@ -233,7 +235,7 @@ def make_graph_html(
             if nt_type_getter:
                 nt_type = nt_type_getter(nid)
                 net.add_legend(
-                    (nt_type.upper() if nt_type else "Unspecified NT type") + " cell",
+                    (nt_type.upper() if nt_type else "Unknown NT type"),
                     color=nt_color(nt_type),
                 )
 

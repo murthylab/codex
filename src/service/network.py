@@ -1,52 +1,50 @@
 from collections import defaultdict
 
-from src.data.brain_regions import REGIONS, neuropil_hemisphere
+from src.data.brain_regions import neuropil_hemisphere
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils.formatting import display
 from src.utils.graph_vis import make_graph_html
 
 
 def compile_network_html(
-    root_ids,
+    center_ids,
     contable,
     data_version,
     show_regions,
-    reduce,
     connections_cap,
     hide_weights,
     log_request,
+    group_by_attribute_name=None,
+    split_groups_by_side=False,
     layers=None,
     page_title="Network Graph",
 ):
     neuron_db = NeuronDataFactory.instance().get(version=data_version)
-    if show_regions and layers is None:  # exclude unknown region connections
-        connection_table = [list(r) for r in contable if r[2] in REGIONS]
-    else:
-        connection_table = contable
-    if reduce:
+    all_cell_ids = list(
+        set([r[0] for r in contable]).union([r[1] for r in contable]).union(center_ids)
+    )
 
-        def node_projection(nd):
-            if not nd["class"]:
-                return None
-            res = display(f"{nd['class']}".replace(" neuron", ""))
-            if nd["side"]:
-                res += f"/{nd['side']}"
+    if group_by_attribute_name:
+
+        def node_projection(ndata):
+            if not ndata[group_by_attribute_name]:
+                return f"Unassigned {display(group_by_attribute_name)}"
+            res = display(ndata[group_by_attribute_name])
+            if split_groups_by_side and ndata["side"]:
+                res += f"/{ndata['side']}"
             return res
 
         projection_sets = defaultdict(set)
         projections = defaultdict(str)
-        for rid, nd in neuron_db.neuron_data.items():
+        for rid in all_cell_ids:
+            nd = neuron_db.get_neuron_data(rid)
             proj = node_projection(nd)
-            if proj:
-                projection_sets[proj].add(rid)
-                projections[rid] = proj
+            projection_sets[proj].add(rid)
+            projections[rid] = proj
+        projection_set_sizes = {k: len(v) for k, v in projection_sets.items()}
         projection_set_fractions = {
-            k: round(100 * len(v) / len(neuron_db.neuron_data))
-            for k, v in projection_sets.items()
-        }
-        projections = {
-            rid: f"{proj} {projection_set_fractions[proj] or '<1'}%"
-            for rid, proj in projections.items()
+            k: round(100 * v / len(all_cell_ids))
+            for k, v in projection_set_sizes.items()
         }
 
         def pil_projection(pil):
@@ -59,30 +57,26 @@ def compile_network_html(
                 pil_projection(row[2]),
             ] + row[3:]
 
-        connection_table = [
+        contable = [
             project_row(r)
-            for r in connection_table
+            for r in contable
             if r[0] in projections and r[1] in projections
         ]
 
         def name_getter(x):
-            return f"Class {x}"
+            return f"{display(group_by_attribute_name)} {x}, {projection_set_sizes[x]} cells"
 
         def caption_getter(x):
-            return x
+            return f"{x} {projection_set_fractions[x] or '<1'}%"
 
         label_getter = None
         class_getter = None
         nt_type_getter = None
 
         def size_getter(x):
-            return 1 + int(x.replace("<1", "0").replace("%", "").split()[-1])
+            return 1 + projection_set_fractions[x]
 
-        center_ids = list(
-            set([r[0] for r in connection_table]).union(
-                [r[1] for r in connection_table]
-            )
-        )
+        center_ids = list(set([r[0] for r in contable]).union([r[1] for r in contable]))
     else:
 
         def name_getter(x):
@@ -103,10 +97,8 @@ def compile_network_html(
         def size_getter(x):
             return 1
 
-        center_ids = root_ids
-
     return make_graph_html(
-        connection_table=connection_table,
+        connection_table=contable,
         center_ids=center_ids,
         connections_cap=connections_cap,
         name_getter=name_getter,

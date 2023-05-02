@@ -3,7 +3,7 @@
 {% block content %}
 <nav class="navbar navbar-light bg-light">
     <form class="form-inline">
-        <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search"
+        <input class="form-control mr-sm-2" style="width: 40vw;" autocomplete="off" autofocus type="search"
                id="cell_names_or_ids" name="cell_names_or_ids" placeholder="Cell names or IDs"
                aria-label="Cell Names or IDs" value="{{cell_names_or_ids}}">
         <input type="hidden" id="download_type" name="download" value=""/>
@@ -39,6 +39,9 @@
         {% endif %}
     </form>
 </nav>
+{% if num_matches %}
+<div style="margin-left: 18px; color: black; font-size: 12px;">{{display(num_matches)}} cells match search query</div>
+{% endif %}
 
 {% if message %}
 <div class="card" style="margin: 15px;">

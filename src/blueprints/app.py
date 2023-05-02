@@ -31,6 +31,7 @@ from src.data.brain_regions import (
 )
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data_factory import NeuronDataFactory
+from src.data.neuron_data_initializer import NETWORK_GROUP_BY_ATTRIBUTES
 from src.data.structured_search_filters import (
     OP_PATHWAYS,
     parse_search_query,
@@ -577,11 +578,10 @@ def pathways():
     for data_row in data_rows:
         cons.append([data_row[0], data_row[1], "", data_row[2], ""])
     return compile_network_html(
-        root_ids=root_ids,
+        center_ids=root_ids,
         contable=cons,
         data_version=data_version,
         show_regions=0,
-        reduce=0,
         connections_cap=0,
         hide_weights=0,
         log_request=True,
@@ -731,8 +731,8 @@ def connectivity():
     data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
     nt_type = request.args.get("nt_type", None)
     min_syn_cnt = request.args.get("min_syn_cnt", default=0, type=int)
-    connections_cap = request.args.get("cap", default=20, type=int)
-    reduce = request.args.get("reduce", default=0, type=int)
+    connections_cap = request.args.get("cap", default=50, type=int)
+    group_by = request.args.get("group_by", default="")
     show_regions = request.args.get("show_regions", default=0, type=int)
     include_partners = request.args.get("include_partners", default=0, type=int)
     hide_weights = request.args.get("hide_weights", default=0, type=int)
@@ -746,6 +746,22 @@ def connectivity():
 
     message = None
 
+    group_by_options = {"": "Individual Cells"}
+    group_by_options.update({k: display(k) for k in NETWORK_GROUP_BY_ATTRIBUTES})
+    group_by_options.update(
+        {
+            f"{k}_and_side": f"{display(k)} & side"
+            for k in NETWORK_GROUP_BY_ATTRIBUTES
+            if k != "side"
+        }
+    )
+    if group_by.endswith("_and_side"):
+        group_by_attribute_name = group_by[: -len("_and_side")]
+        split_groups_by_side = True
+    else:
+        group_by_attribute_name = group_by
+        split_groups_by_side = False
+
     if not cell_names_or_ids:
         con_doc = FAQ_QA_KB["connectivity"]
         return render_template(
@@ -758,10 +774,12 @@ def connectivity():
             f"{con_doc['a']}",
             message=None,
             data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
+            group_by_options=group_by_options,
+            group_by=group_by,
             data_version=data_version,
-            reduce=reduce,
             show_regions=show_regions,
             hide_weights=hide_weights,
+            num_matches=0,
         )
     else:
         neuron_db = NeuronDataFactory.instance().get(data_version)
@@ -811,7 +829,7 @@ def connectivity():
         if download:
             if len(contable) > 100000:
                 return render_error(
-                    message=f"The network generetad for your query is too large to download ({len(contable)} connections). Please refine the query and try again.",
+                    message=f"The network generatad for your query is too large to download ({len(contable)} connections). Please refine the query and try again.",
                     title="Selected network is too large for download",
                 )
             if download.lower() == "json":
@@ -848,11 +866,12 @@ def connectivity():
                 )
 
         network_html = compile_network_html(
-            root_ids=root_ids,
+            center_ids=root_ids,
             contable=contable,
             data_version=data_version,
             show_regions=show_regions,
-            reduce=reduce,
+            group_by_attribute_name=group_by_attribute_name,
+            split_groups_by_side=split_groups_by_side,
             connections_cap=connections_cap,
             hide_weights=hide_weights,
             log_request=log_request,
@@ -872,10 +891,12 @@ def connectivity():
                 message=message,
                 data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
                 data_version=data_version,
-                reduce=reduce,
+                group_by_options=group_by_options,
+                group_by=group_by,
                 show_regions=show_regions,
                 include_partners=include_partners,
                 hide_weights=hide_weights,
+                num_matches=len(root_ids),
             )
 
 

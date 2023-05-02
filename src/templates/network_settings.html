@@ -12,12 +12,15 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="reduce"
-                               name="reduce" value="1" {{ 'checked' if reduce==1}}>
-                        <label class="form-check-label" for="reduce">Group cells by class</label>
-                    </div>
-                    <br>
+                    <label>Group by</label>
+                    <select style="margin: 20px;" class="form-select form-select-lg mb-3"
+                            aria-label="Group by" name="group_by">
+                        {% for k, v in group_by_options.items() %}
+                        <option value="{{k}}" {{
+                        'selected' if group_by==k}}>{{v}}</option>
+                        {% endfor %}
+                    </select>
+
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="checkbox" id="show_regions" name="show_regions"
                                value="1" {{ 'checked' if show_regions==1}}>
