@@ -15,7 +15,11 @@ from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
     TESTING_DATA_SNAPSHOT_VERSION,
 )
-from src.utils.formatting import compact_label, make_web_safe
+from src.utils.formatting import (
+    compact_label,
+    make_web_safe,
+    is_proper_textual_annotation,
+)
 from tests import TEST_DATA_ROOT_PATH
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
@@ -26,6 +30,19 @@ class NeuronDataTest(TestCase):
         cls.neuron_db = unpickle_neuron_db(
             version=TESTING_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
         )
+
+    def all_annotations(self):
+        for nd in self.neuron_db.neuron_data.values():
+            for attrib_name, attrib_value in nd.items():
+                if isinstance(attrib_value, dict):
+                    for k, v in attrib_value.items():
+                        yield attrib_name, k
+                        yield attrib_name, v
+                elif isinstance(attrib_value, list) or isinstance(attrib_value, set):
+                    for v in attrib_value:
+                        yield attrib_name, v
+                else:
+                    yield attrib_name, attrib_value
 
     def test_index_data(self):
         self.assertGreater(len(self.neuron_db.neuron_data), 100000)
@@ -74,24 +91,36 @@ class NeuronDataTest(TestCase):
             check_num_values_missing(k, expected_missing_value_bounds.get(k, 0))
 
     def test_annotations_web_safe(self):
-        set_of_all_annotations = set()
-        for nd in self.neuron_db.neuron_data.values():
-            for v in nd.values():
-                if isinstance(v, dict):
-                    set_of_all_annotations |= set(v.keys())
-                    set_of_all_annotations |= set(v.values())
-                elif isinstance(v, list) or isinstance(v, set):
-                    set_of_all_annotations |= set(v)
-                else:
-                    set_of_all_annotations.add(v)
-        self.assertEqual(
-            set([type(a) for a in set_of_all_annotations]), {str, int, float}
-        )
+        for attrib_name, attrib_value in self.all_annotations():
+            if isinstance(attrib_value, str):
+                self.assertEqual(
+                    attrib_value,
+                    make_web_safe(attrib_value),
+                    f"Non web safe annotation '{attrib_value}' for attribute '{attrib_name}'",
+                )
 
-        for anno in set_of_all_annotations:
-            if type(anno) != str:
+    def test_annotations_meaningful(self):
+        excluded_attributes = ["position", "label"]
+        empty_vals, nonempty_vals = 0, 0
+        for attrib_name, attrib_value in self.all_annotations():
+            self.assertIsNotNone(
+                attrib_value,
+                f"Annotation is absent ('{attrib_value}') for attribute '{attrib_name}'",
+            )
+            if attrib_value == "":
+                empty_vals += 1
                 continue
-            self.assertEqual(anno, make_web_safe(anno))
+            nonempty_vals += 1
+            if not isinstance(attrib_value, str) or attrib_name in excluded_attributes:
+                continue
+            self.assertTrue(
+                is_proper_textual_annotation(attrib_value),
+                f"Meaningless annotation '{attrib_value}' for attribute '{attrib_name}'",
+            )
+
+        self.assertGreater(
+            nonempty_vals, 10 * empty_vals, f"Too many empty annotations: {empty_vals}"
+        )
 
     def test_annotations(self):
         neurons_with_labels = [
@@ -397,8 +426,6 @@ class NeuronDataTest(TestCase):
 
     def test_sub_classes(self):
         expected_list = [
-            "5813010135",
-            "666162219",
             "LNOa",
             "accessory_pharyngeal_nerve_sensory_group1",
             "accessory_pharyngeal_nerve_sensory_group2",
@@ -417,7 +444,6 @@ class NeuronDataTest(TestCase):
             "tangential",
             "taste peg",
             "uniglomerular",
-            "unknown",
         ]
         self.assertEqual(expected_list, self.neuron_db.unique_values("sub_class"))
 
@@ -575,13 +601,26 @@ class NeuronDataTest(TestCase):
             ntd[r[4]] = ntd.get(r[4], 0) + r[3]
 
         rid_to_con_nts = {rid: max(v, key=v.get) for rid, v in rid_to_nt_counts.items()}
-        eq, df = 0, 0
+
+        def vague_nt_type(ndata):
+            scores = sorted(
+                [ndata[f"{ntt.lower()}_avg"] for ntt in NEURO_TRANSMITTER_NAMES.keys()],
+                reverse=True,
+            )
+            return scores[0] <= 0.2 or scores[0] <= scores[1] + 0.1
+
+        eq, df, missing_con, vague = 0, 0, 0, 0
         diff_pairs = defaultdict(int)
         for rid, nd in self.neuron_db.neuron_data.items():
             if nd["nt_type"] == rid_to_con_nts.get(rid):
                 eq += 1
+            elif not rid_to_con_nts.get(rid):
+                missing_con += 1
+            elif vague_nt_type(nd):
+                vague += 1
             else:
                 diff_pairs[(nd["nt_type"], rid_to_con_nts.get(rid))] += 1
                 df += 1
+        print(f"{eq=} {df=} {missing_con=} {vague=}")
         print(diff_pairs)
-        self.assertGreater(20000, df)
+        self.assertGreater(2000, df)

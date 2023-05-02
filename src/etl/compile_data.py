@@ -1,5 +1,6 @@
 import os.path
 import shutil
+from collections import defaultdict
 
 import numpy as np
 
@@ -25,7 +26,11 @@ from src.etl.synapse_table_processor import (
     filter_connection_rows,
     compile_neuropil_synapse_rows,
 )
-from src.utils.formatting import can_be_flywire_root_id
+from src.utils.formatting import (
+    can_be_flywire_root_id,
+    UNDEFINED_THINGS,
+    is_proper_textual_annotation,
+)
 
 CAVE_AUTH_TOKEN_FILE_NAME = "static/secrets/cave_auth_token.txt"
 CAVE_DATASTACK_NAME = "flywire_fafb_production"
@@ -80,11 +85,9 @@ NA_INT = 0
 
 def load_feather_data_to_table(filepath):
     df_data = pandas.read_feather(filepath)
-    print(f"Loaded {len(df_data)} rows")
-
     columns = df_data.columns.to_list()
     df_column_indices = [columns.index(c) + 1 for c in columns]
-    print(f"Reading {len(columns)} columns: {columns[:25]}")
+    print(f"Reading {len(columns)} columns from {len(df_data)} rows: {columns[:25]}")
 
     rows = [columns]
     rows_scanned = 0
@@ -101,12 +104,13 @@ def comp_backup_and_update_csv(fpath, content):
     if os.path.isfile(fpath):
         old_content = read_csv(fpath)
         print(f"Comparing {fpath} content with new")
-        compare_csvs(old_content, content)
+        diff_rows = compare_csvs(old_content, content)
         fpath_bkp = fpath.replace(".csv.gz", "_bkp.csv.gz")
         print(f"Backing up {fpath} to {fpath_bkp}..")
         shutil.copy2(fpath, fpath_bkp)
-        print("Old content summary")
-        summarize_csv(old_content)
+        if diff_rows:
+            print("Old content summary")
+            summarize_csv(old_content)
     else:
         print(f"Previous file {fpath} not found.")
 
@@ -210,36 +214,37 @@ def val_counts(table):
             [
                 r[i]
                 for r in table[1:]
-                if len(r) > i
-                and str(r[i]).lower()
-                in ["na", "none", "undefined", "unspecified", "unknown"]
+                if len(r) > i and str(r[i]).lower() in UNDEFINED_THINGS
             ]
         )
         types[c] = list(set([type(r[i]) for r in table[1:] if len(r) > i]))
         try:
-            bounds[c] = (
-                min([r[i] for r in table[1:] if len(r) > i]),
-                max([r[i] for r in table[1:] if len(r) > i]),
-            )
+            if not c.endswith("_id"):
+                bounds[c] = (
+                    min([float(r[i]) for r in table[1:] if len(r) > i]),
+                    max([float(r[i]) for r in table[1:] if len(r) > i]),
+                )
         except Exception:
             pass
+
     return unique_counts, missing_counts, undefined_counts, types, bounds
 
 
 def summarize_csv(content):
-    print(f"- header: {content[0]}")
     uniq_counts, miss_counts, undefined_counts, types, bounds = val_counts(content)
-    print(f"- unique val counts: {uniq_counts}")
-    print(f"- missing val counts: {miss_counts}")
-    print(f"- undefined val counts: {undefined_counts}")
-    print(f"- data types: {types}")
-    print(f"- numeral type bounds: {bounds}")
-    return content
+    for c in content[0]:
+        print(f"Column '{c}'")
+        print(f"- unique val counts: {uniq_counts[c][0]}, {uniq_counts[c][1]}")
+        if miss_counts.get(c):
+            print(f"- missing val counts: {miss_counts[c]}")
+        if undefined_counts.get(c):
+            print(f"- undefined val counts: {undefined_counts[c]}")
+        print(f"- data types: {types[c]}")
+        if bounds.get(c):
+            print(f"- numeral type bounds: {bounds[c]}")
 
 
-def compare_csvs(
-    old_table, new_table, summarize_diffs=True, print_diffs=0, first_cols=999999
-):
+def compare_csvs(old_table, new_table, print_diffs=3, first_cols=999):
     def summarize(hdr, diff_rows):
         summarize_csv([hdr] + [r.split(",") for r in diff_rows])
 
@@ -270,21 +275,19 @@ def compare_csvs(
         ]
     )
 
-    dfset = old_row_set - new_row_set
-    print(f"Rows in old but not new: {len(dfset)}")
-    if dfset:
-        if summarize_diffs:
-            summarize(hdr, dfset)
+    on_dfset = old_row_set - new_row_set
+    print(f"Rows in old but not new: {len(on_dfset)}")
+    if on_dfset:
         if print_diffs:
-            prntdiffs(dfset)
+            prntdiffs(on_dfset)
 
-    dfset = new_row_set - old_row_set
-    print(f"Rows in new but not old: {len(dfset)}")
-    if dfset:
-        if summarize_diffs:
-            summarize(hdr, dfset)
+    no_dfset = new_row_set - old_row_set
+    print(f"Rows in new but not old: {len(no_dfset)}")
+    if no_dfset:
         if print_diffs:
-            prntdiffs(dfset)
+            prntdiffs(no_dfset)
+
+    return len(on_dfset) + len(no_dfset)
 
 
 def update_cave_data_file(name, db_load_func, cave_client, version):
@@ -329,18 +332,29 @@ def update_neuron_classification_table_file(version):
     all_root_ids = set()
 
     for f in files:
+        print("----------------------------")
         if not f.endswith(".feather"):
-            print(f"Skipping unknown file: {f}")
+            print(f"Skipping non feather file: {f}")
             continue
         print(f"Processing file: {f}..")
         fpath = os.path.join(dirpath, f)
         f_content = load_feather_data_to_table(fpath)
 
         def load(dct, tbl, rid_col, val_col):
+            excluded_values = defaultdict(int)
             for r in tbl[1:]:
                 assert r[rid_col] not in dct
+                if r[val_col] is None:
+                    continue
+                if isinstance(r[val_col], str) and not is_proper_textual_annotation(
+                    r[val_col]
+                ):
+                    excluded_values[r[val_col]] += 1
+                    continue
                 dct[r[rid_col]] = r[val_col]
                 all_root_ids.add(r[rid_col])
+            if excluded_values:
+                print(f"  !! excluded non proper values {dict(excluded_values)} !!")
 
         if f == "coarse_cell_classes.feather":
             assert f_content[0] == ["root_id", "class"]
@@ -433,17 +447,18 @@ def update_neuron_classification_table_file(version):
 
         print(f"Done processing {f}")
 
+    print("----------------------------")
     for rid in all_root_ids:
         classification_table.append(
             [
                 rid,
                 flow_dict.get(rid, NA_STR),
-                super_class_dict.get(rid),
-                class_dict.get(rid),
-                sub_class_dict.get(rid),
-                cell_type_dict.get(rid),
-                hemibrain_type.get(rid),
-                hemilineage.get(rid),
+                super_class_dict.get(rid, NA_STR),
+                class_dict.get(rid, NA_STR),
+                sub_class_dict.get(rid, NA_STR),
+                cell_type_dict.get(rid, NA_STR),
+                hemibrain_type.get(rid, NA_STR),
+                hemilineage.get(rid, NA_STR),
                 side_dict.get(rid, NA_STR),
                 nerve_dict.get(rid, NA_STR),
             ]
@@ -785,8 +800,8 @@ if __name__ == "__main__":
         "update_cell_stats": False,
         "update_coordinates": False,
         "update_nblast_scores": False,
-        "update_morphology_clusters": True,
-        "update_labels": False,
+        "update_morphology_clusters": False,
+        "update_labels": True,
     }
 
     cave_client = init_cave_client()
