@@ -431,9 +431,9 @@
     const nodeslist = {{nodes|tojson}};
     const edgeslist = {{edges|tojson}};
     const density = edgeslist.length / nodeslist.length;
-    if (density < 1.5) {
+    if (density < 1.2) {
         drawGraph("barnesHut");
-    } else if (density <= 3) {
+    } else if (density <= 1.5) {
         drawGraph("repulsion");
     } else {
         drawGraph("forceAtlas2Based");
