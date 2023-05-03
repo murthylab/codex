@@ -735,11 +735,15 @@ def _parse_chained_search_query(search_query):
 
 
 def _extract_operands(text, op):
-    parts = [p.strip() for p in text.split(op.name)]
-    # try shorthand if op not found in text
-    if len(parts) == 1:
-        parts = [p.strip() for p in text.split(op.shorthand)]
-    return parts
+    # split by operator full name, as well as shorthand (might be mixed)
+    by_name = [p.strip() for p in text.split(op.name)]
+    result = []
+    for part in by_name:
+        if op.shorthand in part:
+            result.extend([p.strip() for p in part.split(op.shorthand)])
+        else:
+            result.append(part)
+    return result
 
 
 def parse_search_query(search_query):

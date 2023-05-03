@@ -274,6 +274,11 @@ class NeuronDataTest(TestCase):
             2, len(self.neuron_db.search("720575940643084488, 720575940643467886"))
         )
 
+    def test_structured_search_operator_combos(self):
+        self.assertGreater(
+            len(self.neuron_db.search("fru {and} central && nt != gaba")), 500
+        )
+
     def test_downstream_upstream_queries(self):
         downstream = self.neuron_db.search("{downstream} 720575940646952324")
         self.assertEqual(115, len(downstream))

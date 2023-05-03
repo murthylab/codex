@@ -22,23 +22,25 @@ UNSPECIFIED_COLOR = "#fafafa"
 
 
 def aggregate_and_cap(connection_table, connections_cap, show_regions):
-    def row_key(row):
-        if show_regions:
-            return row[0], row[1], row[2]
-        else:
-            return row[0], row[1], None
-
     syn_counts = defaultdict(int)
     aggregated_syn_count = 0
-    for r in connection_table:
-        syn_counts[row_key(r)] += r[3]
-        aggregated_syn_count += r[3]
+    if show_regions:
+        for r in connection_table:
+            syn_counts[r[0], r[1], r[2]] += r[3]
+            aggregated_syn_count += r[3]
+    else:
+        for r in connection_table:
+            syn_counts[r[0], r[1]] += r[3]
+            aggregated_syn_count += r[3]
+
     aggregated_con_count = len(syn_counts)
 
     connections_res = []
     non_self_loop_connections = 0
     for p in sorted(syn_counts.items(), key=lambda p: -p[1]):
-        connections_res.append([p[0][0], p[0][1], p[0][2], p[1]])
+        connections_res.append(
+            [p[0][0], p[0][1], p[0][2] if show_regions else None, p[1]]
+        )
         if p[0][0] != p[0][1]:
             non_self_loop_connections += 1
             if non_self_loop_connections == connections_cap:
