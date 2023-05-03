@@ -23,7 +23,11 @@ from src.blueprints.base import (
     warning_with_redirect,
     render_info,
 )
-from src.configuration import MAX_NEURONS_FOR_DOWNLOAD, MIN_SYN_THRESHOLD
+from src.configuration import (
+    MAX_NEURONS_FOR_DOWNLOAD,
+    MIN_SYN_THRESHOLD,
+    MAX_NODES_FOR_PATHWAY_ANALYSIS,
+)
 from src.data.brain_regions import (
     REGIONS,
     NEUROPIL_DESCRIPTIONS,
@@ -633,18 +637,18 @@ def path_length():
                 message=f"Could not find any cells matching '{target_cell_names_or_ids}'",
             )
 
-        if len(root_ids_src) > MAX_NEURONS_FOR_DOWNLOAD:
+        if len(root_ids_src) > MAX_NODES_FOR_PATHWAY_ANALYSIS:
             messages.append(
                 f"{display(len(root_ids_src))} source cells match your query. "
-                f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD} sources."
+                f"Fetching pathways for the first {MAX_NODES_FOR_PATHWAY_ANALYSIS} sources."
             )
-            root_ids_src = root_ids_src[:MAX_NEURONS_FOR_DOWNLOAD]
-        if len(root_ids_target) > MAX_NEURONS_FOR_DOWNLOAD:
+            root_ids_src = root_ids_src[:MAX_NODES_FOR_PATHWAY_ANALYSIS]
+        if len(root_ids_target) > MAX_NODES_FOR_PATHWAY_ANALYSIS:
             messages.append(
                 f"{display(len(root_ids_target))} target cells match your query. "
-                f"Fetching pathways for the first {MAX_NEURONS_FOR_DOWNLOAD} targets."
+                f"Fetching pathways for the first {MAX_NODES_FOR_PATHWAY_ANALYSIS} targets."
             )
-            root_ids_target = root_ids_target[:MAX_NEURONS_FOR_DOWNLOAD]
+            root_ids_target = root_ids_target[:MAX_NODES_FOR_PATHWAY_ANALYSIS]
 
         matrix = distance_matrix(
             sources=root_ids_src,
