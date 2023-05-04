@@ -62,7 +62,7 @@ def compile_network_html(
         ]
 
         def name_getter(x):
-            return f"{display(group_by_attribute_name)} {x}, {projection_set_sizes[x]} cells"
+            return f"Queried nodes for which '{display(group_by_attribute_name)}' equals '{x}', {projection_set_sizes[x]} cells"
 
         def caption_getter(x):
             return f"{x} {projection_set_fractions[x] or '<1'}%"

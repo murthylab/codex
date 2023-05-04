@@ -85,9 +85,8 @@ def make_graph_html(
     else:
         aggregated_con_count, aggregated_syn_count = 0, 0
 
-    node_ids = (
-        set([r[0] for r in connection_table])
-        .union([r[1] for r in connection_table])
+    node_ids = set([r[0] for r in connection_table]).union(
+        [r[1] for r in connection_table]
     )
     total_syn_count = sum([r[3] for r in connection_table]) if connection_table else 0
     max_syn_count = max([r[3] for r in connection_table]) if connection_table else 0
