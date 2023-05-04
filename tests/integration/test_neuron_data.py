@@ -252,7 +252,7 @@ class NeuronDataTest(TestCase):
 
     def test_connections_representation(self):
         con_rows = [
-            [int(r[0]), int(r[1]), r[2], int(r[3]), r[4]]
+            (int(r[0]), int(r[1]), r[2], int(r[3]), r[4])
             for r in read_csv(
                 f"{TEST_DATA_ROOT_PATH}/{TESTING_DATA_SNAPSHOT_VERSION}/connections.csv.gz"
             )[1:]
