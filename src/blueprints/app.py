@@ -565,15 +565,13 @@ def pathways():
     target = request.args.get("target_cell_id", type=int)
     min_syn_count = request.args.get("min_syn_count", type=int, default=0)
     log_activity(f"Rendering pathways from {source} to {target} with {min_syn_count=}")
-    neuron_db = NeuronDataFactory.instance().get()
+    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    neuron_db = NeuronDataFactory.instance().get(version=data_version)
     for rid in [source, target]:
         if not neuron_db.is_in_dataset(rid):
             return render_error(
                 message=f"Cell {rid} is not in the dataset.", title="Cell not found"
             )
-
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
-
     root_ids = [source, target]
 
     layers, data_rows = pathway_chart_data_rows(
@@ -588,7 +586,7 @@ def pathways():
     return compile_network_html(
         center_ids=root_ids,
         contable=cons,
-        data_version=data_version,
+        neuron_db=neuron_db,
         show_regions=0,
         connections_cap=0,
         hide_weights=0,
@@ -876,7 +874,7 @@ def connectivity():
         network_html = compile_network_html(
             center_ids=root_ids,
             contable=contable,
-            data_version=data_version,
+            neuron_db=neuron_db,
             show_regions=show_regions,
             group_by_attribute_name=group_by_attribute_name,
             split_groups_by_side=split_groups_by_side,

@@ -1,7 +1,6 @@
 from collections import defaultdict
 
 from src.data.brain_regions import neuropil_hemisphere
-from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils.formatting import display
 from src.utils.graph_vis import make_graph_html
 
@@ -9,7 +8,7 @@ from src.utils.graph_vis import make_graph_html
 def compile_network_html(
     center_ids,
     contable,
-    data_version,
+    neuron_db,
     show_regions,
     connections_cap,
     hide_weights,
@@ -19,7 +18,6 @@ def compile_network_html(
     layers=None,
     page_title="Network Graph",
 ):
-    neuron_db = NeuronDataFactory.instance().get(version=data_version)
     all_cell_ids = list(
         set([r[0] for r in contable]).union([r[1] for r in contable]).union(center_ids)
     )
