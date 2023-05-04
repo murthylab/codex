@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from src.utils.logging import log_error
 from src.utils.parsing import tokenize
 
@@ -251,6 +253,7 @@ COLORS = {
 }
 
 
+@lru_cache
 def neuropil_hemisphere(pil):
     pil = pil.upper()
     if pil.endswith("_L"):

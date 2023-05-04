@@ -70,13 +70,13 @@ class Connections(object):
                     nt_type = ID_TO_NT[nt_type_idx]
                     if nt_type_predicate and not nt_type_predicate(nt_type):
                         continue
-                    yield [
+                    yield (
                         from_rid,
                         to_rid,
                         pil,
                         syn_cnt,
                         nt_type,
-                    ]
+                    )
 
     def num_synapses(self):
         return self.synapse_count

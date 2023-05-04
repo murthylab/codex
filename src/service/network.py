@@ -47,15 +47,13 @@ def compile_network_html(
             for k, v in projection_set_sizes.items()
         }
 
-        def pil_projection(pil):
-            return neuropil_hemisphere(pil)
-
         def project_row(row):
-            return [
+            return (
                 projections[row[0]],
                 projections[row[1]],
-                pil_projection(row[2]),
-            ] + row[3:]
+                neuropil_hemisphere(row[2]),
+                row[3],
+            )
 
         contable = [
             project_row(r)
