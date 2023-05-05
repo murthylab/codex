@@ -1,5 +1,5 @@
 from src.data.local_data_loader import unpickle_neuron_db, DATA_ROOT_PATH
-from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
+from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION, DATA_SNAPSHOT_VERSIONS
 from src.utils.logging import log
 
 # Singleton
@@ -22,7 +22,12 @@ class NeuronDataFactory(object):
             self.get()
 
     def get(self, version=None):
-        version = version or DEFAULT_DATA_SNAPSHOT_VERSION
+        if not version:
+            version = DEFAULT_DATA_SNAPSHOT_VERSION
+        if version not in DATA_SNAPSHOT_VERSIONS:
+            raise ValueError(
+                f"Data version {version} could not be loaded. Available versions: {', '.join([str(v) for v in DATA_SNAPSHOT_VERSIONS])}"
+            )
         if version not in self._version_to_data:
             self._version_to_data[version] = unpickle_neuron_db(
                 version, data_root_path=self._data_root_path
