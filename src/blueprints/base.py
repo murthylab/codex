@@ -120,7 +120,10 @@ def request_wrapper(func):
             if APP_ENVIRONMENT == "DEV":
                 raise e
             else:
-                return render_error(f"{e}\n")
+                return render_error(
+                    title="Unexpected error during execution",
+                    message=f"Exception: {e}\n",
+                )
 
     return wrap
 
@@ -184,9 +187,9 @@ def styles(filename):
 @base.route("/error", methods=["GET", "POST"])
 @request_wrapper
 def error():
-    log_activity("Loading Error page")
     message = request.args.get("message", "Unexpected error")
     title = request.args.get("title", "Request failed")
+    log_activity(f"Loading Error page with {title=} and {message=}")
     back_button = request.args.get("back_button", 1, type=int)
     message_sent = False
     if request.method == "POST":
@@ -425,7 +428,7 @@ def login():
             return redirect(request.args.get("redirect_to", "/"))
         except ValueError:
             log_activity(f"Invalid token provided upon login: {request.form}")
-            return render_error("Login failed.")
+            return render_error(title="Login error", message="Token validation failed.")
     else:
         return render_auth_page()
 
@@ -462,7 +465,7 @@ def data_access_token():
                 "the past, make sure you obtain the token using the same account (go back and try again). To "
                 'request access visit <a href="https://join.flywire.ai" target="_blank">this page</a>.'
             )
-            return render_error(message=message)
+            return render_error(title="Access denied", message=message)
     else:
         return render_template(
             "data_access_token.html", redirect_to=request.args.get("redirect_to", "/")
@@ -489,7 +492,7 @@ def auth_token():
 def render_error(
     message="No details available.", title="Something went wrong", back_button=1
 ):
-    log_error(f"Rendering error: {message=} {title=}")
+    log_error(f"Redirecting to error page: {message=} {title=}")
     return redirect(f"/error?message={message}&title={title}&back_button={back_button}")
 
 

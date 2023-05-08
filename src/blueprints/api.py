@@ -31,7 +31,8 @@ def download():
         agree_chk = 1
     if data_version not in DOWNLOAD_CATALOG:
         return render_error(
-            message=f"Download data version not recognized: '{data_version}'"
+            title="Unknown data version",
+            message=f"Download data version not recognized: '{data_version}'",
         )
 
     data_product = request.args.get("data_product")
@@ -39,7 +40,8 @@ def download():
         log_user_help(f"API: downloading '{data_product}' for version '{data_version}'")
         if data_product not in DOWNLOAD_CATALOG[data_version]:
             return render_error(
-                message=f"Download resource not recognized: '{data_product}'"
+                title="Unknown resource",
+                message=f"Download resource not recognized: '{data_product}'",
             )
         return redirect(
             f"https://storage.googleapis.com/flywire-data/codex/data/{data_version}/"
