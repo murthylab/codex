@@ -40,8 +40,8 @@ FAQ_QA_KB = {
         "q": "Is there an advanced search/filter? Can I search for specific attribute values?",
         "a": f"Yes, for certain attributes ({', '.join(SEARCH_ATTRIBUTE_NAMES)}) you can search using "
         f"structured query terms "
-        "e.g. by typing into search box <b>class == JON</b> or <b>nt != GABA</b>. You can also chain the terms "
-        "with and/or rules like so: <b>class == JON && nt != GABA</b> or similarly "
+        "e.g. by typing into search box <b>class == JON</b> or <b>nt_type != GABA</b>. You can also chain the terms "
+        "with and/or rules like so: <b>class == JON && nt_type != GABA</b> or similarly "
         "<b>class == JON || class == olfactory || class == dsx</b> etc. (but different chaining rules cannot be "
         "mixed)."
         f"<br> <b>Binary operators</b> <ul> {operators_list(STRUCTURED_SEARCH_BINARY_OPERATORS)} </ul>"

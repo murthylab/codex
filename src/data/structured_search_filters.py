@@ -41,7 +41,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_range=None,
     ),
     SearchAttribute(
-        name="nt",
+        name="nt_type",
         value_getter=lambda nd: nd["nt_type"],
         value_convertor=lambda x: lookup_nt_type(x),
         list_convertor=lambda x: tokenize(x),

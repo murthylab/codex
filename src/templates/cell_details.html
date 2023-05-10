@@ -46,7 +46,7 @@
                         const region = value.includes("Input") ? "upstream" : "downstream";
                         filter_string = "{" + region + "} {{cell_id}}";
                     } else if (json["search_filter"] === "input_nt_type") {
-                        filter_string = "{upstream} {{cell_id}} && nt == " + value;
+                        filter_string = "{upstream} {{cell_id}} && nt_type == " + value;
                     } else if (json["search_filter"] === "input_neuropils" || json["search_filter"] === "input_hemisphere") {
                         filter_string = value + " {upstream_region} {{cell_id}}";
                     } else if (json["search_filter"] === "output_neuropils" || json["search_filter"] === "output_hemisphere") {

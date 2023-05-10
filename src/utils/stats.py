@@ -87,7 +87,7 @@ def _make_data_charts(data_list):
     )
     stat_groups = {
         "nt_type": StatGroupProps(
-            "Neurotransmitter Types", "nt", "bar", NEURO_TRANSMITTER_NAMES
+            "Neurotransmitter Types", "nt_type", "bar", NEURO_TRANSMITTER_NAMES
         ),
         "input_neuropils": StatGroupProps(
             "Top Input Regions", "input_neuropil", "bar", NEUROPIL_DESCRIPTIONS

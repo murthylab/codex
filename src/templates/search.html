@@ -150,8 +150,8 @@
                 <div class="spotfilter">
                     {% if neuron.nt_type and 'nt_type' in multi_val_attrs %}
                     <span class="td_filter_buttons">
-                        <button title="Exclude {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt != {{neuron.nt_type}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
-                        <button title="Show only {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt == {{neuron.nt_type}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                        <button title="Exclude {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt_type != {{neuron.nt_type}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt_type == {{neuron.nt_type}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
                     </span>
                     <br>
                     <span class="td_filter_buttons_caption">

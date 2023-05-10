@@ -171,28 +171,28 @@ class NeuronDataTest(TestCase):
 
     def test_structured_search(self):
         # structured search
-        gaba_rids = self.neuron_db.search("nt == gaba")
+        gaba_rids = self.neuron_db.search("nt_type == gaba")
         self.assertGreater(len(gaba_rids), 1000)
         self.assertEqual(
             len(self.neuron_db.neuron_data),
-            len(gaba_rids) + len(self.neuron_db.search("nt != gaba")),
+            len(gaba_rids) + len(self.neuron_db.search("nt_type != gaba")),
         )
         for rid in gaba_rids:
             self.assertEqual("GABA", self.neuron_db.get_neuron_data(rid)["nt_type"])
 
-        ach_rids = self.neuron_db.search("nt == ACH")
+        ach_rids = self.neuron_db.search("nt_type == ACH")
         self.assertGreater(len(ach_rids), 1000)
         self.assertEqual(
             len(self.neuron_db.neuron_data),
-            len(ach_rids) + len(self.neuron_db.search("nt != ACH")),
+            len(ach_rids) + len(self.neuron_db.search("nt_type != ACH")),
         )
         for rid in ach_rids:
             self.assertEqual("ACH", self.neuron_db.get_neuron_data(rid)["nt_type"])
 
-        gaba_and_ach_rids = self.neuron_db.search("nt == ACH && nt == gaba")
+        gaba_and_ach_rids = self.neuron_db.search("nt_type == ACH && nt_type == gaba")
         self.assertEqual(0, len(gaba_and_ach_rids))
 
-        gaba_or_ach_rids = self.neuron_db.search("nt == ACH || nt == gaba")
+        gaba_or_ach_rids = self.neuron_db.search("nt_type == ACH || nt_type == gaba")
         self.assertEqual(len(ach_rids) + len(gaba_rids), len(gaba_or_ach_rids))
 
         ids_with_name = self.neuron_db.search("{has} name")
@@ -263,7 +263,7 @@ class NeuronDataTest(TestCase):
         )
 
     def test_structured_search_misc(self):
-        self.assertLess(len(self.neuron_db.search("gaba && nt != gaba")), 700)
+        self.assertLess(len(self.neuron_db.search("gaba && nt_type != gaba")), 700)
 
         self.assertEqual(
             2, len(self.neuron_db.search("720575940643084488 720575940643467886"))
@@ -277,7 +277,7 @@ class NeuronDataTest(TestCase):
 
     def test_structured_search_operator_combos(self):
         self.assertGreater(
-            len(self.neuron_db.search("fru {and} central && nt != gaba")), 500
+            len(self.neuron_db.search("fru {and} central && nt_type != gaba")), 500
         )
 
     def test_downstream_upstream_queries(self):
