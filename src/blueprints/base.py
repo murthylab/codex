@@ -122,7 +122,7 @@ def request_wrapper(func):
             else:
                 return render_error(
                     title="Unexpected error during execution",
-                    message=f"Exception: {e}\n",
+                    message=f"Exception: {str(e)}",
                 )
 
     return wrap
