@@ -163,11 +163,19 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_range=None,
     ),
     SearchAttribute(
-        name="cluster",
-        value_getter=lambda nd: nd["cluster"],
+        name="morphology_cluster",
+        value_getter=lambda nd: nd["morphology_cluster"],
         value_convertor=None,
         list_convertor=lambda x: tokenize(x),
         description="Automatically generated morphology clusters (based on pairwise NBLAST scores).",
+        value_range=None,
+    ),
+    SearchAttribute(
+        name="connectivity_cluster",
+        value_getter=lambda nd: nd["connectivity_cluster"],
+        value_convertor=None,
+        list_convertor=lambda x: tokenize(x),
+        description="Automatically generated connectivity clusters (based on pairwise Jaccard similarity scores).",
         value_range=None,
     ),
     SearchAttribute(

@@ -64,7 +64,9 @@ _CODEX_DATA_SCHEMA = {
         "scores",
     ],
     # one row (or none) per id
-    "morphology_clusters": ["root_id", "cluster"],
+    "morphology_clusters": ["root_id", "morphology_cluster"],
+    # one row (or none) per id
+    "connectivity_clusters": ["root_id", "connectivity_cluster"],
 }
 
 
@@ -98,3 +100,7 @@ def get_nblast_file_columns():
 
 def get_morphology_clusters_columns():
     return list(_CODEX_DATA_SCHEMA["morphology_clusters"])
+
+
+def get_connectivity_clusters_columns():
+    return list(_CODEX_DATA_SCHEMA["connectivity_clusters"])

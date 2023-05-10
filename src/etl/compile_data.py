@@ -710,14 +710,14 @@ def update_morphology_clusters(version):
         if len(s) > 1:
             max_xluster_size = max(max_xluster_size, len(s))
             component_id += 1
-            cluster_name = f"C{component_id}.{len(s)}"
+            cluster_name = f"MC_{component_id}.{len(s)}"
             for rid in s:
                 clusters_dict[rid] = cluster_name
 
     print(
         f"Total clustered rids: {len(clusters_dict)}, {max_xluster_size=}, # clusters: {component_id}"
     )
-    clusters_table = [["root_id", "cluster"]]
+    clusters_table = [["root_id", "morphology_cluster"]]
     for rid, cl in clusters_dict.items():
         clusters_table.append([rid, cl])
 

@@ -83,7 +83,8 @@ class NeuronDataTest(TestCase):
             "oct_avg": 37000,
             "ser_avg": 68000,
             "similar_cell_scores": 20000,
-            "cluster": 84000,
+            "morphology_cluster": 84000,
+            "connectivity_cluster": 84000,
             "hemisphere_fingerprint": 5000,
         }
 
@@ -538,7 +539,8 @@ class NeuronDataTest(TestCase):
             "cell_type",
             "hemibrain_type",
             "hemilineage",
-            "cluster",
+            "morphology_cluster",
+            "connectivity_cluster",
         }
         for k, v in NEURON_DATA_ATTRIBUTE_TYPES.items():
             if k in sparse_attrs:

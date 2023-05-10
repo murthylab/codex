@@ -32,7 +32,8 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "hemilineage",
     "nerve",
     "side",
-    "cluster",
+    "morphology_cluster",
+    "connectivity_cluster",
 ]
 
 
@@ -88,6 +89,15 @@ class NeuronDB(object):
         for r in self.connections_.all_rows(min_syn_count=min_syn_count):
             ins[r[1]].add(r[0])
             outs[r[0]].add(r[1])
+        return ins, outs
+
+    @lru_cache
+    def input_output_partners_with_synapse_counts(self, min_syn_count=0):
+        ins = defaultdict(lambda: defaultdict(int))
+        outs = defaultdict(lambda: defaultdict(int))
+        for r in self.connections_.all_rows(min_syn_count=min_syn_count):
+            ins[r[1]][r[0]] += r[3]
+            outs[r[0]][r[1]] += r[3]
         return ins, outs
 
     @lru_cache
@@ -181,8 +191,8 @@ class NeuronDB(object):
             "Cell Body Side": "side",
             "Community Identification Label": "label",
             "Max In/Out Neuropil": "group",
-            "Similarity cluster": "cluster",
-            # TODO: enable this once better clustering is available. "Morphology Cluster": "cluster",
+            "Morphology cluster": "morphology_cluster",
+            "Connectivity cluster": "connectivity_cluster",
         }
         for nd in self.neuron_data.values():
             for v in category_names.values():

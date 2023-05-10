@@ -121,7 +121,7 @@ def sort_search_results(
                 dct = {rid: morphology_cluster_getter(rid) for rid in ids}
                 extra_data = {
                     "title": "Morphologically Cluster",
-                    "column_name": "Cluster",
+                    "column_name": "Morphology Cluster",
                     "values_dict": dct,
                 }
                 return sorted_ids, extra_data

@@ -10,6 +10,7 @@ from src.data.catalog import (
     get_classification_file_columns,
     get_cell_stats_file_columns,
     get_morphology_clusters_columns,
+    get_connectivity_clusters_columns,
 )
 from src.data.neuron_data import NeuronDB
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
@@ -70,7 +71,9 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     "area_nm": int,
     "size_nm": int,
     # morphology clusters (based on NBLAST scores + SCC analysis)
-    "cluster": str,
+    "morphology_cluster": str,
+    # connectivity clusters (based on Jaccard similarity scores + SCC analysis)
+    "connectivity_cluster": str,
 }
 
 HEATMAP_GROUP_BY_ATTRIBUTES = [
@@ -88,7 +91,8 @@ NETWORK_GROUP_BY_ATTRIBUTES = [
     "super_class",
     "class",
     "sub_class",
-    "cluster",
+    "morphology_cluster",
+    "connectivity_cluster",
 ]
 
 
@@ -102,13 +106,14 @@ def initialize_neuron_data(
     coordinate_rows,
     nblast_rows,
     morphology_cluster_rows,
+    connectivity_cluster_rows,
 ):
     neuron_attributes = {}
     neuron_connection_rows = []
     label_data = defaultdict(list)
 
-    def _get_value(row, column_index, attr_name):
-        attr_val = make_web_safe(row[column_index[attr_name]])
+    def _get_value(row, col_index, attr_name):
+        attr_val = make_web_safe(row[col_index[attr_name]])
         attr_type = NEURON_DATA_ATTRIBUTE_TYPES[attr_name]
         if not attr_val:
             return attr_type()
@@ -176,29 +181,35 @@ def initialize_neuron_data(
             f"App initialization: {not_found_stats_root_ids} stats root ids not found in set of neurons"
         )
 
-    if morphology_cluster_rows:
-        log(
-            f"App initialization processing morpho cluster data with {len(morphology_cluster_rows)} rows.."
-        )
-        not_found_morpho_cluster_root_ids = 0
-        assert morphology_cluster_rows[0] == get_morphology_clusters_columns()
-        morpho_clusters_column_index = {
-            c: i for i, c in enumerate(morphology_cluster_rows[0])
-        }
-        for i, r in enumerate(morphology_cluster_rows[1:]):
-            root_id = _get_value(r, morpho_clusters_column_index, "root_id")
-            if root_id not in neuron_attributes:
-                not_found_morpho_cluster_root_ids += 1
-                continue
-            neuron_attributes[root_id].update(
-                {
-                    attr_name: _get_value(r, morpho_clusters_column_index, attr_name)
-                    for attr_name in get_morphology_clusters_columns()[1:]
-                }
+    for clustering_type, data_rows, cols in [
+        ("morphology", morphology_cluster_rows, get_morphology_clusters_columns()),
+        (
+            "connectivity",
+            connectivity_cluster_rows,
+            get_connectivity_clusters_columns(),
+        ),
+    ]:
+        if data_rows:
+            log(
+                f"App initialization processing {clustering_type} cluster data with {len(data_rows)} rows.."
             )
-        log(
-            f"App initialization: {not_found_morpho_cluster_root_ids} morpho cluster ids not found"
-        )
+            not_found_root_ids = 0
+            if data_rows[0] != cols:
+                print(f"+++ {data_rows[0]} vs {cols}")
+            assert data_rows[0] == cols
+            column_index = {c: i for i, c in enumerate(data_rows[0])}
+            attr_name = data_rows[0][1]
+            for i, r in enumerate(data_rows[1:]):
+                root_id = _get_value(r, column_index, "root_id")
+                if root_id not in neuron_attributes:
+                    not_found_root_ids += 1
+                    continue
+                neuron_attributes[root_id][attr_name] = _get_value(
+                    r, column_index, attr_name
+                )
+            log(
+                f"App initialization: {not_found_root_ids} {clustering_type} cluster ids not found"
+            )
 
     log("App initialization processing label data..")
     labels_file_columns = get_labels_file_columns()

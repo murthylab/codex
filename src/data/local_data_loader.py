@@ -22,6 +22,7 @@ LABELS_FILE_NAME = "labels.csv.gz"
 COORDINATES_FILE_NAME = "coordinates.csv.gz"
 NBLAST_FILE_NAME = "nblast.csv.gz"
 MORPHOLOGY_CLUSTERS_FILE_NAME = "morphology_clusters.csv.gz"
+CONNECTIVITY_CLUSTERS_FILE_NAME = "connectivity_clusters.csv.gz"
 
 
 NEURON_DB_PICKLE_FILE_NAME = "neuron_db.pickle.gz"
@@ -85,6 +86,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     coordinate_rows = _read_data(COORDINATES_FILE_NAME)
     nblast_rows = _read_data(NBLAST_FILE_NAME)
     morphology_cluster_rows = _read_data(MORPHOLOGY_CLUSTERS_FILE_NAME)
+    connectivity_cluster_rows = _read_data(CONNECTIVITY_CLUSTERS_FILE_NAME)
 
     log(
         f"App initialization loading data from {data_file_path}:\n"
@@ -104,6 +106,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         coordinate_rows=coordinate_rows,
         nblast_rows=nblast_rows,
         morphology_cluster_rows=morphology_cluster_rows,
+        connectivity_cluster_rows=connectivity_cluster_rows,
     )
     # free mem
     del neuron_rows

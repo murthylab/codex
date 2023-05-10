@@ -283,7 +283,9 @@ def search():
             output_sets=neuron_db.output_sets(),
             label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["label"]),
             nt_type_getter=lambda x: neuron_db.get_neuron_data(x)["nt_type"],
-            morphology_cluster_getter=lambda x: neuron_db.get_neuron_data(x)["cluster"],
+            morphology_cluster_getter=lambda x: neuron_db.get_neuron_data(x)[
+                "morphology_cluster"
+            ],
             synapse_neuropil_count_getter=lambda x: len(
                 neuron_db.get_neuron_data(x)["input_neuropils"]
             )
@@ -355,7 +357,8 @@ def download_search_results():
         "input_synapses",
         "output_synapses",
         "hemisphere_fingerprint",
-        "cluster",
+        "morphology_cluster",
+        "connectivity_cluster",
     ]
     data = [cols]
     for i in filtered_root_id_list:
