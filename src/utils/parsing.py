@@ -1,7 +1,6 @@
 DELIMS = [
     "=",
     "-",
-    ". ",
     ",",
     "?",
     "!",
@@ -15,6 +14,9 @@ DELIMS = [
     "]",
     '"',
     "&",
+    "' ",
+    " '",
+    ". ",
 ]
 HIGHLIGHTING_DELIMS = [
     "=",
@@ -42,8 +44,10 @@ def tokenize(s):
         s = s.replace(d, " ")
 
     def clean(tk):
-        if any([tk.endswith(c) for c in [".", ":"]]):
+        if any([tk.endswith(c) for c in [".", "'"]]):
             tk = tk[:-1]
+        if any([tk.startswith(c) for c in [".", "'"]]):
+            tk = tk[1:]
         return tk
 
     res = [clean(t) for t in s.split() if t]
