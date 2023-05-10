@@ -22,8 +22,10 @@ DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS = {
     ' Lab (<a href="" data-toggle="modal" data-target="#cellAnnotationsModal">additional info</a>)',
     "cell_stats": "Cell size measurements. "
     "Specifies the surface area, cable length and size/volume for each cell in the dataset. Nanometer units.",
-    "morphology_clusters": "Clustering / grouping of cells based on their morphology. Cells assigned to same cluster should be similar in "
-    "shape.",
+    "morphology_clusters": "Clustering / grouping of cells based on their morphology. Cells assigned to same cluster "
+    "should be similar in shape.",
+    "connectivity_clusters": "Clustering / grouping of cells based on their connectivity vectors. "
+    "Cells assigned to same cluster should have similar partners up/downstream.",
     "connections": "Synaptic connectivity table. "
     "One row for every connected pair of cells broken by neuropil (region). First and second columns contain the "
     "FlyWire Root IDs of the connected pair ('pre/from' and 'post/to' respectively), the third column contains the "
