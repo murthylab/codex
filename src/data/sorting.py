@@ -6,6 +6,8 @@ from src.data.structured_search_filters import (
     parse_search_query,
     OP_PATHWAYS,
     OP_SIMILAR_SHAPE,
+    OP_SIMILAR_CONNECTIVITY_UPSTREAM,
+    OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
 )
 from src.utils.graph_algos import reachable_nodes
 from src.utils.logging import log_error, log
@@ -14,6 +16,8 @@ DOWNSTREAM_SYNAPSE_COUNT = "downstream_synapse_count"
 UPSTREAM_SYNAPSE_COUNT = "upstream_synapse_count"
 DISTANCE_FROM = "distance_from"
 NBLAST_SCORE = "nblast_score"
+JACCARD_SIMILARITY_UPSTREAM = "jaccard_upstream"
+JACCARD_SIMILARITY_DOWNSTREAM = "jaccard_downstream"
 ITEM_COUNT = "item_count"
 
 SORTABLE_OPS = {
@@ -21,6 +25,8 @@ SORTABLE_OPS = {
     OP_UPSTREAM: UPSTREAM_SYNAPSE_COUNT,
     OP_PATHWAYS: DISTANCE_FROM,
     OP_SIMILAR_SHAPE: NBLAST_SCORE,
+    OP_SIMILAR_CONNECTIVITY_UPSTREAM: JACCARD_SIMILARITY_UPSTREAM,
+    OP_SIMILAR_CONNECTIVITY_DOWNSTREAM: JACCARD_SIMILARITY_DOWNSTREAM,
     None: ITEM_COUNT,
 }
 
@@ -52,6 +58,8 @@ def infer_sort_by(query):
                 DOWNSTREAM_SYNAPSE_COUNT,
                 UPSTREAM_SYNAPSE_COUNT,
                 NBLAST_SCORE,
+                JACCARD_SIMILARITY_UPSTREAM,
+                JACCARD_SIMILARITY_DOWNSTREAM,
             ]:
                 target_cell_id = part["rhs"]
             else:
@@ -74,7 +82,8 @@ def sort_search_results(
     synapse_neuropil_count_getter,
     size_getter,
     partner_count_getter,
-    similarity_scores_getter,
+    similar_shape_cells_getter,
+    similar_connectivity_cells_getter,
     connections_getter,
     sort_by=None,
 ):
@@ -94,8 +103,8 @@ def sort_search_results(
                 ids = sorted(ids, key=lambda x: label_count_getter(x))
                 return ids, None
             if sort_by == "twin_cells":
-                ids = sorted(ids, key=lambda x: -len(similarity_scores_getter(x)))
-                dct = {rid: len(similarity_scores_getter(rid)) for rid in ids}
+                dct = {rid: len(similar_shape_cells_getter(rid)) for rid in ids}
+                ids = sorted(ids, key=lambda x: -dct[x])
                 extra_data = {
                     "title": "Number of morphologically similar cells",
                     "column_name": "Twins",
@@ -190,13 +199,29 @@ def sort_search_results(
                 }
                 ids = sorted(ids, key=lambda x: distance_map[x])
             elif parts[0] == NBLAST_SCORE:
-                sim_scores = similarity_scores_getter(sort_by_target_cell_rid)
+                sim_scores = similar_shape_cells_getter(sort_by_target_cell_rid)
                 extra_data = {
                     "title": "Morphological Similarity Score",
                     "column_name": "NBLAST",
                     "values_dict": {k: v / 10 for k, v in sim_scores.items()},
                 }
                 ids = sorted(ids, key=lambda x: -sim_scores[x])
+            elif parts[0] in [
+                JACCARD_SIMILARITY_UPSTREAM,
+                JACCARD_SIMILARITY_DOWNSTREAM,
+            ]:
+                con_scores = similar_connectivity_cells_getter(
+                    sort_by_target_cell_rid,
+                    weighted=False,
+                    include_upstream=parts[0] == JACCARD_SIMILARITY_UPSTREAM,
+                    include_downstream=parts[0] == JACCARD_SIMILARITY_DOWNSTREAM,
+                )
+                extra_data = {
+                    "title": "Overlap Jaccard Similarity Score",
+                    "column_name": "Overlap",
+                    "values_dict": {k: str(v)[:4] for k, v in con_scores.items()},
+                }
+                ids = sorted(ids, key=lambda x: -con_scores[x])
             else:
                 raise ValueError(f"Unsupported sort_by parameter: {sort_by}")
 

@@ -258,10 +258,10 @@ class NeuronDB(object):
             nd = {}
         return nd
 
+    @lru_cache
     def get_similar_shape_cells(
         self,
         root_id,
-        as_dict_with_scores=False,
         min_score=MIN_NBLAST_SCORE_SIMILARITY,
         top_k=99999,
     ):
@@ -276,11 +276,9 @@ class NeuronDB(object):
             if self.get_neuron_data(root_id).get("similar_cell_scores")
             else []
         )
+        scores.append((root_id, 10))  # include self
         scores = sorted(scores, key=lambda p: -p[1])[:top_k]
-        if as_dict_with_scores:
-            return {p[0]: p[1] for p in scores}
-        else:
-            return [p[0] for p in scores]
+        return {p[0]: p[1] for p in scores}
 
     @lru_cache
     def get_similar_connectivity_cells(
@@ -290,7 +288,6 @@ class NeuronDB(object):
         include_upstream=True,
         include_downstream=True,
         weighted=False,
-        as_dict_with_scores=False,
     ):
         if weighted:
             ins, outs = self.input_output_partners_with_synapse_counts()
@@ -336,16 +333,11 @@ class NeuronDB(object):
 
         scores = []
         for rid, ndata in self.neuron_data.items():
-            if rid == root_id:
-                continue
             score = calc_similarity_score(rid, ndata)
             if score >= threshold:
                 scores.append((rid, score))
         scores = sorted(scores, key=lambda p: -p[1])
-        if as_dict_with_scores:
-            return {p[0]: p[1] for p in scores}
-        else:
-            return [p[0] for p in scores]
+        return {p[0]: p[1] for p in scores}
 
     def get_label_data(self, root_id):
         root_id = int(root_id)

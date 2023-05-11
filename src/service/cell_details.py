@@ -214,31 +214,34 @@ def cached_cell_details(
             "app.search", filter_string=f"{OP_SIMILAR_SHAPE} {root_id}"
         ),
     )
-    insert_neuron_list_links(
-        "cells with similar upstream connectivity",
-        len(
-            neuron_db.get_similar_connectivity_cells(
-                root_id, include_upstream=True, include_downstream=False, weighted=False
-            )
-        ),
-        '<i class="fa-regular fa-clone"></i>',
-        search_endpoint=url_for(
-            "app.search", filter_string=f"{OP_SIMILAR_CONNECTIVITY_UPSTREAM} {root_id}"
-        ),
+    sim_con_up = neuron_db.get_similar_connectivity_cells(
+        root_id, include_upstream=True, include_downstream=False, weighted=False
     )
-    insert_neuron_list_links(
-        "cells with similar downstream connectivity",
-        len(
-            neuron_db.get_similar_connectivity_cells(
-                root_id, include_upstream=False, include_downstream=True, weighted=False
-            )
-        ),
-        '<i class="fa-regular fa-clone"></i>',
-        search_endpoint=url_for(
-            "app.search",
-            filter_string=f"{OP_SIMILAR_CONNECTIVITY_DOWNSTREAM} {root_id}",
-        ),
+    num_sim_con_up = len(sim_con_up) - (1 if root_id in sim_con_up else 0)
+    if num_sim_con_up:
+        insert_neuron_list_links(
+            "cells with similar upstream connectivity",
+            num_sim_con_up,
+            '<i class="fa-regular fa-clone"></i>',
+            search_endpoint=url_for(
+                "app.search",
+                filter_string=f"{OP_SIMILAR_CONNECTIVITY_UPSTREAM} {root_id}",
+            ),
+        )
+    sim_con_down = neuron_db.get_similar_connectivity_cells(
+        root_id, include_upstream=False, include_downstream=True, weighted=False
     )
+    num_sim_con_down = len(sim_con_down) - (1 if root_id in sim_con_down else 0)
+    if num_sim_con_down:
+        insert_neuron_list_links(
+            "cells with similar downstream connectivity",
+            num_sim_con_down,
+            '<i class="fa-regular fa-clone"></i>',
+            search_endpoint=url_for(
+                "app.search",
+                filter_string=f"{OP_SIMILAR_CONNECTIVITY_DOWNSTREAM} {root_id}",
+            ),
+        )
 
     # reachability analysis link
     if connectivity_table and not reachability_stats:
