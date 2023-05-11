@@ -194,8 +194,6 @@ def initialize_neuron_data(
                 f"App initialization processing {clustering_type} cluster data with {len(data_rows)} rows.."
             )
             not_found_root_ids = 0
-            if data_rows[0] != cols:
-                print(f"+++ {data_rows[0]} vs {cols}")
             assert data_rows[0] == cols
             column_index = {c: i for i, c in enumerate(data_rows[0])}
             attr_name = data_rows[0][1]

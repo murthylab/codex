@@ -112,7 +112,8 @@ class TestHighlighting(TestCase):
         for filter_string, labels, expected in input:
             free_form_search_terms = parse_search_query(filter_string)[1]
             actual = highlight_annotations(free_form_search_terms, labels)
-            self.assertEqual(expected, actual, filter_string)
+            for i, lbl in enumerate(labels):
+                self.assertEqual(expected[i], actual[lbl], filter_string)
 
     def test_truncate(self):
         self.assertEqual("bit", truncate("bit", 5))
