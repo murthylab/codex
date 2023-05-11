@@ -83,6 +83,7 @@ class NeuronDataTest(TestCase):
             "oct_avg": 37000,
             "ser_avg": 68000,
             "similar_cell_scores": 20000,
+            "similar_connectivity_scores": 20000,
             "morphology_cluster": 84000,
             "connectivity_cluster": 84000,
             "hemisphere_fingerprint": 5000,
@@ -530,6 +531,7 @@ class NeuronDataTest(TestCase):
     def test_attribute_coverage(self):
         sparse_attrs = {
             "similar_cell_scores",
+            "similar_connectivity_scores",
             "label",
             "nerve",
             "oct_avg",
@@ -631,3 +633,21 @@ class NeuronDataTest(TestCase):
         print(f"{eq=} {df=} {missing_con=} {vague=}")
         print(diff_pairs)
         self.assertGreater(2000, df)
+
+    def test_similar_connectivity(self):
+        combined_results = 0
+        for rid in list(self.neuron_db.neuron_data.keys())[:20]:
+            combined_results += len(
+                self.neuron_db.get_similar_connectivity_cells(
+                    rid, include_downstream=False
+                )
+            )
+            combined_results += len(
+                self.neuron_db.get_similar_connectivity_cells(
+                    rid, include_upstream=False
+                )
+            )
+            combined_results += len(
+                self.neuron_db.get_similar_connectivity_cells(rid, weighted=True)
+            )
+        self.assertGreater(combined_results, 10000)

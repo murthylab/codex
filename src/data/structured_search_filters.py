@@ -678,28 +678,26 @@ def _make_predicate(
     ]:
         try:
             cell_id = int(rhs)
-            target_rid_set = set(
-                similar_connectivity_loader(
-                    cell_id,
-                    include_upstream=op
-                    not in [
-                        OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
-                        OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED,
-                    ],
-                    include_downstream=op
-                    not in [
-                        OP_SIMILAR_CONNECTIVITY_UPSTREAM,
-                        OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED,
-                    ],
-                    weighted=op
-                    in [
-                        OP_SIMILAR_CONNECTIVITY_WEIGHTED,
-                        OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED,
-                        OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED,
-                    ],
-                )
+            target_rid_dict = similar_connectivity_loader(
+                cell_id,
+                include_upstream=op
+                not in [
+                    OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
+                    OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED,
+                ],
+                include_downstream=op
+                not in [
+                    OP_SIMILAR_CONNECTIVITY_UPSTREAM,
+                    OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED,
+                ],
+                weighted=op
+                in [
+                    OP_SIMILAR_CONNECTIVITY_WEIGHTED,
+                    OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED,
+                    OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED,
+                ],
             )
-            return lambda x: x["root_id"] in target_rid_set
+            return lambda x: x["root_id"] in target_rid_dict
         except ValueError as e:
             raise_malformed_structured_search_query(
                 f"Invalid cell id '{rhs}' in operator '{op}', error: {e}"
