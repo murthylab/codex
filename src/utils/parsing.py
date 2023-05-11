@@ -55,6 +55,7 @@ def tokenize(s):
 
 
 def tokenize_and_fold_for_highlight(s):
+    s = str(s)
     tokens = []
 
     for d in HIGHLIGHTING_DELIMS:

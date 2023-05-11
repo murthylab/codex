@@ -67,22 +67,20 @@ def percentage(part, whole):
     return f"{max(0, min(100, int(100 * float(part) / float(whole))))}%"
 
 
-def highlight_annotations(free_form_search_terms, labels):
+def highlight_annotations(free_form_search_terms, terms_to_annotate):
     search_tokens = []
     for free_from_search_term in free_form_search_terms:
         search_tokens.extend(tokenize(free_from_search_term))
     folded_search_tokens = set([t.lower() for t in search_tokens])
 
-    parsed_labels = [
-        (label_string, tokenize_and_fold_for_highlight(label_string))
-        for label_string in labels
-    ]
-    highlighted_annotations = []
-    for label_string, label_tokens in parsed_labels:
+    highlighted_terms = {}
+    for term_to_annotate in terms_to_annotate:
+        trimmed_term_str = trim_long_tokens(str(term_to_annotate))
+        token_parts = tokenize_and_fold_for_highlight(trimmed_term_str)
         # looks like this: [(class_name, start, end), (class_name, start, end), ...]
         highlight_locations = []
-        for label_token in label_tokens:
-            token, start, end = label_token
+        for tp in token_parts:
+            token, start, end = tp
             if token in folded_search_tokens:
                 # mark for green highlighting
 
@@ -111,22 +109,21 @@ def highlight_annotations(free_form_search_terms, labels):
                             )
 
         # now highlight the label string
-        highlighted_label_string = ""
+        highlighted_term = ""
         if not highlight_locations:
-            highlighted_label_string = label_string
-
+            highlighted_term = trimmed_term_str
         else:
             for i, (class_name, start, end) in enumerate(highlight_locations):
                 if i == 0:
-                    highlighted_label_string += label_string[:start]
+                    highlighted_term += trimmed_term_str[:start]
                 else:
-                    highlighted_label_string += label_string[
+                    highlighted_term += trimmed_term_str[
                         highlight_locations[i - 1][2] : start
                     ]
-                highlighted_label_string += f'<span class="{class_name}">{label_string[start:end]}</span>'  # use the CSS class
-            highlighted_label_string += label_string[end:]
-        highlighted_annotations.append(highlighted_label_string)
-    return highlighted_annotations
+                highlighted_term += f'<span class="{class_name}">{trimmed_term_str[start:end]}</span>'  # use the CSS class
+            highlighted_term += trimmed_term_str[end:]
+        highlighted_terms[term_to_annotate] = highlighted_term
+    return highlighted_terms
 
 
 def not_intersecting(list_of_ranges, start, end):

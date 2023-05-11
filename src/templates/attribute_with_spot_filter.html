@@ -1,7 +1,7 @@
 {% if attr_val %}
     <div class="spotfilter">
         <small><span style="color: teal" title="{{tooltip}}">{{caption}}</span>
-            {{attr_val}}
+            {{highlighted_terms.get(attr_val, attr_val)|safe}}
         </small>
         {% if attr_key in multi_val_attrs %}
         <span class="td_filter_buttons">

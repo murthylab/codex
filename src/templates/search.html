@@ -93,11 +93,11 @@
             <td>
                 <a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);">{{neuron.name}}</a>
                 <br>
-                <small>{{neuron.root_id}}</small>
+                <small>{{highlighted_terms.get(neuron.root_id, neuron.root_id)|safe}}</small>
                 {% if neuron.similar_cell_scores %}
                 <br>
                 <small>
-                    <a href="{{url_for('app.search', filter_string='{similar} ' + neuron.root_id|string, data_version=data_version)}}">
+                    <a href="{{url_for('app.search', filter_string='{similar_shape} ' + neuron.root_id|string, data_version=data_version)}}">
                        <i class="fa-regular fa-clone"></i> {{neuron.similar_cell_scores|length}} similar cells
                     </a>
                 </small>
@@ -105,45 +105,45 @@
             </td>
             <td style="color:#3A3A3A;">
                 {% with caption="Side", tooltip="Soma side of the neuron from the fly’s perspective",
-                    attr_key="side", attr_val=neuron.side, multi_val_attrs=multi_val_attrs
+                    attr_key="side", attr_val=neuron.side, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
 
                 {% with caption="Nerve", tooltip="Nerve through which the neuron is entering/exiting the nervous system",
-                    attr_key="nerve", attr_val=neuron.nerve, multi_val_attrs=multi_val_attrs
+                    attr_key="nerve", attr_val=neuron.nerve, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
 
                 {% with caption="Flow", tooltip="Top hierarchical annotation describing signal flow of this neuron",
-                    attr_key="flow", attr_val=neuron.flow, multi_val_attrs=multi_val_attrs
+                    attr_key="flow", attr_val=neuron.flow, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
 
                 {% with caption="Super Class", tooltip="Broadest hierarchical annotation below 'flow'",
-                    attr_key="super_class", attr_val=neuron.super_class, multi_val_attrs=multi_val_attrs
+                    attr_key="super_class", attr_val=neuron.super_class, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
 
                 {% with caption="Class", tooltip="Medium sized groups of neurons",
-                    attr_key="class", attr_val=neuron.class, multi_val_attrs=multi_val_attrs
+                    attr_key="class", attr_val=neuron.class, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
 
                 {% with caption="Sub Class", tooltip="Small groups of neurons",
-                    attr_key="sub_class", attr_val=neuron.sub_class, multi_val_attrs=multi_val_attrs
+                    attr_key="sub_class", attr_val=neuron.sub_class, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
 
                 {% with caption="Cell Type", tooltip="Cell types are derived from a mapping to the Janelia hemibrain dataset",
-                    attr_key="cell_type", attr_val=neuron.cell_type, multi_val_attrs=multi_val_attrs
+                    attr_key="cell_type", attr_val=neuron.cell_type, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_multiple_values.html" %} {% endwith %}
 
                 {% with caption="Hemibrain Type", tooltip="Matching type(s) in Janelia hemibrain dataset",
-                    attr_key="hemibrain_type", attr_val=neuron.hemibrain_type, multi_val_attrs=multi_val_attrs
+                    attr_key="hemibrain_type", attr_val=neuron.hemibrain_type, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_multiple_values.html" %} {% endwith %}
 
                 {% with caption="Hemilineage", tooltip="Mapped lineage from Janelia hemibrain dataset",
-                    attr_key="hemilineage", attr_val=neuron.hemilineage, multi_val_attrs=multi_val_attrs
+                    attr_key="hemilineage", attr_val=neuron.hemilineage, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
             </td>
             {% if extra_data %}
                 <td style="color:black;">{{extra_data.values_dict.get(neuron.root_id)}}</td>
             {% endif %}
-            <td style="color:#3A3AAA;">{{neuron.nt_type}}
+            <td style="color:#3A3AAA;">{{highlighted_terms.get(neuron.nt_type, neuron.nt_type)|safe}}
                 {% if neuron.nt_type %}
                 <br><small style="color: {{'green' if neuron.nt_type_score > 0.65 else ('orange' if neuron.nt_type_score > 0.45 else 'red')}}">{{neuron.nt_type_score}}</small>
                 {% endif %}
@@ -185,7 +185,7 @@
             <td style="color:#3A3A3A;">
                 {% for tg in neuron.label %}
                 <div class="spotfilter">
-                    <small><b>&#x2022;</b> &nbsp;{{highlighted_labels[tg]|safe}}</small>
+                    <small><b>&#x2022;</b> &nbsp;{{highlighted_terms.get(tg, tg)|safe}}</small>
                     {% if tg in non_uniform_labels %}
                     <span class="td_filter_buttons">
                         <button title="Exclude items with this label" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label != {{tg}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>

@@ -60,7 +60,6 @@ from src.utils.formatting import (
     synapse_table_to_csv_string,
     synapse_table_to_json_dict,
     highlight_annotations,
-    trim_long_tokens,
     nanos_to_formatted_micros,
     nanometer_to_flywire_coordinates,
     display,
@@ -196,21 +195,38 @@ def render_neuron_list(
         )
         for nd in display_data
     }
-    highlighted_labels = {}
+    highlighted_terms = {}
     for nd in display_data:
-        # Only highlight free-form search tokens (and not structured search attributes)
+        # Only highlight from free-form search tokens (and not structured search attributes)
         psq = parse_search_query(filter_string)
         search_terms = psq[1] + [stq["rhs"] for stq in psq[2] or []]
-        highlighted_label_list = highlight_annotations(
-            search_terms, [trim_long_tokens(t) for t in nd["label"]]
-        )
-        for t, highlighted_label in enumerate(highlighted_label_list):
-            highlighted_labels[nd["label"][t]] = highlighted_label
+        # highlight all displayed annotations
+        terms_to_annotate = set()
+        for attr_name in [
+            "root_id",
+            "label",
+            "side",
+            "flow",
+            "super_class",
+            "class",
+            "sub_class",
+            "cell_type",
+            "hemibrain_type",
+            "hemilineage",
+            "nt_type",
+            "nerve",
+        ]:
+            if nd[attr_name]:
+                if isinstance(nd[attr_name], list):
+                    terms_to_annotate |= set(nd[attr_name])
+                else:
+                    terms_to_annotate.add(nd[attr_name])
+        highlighted_terms.update(highlight_annotations(search_terms, terms_to_annotate))
 
     return render_template(
         template_name_or_list=template_name,
         display_data=display_data,
-        highlighted_labels=highlighted_labels,
+        highlighted_terms=highlighted_terms,
         skeleton_thumbnail_urls=skeleton_thumbnail_urls,
         # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
         # Otherwise it will be available as downloadable file.
@@ -293,9 +309,8 @@ def search():
             size_getter=lambda x: neuron_db.get_neuron_data(x)["size_nm"],
             partner_count_getter=lambda x: len(neuron_db.output_sets()[x])
             + len(neuron_db.input_sets()[x]),
-            similarity_scores_getter=lambda x: neuron_db.get_similar_shape_cells(
-                x, as_dict_with_scores=True
-            ),
+            similar_shape_cells_getter=neuron_db.get_similar_shape_cells,
+            similar_connectivity_cells_getter=neuron_db.get_similar_connectivity_cells,
             connections_getter=lambda x: neuron_db.cell_connections(x),
             sort_by=sort_by,
         )
