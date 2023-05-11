@@ -8,6 +8,8 @@ from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils.formatting import percentage
 from networkx import Graph, community
 
+from src.utils.stats import jaccard_weighted
+
 """
 Clusters a set of neurons by morphological similarity. Uses iterative application of the connected component analysis on
 a graph induced by NBLAST similarity scores with increasing thresholds for refinement.
@@ -185,19 +187,6 @@ def generate_con_jaccard_similarity_table(neuron_db):
 
     ins, outs = neuron_db.input_output_partners_with_synapse_counts()
 
-    def jaccard(d1, d2):
-        if not d1 and not d2:
-            return 0
-        combined_key_set = set(d1.keys()).union(d2.keys())
-        min_sum = 0
-        max_sum = 0
-        for ck in combined_key_set:
-            v1 = d1.get(ck, 0)
-            v2 = d2.get(ck, 0)
-            min_sum += min(v1, v2)
-            max_sum += max(v1, v2)
-        return min_sum / max_sum
-
     s = 0
     combined_score = 0
 
@@ -209,7 +198,10 @@ def generate_con_jaccard_similarity_table(neuron_db):
             for k, r2 in enumerate(rids[j + 1 :]):
                 r2_ins = ins[r2]
                 r2_outs = outs[r2]
-                jscore = (jaccard(r1_ins, r2_ins) + jaccard(r1_outs, r2_outs)) / 2
+                jscore = (
+                    jaccard_weighted(r1_ins, r2_ins)
+                    + jaccard_weighted(r1_outs, r2_outs)
+                ) / 2
                 combined_score += jscore
                 s += 1
                 if s % (num_candidate_pairs // 100) == 0:

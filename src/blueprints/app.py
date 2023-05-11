@@ -293,7 +293,7 @@ def search():
             size_getter=lambda x: neuron_db.get_neuron_data(x)["size_nm"],
             partner_count_getter=lambda x: len(neuron_db.output_sets()[x])
             + len(neuron_db.input_sets()[x]),
-            similarity_scores_getter=lambda x: neuron_db.get_similar_cells(
+            similarity_scores_getter=lambda x: neuron_db.get_similar_shape_cells(
                 x, as_dict_with_scores=True
             ),
             connections_getter=lambda x: neuron_db.cell_connections(x),

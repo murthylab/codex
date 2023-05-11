@@ -213,7 +213,13 @@ OP_UPSTREAM = "{upstream}"
 OP_DOWNSTREAM = "{downstream}"
 OP_UPSTREAM_REGION = "{upstream_region}"
 OP_DOWNSTREAM_REGION = "{downstream_region}"
-OP_SIMILAR = "{similar}"
+OP_SIMILAR_SHAPE = "{similar_shape}"
+OP_SIMILAR_CONNECTIVITY_UPSTREAM = "{similar_upstream}"
+OP_SIMILAR_CONNECTIVITY_DOWNSTREAM = "{similar_downstream}"
+OP_SIMILAR_CONNECTIVITY = "{similar_connectivity}"
+OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED = "{similar_upstream_weighted}"
+OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED = "{similar_downstream_weighted}"
+OP_SIMILAR_CONNECTIVITY_WEIGHTED = "{similar_connectivity_weighted}"
 OP_PATHWAYS = "{pathways}"
 OP_AND = "{and}"
 OP_OR = "{or}"
@@ -401,9 +407,51 @@ STRUCTURED_SEARCH_OPERATORS = [
         rhs_range=None,
     ),
     UnarySearchOperator(
-        name=OP_SIMILAR,
+        name=OP_SIMILAR_SHAPE,
         shorthand="~~",
         description="Unary, matches cells that are similar in shape to specified Cell ID",
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    UnarySearchOperator(
+        name=OP_SIMILAR_CONNECTIVITY_UPSTREAM,
+        shorthand="~u",
+        description="Unary, matches cells that have similar upstream connectivity to specified Cell ID",
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    UnarySearchOperator(
+        name=OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
+        shorthand="~d",
+        description="Unary, matches cells that have similar downstream connectivity to specified Cell ID",
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    UnarySearchOperator(
+        name=OP_SIMILAR_CONNECTIVITY,
+        shorthand="~c",
+        description="Unary, matches cells that have similar connectivity (both up and downstream) to specified Cell ID",
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    UnarySearchOperator(
+        name=OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED,
+        shorthand="~wu",
+        description="Unary, matches cells that have similar upstream connectivity to specified Cell ID, weighted by synapse counts",
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    UnarySearchOperator(
+        name=OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED,
+        shorthand="~wd",
+        description="Unary, matches cells that have similar downstream connectivity to specified Cell ID, weighted by synapse counts",
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    UnarySearchOperator(
+        name=OP_SIMILAR_CONNECTIVITY_WEIGHTED,
+        shorthand="~wc",
+        description="Unary, matches cells that have similar connectivity (both up and downstream) to specified Cell ID, weighted by synapse counts",
         rhs_description="Cell ID",
         rhs_range=None,
     ),
@@ -540,6 +588,7 @@ def _make_predicate(
     output_sets_getter,
     connections_loader,
     similar_cells_loader,
+    similar_connectivity_loader,
     case_sensitive,
 ):
     lhs = structured_term.get("lhs")  # lhs is optional e.g. for unary operators
@@ -610,10 +659,46 @@ def _make_predicate(
             if k in region_neuropil_set:
                 target_rid_set |= set(v)
         return lambda x: x["root_id"] in target_rid_set
-    elif op == OP_SIMILAR:
+    elif op == OP_SIMILAR_SHAPE:
         try:
             cell_id = int(rhs)
             target_rid_set = set(similar_cells_loader(cell_id))
+            return lambda x: x["root_id"] in target_rid_set
+        except ValueError as e:
+            raise_malformed_structured_search_query(
+                f"Invalid cell id '{rhs}' in operator '{op}', error: {e}"
+            )
+    elif op in [
+        OP_SIMILAR_CONNECTIVITY,
+        OP_SIMILAR_CONNECTIVITY_UPSTREAM,
+        OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
+        OP_SIMILAR_CONNECTIVITY_WEIGHTED,
+        OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED,
+        OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED,
+    ]:
+        try:
+            cell_id = int(rhs)
+            target_rid_set = set(
+                similar_connectivity_loader(
+                    cell_id,
+                    include_upstream=op
+                    not in [
+                        OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
+                        OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED,
+                    ],
+                    include_downstream=op
+                    not in [
+                        OP_SIMILAR_CONNECTIVITY_UPSTREAM,
+                        OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED,
+                    ],
+                    weighted=op
+                    in [
+                        OP_SIMILAR_CONNECTIVITY_WEIGHTED,
+                        OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED,
+                        OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED,
+                    ],
+                )
+            )
             return lambda x: x["root_id"] in target_rid_set
         except ValueError as e:
             raise_malformed_structured_search_query(
@@ -643,6 +728,7 @@ def make_structured_terms_predicate(
     output_sets_getter,
     connections_loader,
     similar_cells_loader,
+    similar_connectivity_loader,
     case_sensitive,
 ):
     predicates = [
@@ -652,6 +738,7 @@ def make_structured_terms_predicate(
             output_sets_getter=output_sets_getter,
             connections_loader=connections_loader,
             similar_cells_loader=similar_cells_loader,
+            similar_connectivity_loader=similar_connectivity_loader,
             case_sensitive=case_sensitive,
         )
         for t in structured_terms

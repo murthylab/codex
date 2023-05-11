@@ -18,6 +18,8 @@ from src.utils.formatting import (
 from src.utils.logging import log
 
 # Keywords will be matched against these attributes
+from src.utils.stats import jaccard_weighted, jaccard_binary
+
 NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "root_id",
     "name",
@@ -256,7 +258,7 @@ class NeuronDB(object):
             nd = {}
         return nd
 
-    def get_similar_cells(
+    def get_similar_shape_cells(
         self,
         root_id,
         as_dict_with_scores=False,
@@ -275,6 +277,71 @@ class NeuronDB(object):
             else []
         )
         scores = sorted(scores, key=lambda p: -p[1])[:top_k]
+        if as_dict_with_scores:
+            return {p[0]: p[1] for p in scores}
+        else:
+            return [p[0] for p in scores]
+
+    @lru_cache
+    def get_similar_connectivity_cells(
+        self,
+        root_id,
+        threshold=0.2,
+        include_upstream=True,
+        include_downstream=True,
+        weighted=False,
+        as_dict_with_scores=False,
+    ):
+        if weighted:
+            ins, outs = self.input_output_partners_with_synapse_counts()
+            jaccard_score = jaccard_weighted
+            upstream_filter_attr_name = "input_synapses"
+            downstream_filter_attr_name = "output_synapses"
+        else:
+            ins, outs = self.input_output_partner_sets()
+            jaccard_score = jaccard_binary
+            upstream_filter_attr_name = "input_cells"
+            downstream_filter_attr_name = "output_cells"
+
+        def calc_range_for_threshold(attr_name):
+            val = self.get_neuron_data(root_id)[attr_name]
+            return val * threshold, val / threshold
+
+        upstream_filter_range = calc_range_for_threshold(upstream_filter_attr_name)
+        downstream_filter_range = calc_range_for_threshold(downstream_filter_attr_name)
+
+        def calc_similarity_score(r, nd):
+            combined_score, num_scores = 0, 0
+            # optimization filter
+            if include_upstream and not (
+                upstream_filter_range[0]
+                <= nd[upstream_filter_attr_name]
+                <= upstream_filter_range[1]
+            ):
+                return 0
+            if include_downstream and not (
+                downstream_filter_range[0]
+                <= nd[downstream_filter_attr_name]
+                <= downstream_filter_range[1]
+            ):
+                return 0
+
+            if include_upstream:
+                combined_score += jaccard_score(ins[root_id], ins[r])
+                num_scores += 1
+            if include_downstream:
+                combined_score += jaccard_score(outs[root_id], outs[r])
+                num_scores += 1
+            return combined_score / num_scores
+
+        scores = []
+        for rid, ndata in self.neuron_data.items():
+            if rid == root_id:
+                continue
+            score = calc_similarity_score(rid, ndata)
+            if score >= threshold:
+                scores.append((rid, score))
+        scores = sorted(scores, key=lambda p: -p[1])
         if as_dict_with_scores:
             return {p[0]: p[1] for p in scores}
         else:
@@ -336,7 +403,8 @@ class NeuronDB(object):
                 input_sets_getter=self.input_sets,
                 output_sets_getter=self.output_sets,
                 connections_loader=self.connections_up_down,
-                similar_cells_loader=self.get_similar_cells,
+                similar_cells_loader=self.get_similar_shape_cells,
+                similar_connectivity_loader=self.get_similar_connectivity_cells,
                 case_sensitive=case_sensitive,
             )
             term_search_results.append(

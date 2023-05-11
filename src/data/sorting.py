@@ -5,7 +5,7 @@ from src.data.structured_search_filters import (
     OP_UPSTREAM,
     parse_search_query,
     OP_PATHWAYS,
-    OP_SIMILAR,
+    OP_SIMILAR_SHAPE,
 )
 from src.utils.graph_algos import reachable_nodes
 from src.utils.logging import log_error, log
@@ -20,7 +20,7 @@ SORTABLE_OPS = {
     OP_DOWNSTREAM: DOWNSTREAM_SYNAPSE_COUNT,
     OP_UPSTREAM: UPSTREAM_SYNAPSE_COUNT,
     OP_PATHWAYS: DISTANCE_FROM,
-    OP_SIMILAR: NBLAST_SCORE,
+    OP_SIMILAR_SHAPE: NBLAST_SCORE,
     None: ITEM_COUNT,
 }
 

@@ -6,7 +6,13 @@ from flask import url_for
 from src.configuration import MIN_SYN_THRESHOLD
 from src.data.brain_regions import neuropil_hemisphere, NEUROPIL_DESCRIPTIONS
 from src.data.neurotransmitters import lookup_nt_type_name, NEURO_TRANSMITTER_NAMES
-from src.data.structured_search_filters import OP_UPSTREAM, OP_DOWNSTREAM, OP_SIMILAR
+from src.data.structured_search_filters import (
+    OP_UPSTREAM,
+    OP_DOWNSTREAM,
+    OP_SIMILAR_SHAPE,
+    OP_SIMILAR_CONNECTIVITY_UPSTREAM,
+    OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
+)
 from src.utils import nglui
 from src.utils import stats as stats_utils
 from src.utils.formatting import (
@@ -202,9 +208,36 @@ def cached_cell_details(
 
     insert_neuron_list_links(
         "cells with similar morphology (NBLAST based)",
-        len(neuron_db.get_similar_cells(root_id)),
+        len(neuron_db.get_similar_shape_cells(root_id)),
         '<i class="fa-regular fa-clone"></i>',
-        search_endpoint=url_for("app.search", filter_string=f"{OP_SIMILAR} {root_id}"),
+        search_endpoint=url_for(
+            "app.search", filter_string=f"{OP_SIMILAR_SHAPE} {root_id}"
+        ),
+    )
+    insert_neuron_list_links(
+        "cells with similar upstream connectivity",
+        len(
+            neuron_db.get_similar_connectivity_cells(
+                root_id, include_upstream=True, include_downstream=False, weighted=False
+            )
+        ),
+        '<i class="fa-regular fa-clone"></i>',
+        search_endpoint=url_for(
+            "app.search", filter_string=f"{OP_SIMILAR_CONNECTIVITY_UPSTREAM} {root_id}"
+        ),
+    )
+    insert_neuron_list_links(
+        "cells with similar downstream connectivity",
+        len(
+            neuron_db.get_similar_connectivity_cells(
+                root_id, include_upstream=False, include_downstream=True, weighted=False
+            )
+        ),
+        '<i class="fa-regular fa-clone"></i>',
+        search_endpoint=url_for(
+            "app.search",
+            filter_string=f"{OP_SIMILAR_CONNECTIVITY_DOWNSTREAM} {root_id}",
+        ),
     )
 
     # reachability analysis link

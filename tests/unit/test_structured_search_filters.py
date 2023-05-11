@@ -52,7 +52,12 @@ class Test(TestCase):
                 else:
                     return [], []
 
-            def mock_sim_loader(cell_id):
+            def mock_sim_loader(
+                cell_id,
+                include_upstream=False,
+                include_downstream=False,
+                weighted=False,
+            ):
                 return []
 
             self.assertIsNotNone(
@@ -62,6 +67,7 @@ class Test(TestCase):
                     mock_con_loader,
                     connections_loader=mock_con_loader,
                     similar_cells_loader=mock_sim_loader,
+                    similar_connectivity_loader=mock_sim_loader,
                     case_sensitive=False,
                 )
             )
@@ -72,6 +78,7 @@ class Test(TestCase):
                     mock_con_loader,
                     connections_loader=mock_con_loader,
                     similar_cells_loader=mock_sim_loader,
+                    similar_connectivity_loader=mock_sim_loader,
                     case_sensitive=True,
                 )
             )

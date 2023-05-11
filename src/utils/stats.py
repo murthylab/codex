@@ -286,3 +286,23 @@ def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destina
                 reverse=True,
             )[:top_n]
         }
+
+
+def jaccard_weighted(d1, d2):
+    if not d1 and not d2:
+        return 0
+    combined_key_set = set(d1.keys()).union(d2.keys())
+    min_sum = 0
+    max_sum = 0
+    for ck in combined_key_set:
+        v1 = d1.get(ck, 0)
+        v2 = d2.get(ck, 0)
+        min_sum += min(v1, v2)
+        max_sum += max(v1, v2)
+    return min_sum / max_sum
+
+
+def jaccard_binary(s1, s2):
+    if not s1 and not s2:
+        return 0
+    return len(s1.intersection(s2)) / len(s1.union(s2))
