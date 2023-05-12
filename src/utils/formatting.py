@@ -64,7 +64,7 @@ def synapse_table_to_json_dict(table, neuron_data_fetcher, meta_data):
 
 
 def percentage(part, whole):
-    return f"{max(0, min(100, int(100 * float(part) / float(whole))))}%"
+    return f"{max(0, min(100, int(100 * float(part) / float(max(whole, 1)))))}%"
 
 
 def highlight_annotations(free_form_search_terms, terms_to_annotate):

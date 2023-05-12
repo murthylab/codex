@@ -145,7 +145,7 @@ def _make_data_charts(data_list):
     return result
 
 
-def _make_data_stats(neuron_data, label_data, include_leaderboard=False):
+def _make_data_stats(neuron_data):
     labeled_neurons = 0
     classified_neurons = 0
     anno_counts = defaultdict(int)
@@ -185,14 +185,6 @@ def _make_data_stats(neuron_data, label_data, include_leaderboard=False):
             for k in sorted(anno_counts, key=anno_counts.get, reverse=True)[:10]
         }
 
-    if include_leaderboard:
-        fill_in_leaderboard_data(
-            label_data=label_data,
-            top_n=5,
-            include_lab_leaderboard=False,
-            destination=result,
-        )
-
     return result
 
 
@@ -206,9 +198,7 @@ def format_for_display(dict_of_dicts):
     return {k: _format_dict(d) for k, d in dict_of_dicts.items()}
 
 
-def compile_data(
-    neuron_data, label_data, search_query, case_sensitive, match_words, data_version
-):
+def compile_data(neuron_data, search_query, case_sensitive, match_words, data_version):
     stats_caption = []
     if search_query:
         stats_caption.append(f"search query: '{search_query}'")
@@ -219,7 +209,7 @@ def compile_data(
     stats_caption.append(f"data version: {data_version}")
     caption = "Stats for " + ", ".join(stats_caption)
 
-    data_stats = _make_data_stats(neuron_data, label_data)
+    data_stats = _make_data_stats(neuron_data)
     data_stats = format_for_display(data_stats)
 
     data_charts = _make_data_charts(neuron_data)
@@ -227,13 +217,13 @@ def compile_data(
     return caption, data_stats, data_charts
 
 
-def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destination):
+def collect_leaderboard_data(label_data, top_n, include_lab_leaderboard):
     all_labels = []
     for ld in label_data:
         if ld:
             all_labels.extend(ld)
     recent_labels = sorted(all_labels, key=lambda t: t["label_id"])[-500:]
-
+    ldrb_data = {}
     if include_lab_leaderboard:
         contributors_by_lab = defaultdict(set)
         for t in all_labels:
@@ -244,7 +234,7 @@ def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destina
             if lab_name:
                 lab_lb[lab_name] += 1
 
-        destination["Labs by label contributions"] = {
+        ldrb_data["Labs by label contributions"] = {
             k
             if len(contributors_by_lab[k]) <= 1
             else f"{k}<br><small>{len(contributors_by_lab[k])} contributors</small>": lab_lb[
@@ -269,7 +259,7 @@ def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destina
 
     user_credit_counts_all = user_cred_counts(all_labels)
     if user_credit_counts_all:
-        destination["Top Labelers (all time)"] = {
+        ldrb_data["Top Labelers (all time)"] = {
             k: user_credit_counts_all[k]
             for k in sorted(
                 user_credit_counts_all, key=user_credit_counts_all.get, reverse=True
@@ -278,7 +268,7 @@ def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destina
 
     user_credit_counts_recent = user_cred_counts(recent_labels)
     if user_credit_counts_recent:
-        destination[f"Top Labelers (last {len(recent_labels)})"] = {
+        ldrb_data[f"Top Labelers (last {len(recent_labels)})"] = {
             k: user_credit_counts_recent[k]
             for k in sorted(
                 user_credit_counts_recent,
@@ -286,6 +276,7 @@ def fill_in_leaderboard_data(label_data, top_n, include_lab_leaderboard, destina
                 reverse=True,
             )[:top_n]
         }
+    return len(all_labels), len(set([lbl["label"] for lbl in all_labels])), ldrb_data
 
 
 def jaccard_weighted(d1, d2):

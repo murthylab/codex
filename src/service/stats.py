@@ -2,6 +2,7 @@ from functools import lru_cache
 
 from src.configuration import MIN_SYN_THRESHOLD
 from src.data.neuron_data_factory import NeuronDataFactory
+from src.utils.formatting import percentage, display
 from src.utils.graph_algos import reachable_node_counts
 from src.utils.logging import log_warning
 from src.utils import stats as stats_utils
@@ -24,10 +25,8 @@ def stats_cached(filter_string, data_version, case_sensitive, whole_word):
         )
 
     neuron_data = [neuron_db.get_neuron_data(i) for i in filtered_root_id_list]
-    label_data = [neuron_db.get_label_data(i) for i in filtered_root_id_list]
     caption, data_stats, data_charts = stats_utils.compile_data(
         neuron_data=neuron_data,
-        label_data=label_data,
         search_query=filter_string,
         case_sensitive=case_sensitive,
         match_words=whole_word,
@@ -63,12 +62,22 @@ def stats_cached(filter_string, data_version, case_sensitive, whole_word):
 
 
 @lru_cache
-def leaderboard_cached():
-    res = {}
-    stats_utils.fill_in_leaderboard_data(
-        label_data=NeuronDataFactory.instance().get().all_label_data(),
+def leaderboard_cached(query, data_version):
+    neuron_db = NeuronDataFactory.instance().get(version=data_version)
+    matching_ids = neuron_db.search(query)
+    label_data = neuron_db.label_data_for_ids(matching_ids)
+    count, unique_count, ld = stats_utils.collect_leaderboard_data(
+        label_data=label_data,
         top_n=20,
         include_lab_leaderboard=True,
-        destination=res,
     )
-    return stats_utils.format_for_display(res)
+    labeled_cells = len(
+        [rid for rid in matching_ids if neuron_db.get_neuron_data(rid)["label"]]
+    )
+    labeled_cells_caption = f"{display(labeled_cells)} out of {display(len(matching_ids))} ({percentage(labeled_cells, len(matching_ids))})"
+    return (
+        labeled_cells_caption,
+        count,
+        unique_count,
+        stats_utils.format_for_display(ld),
+    )

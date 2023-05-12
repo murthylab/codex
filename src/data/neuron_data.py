@@ -343,8 +343,8 @@ class NeuronDB(object):
         root_id = int(root_id)
         return self.label_data.get(root_id)
 
-    def all_label_data(self):
-        return list(self.label_data.values())
+    def label_data_for_ids(self, ids):
+        return [self.label_data[r] for r in ids]
 
     def cell_ids_with_label_data(self):
         return list(self.label_data.keys())

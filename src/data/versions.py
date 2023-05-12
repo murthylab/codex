@@ -1,6 +1,6 @@
 DATA_SNAPSHOT_VERSION_DESCRIPTIONS = {
-    "571": "Snapshot 571 - Jan 2023",
     "630": "Snapshot 630 - Apr 2023 [release candidate]",
+    "571": "Snapshot 571 - Jan 2023",
 }
 
 DATA_SNAPSHOT_VERSIONS = sorted(DATA_SNAPSHOT_VERSION_DESCRIPTIONS.keys(), reverse=True)

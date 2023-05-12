@@ -20,7 +20,6 @@ class Test(TestCase):
         # empty data
         caption, data_stats, data_charts = stats.compile_data(
             neuron_data={},
-            label_data={},
             search_query="test_query_1",
             case_sensitive=0,
             match_words=1,
@@ -51,7 +50,6 @@ class Test(TestCase):
         )
         caption, data_stats, data_charts = stats.compile_data(
             neuron_data=list(neuron_db.neuron_data.values()),
-            label_data=list(neuron_db.label_data.values()),
             search_query="test_query_2",
             case_sensitive=1,
             match_words=0,

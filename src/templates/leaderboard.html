@@ -5,7 +5,26 @@ Leaderboard
 {% endblock title %}
 
 {% block content %}
+<!--
 <div id="leaderboard-banner"><img src="{{url_for('base.asset', filename='leaderboard.png')}}" style="width: auto; max-width: 100%; max-height: 150px;"></div>
+-->
+<nav class="navbar navbar-light bg-light">
+    <form class="form-inline">
+
+        <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search"
+               id="filter_string" name="filter_string" placeholder="filter by neuron attributes" aria-label="Filter"
+               value="{{filter_string}}">
+        <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading(event);"><i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+    </form>
+</nav>
+
+<div style="margin: 25px; color:purple;">
+    <p><i class="fa-solid fa-gauge"></i> Labeled cells: {{labeled_cells_caption}}</p>
+    <p><i class="fa-solid fa-tags"></i> Total label count: {{display(label_count)}}</p>
+    <p><i class="fa-solid fa-tag"></i> Distinct labels: {{display(unique_label_count)}}</p>
+</div>
+
 <div class="card mb-3" style="margin: 5px;">
     <div class="body">
         <div class="card-columns custom-columns" id="data_container" style="padding: 5px;">

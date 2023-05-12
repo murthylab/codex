@@ -147,8 +147,19 @@ def stats():
 @request_wrapper
 @require_data_access
 def leaderboard():
-    log_activity("Loading Leaderboard")
-    return render_template("leaderboard.html", data_stats=leaderboard_cached())
+    query = request.args.get("filter_string", "")
+    log_activity("Loading Leaderboard" + (f", query: {query}" if query else ""))
+    labeled_cells_caption, count, unique_count, leaderboard_data = leaderboard_cached(
+        query=query, data_version=DEFAULT_DATA_SNAPSHOT_VERSION
+    )
+    return render_template(
+        "leaderboard.html",
+        labeled_cells_caption=labeled_cells_caption,
+        label_count=count,
+        unique_label_count=unique_count,
+        data_stats=leaderboard_data,
+        filter_string=query,
+    )
 
 
 @app.route("/explore")
