@@ -17,7 +17,7 @@ a graph induced by NBLAST similarity scores with increasing thresholds for refin
 
 
 def check_morphology_clusters():
-    neuron_db = NeuronDataFactory().get()
+    neuron_db = NeuronDataFactory.instance().get()
 
     clusters = []
     clustered_rids = set()
@@ -48,7 +48,7 @@ def check_morphology_clusters():
 
 
 def pil_based_typing():
-    neuron_db = NeuronDataFactory().get()
+    neuron_db = NeuronDataFactory.instance().get()
 
     def neuron_type(ndata):
         return f'{ndata["class"]}:{ndata["nt_type"]}:{".".join(sorted(set(ndata["input_neuropils"] + ndata["output_neuropils"])))}'
@@ -62,7 +62,7 @@ def pil_based_typing():
 
 
 def cluster_neurons(predicate, directed=True, print_markdown=False, csv_filename=None):
-    neuron_db = NeuronDataFactory().get()
+    neuron_db = NeuronDataFactory.instance().get()
 
     def cluster_rids(rids, nblast_score_threshold):
         rids = set(rids)
@@ -345,6 +345,6 @@ def cluster_by_jaccard_similarities():
 
 if __name__ == "__main__":
     # compare_versions("571", "630")
-    # generate_con_jaccard_similarity_table(NeuronDataFactory().get())
-    # analyse_con_jaccard_similarities(NeuronDataFactory().get())
+    # generate_con_jaccard_similarity_table(NeuronDataFactory.instance().get())
+    # analyse_con_jaccard_similarities(NeuronDataFactory.instance().get())
     cluster_by_jaccard_similarities()

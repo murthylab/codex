@@ -12,7 +12,7 @@ column in the following format: <# reachable in 0 hops>:<# reachable in 1 hops>:
 
 
 def compute_distance_counts():
-    neuron_db = NeuronDataFactory().get(version="571")
+    neuron_db = NeuronDataFactory.instance().get(version="571")
     osets = neuron_db.output_sets()
     sorted_rids = sorted(neuron_db.neuron_data.keys())
     chunk_size = 1000
