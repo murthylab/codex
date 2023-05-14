@@ -33,6 +33,8 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     "supervoxel_id": list,
     # community identification labels
     "label": list,
+    # generic badges for marking special cells (e.g. labeling candidates)
+    "marker": list,
     # nblast-based similarity. Cell ids + 1-digit scores, mapping all negative to 0 and multiplying by 10,
     # e.g.: 0.14 -> 1, 0.28 -> 3, -0.5 -> 0)
     "similar_cell_scores": dict,

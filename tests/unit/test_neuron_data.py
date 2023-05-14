@@ -87,6 +87,7 @@ class NeuronDataTest(TestCase):
             "morphology_cluster": 84000,
             "connectivity_cluster": 84000,
             "hemisphere_fingerprint": 5000,
+            "marker": 102000,
         }
 
         for k in NEURON_DATA_ATTRIBUTE_TYPES.keys():
@@ -543,6 +544,7 @@ class NeuronDataTest(TestCase):
             "hemilineage",
             "morphology_cluster",
             "connectivity_cluster",
+            "marker",
         }
         for k, v in NEURON_DATA_ATTRIBUTE_TYPES.items():
             if k in sparse_attrs:

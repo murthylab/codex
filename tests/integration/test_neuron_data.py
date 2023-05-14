@@ -33,7 +33,7 @@ class NeuronDataTest(TestCase):
             sorted(
                 [
                     "label_data",
-                    "labels_file_timestamp",
+                    "meta_data",
                     "neuron_data",
                     "connections_",
                     "grouped_synapse_counts",
@@ -50,7 +50,7 @@ class NeuronDataTest(TestCase):
             "neuron_data": "525 M",
             "search_index": "221 M",
             "label_data": "60 M",
-            "labels_file_timestamp": "64 B",
+            "meta_data": "17 K",
             "grouped_synapse_counts": "114 K",
             "grouped_connection_counts": "112 K",
             "grouped_reciprocal_connection_counts": "70 K",
@@ -73,7 +73,7 @@ class NeuronDataTest(TestCase):
             "neuron_data": approx_size(self.neuron_db.neuron_data),
             "search_index": approx_size(self.neuron_db.search_index),
             "label_data": approx_size(self.neuron_db.label_data),
-            "labels_file_timestamp": approx_size(self.neuron_db.labels_file_timestamp),
+            "meta_data": approx_size(self.neuron_db.meta_data),
             "grouped_synapse_counts": approx_size(
                 self.neuron_db.grouped_synapse_counts
             ),

@@ -36,6 +36,10 @@ from src.data.brain_regions import (
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.data.neuron_data_initializer import NETWORK_GROUP_BY_ATTRIBUTES
+from src.data.optic_lobe_cell_types import (
+    COLUMNAR_CELL_TYPES,
+    COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR,
+)
 from src.data.structured_search_filters import (
     OP_PATHWAYS,
     parse_search_query,
@@ -63,6 +67,7 @@ from src.utils.formatting import (
     nanos_to_formatted_micros,
     nanometer_to_flywire_coordinates,
     display,
+    percentage,
 )
 from src.utils.graph_algos import distance_matrix
 from src.utils.logging import (
@@ -454,6 +459,77 @@ def search_results_flywire_url():
         f"Redirecting results {activity_suffix(filter_string, data_version)} to FlyWire {format_link(url)}"
     )
     return ngl_redirect_with_browser_check(ngl_url=url)
+
+
+@app.route("/optic_lobe_tagging")
+@request_wrapper
+@require_data_access
+def optic_lobe_tagging():
+    log_activity("Loading optic lobe tags page")
+    examples_for = request.args.get("examples_for")
+    candidates_for = request.args.get("candidates_for")
+    side = request.args.get("side")
+
+    def check_known_type(tp):
+        if tp not in COLUMNAR_CELL_TYPES:
+            raise ValueError(
+                f"Type '{tp} is not a valid optic lobe type. Pick one of {COLUMNAR_CELL_TYPES}"
+            )
+
+    if examples_for:
+        check_known_type(examples_for)
+        query = f"{examples_for} && super_class == optic"
+        if side:
+            query += f" && side == {side}"
+        return redirect(url_for("app.search", filter_string=query, whole_word=1))
+    elif candidates_for:
+        check_known_type(candidates_for)
+        query = f"marker == tag_candidate:{candidates_for}"
+        if side:
+            query += f" && side == {side}"
+        return redirect(url_for("app.search", filter_string=query))
+    else:
+        neuron_db = NeuronDataFactory.instance().get()
+
+        def make_data(t):
+            def with_percentage(c, tot):
+                return f"{c} ({percentage(int(c), int(tot))})"
+
+            return {
+                "type_name": t,
+                "image_url": url_for("base.asset", filename=f"columnar_cells/{t}.jpg"),
+                "goal_count_left": COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["left"],
+                "goal_count_right": COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["right"],
+                "tagged_count_left": with_percentage(
+                    neuron_db.meta_data[f"{t}_tagged_count_left"],
+                    COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["left"],
+                ),
+                "tagged_count_right": with_percentage(
+                    neuron_db.meta_data[f"{t}_tagged_count_right"],
+                    COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["right"],
+                ),
+                "candidate_count_left": neuron_db.meta_data[
+                    f"{t}_candidate_count_left"
+                ],
+                "candidate_count_right": neuron_db.meta_data[
+                    f"{t}_candidate_count_right"
+                ],
+                "examples_url_left": url_for(
+                    "app.optic_lobe_tagging", examples_for=t, side="left"
+                ),
+                "examples_url_right": url_for(
+                    "app.optic_lobe_tagging", examples_for=t, side="right"
+                ),
+                "candidates_url_left": url_for(
+                    "app.optic_lobe_tagging", candidates_for=t, side="left"
+                ),
+                "candidates_url_right": url_for(
+                    "app.optic_lobe_tagging", candidates_for=t, side="right"
+                ),
+            }
+
+        ol_type_data = [make_data(t) for t in COLUMNAR_CELL_TYPES]
+        return render_template("optic_lobe_tagging.html", ol_type_data=ol_type_data)
 
 
 @app.route("/flywire_url")

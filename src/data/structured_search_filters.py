@@ -194,6 +194,14 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         description="ID of the cell. Unique across data versions, but might get replaced if affected by proofreading.",
         value_range=None,
     ),
+    SearchAttribute(
+        name="marker",
+        value_getter=lambda nd: nd["marker"],
+        value_convertor=None,
+        list_convertor=lambda x: tokenize(x),
+        description="Generic cell markers.",
+        value_range=None,
+    ),
 ]
 
 SEARCH_ATTRIBUTE_NAMES = [a.name for a in STRUCTURED_SEARCH_ATTRIBUTES]

@@ -38,6 +38,7 @@
                   <a class="dropdown-item" id="nav_about_codex" href="{{url_for('base.about_codex')}}">About Codex</a>
                   <a class="dropdown-item" id="nav_about_flywire" href="{{url_for('base.about_flywire')}}">FlyWire Connectome</a>
                   <a class="dropdown-item" id="nav_faq" href="{{url_for('base.faq')}}">FAQ</a>
+                  <a class="dropdown-item" id="nav_optic_lobe_tagging" href="{{url_for('app.optic_lobe_tagging')}}">Optic Lobe Tagging</a>
                   <a class="dropdown-item" id="nav_leaderboard" href="{{url_for('app.leaderboard')}}">Labeling Leaderboard</a>
                   <a class="dropdown-item" id="nav_download" href="{{url_for('api.download')}}">Download Data</a>
                   <a class="dropdown-item" id="nav_account" href="{{url_for('base.account')}}">Account</a>
@@ -56,7 +57,7 @@
                     }
                 }
 
-                let more_tabs = ['about_codex', 'faq', 'about_flywire', 'leaderboard', 'download', 'account'];
+                let more_tabs = ['about_codex', 'faq', 'about_flywire', 'leaderboard', 'optic_lobe_tagging', 'download', 'account'];
                 for (const tab of more_tabs){
                     if (cur_url.includes(tab)) {
                       document.getElementById('nav_more_active').text = document.getElementById('nav_' + tab).text;

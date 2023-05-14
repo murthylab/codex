@@ -27,7 +27,7 @@ class SearchIndex(object):
                 self.add_to_index(lc_label, i, self.lc_labels)
 
         log(
-            f"App initialization search index created: {len(self.CS_token_to_row_id)=} {len(self.ci_token_to_row_id)=}"
+            f"Search index created: {len(self.CS_token_to_row_id)=} {len(self.ci_token_to_row_id)=}"
             f" {len(self.CS_label_to_row_id)=} {len(self.ci_label_to_row_id)=}"
         )
 

@@ -4,6 +4,7 @@ from random import choice
 
 from src.data.connections import Connections
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
+from src.data.optic_lobe_cell_types import COLUMNAR_CELL_TYPES
 from src.data.search_index import SearchIndex
 from src.data.structured_search_filters import (
     make_structured_terms_predicate,
@@ -53,10 +54,10 @@ class NeuronDB(object):
         self.neuron_data = neuron_attributes
         self.connections_ = Connections(neuron_connection_rows)
         self.label_data = label_data
-        self.labels_file_timestamp = labels_file_timestamp
         self.grouped_synapse_counts = grouped_synapse_counts
         self.grouped_connection_counts = grouped_connection_counts
         self.grouped_reciprocal_connection_counts = grouped_reciprocal_connection_counts
+        self.meta_data = {"labels_file_timestamp": labels_file_timestamp}
 
         log("App initialization building search index..")
 
@@ -77,6 +78,46 @@ class NeuronDB(object):
                 for k, nd in self.neuron_data.items()
             ]
         )
+
+        # Add tagging candidate markers for columnar cells in the Optic Lobe
+        for (
+            cst_type,
+            type_and_candidate_rids,
+        ) in self._collect_columnar_cell_tagging_candidates().items():
+            tagged_left_count = len(
+                [
+                    rid
+                    for rid in type_and_candidate_rids[0]
+                    if self.neuron_data[rid]["side"] == "left"
+                ]
+            )
+            tagged_right_count = len(
+                [
+                    rid
+                    for rid in type_and_candidate_rids[0]
+                    if self.neuron_data[rid]["side"] == "right"
+                ]
+            )
+            candidate_left_count = len(
+                [
+                    rid
+                    for rid in type_and_candidate_rids[1]
+                    if self.neuron_data[rid]["side"] == "left"
+                ]
+            )
+            candidate_right_count = len(
+                [
+                    rid
+                    for rid in type_and_candidate_rids[1]
+                    if self.neuron_data[rid]["side"] == "right"
+                ]
+            )
+            self.meta_data[f"{cst_type}_tagged_count_left"] = tagged_left_count
+            self.meta_data[f"{cst_type}_tagged_count_right"] = tagged_right_count
+            self.meta_data[f"{cst_type}_candidate_count_left"] = candidate_left_count
+            self.meta_data[f"{cst_type}_candidate_count_right"] = candidate_right_count
+            for rid in type_and_candidate_rids[1]:
+                self.neuron_data[rid]["marker"].append(f"tag_candidate:{cst_type}")
 
     def input_sets(self, min_syn_count=0):
         return self.input_output_partner_sets(min_syn_count)[0]
@@ -350,7 +391,7 @@ class NeuronDB(object):
         return list(self.label_data.keys())
 
     def labels_ingestion_timestamp(self):
-        return self.labels_file_timestamp
+        return self.meta_data["labels_file_timestamp"]
 
     @lru_cache
     def search(self, search_query, case_sensitive=False, word_match=False):
@@ -461,3 +502,25 @@ class NeuronDB(object):
             if len(non_uniform_set) == len(page_labels):
                 break
         return non_uniform_set
+
+    def _collect_columnar_cell_tagging_candidates(self):
+        # identify optic lobe columnar cell tagging candidates
+        all_annotated_columnar_neurons = set()
+        type_to_annotated_neuron_sets = defaultdict(set)
+        for t in COLUMNAR_CELL_TYPES:
+            type_to_annotated_neuron_sets[t] = set(
+                self.search(f"{t} && super_class == optic", word_match=True)
+            )
+            all_annotated_columnar_neurons |= type_to_annotated_neuron_sets[t]
+
+        def similar_unannotated_cells(cells):
+            candidates = set()
+            for c in cells:
+                candidates |= set(self.get_similar_shape_cells(c).keys())
+            candidates -= all_annotated_columnar_neurons
+            return candidates
+
+        return {
+            t: (v, similar_unannotated_cells(v))
+            for t, v in type_to_annotated_neuron_sets.items()
+        }

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %} Optic Lobe Tagging {% endblock title %}
+{% block content %}
+
+
+<div style="padding: 1px;">
+    <table class="table table-hover">
+      <thead style="color: purple">
+        <td>
+            Cell Type
+        </td>
+        <td>
+            Shape
+        </td>
+        <td>
+            Goal
+        </td>
+        <td>
+            Tagged
+        </td>
+        <td>
+            Candidates
+        </td>
+      </thead>
+    <tbody>
+        {% for olt_data in ol_type_data %}
+        <tr>
+            <td>
+                {{olt_data.type_name}}
+            </td>
+            <td>
+                <img src="{{olt_data.image_url|safe}}" width="200px" height="150px;" border="0px;">
+            </td>
+            <td>
+                {{olt_data.goal_count_left}} left<br>{{olt_data.goal_count_right}} right
+            </td>
+            <td>
+                <a href="{{olt_data.examples_url_left}}">L: {{olt_data.tagged_count_left}}</a><br><a href="{{olt_data.examples_url_right}}">R: {{olt_data.tagged_count_right}}</a>
+            </td>
+            <td>
+                <a href="{{olt_data.candidates_url_left}}">L: {{olt_data.candidate_count_left}}</a><br><a href="{{olt_data.candidates_url_right}}">R: {{olt_data.candidate_count_right}}</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+
+{% endblock content %}
