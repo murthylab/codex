@@ -529,7 +529,19 @@ def optic_lobe_tagging():
             }
 
         ol_type_data = [make_data(t) for t in COLUMNAR_CELL_TYPES]
-        return render_template("optic_lobe_tagging.html", ol_type_data=ol_type_data)
+        total_goal_count, total_tagged_count = 0, 0
+        for t in COLUMNAR_CELL_TYPES:
+            total_goal_count += COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["left"] + COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["right"]
+            total_tagged_count += neuron_db.meta_data[f"{t}_tagged_count_left"] + neuron_db.meta_data[f"{t}_tagged_count_right"]
+        total_tagged_percent = percentage(total_tagged_count, total_goal_count)
+
+        return render_template(
+            "optic_lobe_tagging.html",
+            ol_type_data=ol_type_data,
+            total_goal_count=display(total_goal_count),
+            total_tagged_count=display(total_tagged_count),
+            total_tagged_percent=total_tagged_percent,
+        )
 
 
 @app.route("/flywire_url")

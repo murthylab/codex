@@ -38,3 +38,7 @@ COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR = {
 }
 # R1-6 is a lump of 6 indistinguishable types
 COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR["R1-6"] = {"left": 6 * 790, "right": 6 * 780}
+
+COLUMNAR_CELL_SUPER_CLASSES = {
+    "optic", "sensory", "visual_projection",
+}
