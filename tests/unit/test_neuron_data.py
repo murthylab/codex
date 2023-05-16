@@ -11,6 +11,10 @@ from src.data.neuron_data_initializer import (
     NEURON_DATA_ATTRIBUTE_TYPES,
     hemisphere_fingerprint,
 )
+from src.data.optic_lobe_cell_types import (
+    COLUMNAR_CELL_TYPES,
+    COLUMNAR_CELL_SUPER_CLASSES,
+)
 from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
     TESTING_DATA_SNAPSHOT_VERSION,
@@ -653,3 +657,33 @@ class NeuronDataTest(TestCase):
                 self.neuron_db.get_similar_connectivity_cells(rid, weighted=True)
             )
         self.assertGreater(combined_results, 10000)
+
+    def test_columnar_cell_tags(self):
+        # check tagged cells search
+        all_annotated_columnar_neurons = set()
+        type_to_annotated_neuron_sets = defaultdict(set)
+        for t in COLUMNAR_CELL_TYPES:
+            type_to_annotated_neuron_sets[t] = set(
+                self.neuron_db.search(
+                    f"{t} && super_class << {','.join(COLUMNAR_CELL_SUPER_CLASSES)}",
+                    word_match=True,
+                )
+            )
+            all_annotated_columnar_neurons |= type_to_annotated_neuron_sets[t]
+
+        super_classes = set(
+            [
+                self.neuron_db.neuron_data[rid]["super_class"]
+                for rid in all_annotated_columnar_neurons
+            ]
+        )
+        self.assertEqual(COLUMNAR_CELL_SUPER_CLASSES, super_classes)
+
+        # check candidates are in expected classes, and not labeled
+        for t in COLUMNAR_CELL_TYPES:
+            candidate_rids = set(self.neuron_db.search(f"marker == tag_candidate:{t}"))
+            self.assertEqual(
+                0,
+                len(candidate_rids.intersection(all_annotated_columnar_neurons)),
+                f"Overlap for {t}",
+            )
