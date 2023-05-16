@@ -37,7 +37,7 @@ from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.data.neuron_data_initializer import NETWORK_GROUP_BY_ATTRIBUTES
 from src.data.optic_lobe_cell_types import (
-    COLUMNAR_CELL_TYPES,
+    COLUMNAR_CELL_TYPE_GROUPS,
     COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR,
     COLUMNAR_CELL_SUPER_CLASSES,
 )
@@ -473,20 +473,20 @@ def optic_lobe_tagging():
     side = request.args.get("side")
 
     def check_known_type(tp):
-        if tp not in COLUMNAR_CELL_TYPES:
+        if tp not in COLUMNAR_CELL_TYPE_GROUPS:
             raise ValueError(
-                f"Type '{tp} is not a valid optic lobe type. Pick one of {COLUMNAR_CELL_TYPES}"
+                f"Type '{tp} is not a valid optic lobe type. Pick one of {COLUMNAR_CELL_TYPE_GROUPS}"
             )
 
     if examples_for:
         check_known_type(examples_for)
-        query = f"{examples_for} && super_class {OP_IN} {','.join(COLUMNAR_CELL_SUPER_CLASSES)}"
+        query = f"marker == {examples_for}"
         if side:
             query += f" && side == {side}"
         return redirect(url_for("app.search", filter_string=query, whole_word=1))
     elif candidates_for:
         check_known_type(candidates_for)
-        query = f"marker == tag_candidate:{candidates_for}"
+        query = f"marker == candidate:{candidates_for}"
         if side:
             query += f" && side == {side}"
         return redirect(url_for("app.search", filter_string=query))
@@ -530,13 +530,10 @@ def optic_lobe_tagging():
                 ),
             }
 
-        ol_type_data = [make_data(t) for t in COLUMNAR_CELL_TYPES]
+        ol_type_data = [make_data(t) for t in COLUMNAR_CELL_TYPE_GROUPS]
         total_goal_count, total_tagged_count = 0, 0
-        for t in COLUMNAR_CELL_TYPES:
-            total_goal_count += (
-                COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["left"]
-                + COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["right"]
-            )
+        for t, q in COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR.items():
+            total_goal_count += q["left"] + q["right"]
             total_tagged_count += (
                 neuron_db.meta_data[f"{t}_tagged_count_left"]
                 + neuron_db.meta_data[f"{t}_tagged_count_right"]

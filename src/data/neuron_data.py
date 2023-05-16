@@ -5,7 +5,7 @@ from random import choice
 from src.data.connections import Connections
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.optic_lobe_cell_types import (
-    COLUMNAR_CELL_TYPES,
+    COLUMNAR_CELL_TYPE_GROUPS,
     COLUMNAR_CELL_SUPER_CLASSES,
 )
 from src.data.search_index import SearchIndex
@@ -86,33 +86,33 @@ class NeuronDB(object):
         # Add tagging candidate markers for columnar cells in the Optic Lobe
         for (
             cst_type,
-            type_and_candidate_rids,
+            tagged_and_candidate_rids,
         ) in self._collect_columnar_cell_tagging_candidates().items():
             tagged_left_count = len(
                 [
                     rid
-                    for rid in type_and_candidate_rids[0]
+                    for rid in tagged_and_candidate_rids[0]
                     if self.neuron_data[rid]["side"] == "left"
                 ]
             )
             tagged_right_count = len(
                 [
                     rid
-                    for rid in type_and_candidate_rids[0]
+                    for rid in tagged_and_candidate_rids[0]
                     if self.neuron_data[rid]["side"] == "right"
                 ]
             )
             candidate_left_count = len(
                 [
                     rid
-                    for rid in type_and_candidate_rids[1]
+                    for rid in tagged_and_candidate_rids[1]
                     if self.neuron_data[rid]["side"] == "left"
                 ]
             )
             candidate_right_count = len(
                 [
                     rid
-                    for rid in type_and_candidate_rids[1]
+                    for rid in tagged_and_candidate_rids[1]
                     if self.neuron_data[rid]["side"] == "right"
                 ]
             )
@@ -120,8 +120,10 @@ class NeuronDB(object):
             self.meta_data[f"{cst_type}_tagged_count_right"] = tagged_right_count
             self.meta_data[f"{cst_type}_candidate_count_left"] = candidate_left_count
             self.meta_data[f"{cst_type}_candidate_count_right"] = candidate_right_count
-            for rid in type_and_candidate_rids[1]:
-                self.neuron_data[rid]["marker"].append(f"tag_candidate:{cst_type}")
+            for rid in tagged_and_candidate_rids[0]:
+                self.neuron_data[rid]["marker"].append(cst_type)
+            for rid in tagged_and_candidate_rids[1]:
+                self.neuron_data[rid]["marker"].append(f"candidate:{cst_type}")
 
     def input_sets(self, min_syn_count=0):
         return self.input_output_partner_sets(min_syn_count)[0]
@@ -508,14 +510,30 @@ class NeuronDB(object):
         # identify optic lobe columnar cell tagging candidates
         all_annotated_columnar_neurons = set()
         type_to_annotated_neuron_sets = defaultdict(set)
-        for t in COLUMNAR_CELL_TYPES:
-            type_to_annotated_neuron_sets[t] = set(
-                self.search(
-                    f"{t} && super_class {OP_IN} {','.join(COLUMNAR_CELL_SUPER_CLASSES)}",
-                    word_match=True,
+
+        # first use the "cell_type" attribute to infer correctly tagged cells
+        for rid, ndata in self.neuron_data.items():
+            for ct in ndata["cell_type"]:
+                if ct in COLUMNAR_CELL_TYPE_GROUPS:
+                    assert rid not in all_annotated_columnar_neurons
+                    type_to_annotated_neuron_sets[ct].add(rid)
+                    all_annotated_columnar_neurons.add(rid)
+
+        # then use the community labels to infer more tagged cells
+        for type_group_name, types in COLUMNAR_CELL_TYPE_GROUPS.items():
+            for t in types:
+                type_to_annotated_neuron_sets[type_group_name] |= (
+                    set(
+                        self.search(
+                            f"{t} && super_class {OP_IN} {','.join(COLUMNAR_CELL_SUPER_CLASSES)}",
+                            word_match=True,
+                        )
+                    )
+                    - all_annotated_columnar_neurons
                 )
-            )
-            all_annotated_columnar_neurons |= type_to_annotated_neuron_sets[t]
+                all_annotated_columnar_neurons |= type_to_annotated_neuron_sets[
+                    type_group_name
+                ]
 
         def similar_unannotated_cells(cells):
             candidates = set()

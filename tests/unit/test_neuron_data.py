@@ -12,7 +12,7 @@ from src.data.neuron_data_initializer import (
     hemisphere_fingerprint,
 )
 from src.data.optic_lobe_cell_types import (
-    COLUMNAR_CELL_TYPES,
+    COLUMNAR_CELL_TYPE_GROUPS,
     COLUMNAR_CELL_SUPER_CLASSES,
 )
 from src.data.versions import (
@@ -659,31 +659,35 @@ class NeuronDataTest(TestCase):
         self.assertGreater(combined_results, 10000)
 
     def test_columnar_cell_tags(self):
-        # check tagged cells search
-        all_annotated_columnar_neurons = set()
-        type_to_annotated_neuron_sets = defaultdict(set)
-        for t in COLUMNAR_CELL_TYPES:
-            type_to_annotated_neuron_sets[t] = set(
-                self.neuron_db.search(
-                    f"{t} && super_class << {','.join(COLUMNAR_CELL_SUPER_CLASSES)}",
-                    word_match=True,
-                )
-            )
-            all_annotated_columnar_neurons |= type_to_annotated_neuron_sets[t]
-
-        super_classes = set(
-            [
-                self.neuron_db.neuron_data[rid]["super_class"]
-                for rid in all_annotated_columnar_neurons
-            ]
-        )
-        self.assertEqual(COLUMNAR_CELL_SUPER_CLASSES, super_classes)
-
-        # check candidates are in expected classes, and not labeled
-        for t in COLUMNAR_CELL_TYPES:
-            candidate_rids = set(self.neuron_db.search(f"marker == tag_candidate:{t}"))
-            self.assertEqual(
-                0,
-                len(candidate_rids.intersection(all_annotated_columnar_neurons)),
-                f"Overlap for {t}",
-            )
+        # check marked cells
+        for rid, ndata in self.neuron_db.neuron_data.items():
+            if ndata["marker"]:
+                self.assertTrue(ndata["super_class"] in COLUMNAR_CELL_SUPER_CLASSES)
+                if all([mrk.startswith("candidate") for mrk in ndata["marker"]]):
+                    for mrk in ndata["marker"]:
+                        self.assertTrue(mrk.split(":")[1] in COLUMNAR_CELL_TYPE_GROUPS)
+                elif len(ndata["marker"]) == 1:
+                    mrk = ndata["marker"][0]
+                    self.assertTrue(mrk in COLUMNAR_CELL_TYPE_GROUPS)
+                    if ndata["cell_type"]:
+                        for ct in ndata["cell_type"]:
+                            self.assertTrue(
+                                ct not in COLUMNAR_CELL_TYPE_GROUPS or ct == mrk
+                            )
+                    elif ndata["label"]:
+                        lbl = " | ".join(ndata["label"])
+                        if mrk.lower() not in lbl.lower():
+                            for t in COLUMNAR_CELL_TYPE_GROUPS.keys():
+                                self.assertTrue(
+                                    t.lower() not in lbl.lower().split(),
+                                    f"{t=} {mrk=} {lbl=}",
+                                )
+                else:
+                    self.fail(f"Too many markers: {ndata['marker']}")
+            elif ndata["cell_type"]:
+                for ct in ndata["cell_type"]:
+                    self.assertTrue(ct not in COLUMNAR_CELL_TYPE_GROUPS)
+            elif ndata["label"] and ndata["super_class"] in COLUMNAR_CELL_SUPER_CLASSES:
+                for lbl in ndata["label"]:
+                    for t in COLUMNAR_CELL_TYPE_GROUPS.keys():
+                        self.assertTrue(t.lower() not in lbl.lower().split(), lbl)
