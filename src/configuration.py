@@ -23,9 +23,15 @@ DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS = {
     "cell_stats": "Cell size measurements. "
     "Specifies the surface area, cable length and size/volume for each cell in the dataset. Nanometer units.",
     "morphology_clusters": "Clustering / grouping of cells based on their morphology. Cells assigned to same cluster "
-    "should be similar in shape.",
+    "should be similar in shape. The clustering is done with community detection algorithm on a network induced by "
+    "pairwise NBLAST scores. First number in the cluster name is a serial index, the second "
+    "number is it's size.",
     "connectivity_clusters": "Clustering / grouping of cells based on their connectivity vectors. "
-    "Cells assigned to same cluster should have similar partners up/downstream.",
+    "Cells assigned to same cluster should have similar partners up/downstream. The clustering is done with "
+    "community detection algorithm on a network induced by "
+    "input/output vector Jaccard similarity scores. First number in the cluster name is a "
+    "serial index, the second "
+    "number is it's size.",
     "connections": "Synaptic connectivity table. "
     "One row for every connected pair of cells broken by neuropil (region). First and second columns contain the "
     "FlyWire Root IDs of the connected pair ('pre/from' and 'post/to' respectively), the third column contains the "
