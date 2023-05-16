@@ -40,5 +40,7 @@ COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR = {
 COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR["R1-6"] = {"left": 6 * 790, "right": 6 * 780}
 
 COLUMNAR_CELL_SUPER_CLASSES = {
-    "optic", "sensory", "visual_projection",
+    "optic",
+    "sensory",
+    "visual_projection",
 }

@@ -39,10 +39,12 @@ from src.data.neuron_data_initializer import NETWORK_GROUP_BY_ATTRIBUTES
 from src.data.optic_lobe_cell_types import (
     COLUMNAR_CELL_TYPES,
     COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR,
+    COLUMNAR_CELL_SUPER_CLASSES,
 )
 from src.data.structured_search_filters import (
     OP_PATHWAYS,
     parse_search_query,
+    OP_IN,
 )
 from src.data.sorting import sort_search_results, SORT_BY_OPTIONS
 from src.data.versions import (
@@ -478,7 +480,7 @@ def optic_lobe_tagging():
 
     if examples_for:
         check_known_type(examples_for)
-        query = f"{examples_for} && super_class == optic"
+        query = f"{examples_for} && super_class {OP_IN} {','.join(COLUMNAR_CELL_SUPER_CLASSES)}"
         if side:
             query += f" && side == {side}"
         return redirect(url_for("app.search", filter_string=query, whole_word=1))
@@ -531,8 +533,14 @@ def optic_lobe_tagging():
         ol_type_data = [make_data(t) for t in COLUMNAR_CELL_TYPES]
         total_goal_count, total_tagged_count = 0, 0
         for t in COLUMNAR_CELL_TYPES:
-            total_goal_count += COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["left"] + COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["right"]
-            total_tagged_count += neuron_db.meta_data[f"{t}_tagged_count_left"] + neuron_db.meta_data[f"{t}_tagged_count_right"]
+            total_goal_count += (
+                COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["left"]
+                + COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["right"]
+            )
+            total_tagged_count += (
+                neuron_db.meta_data[f"{t}_tagged_count_left"]
+                + neuron_db.meta_data[f"{t}_tagged_count_right"]
+            )
         total_tagged_percent = percentage(total_tagged_count, total_goal_count)
 
         return render_template(
@@ -541,6 +549,10 @@ def optic_lobe_tagging():
             total_goal_count=display(total_goal_count),
             total_tagged_count=display(total_tagged_count),
             total_tagged_percent=total_tagged_percent,
+            leaderboard_url=url_for(
+                "app.leaderboard",
+                filter_string=f"super_class {OP_IN} {','.join(COLUMNAR_CELL_SUPER_CLASSES)}",
+            ),
         )
 
 

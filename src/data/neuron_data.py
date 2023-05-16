@@ -4,12 +4,16 @@ from random import choice
 
 from src.data.connections import Connections
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
-from src.data.optic_lobe_cell_types import COLUMNAR_CELL_TYPES
+from src.data.optic_lobe_cell_types import (
+    COLUMNAR_CELL_TYPES,
+    COLUMNAR_CELL_SUPER_CLASSES,
+)
 from src.data.search_index import SearchIndex
 from src.data.structured_search_filters import (
     make_structured_terms_predicate,
     apply_chaining_rule,
     parse_search_query,
+    OP_IN,
 )
 from src.configuration import MIN_NBLAST_SCORE_SIMILARITY
 from src.utils.formatting import (
@@ -420,9 +424,6 @@ class NeuronDB(object):
         chaining_rule, free_form_terms, structured_terms = parse_search_query(
             search_query
         )
-        log(
-            f"Processing search query: '{chaining_rule=}' '{free_form_terms=}' '{structured_terms=}'"
-        )
         term_search_results = [
             self.search_index.search(
                 term=term, case_sensitive=case_sensitive, word_match=word_match
@@ -509,7 +510,10 @@ class NeuronDB(object):
         type_to_annotated_neuron_sets = defaultdict(set)
         for t in COLUMNAR_CELL_TYPES:
             type_to_annotated_neuron_sets[t] = set(
-                self.search(f"{t} && super_class == optic", word_match=True)
+                self.search(
+                    f"{t} && super_class {OP_IN} {','.join(COLUMNAR_CELL_SUPER_CLASSES)}",
+                    word_match=True,
+                )
             )
             all_annotated_columnar_neurons |= type_to_annotated_neuron_sets[t]
 
@@ -517,8 +521,15 @@ class NeuronDB(object):
             candidates = set()
             for c in cells:
                 candidates |= set(self.get_similar_shape_cells(c).keys())
-            candidates -= all_annotated_columnar_neurons
-            return candidates
+            candidates = set(
+                [
+                    rid
+                    for rid in candidates
+                    if self.neuron_data[rid]["super_class"]
+                    in COLUMNAR_CELL_SUPER_CLASSES
+                ]
+            )
+            return candidates - all_annotated_columnar_neurons
 
         return {
             t: (v, similar_unannotated_cells(v))
