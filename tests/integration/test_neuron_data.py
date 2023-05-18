@@ -46,8 +46,8 @@ class NeuronDataTest(TestCase):
         )
 
         expected_sizes = {
-            "connections_": "341 M",
-            "neuron_data": "525 M",
+            "connections_": "410 M",
+            "neuron_data": "549 M",
             "search_index": "221 M",
             "label_data": "60 M",
             "meta_data": "17 K",
