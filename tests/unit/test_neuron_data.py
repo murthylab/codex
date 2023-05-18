@@ -521,7 +521,7 @@ class NeuronDataTest(TestCase):
             if sorted(set(nd["label"])) != sorted(set(ld)):
                 print(f'{sorted(set(nd["label"]))} -> {sorted(set(ld))}')
                 mismatch += 1
-        self.assertLess(mismatch, 10)
+        self.assertEqual(mismatch, 0)
 
     def test_thumbnails(self):
         # Run this first to collect existing skeleton root ids:

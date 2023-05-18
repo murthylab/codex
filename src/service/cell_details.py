@@ -31,13 +31,14 @@ def cached_cell_details(
     nd = neuron_db.get_neuron_data(root_id=root_id)
     labels_data = neuron_db.get_label_data(root_id=root_id)
     labels = sorted(set([ld["label"] for ld in labels_data or []]))
-    unames = sorted(
+    labeling_log = sorted(
         set(
             [
-                f'<small>{ld["user_name"]}, {ld["user_affiliation"]}</small>'
+                f'<small>{ld["date_created"]}, {ld["label"]}, {ld["user_name"]}, {ld["user_affiliation"]}</small>'
                 for ld in labels_data or []
             ]
-        )
+        ),
+        reverse=True,
     )
     pos = (
         nanometer_to_flywire_coordinates(nd["position"][0]) if nd["position"] else None
@@ -95,7 +96,7 @@ def cached_cell_details(
             ]
         ),
         "Identification Labels": concat_labels(labels),
-        "Label contributors": concat_labels(unames),
+        "Labeling log": concat_labels(labeling_log),
         "Last DB sync": concat_labels(
             [f'<b style="color: green">{neuron_db.labels_ingestion_timestamp()}</b>']
         ),

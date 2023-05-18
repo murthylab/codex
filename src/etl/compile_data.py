@@ -140,7 +140,15 @@ def load_neuron_info_from_cave(client, version, write_user_infos_table=False):
     )
     print(f"Mapped to version {version}")
     neuron_info_table = [
-        ["root_id", "label", "user_id", "position", "supervoxel_id", "label_id"]
+        [
+            "root_id",
+            "label",
+            "user_id",
+            "position",
+            "supervoxel_id",
+            "label_id",
+            "date_created",
+        ]
     ]
     user_ids = set()
     for index, d in df.iterrows():
@@ -153,6 +161,7 @@ def load_neuron_info_from_cave(client, version, write_user_infos_table=False):
                 str(d["pt_position"]),
                 int(d["pt_supervoxel_id"]),
                 int(d["id"]),
+                str(d["created"]).split()[0],
             ]
         )
 

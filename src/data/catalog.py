@@ -41,6 +41,7 @@ _CODEX_DATA_SCHEMA = {
         "position",
         "supervoxel_id",
         "label_id",
+        "date_created",
         "user_name",
         "user_affiliation",
     ],
