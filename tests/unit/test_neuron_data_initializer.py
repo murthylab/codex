@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from src.data.neuron_data_initializer import (
-    remove_redundant_parts,
+    clean_and_reduce_labels,
     HEATMAP_GROUP_BY_ATTRIBUTES,
     NEURON_DATA_ATTRIBUTE_TYPES,
     NETWORK_GROUP_BY_ATTRIBUTES,
@@ -23,7 +23,7 @@ class Test(TestCase):
             "side": "right",
         }
         self.assertEqual(
-            "VLPl1", remove_redundant_parts("VLPl1; right; acetylcholine", nd)
+            ["VLPl1"], clean_and_reduce_labels(["VLPl1; right; acetylcholine"], nd)
         )
 
         nd = {
@@ -39,8 +39,8 @@ class Test(TestCase):
             "side": "left",
         }
         self.assertEqual(
-            "VLPl1; right; acetylcholine",
-            remove_redundant_parts("VLPl1; right; acetylcholine", nd),
+            ["VLPl1; right; acetylcholine"],
+            clean_and_reduce_labels(["VLPl1; right; acetylcholine"], nd),
         )
 
     def test_group_by_attribute_types(self):

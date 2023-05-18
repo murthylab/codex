@@ -17,7 +17,6 @@ from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
 from src.configuration import MIN_NBLAST_SCORE_SIMILARITY
 from src.utils.formatting import (
-    compact_label,
     nanometer_to_flywire_coordinates,
     make_web_safe,
 )
@@ -218,7 +217,7 @@ def initialize_neuron_data(
     not_found_rids = set()
     not_found_labels = defaultdict(int)
     filtered_labels = 0
-    reduced_labels = 0
+    cleaned_labels = 0
 
     def label_row_to_dict(row):
         res = {}
@@ -227,8 +226,6 @@ def initialize_neuron_data(
                 continue
             elif col_name in {"user_id", "supervoxel_id", "label_id"}:
                 res[col_name] = int(row[col_i])
-            elif col_name == "label":
-                res[col_name] = make_web_safe(compact_label(row[col_i]))
             else:
                 res[col_name] = row[col_i]
         return res
@@ -243,25 +240,21 @@ def initialize_neuron_data(
             not_found_rids.add(rid)
             not_found_labels[r[label_col_idx]] += 1
             continue
-        label_dict = label_row_to_dict(r)
-        assert label_dict["label"]
-        filtered_label = remove_redundant_parts(
-            label_dict["label"], neuron_attributes[rid]
-        )
-        if not filtered_label:
-            filtered_labels += 1
-            continue
-        if filtered_label != label_dict["label"]:
-            label_dict["label"] = filtered_label
-            reduced_labels += 1
-
-        if filtered_label not in neuron_attributes[rid]["label"]:
-            neuron_attributes[rid]["label"].append(filtered_label)
-        label_data[rid].append(label_dict)
+        label_data[rid].append(label_row_to_dict(r))
     log(
         f"App initialization labels loaded for {len(label_data)} root ids, "
         f"not found rids: {len(not_found_rids)}"
     )
+    for rid, label_dicts in label_data.items():
+        labels = [label_dict["label"] for label_dict in sorted(label_dicts, key=lambda x: x["date_created"], reverse=True)]
+        assert all(labels)
+        clean_labels = clean_and_reduce_labels(labels, neuron_attributes[rid])
+        assert len(clean_labels) == len(set(clean_labels))
+        if clean_labels != labels:
+            filtered_labels += len(labels) - len(clean_labels)
+            cleaned_labels += 1
+        neuron_attributes[rid]["label"].extend(clean_labels)
+
     if not_found_labels:
         log("Top 10 not found labels:")
         for p in sorted(not_found_labels.items(), key=lambda x: -x[1])[:10]:
@@ -299,7 +292,7 @@ def initialize_neuron_data(
         f"{len([nd for nd in neuron_attributes.values() if nd['position']])} root ids, supervoxel ids loaded for "
         f"{len([nd for nd in neuron_attributes.values() if nd['supervoxel_id']])} root ids, "
         f"not found rids: {len(not_found_rids)}, max list val: {max([(len(nd['position']), nd['root_id']) for nd in neuron_attributes.values()])} "
-        f"{filtered_labels=} {reduced_labels=}"
+        f"{filtered_labels=} {clean_labels=}"
     )
 
     log("App initialization loading connections..")
@@ -453,7 +446,20 @@ def hemisphere_fingerprint(input_pils, output_pils):
         return ""
 
 
-def remove_redundant_parts(label, neuron_data):
+# label cleanup logic below
+
+
+def compact_label(label):
+    parts_to_hide = [
+        "; Part of comprehensive neck connective tracing, contact Connectomics Group Cambridge for more detailed information on descending/ascending neurons",
+        " (total brain fart (not part of the name of the neuron))",
+    ]
+    for p in parts_to_hide:
+        label = label.replace(p, "")
+    return label
+
+
+def remove_redundant_parts(labels, neuron_data):
     attribs_lc = set(
         [
             attrib.lower()
@@ -479,7 +485,63 @@ def remove_redundant_parts(label, neuron_data):
         ]
     )
 
-    filtered_label = ";".join(
-        [part for part in label.split(";") if part.lower().strip() not in attribs_lc]
-    )
-    return filtered_label.strip()
+    res = [
+        ";".join(
+            [
+                part
+                for part in label.split(";")
+                if part.lower().strip() not in attribs_lc
+            ]
+        ).strip()
+        for label in labels
+    ]
+    return [lbl for lbl in res if lbl]
+
+
+# removes all labels older than correction.
+def remove_corrected(labels_latest_to_oldest):
+    correction_prefixes = ["Correction: "]
+    for cp in correction_prefixes:
+        for i, lbl in enumerate(labels_latest_to_oldest):
+            if lbl.startswith(cp):
+                return labels_latest_to_oldest[:i] + [lbl[len(cp):]]
+
+    correction_suffixes = [
+        " (correction)",
+        " (corrected)",
+        " - L1 Label Incorrect",
+        " - L2 Label Incorrect",
+        " - R2 Label Incorrect (spelling error)",
+        "; L5 label is incorrect",
+        "; L1 - Lamina monopolar 3; L3 is incorrect and submitted by accident",
+        " (I just pasted a segment ID here and accidentally submitted. sorry)",
+    ]
+    for cp in correction_suffixes:
+        for i, lbl in enumerate(labels_latest_to_oldest):
+            if lbl.endswith(cp):
+                return labels_latest_to_oldest[:i] + [lbl[:-len(cp)]]
+
+    one_off_reduction_map = {
+        (
+            "Tm16 is wrong. this is: Transmedullary neuron 20, Tm20, Tm20_R, FBbt_00003808 (Fischbach & Dittrich, 1989)",
+            "Transmedullary neuron 16, Tm16, Tm16_R, [FBbt_00003804] (Fischbach & Dittrich, 1989)",
+        ): [
+            "Transmedullary neuron 20, Tm20, Tm20_R, FBbt_00003808 (Fischbach & Dittrich, 1989)"
+        ],
+        ("L1", "L1 label is wrong"): [],
+    }
+    return one_off_reduction_map.get(tuple(labels_latest_to_oldest), labels_latest_to_oldest)
+
+
+def clean_and_reduce_labels(labels_latest_to_oldest, neuron_data):
+    blacklisted_labels = {"not a neuron", "correction - not optic lobe"}
+
+    labels = [make_web_safe(compact_label(lbl)) for lbl in labels_latest_to_oldest]
+    labels = [lbl for lbl in labels if lbl not in blacklisted_labels]
+    labels = remove_redundant_parts(labels, neuron_data)
+    labels = remove_corrected(labels)
+    labels = sorted(set(labels))
+
+    return labels
+
+    # things to check: 72, not a neuron, sorry, accident, correct, wrong, brain fart, mistake, error, duplicates, substrings?

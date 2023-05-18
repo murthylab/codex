@@ -156,15 +156,6 @@ def shorten_and_concat_labels(labels):
     return concat_labels([trim_long_tokens(t) for t in labels])
 
 
-def compact_label(label):
-    # TODO: get rid of this
-    return label.replace(
-        "; Part of comprehensive neck connective tracing, contact Connectomics Group Cambridge for more detailed "
-        "information on descending/ascending neurons",
-        "",
-    )
-
-
 def truncate(txt, charlim, include_length=False):
     if not isinstance(txt, str):
         txt = str(txt)

@@ -30,11 +30,10 @@ def cached_cell_details(
 ):
     nd = neuron_db.get_neuron_data(root_id=root_id)
     labels_data = neuron_db.get_label_data(root_id=root_id)
-    labels = sorted(set([ld["label"] for ld in labels_data or []]))
     labeling_log = sorted(
         set(
             [
-                f'<small>{ld["date_created"]}, {ld["label"]}, {ld["user_name"]}, {ld["user_affiliation"]}</small>'
+                f'<small>{ld["date_created"]}: <b>{ld["label"]}</b>, {ld["user_name"]}, {ld["user_affiliation"]}</small>'
                 for ld in labels_data or []
             ]
         ),
@@ -95,7 +94,7 @@ def cached_cell_details(
                 if nd[cl]
             ]
         ),
-        "Identification Labels": concat_labels(labels),
+        "Identification Labels": concat_labels(nd["label"]),
         "Labeling log": concat_labels(labeling_log),
         "Last DB sync": concat_labels(
             [f'<b style="color: green">{neuron_db.labels_ingestion_timestamp()}</b>']

@@ -10,6 +10,7 @@ from src.data.local_data_loader import (
 from src.data.neuron_data_initializer import (
     NEURON_DATA_ATTRIBUTE_TYPES,
     hemisphere_fingerprint,
+    clean_and_reduce_labels,
 )
 from src.data.optic_lobe_cell_types import (
     COLUMNAR_CELL_TYPE_GROUPS,
@@ -20,7 +21,6 @@ from src.data.versions import (
     TESTING_DATA_SNAPSHOT_VERSION,
 )
 from src.utils.formatting import (
-    compact_label,
     make_web_safe,
     is_proper_textual_annotation,
 )
@@ -517,7 +517,9 @@ class NeuronDataTest(TestCase):
         neuron_data = self.neuron_db.neuron_data
         mismatch = 0
         for rid, nd in neuron_data.items():
-            ld = [compact_label(label["label"]) for label in label_data.get(rid, [])]
+            ld = clean_and_reduce_labels(
+                [label["label"] for label in label_data.get(rid, [])], nd
+            )
             if sorted(set(nd["label"])) != sorted(set(ld)):
                 print(f'{sorted(set(nd["label"]))} -> {sorted(set(ld))}')
                 mismatch += 1
