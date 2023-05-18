@@ -13,15 +13,22 @@ class Connections(object):
             rids_set.add(int(r[1]))
         self.rids_list = sorted(rids_set)
         self.rid_to_idx = {rid: i for i, rid in enumerate(self.rids_list)}
+        self.rid_to_pils = {rid: set() for rid in self.rids_list}
         self.compact_connections_representation = {}
         self.synapse_count = 0
         for r in connection_rows:
-            from_rid, to_rid = self.rid_to_idx[int(r[0])], self.rid_to_idx[int(r[1])]
+            from_rid, to_rid = int(r[0]), int(r[1])
+            from_rid_idx, to_rid_idx = (
+                self.rid_to_idx[from_rid],
+                self.rid_to_idx[to_rid],
+            )
             pil, syn_cnt, nt_type = r[2], int(r[3]), r[4]
-            pil_dict = self.compact_connections_representation.setdefault(pil, {})
-            from_dict = pil_dict.setdefault(from_rid, {})
-            from_dict[to_rid] = SYN_COUNT_MULTIPLIER * syn_cnt + NT_TO_ID[nt_type]
             self.synapse_count += syn_cnt
+            self.rid_to_pils[from_rid].add(pil)
+            self.rid_to_pils[to_rid].add(pil)
+            pil_dict = self.compact_connections_representation.setdefault(pil, {})
+            from_dict = pil_dict.setdefault(from_rid_idx, {})
+            from_dict[to_rid_idx] = SYN_COUNT_MULTIPLIER * syn_cnt + NT_TO_ID[nt_type]
 
     def all_rows(self, min_syn_count=None):
         return self._rows_from_predicates(
@@ -29,8 +36,11 @@ class Connections(object):
         )
 
     def rows_for_cell(self, rid):
+        if rid not in self.rid_to_pils:
+            return []
         return self._rows_from_predicates(
-            rids_predicate=lambda x, y: rid == x or rid == y
+            rids_predicate=lambda x, y: rid == x or rid == y,
+            pils_predicate=lambda pil: pil in self.rid_to_pils[rid],
         )
 
     def rows_for_set(self, rids, min_syn_count=None, nt_type=None):
@@ -53,9 +63,15 @@ class Connections(object):
         )
 
     def _rows_from_predicates(
-        self, rids_predicate=None, syn_cnt_predicate=None, nt_type_predicate=None
+        self,
+        rids_predicate=None,
+        pils_predicate=None,
+        syn_cnt_predicate=None,
+        nt_type_predicate=None,
     ):
         for pil, pil_dict in self.compact_connections_representation.items():
+            if pils_predicate and not pils_predicate(pil):
+                continue
             for from_id, from_dict in pil_dict.items():
                 from_rid = self.rids_list[from_id]
                 for to_id, syn_cnt_and_nt_type in from_dict.items():

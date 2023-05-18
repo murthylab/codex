@@ -608,6 +608,16 @@ class NeuronDataTest(TestCase):
         for r in cons:
             self.assertTrue(r[0] in rid_list and r[1] in rid_list)
 
+    def test_connection_query_consistency(self):
+        for rid in sorted(self.neuron_db.neuron_data.keys())[10000:10020]:
+            cons1 = sorted(self.neuron_db.cell_connections(rid))
+            cons2 = sorted(
+                self.neuron_db.connections_._rows_from_predicates(
+                    rids_predicate=lambda x, y: rid == x or rid == y
+                )
+            )
+            self.assertEqual(cons1, cons2)
+
     def test_nt_types_consistency(self):
         rid_to_nt_counts = {}
         for r in self.neuron_db.connections_.all_rows():
