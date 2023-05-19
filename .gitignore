@@ -8,6 +8,7 @@ profile
 static/data/
 static/raw_data/
 static/experimental_data/
+static/gcs_ls_logs/
 static/secrets/
 
 # Mac

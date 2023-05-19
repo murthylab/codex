@@ -8,6 +8,7 @@ from src.data.local_data_loader import (
     unpickle_neuron_db,
     unpickle_all_neuron_db_versions,
     read_csv,
+    write_csv,
 )
 from src.data.neuron_data_initializer import NEURON_DATA_ATTRIBUTE_TYPES
 
@@ -262,3 +263,37 @@ class NeuronDataTest(TestCase):
         cons = Connections(con_rows)
         for r in zip(cons.all_rows(), self.neuron_db.connections_.all_rows()):
             self.assertEqual(r[0], r[1])
+
+    def test_gcs_contents(self):
+        # Checks inventory of assets against neuron ids in the current snapshot. To regenerate inventory CSV files run:
+        # gsutil ls gs://flywire-data/codex/skeleton_thumbnail_gifs > static/gcs_ls_logs/skeleton_thumbnail_gifs.csv
+        # gsutil ls gs://flywire-data/codex/skeleton_thumbnails > static/gcs_ls_logs/skeleton_thumbnails.csv
+        # gsutil ls gs://flywire-data/codex/skeleton_swcs > static/gcs_ls_logs/skeleton_swcs.csv
+
+        rid_set = set([str(rid) for rid in self.neuron_db.neuron_data.keys()])
+
+        def check_missing_assets(gcs_content_csv_file_name):
+            gcs_files = read_csv(
+                f"{TEST_DATA_ROOT_PATH}/../gcs_ls_logs/{gcs_content_csv_file_name}"
+            )
+            gcs_rids = set([row[0].split("/")[5].split(".")[0] for row in gcs_files])
+            missing_rids = rid_set - gcs_rids
+            if missing_rids:
+                print(f"Missing {len(missing_rids)} in {gcs_content_csv_file_name}")
+                write_csv(
+                    filename=f"{TEST_DATA_ROOT_PATH}/../gcs_ls_logs/missing_{gcs_content_csv_file_name}",
+                    rows=[[rid] for rid in missing_rids],
+                )
+            else:
+                print(f"All IDs found in {gcs_content_csv_file_name}")
+            return len(missing_rids)
+
+        total_missing = 0
+        for fn in [
+            "skeleton_swcs.csv",
+            "skeleton_thumbnail_gifs.csv",
+            "skeleton_thumbnails.csv",
+        ]:
+            total_missing += check_missing_assets(fn)
+
+        self.assertGreater(21136, total_missing)
