@@ -8,6 +8,7 @@ ID_TO_NT = {v: k for k, v in NT_TO_ID.items()}
 class Connections(object):
     def __init__(self, connection_rows):
         rids_set = set()
+        connection_set = set()
         for r in connection_rows:
             rids_set.add(int(r[0]))
             rids_set.add(int(r[1]))
@@ -29,6 +30,8 @@ class Connections(object):
             pil_dict = self.compact_connections_representation.setdefault(pil, {})
             from_dict = pil_dict.setdefault(from_rid_idx, {})
             from_dict[to_rid_idx] = SYN_COUNT_MULTIPLIER * syn_cnt + NT_TO_ID[nt_type]
+            connection_set.add(len(rids_set) * from_rid_idx + to_rid)
+        self.connection_count = len(connection_set)
 
     def all_rows(self, min_syn_count=None):
         return self._rows_from_predicates(
@@ -96,3 +99,6 @@ class Connections(object):
 
     def num_synapses(self):
         return self.synapse_count
+
+    def num_connections(self):
+        return self.connection_count

@@ -296,4 +296,4 @@ class NeuronDataTest(TestCase):
         ]:
             total_missing += check_missing_assets(fn)
 
-        self.assertGreater(21136, total_missing)
+        self.assertEqual(0, total_missing)

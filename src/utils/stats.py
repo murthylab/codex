@@ -276,7 +276,7 @@ def collect_leaderboard_data(label_data, top_n, include_lab_leaderboard):
                 reverse=True,
             )[:top_n]
         }
-    return len(all_labels), len(set([lbl["label"] for lbl in all_labels])), ldrb_data
+    return ldrb_data
 
 
 def jaccard_weighted(d1, d2):

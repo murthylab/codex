@@ -156,14 +156,12 @@ def stats():
 def leaderboard():
     query = request.args.get("filter_string", "")
     log_activity("Loading Leaderboard" + (f", query: {query}" if query else ""))
-    labeled_cells_caption, count, unique_count, leaderboard_data = leaderboard_cached(
+    labeled_cells_caption, leaderboard_data = leaderboard_cached(
         query=query, data_version=DEFAULT_DATA_SNAPSHOT_VERSION
     )
     return render_template(
         "leaderboard.html",
         labeled_cells_caption=labeled_cells_caption,
-        label_count=count,
-        unique_label_count=unique_count,
         data_stats=leaderboard_data,
         filter_string=query,
     )

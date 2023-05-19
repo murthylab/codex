@@ -204,9 +204,11 @@ class NeuronDB(object):
     def num_cells(self):
         return len(self.neuron_data)
 
-    @lru_cache
     def num_synapses(self):
         return self.connections_.num_synapses()
+
+    def num_connections(self):
+        return self.connections_.num_connections()
 
     @lru_cache
     def num_labels(self):

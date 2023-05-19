@@ -396,6 +396,7 @@ def index(path):
             ),
             num_cells=display(neuron_db.num_cells()),
             num_synapses=display(neuron_db.num_synapses()),
+            num_connections=display(neuron_db.num_connections()),
             num_labels=display(neuron_db.num_labels()),
             default_version=DEFAULT_DATA_SNAPSHOT_VERSION,
             min_syn_threshold=MIN_SYN_THRESHOLD,

@@ -66,7 +66,7 @@ def leaderboard_cached(query, data_version):
     neuron_db = NeuronDataFactory.instance().get(version=data_version)
     matching_ids = neuron_db.search(query)
     label_data = neuron_db.label_data_for_ids(matching_ids)
-    count, unique_count, ld = stats_utils.collect_leaderboard_data(
+    ld = stats_utils.collect_leaderboard_data(
         label_data=label_data,
         top_n=20,
         include_lab_leaderboard=True,
@@ -77,7 +77,5 @@ def leaderboard_cached(query, data_version):
     labeled_cells_caption = f"{display(labeled_cells)} out of {display(len(matching_ids))} ({percentage(labeled_cells, len(matching_ids))})"
     return (
         labeled_cells_caption,
-        count,
-        unique_count,
         stats_utils.format_for_display(ld),
     )
