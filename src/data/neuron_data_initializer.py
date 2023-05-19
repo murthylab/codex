@@ -243,7 +243,7 @@ def initialize_neuron_data(
             continue
         label_data[rid].append(label_row_to_dict(r))
     log(
-        f"App initialization labels loaded for {len(label_data)} root ids, "
+        f"App initialization {len(label_rows)} labels loaded for {len(label_data)} root ids, "
         f"not found rids: {len(not_found_rids)}"
     )
     for rid, label_dicts in label_data.items():
@@ -298,7 +298,7 @@ def initialize_neuron_data(
         f"{len([nd for nd in neuron_attributes.values() if nd['position']])} root ids, supervoxel ids loaded for "
         f"{len([nd for nd in neuron_attributes.values() if nd['supervoxel_id']])} root ids, "
         f"not found rids: {len(not_found_rids)}, max list val: {max([(len(nd['position']), nd['root_id']) for nd in neuron_attributes.values()])} "
-        f"{filtered_labels=} {clean_labels=}"
+        f"{filtered_labels=} {cleaned_labels=}"
     )
 
     log("App initialization loading connections..")
