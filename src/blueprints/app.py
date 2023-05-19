@@ -1,5 +1,6 @@
 import json
 import re
+from collections import defaultdict
 from datetime import datetime
 import requests
 
@@ -81,6 +82,7 @@ from src.utils.logging import (
     log_error,
 )
 from src.utils.formatting import can_be_flywire_root_id
+from src.utils.parsing import tokenize
 from src.utils.pathway_vis import pathway_chart_data_rows
 from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
@@ -549,6 +551,42 @@ def optic_lobe_tagging():
                 filter_string=f"super_class {OP_IN} {','.join(COLUMNAR_CELL_SUPER_CLASSES)}",
             ),
         )
+
+
+@app.route("/count_columnar_cells", methods=["GET", "POST"])
+@request_wrapper
+@require_data_access
+def count_columnar_cells():
+    log_activity("Counting columnar cells")
+    msg = "This tool summarizes columnar types for sets of cells"
+
+    if request.method == "POST":
+        neuron_db = NeuronDataFactory.instance().get()
+        cell_ids = request.form.get("cell_ids")
+        cell_ids = tokenize(cell_ids) if cell_ids else []
+        counts = defaultdict(int)
+        for cell_id in cell_ids:
+            try:
+                cell = neuron_db.neuron_data[int(cell_id)]
+                mrk = cell["marker"][0] if cell["marker"] else None
+                if mrk and not mrk.startswith("candidate"):
+                    counts[mrk] += 1
+                else:
+                    counts["Not marked as columnar"] += 1
+            except Exception:
+                counts["Invalid Cell ID"] += 1
+        if counts:
+            msg = "<br>".join(
+                [
+                    f"{p[1]} ({percentage(p[1], len(cell_ids))}):  {p[0]}"
+                    for p in sorted(counts.items(), key=lambda x: -x[1])
+                ]
+            )
+            log_user_help(f"Counting columnar types for {len(cell_ids)} cells: {msg}")
+    return render_template(
+        "count_columnar_cells.html",
+        message=msg,
+    )
 
 
 @app.route("/flywire_url")
