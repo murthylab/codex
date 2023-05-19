@@ -1,4 +1,5 @@
 import json
+from multiprocessing.context import Process
 
 from google.cloud import bigquery
 
@@ -58,21 +59,28 @@ def _requests_table():
     return __requests_table
 
 
-def report_request(request_ctx):
-    def _convert(val, datatype):
-        if datatype == "JSON":
-            return json.dumps(val)
-        return val
+def _report_request(row):
+    errors = _client().insert_rows(_requests_table(), [row])
+    if errors:
+        log_error(f"Analytics record insertion failed. Errors: {errors}, row: {row}")
 
+
+def report_request(request_ctx):
     try:
+
+        def _convert(val, datatype):
+            if datatype == "JSON":
+                return json.dumps(val)
+            return val
+
         row = tuple(
             [_convert(request_ctx.get(p[0]), p[1]) for p in _REQUESTS_TABLE_SCHEMA]
         )
-        errors = _client().insert_rows(_requests_table(), [row])
-        if errors:
-            log_error(
-                f"Analytics record insertion failed. Errors: {errors}, row: {row}"
-            )
+        Process(
+            target=_report_request,
+            args=(row,),
+            daemon=True,
+        ).start()
     except Exception as e:
         if APP_ENVIRONMENT != "DEV":
             log_error(f"Analytics reporting crashed: {e}")
