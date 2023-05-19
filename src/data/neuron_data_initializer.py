@@ -19,6 +19,7 @@ from src.configuration import MIN_NBLAST_SCORE_SIMILARITY
 from src.utils.formatting import (
     nanometer_to_flywire_coordinates,
     make_web_safe,
+    can_be_flywire_root_id,
 )
 from src.utils.logging import log
 
@@ -246,7 +247,12 @@ def initialize_neuron_data(
         f"not found rids: {len(not_found_rids)}"
     )
     for rid, label_dicts in label_data.items():
-        labels = [label_dict["label"] for label_dict in sorted(label_dicts, key=lambda x: x["date_created"], reverse=True)]
+        labels = [
+            label_dict["label"]
+            for label_dict in sorted(
+                label_dicts, key=lambda x: x["date_created"], reverse=True
+            )
+        ]
         assert all(labels)
         clean_labels = clean_and_reduce_labels(labels, neuron_attributes[rid])
         assert len(clean_labels) == len(set(clean_labels))
@@ -500,11 +506,15 @@ def remove_redundant_parts(labels, neuron_data):
 
 # removes all labels older than correction.
 def remove_corrected(labels_latest_to_oldest):
-    correction_prefixes = ["Correction: "]
+    correction_prefixes = [
+        "Correction: ",
+        "Tm16 is wrong. this is: ",
+        "L1 label is wrong",
+    ]
     for cp in correction_prefixes:
         for i, lbl in enumerate(labels_latest_to_oldest):
             if lbl.startswith(cp):
-                return labels_latest_to_oldest[:i] + [lbl[len(cp):]]
+                return labels_latest_to_oldest[:i] + [lbl[len(cp) :]]
 
     correction_suffixes = [
         " (correction)",
@@ -519,29 +529,21 @@ def remove_corrected(labels_latest_to_oldest):
     for cp in correction_suffixes:
         for i, lbl in enumerate(labels_latest_to_oldest):
             if lbl.endswith(cp):
-                return labels_latest_to_oldest[:i] + [lbl[:-len(cp)]]
+                return labels_latest_to_oldest[:i] + [lbl[: -len(cp)]]
 
-    one_off_reduction_map = {
-        (
-            "Tm16 is wrong. this is: Transmedullary neuron 20, Tm20, Tm20_R, FBbt_00003808 (Fischbach & Dittrich, 1989)",
-            "Transmedullary neuron 16, Tm16, Tm16_R, [FBbt_00003804] (Fischbach & Dittrich, 1989)",
-        ): [
-            "Transmedullary neuron 20, Tm20, Tm20_R, FBbt_00003808 (Fischbach & Dittrich, 1989)"
-        ],
-        ("L1", "L1 label is wrong"): [],
-    }
-    return one_off_reduction_map.get(tuple(labels_latest_to_oldest), labels_latest_to_oldest)
+    return labels_latest_to_oldest
+
+
+def blacklisted(lbl):
+    blacklisted_labels = {"not a neuron", "correction - not optic lobe"}
+    return lbl.lower() in blacklisted_labels or can_be_flywire_root_id(lbl)
 
 
 def clean_and_reduce_labels(labels_latest_to_oldest, neuron_data):
-    blacklisted_labels = {"not a neuron", "correction - not optic lobe"}
-
     labels = [make_web_safe(compact_label(lbl)) for lbl in labels_latest_to_oldest]
-    labels = [lbl for lbl in labels if lbl not in blacklisted_labels]
+    labels = [lbl for lbl in labels if not blacklisted(lbl)]
     labels = remove_redundant_parts(labels, neuron_data)
     labels = remove_corrected(labels)
-    labels = sorted(set(labels))
+    labels = sorted(set([lbl for lbl in labels if lbl]))
 
     return labels
-
-    # things to check: 72, not a neuron, sorry, accident, correct, wrong, brain fart, mistake, error, duplicates, substrings?

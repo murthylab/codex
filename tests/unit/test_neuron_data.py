@@ -518,12 +518,42 @@ class NeuronDataTest(TestCase):
         mismatch = 0
         for rid, nd in neuron_data.items():
             ld = clean_and_reduce_labels(
-                [label["label"] for label in label_data.get(rid, [])], nd
+                [
+                    label["label"]
+                    for label in sorted(
+                        label_data.get(rid, []),
+                        key=lambda x: x["date_created"],
+                        reverse=True,
+                    )
+                ],
+                nd,
             )
             if sorted(set(nd["label"])) != sorted(set(ld)):
-                print(f'{sorted(set(nd["label"]))} -> {sorted(set(ld))}')
+                print(f'{rid}: {sorted(set(nd["label"]))} -> {sorted(set(ld))}')
                 mismatch += 1
         self.assertEqual(mismatch, 0)
+
+    def test_no_garbage_labels(self):
+        for nd in self.neuron_db.neuron_data.values():
+            labels = nd["label"]
+            self.assertEqual(len(labels), len(set(labels)))
+            self.assertTrue(all(labels))
+            for lbl in labels:
+                self.assertFalse(lbl.startswith("72"), lbl)
+                for garbage in [
+                    "not a neuron",
+                    "sorry",
+                    "correct",
+                    "wrong",
+                    "accident",
+                    "brain fart",
+                    "mistake",
+                    "error",
+                    "part of comprehensive neck connective tracing",
+                ]:
+                    self.assertFalse(
+                        garbage.lower() in lbl.lower(), f"{lbl} contains {garbage}"
+                    )
 
     def test_thumbnails(self):
         # Run this first to collect existing skeleton root ids:
