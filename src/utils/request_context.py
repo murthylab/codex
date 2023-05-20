@@ -3,6 +3,8 @@ import datetime
 from flask import request, session
 from user_agents import parse as parse_ua
 
+from src.configuration import APP_ENVIRONMENT
+from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 from src.utils.cookies import (
     fetch_user_email,
     fetch_user_name,
@@ -57,7 +59,7 @@ def build_request_context(func_name, verbose=False):
         "form": {str(k): str(v) for k, v in request.form.items()}
         if request.form
         else {},
-        "env": str(request.environ) if verbose else "",
+        "env": f'{APP_ENVIRONMENT}:{request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)}',
         "headers": str(request.headers) if verbose else "",
         "elapsed_time_millis": 0,
         "exception": "",
