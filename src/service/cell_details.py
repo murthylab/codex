@@ -77,9 +77,11 @@ def cached_cell_details(
     }
 
     cell_annotations = {
-        "Classification": concat_labels(
+        "Classification<br><small>"
+        '<a href="" data-toggle="modal" data-target="#cellAnnotationsModal">'
+        'info & credits <i class="fa-solid fa-up-right-from-square"></i></a></small>': concat_labels(
             [
-                f"{display(cl)}: <b>{nd[cl]}</b>"
+                f"{display(cl)}: <b>{', '.join([str(v) for v in nd[cl]]) if isinstance(nd[cl], list) else nd[cl]}</b>"
                 for cl in [
                     "side",
                     "nerve",
