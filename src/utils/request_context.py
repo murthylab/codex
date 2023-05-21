@@ -59,7 +59,7 @@ def build_request_context(func_name, verbose=False):
         "form": {str(k): str(v) for k, v in request.form.items()}
         if request.form
         else {},
-        "env": f'{APP_ENVIRONMENT}:{request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)}',
+        "env": f'{APP_ENVIRONMENT}:{request.args.get("data_version", f"{DEFAULT_DATA_SNAPSHOT_VERSION}-defaulted")}',
         "headers": str(request.headers) if verbose else "",
         "elapsed_time_millis": 0,
         "exception": "",

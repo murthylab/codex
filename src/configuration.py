@@ -68,3 +68,8 @@ APP_ENVIRONMENT = str(os.environ.get("APP_ENVIRONMENT", "DEV"))
 
 proc_id = str(uuid.uuid4())[-4:] + f"-{APP_ENVIRONMENT[:1]}"
 host_name = socket.gethostname()
+
+
+class RedirectHomeError(ValueError):
+    def __init__(self, msg):
+        super().__init__(msg)

@@ -25,6 +25,7 @@ from src.configuration import (
     SUPPORT_EMAIL,
     ADMIN_DASHBOARD_URLS,
     MIN_SYN_THRESHOLD,
+    RedirectHomeError,
 )
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data_factory import NeuronDataFactory
@@ -109,6 +110,9 @@ def request_wrapper(func):
             log(f"Processed Codex request with context: {request_context}")
             report_request(request_context)
             return exec_res
+        except RedirectHomeError as e:
+            log_error(f"Redirecting home due to exception: {e}")
+            return redirect(url_for("base.index"))
         except Exception as e:
             traceback.print_exc()
             num_request_errors += 1
@@ -334,7 +338,7 @@ def index(path):
             url_for("app.search", filter_string=request.args.get("filter_string"))
         )
     else:
-        data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+        data_version = request.args.get("data_version", "")
         log_activity(f"Loading home page for {data_version=}")
         card_data = [
             {

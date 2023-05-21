@@ -102,7 +102,7 @@ def jinja_utils():
 @require_data_access
 def stats():
     filter_string = request.args.get("filter_string", "")
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", "")
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
 
@@ -174,7 +174,7 @@ def leaderboard():
 @require_data_access
 def explore():
     log_activity("Loading Explore page")
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", "")
     top_values = request.args.get("top_values", type=int, default=15)
     return render_template(
         "explore.html",
@@ -282,7 +282,7 @@ def search():
     filter_string = request.args.get("filter_string", "")
     page_number = int(request.args.get("page_number", 1))
     page_size = int(request.args.get("page_size", DEFAULT_PAGE_SIZE))
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", "")
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
     sort_by = request.args.get("sort_by")
@@ -358,7 +358,7 @@ def search():
 @require_data_access
 def download_search_results():
     filter_string = request.args.get("filter_string", "")
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", "")
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
     neuron_db = NeuronDataFactory.instance().get(data_version)
@@ -412,7 +412,7 @@ def download_search_results():
 @require_data_access
 def root_ids_from_search_results():
     filter_string = request.args.get("filter_string", "")
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", "")
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
     neuron_db = NeuronDataFactory.instance().get(data_version)
@@ -437,7 +437,7 @@ def root_ids_from_search_results():
 @require_data_access
 def search_results_flywire_url():
     filter_string = request.args.get("filter_string", "")
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", "")
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
     neuron_db = NeuronDataFactory.instance().get(data_version)
@@ -593,7 +593,7 @@ def count_columnar_cells():
 @request_wrapper
 def flywire_url():
     root_ids = [int(rid) for rid in request.args.getlist("root_ids")]
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", "")
     log_request = request.args.get("log_request", default=1, type=int)
     proofreading_url = request.args.get("proofreading_url", default=0, type=int)
     url = nglui.url_for_root_ids(
@@ -636,13 +636,12 @@ def ngl_redirect_with_browser_check(ngl_url):
         )
 
 
-@app.route("/cell_coordinates/<path:data_version>/<path:cell_id>")
+@app.route("/cell_coordinates/<path:cell_id>")
 @request_wrapper
 @require_data_access
-def cell_coordinates(data_version, cell_id):
-    log_activity(
-        f"Loading coordinates for cell {cell_id} from data version {data_version}"
-    )
+def cell_coordinates(cell_id):
+    data_version = request.args.get("data_version", "")
+    log_activity(f"Loading coordinates for cell {cell_id}, {data_version=}")
     neuron_db = NeuronDataFactory.instance().get(data_version)
     nd = neuron_db.get_neuron_data(cell_id)
     return f"<h2>Supervoxel IDs and coordinates for {cell_id}</h2>" + "<br>".join(
@@ -657,7 +656,7 @@ def cell_coordinates(data_version, cell_id):
 @request_wrapper
 @require_data_access
 def cell_details():
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", "")
     reachability_stats = request.args.get("reachability_stats", 0, type=int)
     neuron_db = NeuronDataFactory.instance().get(data_version)
 
@@ -727,7 +726,7 @@ def pathways():
     target = request.args.get("target_cell_id", type=int)
     min_syn_count = request.args.get("min_syn_count", type=int, default=0)
     log_activity(f"Rendering pathways from {source} to {target} with {min_syn_count=}")
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", "")
     neuron_db = NeuronDataFactory.instance().get(version=data_version)
     for rid in [source, target]:
         if not neuron_db.is_in_dataset(rid):
@@ -764,7 +763,7 @@ def pathways():
 def path_length():
     source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", "")
     min_syn_count = request.args.get("min_syn_count", type=int, default=0)
     download = request.args.get("download", 0, type=int)
 
@@ -896,7 +895,7 @@ def path_length():
 @request_wrapper
 @require_data_access
 def connectivity():
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", "")
     nt_type = request.args.get("nt_type", None)
     min_syn_cnt = request.args.get("min_syn_cnt", default=0, type=int)
     connections_cap = request.args.get("cap", default=50, type=int)
@@ -1010,7 +1009,8 @@ def connectivity():
                             ),
                             meta_data={
                                 "generated": str(datetime.now()),
-                                "data_version": data_version,
+                                "data_version": data_version
+                                or DEFAULT_DATA_SNAPSHOT_VERSION,
                                 "query": cell_names_or_ids,
                                 "min_syn_cnt": min_syn_cnt,
                                 "nt_types": nt_type,
@@ -1111,7 +1111,7 @@ def neuropils():
 @request_wrapper
 @require_data_access
 def heatmaps():
-    data_version = request.args.get("data_version", DEFAULT_DATA_SNAPSHOT_VERSION)
+    data_version = request.args.get("data_version", "")
     group_by = request.args.get("group_by")
     count_type = request.args.get("count_type")
     log_activity(f"Rendering heatmaps page with {data_version=} {group_by=}")
@@ -1121,6 +1121,7 @@ def heatmaps():
         group_by=group_by,
         count_type=count_type,
     )
+    dct["data_version"] = data_version
 
     return render_template("heatmaps.html", **dct)
 

@@ -4,6 +4,13 @@
 <!--h6 style="background: purple; color: white; text-align: center; font-size: 14px;">
     FlyWire data snapshot v630 (release candidate) is now available for preview. To switch versions use settings.
 </-->
+{% if data_version and data_version != "630" %}
+<h6 style="background: orange; color: white; text-align: center; font-size: 14px; padding: 5px;">
+    Showing FlyWire data version <b>{{data_version}}</b> &nbsp;
+    <a href="{{url_for('base.index')}}">start over to switch to latest version <i class="fa-solid fa-arrow-right"></i></a>
+</h6>
+{% endif %}
+
 <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
     <a id='nav_home' class="navbar-brand mb-0 h1" href="{{url_for('base.index')}}">
         <img width="30.6px" height="17.7px" src="{{url_for('base.asset', filename='codex-icon-color.png')}}">

@@ -23,7 +23,7 @@
     {% endif %}
 
     <a class="btn btn-link" onclick="loading(event);"
-       href="{{url_for('app.connectivity', cell_names_or_ids=filter_string)}}" >
+       href="{{url_for('app.connectivity', cell_names_or_ids=filter_string, data_version=data_version)}}" >
         <i class="fa-solid fa-circle-nodes"></i> &nbsp; Network
     </a>
 
@@ -52,7 +52,7 @@
     </a>
 
     <a class="btn btn-link"
-       href="{{url_for('app.connectivity', download=1, cell_names_or_ids=filter_string)}}" >
+       href="{{url_for('app.connectivity', download=1, cell_names_or_ids=filter_string, data_version=data_version)}}" >
         <i class="fa-solid fa-download"></i> &nbsp; Synapse table
     </a>
 

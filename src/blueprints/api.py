@@ -23,7 +23,7 @@ def jinja_utils():
 @request_wrapper
 @require_data_access
 def download():
-    data_version = request.args.get("data_version")
+    data_version = request.args.get("data_version", "")
     if not data_version:  # empty form - initial load
         agree_chk = 0
         data_version = DEFAULT_DATA_SNAPSHOT_VERSION
