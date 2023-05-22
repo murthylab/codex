@@ -529,7 +529,9 @@ def demo_clip():
 
 def activity_suffix(filter_string, data_version):
     return (f"for '{truncate(filter_string, 50)}'" if filter_string else "") + (
-        f" (v{data_version})" if data_version != DEFAULT_DATA_SNAPSHOT_VERSION else ""
+        f" (v{data_version})"
+        if data_version and data_version != DEFAULT_DATA_SNAPSHOT_VERSION
+        else ""
     )
 
 

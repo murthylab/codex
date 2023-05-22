@@ -83,47 +83,7 @@ class NeuronDB(object):
             ]
         )
 
-        # Add tagging candidate markers for columnar cells in the Optic Lobe
-        for (
-            cst_type,
-            tagged_and_candidate_rids,
-        ) in self._collect_columnar_cell_tagging_candidates().items():
-            tagged_left_count = len(
-                [
-                    rid
-                    for rid in tagged_and_candidate_rids[0]
-                    if self.neuron_data[rid]["side"] == "left"
-                ]
-            )
-            tagged_right_count = len(
-                [
-                    rid
-                    for rid in tagged_and_candidate_rids[0]
-                    if self.neuron_data[rid]["side"] == "right"
-                ]
-            )
-            candidate_left_count = len(
-                [
-                    rid
-                    for rid in tagged_and_candidate_rids[1]
-                    if self.neuron_data[rid]["side"] == "left"
-                ]
-            )
-            candidate_right_count = len(
-                [
-                    rid
-                    for rid in tagged_and_candidate_rids[1]
-                    if self.neuron_data[rid]["side"] == "right"
-                ]
-            )
-            self.meta_data[f"{cst_type}_tagged_count_left"] = tagged_left_count
-            self.meta_data[f"{cst_type}_tagged_count_right"] = tagged_right_count
-            self.meta_data[f"{cst_type}_candidate_count_left"] = candidate_left_count
-            self.meta_data[f"{cst_type}_candidate_count_right"] = candidate_right_count
-            for rid in tagged_and_candidate_rids[0]:
-                self.neuron_data[rid]["marker"].append(cst_type)
-            for rid in tagged_and_candidate_rids[1]:
-                self.neuron_data[rid]["marker"].append(f"candidate:{cst_type}")
+        self._create_markers()
 
     def input_sets(self, min_syn_count=0):
         return self.input_output_partner_sets(min_syn_count)[0]
@@ -251,6 +211,7 @@ class NeuronDB(object):
             "Nerve": "nerve",
             "Cell Body Side": "side",
             "Community Identification Label": "label",
+            "Special Cells": "marker",
             "Max In/Out Neuropil": "group",
             "Morphology cluster": "morphology_cluster",
             "Connectivity cluster": "connectivity_cluster",
@@ -262,13 +223,23 @@ class NeuronDB(object):
                 val = nd[v]
                 if not val:
                     continue
-                else:
-                    assigned_to_num_cells_dict[v] += 1
+
                 if isinstance(val, list):
+                    assigned = False
                     for c in val:
-                        value_counts_dict[v][c] += 1
+                        if (
+                            v == "marker" and ":" in c
+                        ):  # skip temporary OL tagging markers
+                            continue
+                        else:
+                            assigned = True
+                            value_counts_dict[v][c] += 1
                 else:
+                    assigned = True
                     value_counts_dict[v][val] += 1
+
+                if assigned:
+                    assigned_to_num_cells_dict[v] += 1
 
         def _caption(name, assigned_to_count, values_count):
 
@@ -520,6 +491,84 @@ class NeuronDB(object):
             if len(non_uniform_set) == len(page_labels):
                 break
         return non_uniform_set
+
+    def _create_markers(self):
+        # Add markers for special cells (as per FlyWire flagship paper)
+        special_cells = self._identify_special_cells()
+        for tp, lst in special_cells.items():
+            for rid in lst:
+                self.neuron_data[rid]["marker"].append(tp)
+
+        # Add tagging candidate markers for columnar cells in the Optic Lobe
+        for (
+            cst_type,
+            tagged_and_candidate_rids,
+        ) in self._collect_columnar_cell_tagging_candidates().items():
+            tagged_left_count = len(
+                [
+                    rid
+                    for rid in tagged_and_candidate_rids[0]
+                    if self.neuron_data[rid]["side"] == "left"
+                ]
+            )
+            tagged_right_count = len(
+                [
+                    rid
+                    for rid in tagged_and_candidate_rids[0]
+                    if self.neuron_data[rid]["side"] == "right"
+                ]
+            )
+            candidate_left_count = len(
+                [
+                    rid
+                    for rid in tagged_and_candidate_rids[1]
+                    if self.neuron_data[rid]["side"] == "left"
+                ]
+            )
+            candidate_right_count = len(
+                [
+                    rid
+                    for rid in tagged_and_candidate_rids[1]
+                    if self.neuron_data[rid]["side"] == "right"
+                ]
+            )
+            self.meta_data[f"{cst_type}_tagged_count_left"] = tagged_left_count
+            self.meta_data[f"{cst_type}_tagged_count_right"] = tagged_right_count
+            self.meta_data[f"{cst_type}_candidate_count_left"] = candidate_left_count
+            self.meta_data[f"{cst_type}_candidate_count_right"] = candidate_right_count
+            for rid in tagged_and_candidate_rids[0]:
+                self.neuron_data[rid]["marker"].append(f"columnar:{cst_type}")
+            for rid in tagged_and_candidate_rids[1]:
+                self.neuron_data[rid]["marker"].append(f"columnar_candidate:{cst_type}")
+
+    def _identify_special_cells(self):
+        ins, outs = self.input_output_partner_sets()
+        rich_club = {
+            rid
+            for rid in self.neuron_data.keys()
+            if len(ins[rid]) + len(outs[rid]) > 98
+        }
+        broadcasters = {
+            rid
+            for rid in rich_club
+            if self.neuron_data[rid]["flow"] == "intrinsic"
+            and len(outs[rid]) > 5 * len(ins[rid])
+        }
+        integrators = {
+            rid
+            for rid in rich_club
+            if self.neuron_data[rid]["flow"] == "intrinsic"
+            and len(ins[rid]) > 5 * len(outs[rid])
+        }
+        reciprocals = {
+            rid for rid in self.neuron_data.keys() if not ins[rid].isdisjoint(outs[rid])
+        }
+        return {
+            "rich_club": rich_club,
+            "broadcaster": broadcasters,
+            "integrator": integrators,
+            "reciprocal": reciprocals,
+        }
 
     def _collect_columnar_cell_tagging_candidates(self):
         # identify optic lobe columnar cell tagging candidates

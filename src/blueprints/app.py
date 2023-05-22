@@ -481,13 +481,13 @@ def optic_lobe_tagging():
 
     if examples_for:
         check_known_type(examples_for)
-        query = f"marker == {examples_for}"
+        query = f"marker == columnar:{examples_for}"
         if side:
             query += f" && side == {side}"
         return redirect(url_for("app.search", filter_string=query, whole_word=1))
     elif candidates_for:
         check_known_type(candidates_for)
-        query = f"marker == candidate:{candidates_for}"
+        query = f"marker == columnar_candidate:{candidates_for}"
         if side:
             query += f" && side == {side}"
         return redirect(url_for("app.search", filter_string=query))

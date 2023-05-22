@@ -703,13 +703,16 @@ class NeuronDataTest(TestCase):
     def test_columnar_cell_tags(self):
         # check marked cells
         for rid, ndata in self.neuron_db.neuron_data.items():
-            if ndata["marker"]:
+            ol_tag_markers = [mrk for mrk in ndata["marker"] if ":" in mrk]
+            if ol_tag_markers:
                 self.assertTrue(ndata["super_class"] in COLUMNAR_CELL_SUPER_CLASSES)
-                if all([mrk.startswith("candidate") for mrk in ndata["marker"]]):
-                    for mrk in ndata["marker"]:
+                if all(
+                    [mrk.startswith("columnar_candidate:") for mrk in ol_tag_markers]
+                ):
+                    for mrk in ol_tag_markers:
                         self.assertTrue(mrk.split(":")[1] in COLUMNAR_CELL_TYPE_GROUPS)
-                elif len(ndata["marker"]) == 1:
-                    mrk = ndata["marker"][0]
+                elif len(ol_tag_markers) == 1:
+                    mrk = ol_tag_markers[0].split(":")[1]
                     self.assertTrue(mrk in COLUMNAR_CELL_TYPE_GROUPS)
                     if ndata["cell_type"]:
                         for ct in ndata["cell_type"]:
@@ -725,7 +728,7 @@ class NeuronDataTest(TestCase):
                                     f"{t=} {mrk=} {lbl=}",
                                 )
                 else:
-                    self.fail(f"Too many markers: {ndata['marker']}")
+                    self.fail(f"Too many OL tag markers: {ndata['marker']}")
             elif ndata["cell_type"]:
                 for ct in ndata["cell_type"]:
                     self.assertTrue(ct not in COLUMNAR_CELL_TYPE_GROUPS)
