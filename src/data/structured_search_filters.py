@@ -667,7 +667,7 @@ def _make_predicate(
         downstream, upstream = connections_loader(rhs, by_neuropil=False)
         if op == OP_DOWNSTREAM:
             target_rid_set = set(downstream)
-        elif op == OP_DOWNSTREAM:
+        elif op == OP_UPSTREAM:
             target_rid_set = set(upstream)
         else:
             target_rid_set = set(upstream).intersection(downstream)
