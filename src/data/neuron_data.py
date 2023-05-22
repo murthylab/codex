@@ -211,7 +211,7 @@ class NeuronDB(object):
             "Nerve": "nerve",
             "Cell Body Side": "side",
             "Community Identification Label": "label",
-            "Special Cells": "marker",
+            "Connectivity Labels": "marker",
             "Max In/Out Neuropil": "group",
             "Morphology cluster": "morphology_cluster",
             "Connectivity cluster": "connectivity_cluster",
