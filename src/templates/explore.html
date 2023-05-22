@@ -7,7 +7,7 @@
     {% for category_data in categories %}
     <div class="card" style="margin: 5px; padding: 0px;">
         <div class="card-header" style="color: purple;" >
-            {{category_data['caption']|safe}}
+            <a href="{{url_for('app.explore', for_attr_name=category_data['key'], top_values=10000, data_version=data_version)}}">{{category_data['caption']|safe}}</a>
         </div>
         <div class="card-body" style="margin: 0px; padding: 0px;">
             <table class="table table-hover">
@@ -35,11 +35,12 @@
     {% endfor %}
 </div>
 
+{% if category_data|length > 1 %}
 <form class="form-inline">
     <label style="margin: 20px;">Num Top Values</label>
     <select style="margin: 20px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit()"
             aria-label="Num Top Values" name="top_values">
-        {% for k in [15, 69, 420, 888] %}
+        {% for k in [5, 10, 50] %}
         <option value="{{k}}" {{
         'selected' if top_values==k}}>{{k}}</option>
         {% endfor %}
@@ -53,6 +54,7 @@
         {% endfor %}
     </select>
 </form>
+{% endif %}
 
 
 {% endblock content %}

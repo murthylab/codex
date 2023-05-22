@@ -236,10 +236,10 @@ class NeuronDB(object):
         return sorted(vals)
 
     @lru_cache
-    def categories(self, top_values=10):
+    def categories(self, top_values=10, for_attr_name=None):
         value_counts_dict = defaultdict(lambda: defaultdict(int))
         assigned_to_num_cells_dict = defaultdict(int)
-        category_names = {
+        category_attr_names = {
             "Neurotransmitter Type": "nt_type",
             "Flow": "flow",
             "Super Class": "super_class",
@@ -256,7 +256,9 @@ class NeuronDB(object):
             "Connectivity cluster": "connectivity_cluster",
         }
         for nd in self.neuron_data.values():
-            for v in category_names.values():
+            for v in category_attr_names.values():
+                if for_attr_name and v != for_attr_name:
+                    continue
                 val = nd[v]
                 if not val:
                     continue
@@ -271,13 +273,14 @@ class NeuronDB(object):
         def _caption(name, assigned_to_count, values_count):
 
             caption = (
-                f"{name}<small>"
+                f"<b>{name}</b><small style='color: teal'>"
                 f"<br>- Assigned to {display(assigned_to_count)} cells / {percentage(assigned_to_count, self.num_cells())}"
                 f"<br>- {display(values_count)} unique values"
             )
             if values_count > top_values:
-                caption += f" (see cells for top {top_values})"
-            caption += "</small>"
+                caption += f". Showing top {top_values}</small> <b>&#8594;</b>"
+            else:
+                caption += "</small>"
             return caption
 
         def _sorted_counts(d):
@@ -292,8 +295,8 @@ class NeuronDB(object):
                 "key": cv,
                 "counts": _sorted_counts(value_counts_dict[cv]),
             }
-            for ck, cv in category_names.items()
-            if cv
+            for ck, cv in category_attr_names.items()
+            if value_counts_dict[cv]
         ]
 
     # Returns value ranges for all attributes with not too many different values. Used for advanced search dropdowns.

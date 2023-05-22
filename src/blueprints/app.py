@@ -175,7 +175,8 @@ def leaderboard():
 def explore():
     log_activity("Loading Explore page")
     data_version = request.args.get("data_version", "")
-    top_values = request.args.get("top_values", type=int, default=15)
+    top_values = request.args.get("top_values", type=int, default=6)
+    for_attr_name = request.args.get("for_attr_name", "")
     return render_template(
         "explore.html",
         data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
@@ -183,7 +184,7 @@ def explore():
         top_values=top_values,
         categories=NeuronDataFactory.instance()
         .get(data_version)
-        .categories(top_values=top_values),
+        .categories(top_values=top_values, for_attr_name=for_attr_name),
     )
 
 
