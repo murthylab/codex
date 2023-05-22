@@ -42,17 +42,16 @@
 
             <table cellspacing="0" cellpadding="0" style="border: none; border-collapse: collapse;">
                 <tr style="background: none; margin: 0; padding: 0;">
-                    <td style="padding-right: 10px;"><b>{{num_cells}}</b></td>
-                    <td style="padding-right: 10px;"><b>{{num_connections}}</b></td>
-                    <td style="padding-right: 10px;"><b>{{num_synapses}}</b></td>
-                    <td style="padding: 0px;"><b>{{num_labels}}</b></td>
+                    <td style="padding-right: 10px;"><b>{{num_cells}}</b><br>proofread cells</td>
+                    <td style="padding-right: 10px;"><b>{{num_typed_or_identified_cells}}  ({{percent_typed_or_identified_cells}})</b><br>typed or labeled cells</td>
                 </tr>
-                <tr style="background: none; margin-top: -20px; padding: 0;">
-                    <td style="padding-right: 10px;">traced cells</td>
-                    <td style="padding-right: 10px;">connections</td>
-                    <td style="padding-right: 10px;">synapses
-                        <a href="" style="color:teal;" data-toggle="modal" data-target="#synapsesModal">[?]</a></td>
-                    <td style="padding: 0px;">labels</td>
+                <tr style="background: none; margin: 0; padding: 0;">
+                    <td><b>{{num_connections}}</b><br>connections
+                        <a href="" style="color:teal;" data-toggle="modal" data-target="#synapsesModal">[?]</a>
+                    </td>
+                    <td><b>{{num_synapses}}</b><br>synapses
+                        <a href="" style="color:teal;" data-toggle="modal" data-target="#synapsesModal">[?]</a>
+                    </td>
                 </tr>
             </table>
             <br>

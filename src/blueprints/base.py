@@ -48,7 +48,7 @@ from src.utils.cookies import (
     fetch_flywire_user_affiliation,
     is_flywire_lab_member,
 )
-from src.utils.formatting import truncate, display
+from src.utils.formatting import truncate, display, percentage
 from src.utils.logging import (
     log,
     log_activity,
@@ -401,7 +401,12 @@ def index(path):
             num_cells=display(neuron_db.num_cells()),
             num_synapses=display(neuron_db.num_synapses()),
             num_connections=display(neuron_db.num_connections()),
-            num_labels=display(neuron_db.num_labels()),
+            num_typed_or_identified_cells=display(
+                neuron_db.num_typed_or_identified_cells()
+            ),
+            percent_typed_or_identified_cells=percentage(
+                neuron_db.num_typed_or_identified_cells(), neuron_db.num_cells()
+            ),
             default_version=DEFAULT_DATA_SNAPSHOT_VERSION,
             min_syn_threshold=MIN_SYN_THRESHOLD,
         )

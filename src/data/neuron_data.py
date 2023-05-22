@@ -215,6 +215,16 @@ class NeuronDB(object):
         return sum([len(nd["label"]) for nd in self.neuron_data.values()])
 
     @lru_cache
+    def num_typed_or_identified_cells(self):
+        return len(
+            [
+                nd
+                for nd in self.neuron_data.values()
+                if any([nd[attr] for attr in ["label", "cell_type", "hemibrain_type"]])
+            ]
+        )
+
+    @lru_cache
     def unique_values(self, attr_name):
         vals = set()
         for nd in self.neuron_data.values():
