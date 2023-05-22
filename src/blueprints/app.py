@@ -597,7 +597,9 @@ def flywire_url():
     log_request = request.args.get("log_request", default=1, type=int)
     proofreading_url = request.args.get("proofreading_url", default=0, type=int)
     url = nglui.url_for_root_ids(
-        root_ids, version=data_version, point_to_proofreading_flywire=proofreading_url
+        root_ids,
+        version=data_version or DEFAULT_DATA_SNAPSHOT_VERSION,
+        point_to_proofreading_flywire=proofreading_url,
     )
     if log_request:
         log_activity(

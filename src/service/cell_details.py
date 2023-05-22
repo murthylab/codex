@@ -13,6 +13,7 @@ from src.data.structured_search_filters import (
     OP_SIMILAR_CONNECTIVITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
 )
+from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 from src.utils import nglui
 from src.utils import stats as stats_utils
 from src.utils.formatting import (
@@ -42,10 +43,16 @@ def cached_cell_details(
     pos = (
         nanometer_to_flywire_coordinates(nd["position"][0]) if nd["position"] else None
     )
+    fw_url = nglui.url_for_root_ids(
+        root_ids=[root_id],
+        version=data_version or DEFAULT_DATA_SNAPSHOT_VERSION,
+        point_to_proofreading_flywire=True,
+        position=pos,
+    )
     cell_attributes = {
         "Name": nd["name"],
         "FlyWire Root ID": f"{root_id}<br><small>"
-        f'<a href="{nglui.url_for_root_ids([root_id], version=data_version, point_to_proofreading_flywire=True, position=pos)}" target="_blank">Open in FlyWire <i class="fa-solid fa-up-right-from-square"></i> </a><br>'
+        f'<a href="{fw_url}" target="_blank">Open in FlyWire <i class="fa-solid fa-up-right-from-square"></i> </a><br>'
         f'<a href="cell_coordinates/{root_id}?data_version={data_version}" target="_blank">Supervoxel IDs and Coordinates <i class="fa-solid fa-up-right-from-square"></i> </a>'
         "</small>",
         "Partners<br><small>Synapses</small>": '<a href="'

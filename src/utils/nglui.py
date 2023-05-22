@@ -4,11 +4,21 @@ from nglui import statebuilder
 import json
 
 from src.data.brain_regions import REGIONS, COLORS
+from src.data.versions import (
+    DEFAULT_DATA_SNAPSHOT_VERSION,
+    DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
+)
+from src.utils.logging import log_error
 
 
 def url_for_root_ids(
     root_ids, version, point_to_proofreading_flywire=False, position=None
 ):
+    if version not in DATA_SNAPSHOT_VERSION_DESCRIPTIONS:
+        log_error(
+            f"Invalid version '{version}' passed to 'url_for_root_ids'. Falling back to default."
+        )
+        version = DEFAULT_DATA_SNAPSHOT_VERSION
     if point_to_proofreading_flywire:
         img_layer = statebuilder.ImageLayerConfig(
             name="EM",
@@ -53,6 +63,12 @@ def url_for_random_sample(root_ids, version, sample_size=50):
 
 
 def url_for_cells(segment_ids, data_version):
+    if data_version not in DATA_SNAPSHOT_VERSION_DESCRIPTIONS:
+        log_error(
+            f"Invalid version '{data_version}' passed to 'url_for_cells'. Falling back to default."
+        )
+        data_version = DEFAULT_DATA_SNAPSHOT_VERSION
+
     config = {
         "dimensions": {"x": [1.6e-8, "m"], "y": [1.6e-8, "m"], "z": [4e-8, "m"]},
         "projectionScale": 30000,
