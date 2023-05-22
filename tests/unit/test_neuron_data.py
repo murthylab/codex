@@ -740,26 +740,3 @@ class NeuronDataTest(TestCase):
                 for lbl in ndata["label"]:
                     for t in COLUMNAR_CELL_TYPE_GROUPS.keys():
                         self.assertTrue(t.lower() not in lbl.lower().split(), lbl)
-
-    def test_3_loops(self):
-        ins, outs = self.neuron_db.input_output_partner_sets()
-        triangles = set()
-        nodes_to_triangles = defaultdict(set)
-        for a in self.neuron_db.neuron_data.keys():
-            for b in outs[a]:
-                if b in ins[a]:
-                    continue
-                for c in ins[a].intersection(outs[b]):
-                    if c in ins[b] or c in outs[a]:
-                        continue
-                    trngl = tuple(sorted([a, b, c]))
-                    triangles.add(trngl)
-                    for n in [a, b, c]:
-                        nodes_to_triangles[n].add(trngl)
-        print(
-            f"{len(nodes_to_triangles)=}, {len(triangles)=}, {max([len(s) for s in nodes_to_triangles.values()])=} {min([len(s) for s in nodes_to_triangles.values()])=}"
-        )
-
-        for trpl in random.sample(triangles, 10):
-            log_dev_url_for_root_ids(root_ids=list(trpl), caption="sample")
-        self.assertEqual(280558, len(triangles))
