@@ -221,6 +221,7 @@ OP_UPSTREAM = "{upstream}"
 OP_DOWNSTREAM = "{downstream}"
 OP_UPSTREAM_REGION = "{upstream_region}"
 OP_DOWNSTREAM_REGION = "{downstream_region}"
+OP_RECIPROCAL = "{reciprocal}"
 OP_SIMILAR_SHAPE = "{similar_shape}"
 OP_SIMILAR_CONNECTIVITY_UPSTREAM = "{similar_upstream}"
 OP_SIMILAR_CONNECTIVITY_DOWNSTREAM = "{similar_downstream}"
@@ -411,6 +412,13 @@ STRUCTURED_SEARCH_OPERATORS = [
         description="Binary, matches cells downstream of RHS, with synapses in LHS region, where region is either hemisphere (left/right/center) or neuropil (e.g. GNG)",
         lhs_description="Region or Side",
         lhs_range=HEMISPHERES + sorted(REGIONS.keys()),
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    UnarySearchOperator(
+        name=OP_RECIPROCAL,
+        shorthand="^v",
+        description="Unary, matches reciprocal-feedback cells that are both downstream and upstream of specified Cell ID",
         rhs_description="Cell ID",
         rhs_range=None,
     ),
@@ -655,9 +663,14 @@ def _make_predicate(
             return lambda x: any([p(x) for p in predicates])
         else:
             return lambda x: not any([p(x) for p in predicates])
-    elif op in [OP_DOWNSTREAM, OP_UPSTREAM]:
+    elif op in [OP_DOWNSTREAM, OP_UPSTREAM, OP_RECIPROCAL]:
         downstream, upstream = connections_loader(rhs, by_neuropil=False)
-        target_rid_set = set(downstream) if op == OP_DOWNSTREAM else set(upstream)
+        if op == OP_DOWNSTREAM:
+            target_rid_set = set(downstream)
+        elif op == OP_DOWNSTREAM:
+            target_rid_set = set(upstream)
+        else:
+            target_rid_set = set(upstream).intersection(downstream)
         return lambda x: x["root_id"] in target_rid_set
     elif op in [OP_DOWNSTREAM_REGION, OP_UPSTREAM_REGION]:
         downstream, upstream = connections_loader(rhs, by_neuropil=True)

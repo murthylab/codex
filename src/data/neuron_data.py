@@ -546,19 +546,19 @@ class NeuronDB(object):
         rich_club = {
             rid
             for rid in self.neuron_data.keys()
-            if len(ins[rid]) + len(outs[rid]) > 98
+            if len(ins[rid]) + len(outs[rid]) >= 37
         }
         broadcasters = {
             rid
             for rid in rich_club
             if self.neuron_data[rid]["flow"] == "intrinsic"
-            and len(outs[rid]) > 5 * len(ins[rid])
+            and len(outs[rid]) >= 5 * len(ins[rid])
         }
         integrators = {
             rid
             for rid in rich_club
             if self.neuron_data[rid]["flow"] == "intrinsic"
-            and len(ins[rid]) > 5 * len(outs[rid])
+            and len(ins[rid]) >= 5 * len(outs[rid])
         }
         reciprocals = {
             rid for rid in self.neuron_data.keys() if not ins[rid].isdisjoint(outs[rid])

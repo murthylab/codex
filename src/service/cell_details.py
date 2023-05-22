@@ -9,6 +9,7 @@ from src.data.neurotransmitters import lookup_nt_type_name, NEURO_TRANSMITTER_NA
 from src.data.structured_search_filters import (
     OP_UPSTREAM,
     OP_DOWNSTREAM,
+    OP_RECIPROCAL,
     OP_SIMILAR_SHAPE,
     OP_SIMILAR_CONNECTIVITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
@@ -148,6 +149,15 @@ def cached_cell_details(
                 "app.search", filter_string=f"{OP_DOWNSTREAM} {root_id}"
             ),
         )
+        if "reciprocal" in nd["marker"]:
+            insert_neuron_list_links(
+                f"reciprocal feedback cells with {MIN_SYN_THRESHOLD}+ synapses",
+                "show",
+                '<i class="fa-solid fa-arrow-right-arrow-left"></i>',
+                search_endpoint=url_for(
+                    "app.search", filter_string=f"{OP_RECIPROCAL} {root_id}"
+                ),
+            )
 
         charts = {}
 

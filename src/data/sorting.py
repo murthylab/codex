@@ -3,6 +3,7 @@ from collections import defaultdict
 from src.data.structured_search_filters import (
     OP_DOWNSTREAM,
     OP_UPSTREAM,
+    OP_RECIPROCAL,
     parse_search_query,
     OP_PATHWAYS,
     OP_SIMILAR_SHAPE,
@@ -14,6 +15,7 @@ from src.utils.logging import log_error, log
 
 DOWNSTREAM_SYNAPSE_COUNT = "downstream_synapse_count"
 UPSTREAM_SYNAPSE_COUNT = "upstream_synapse_count"
+RECIPROCAL_SYNAPSE_COUNT = "reciprocal_synapse_count"
 DISTANCE_FROM = "distance_from"
 NBLAST_SCORE = "nblast_score"
 JACCARD_SIMILARITY_UPSTREAM = "jaccard_upstream"
@@ -23,6 +25,7 @@ ITEM_COUNT = "item_count"
 SORTABLE_OPS = {
     OP_DOWNSTREAM: DOWNSTREAM_SYNAPSE_COUNT,
     OP_UPSTREAM: UPSTREAM_SYNAPSE_COUNT,
+    OP_RECIPROCAL: RECIPROCAL_SYNAPSE_COUNT,
     OP_PATHWAYS: DISTANCE_FROM,
     OP_SIMILAR_SHAPE: NBLAST_SCORE,
     OP_SIMILAR_CONNECTIVITY_UPSTREAM: JACCARD_SIMILARITY_UPSTREAM,
@@ -57,6 +60,7 @@ def infer_sort_by(query):
             if sort_type in [
                 DOWNSTREAM_SYNAPSE_COUNT,
                 UPSTREAM_SYNAPSE_COUNT,
+                RECIPROCAL_SYNAPSE_COUNT,
                 NBLAST_SCORE,
                 JACCARD_SIMILARITY_UPSTREAM,
                 JACCARD_SIMILARITY_DOWNSTREAM,
@@ -166,7 +170,11 @@ def sort_search_results(
 
             sort_by_target_cell_rid = int(parts[1])
 
-            if parts[0] in [DOWNSTREAM_SYNAPSE_COUNT, UPSTREAM_SYNAPSE_COUNT]:
+            if parts[0] in [
+                DOWNSTREAM_SYNAPSE_COUNT,
+                UPSTREAM_SYNAPSE_COUNT,
+                RECIPROCAL_SYNAPSE_COUNT,
+            ]:
                 con_table = connections_getter(sort_by_target_cell_rid)
                 if parts[0] == DOWNSTREAM_SYNAPSE_COUNT:
                     extra_data_title = (
@@ -176,13 +184,24 @@ def sort_search_results(
                     for r in con_table:
                         if r[0] == sort_by_target_cell_rid:
                             dct[r[1]] += r[3]
-                else:
+                elif parts[0] == UPSTREAM_SYNAPSE_COUNT:
                     extra_data_title = (
                         f"Number of output synapses to {sort_by_target_cell_rid}"
                     )
                     dct = defaultdict(int)
                     for r in con_table:
                         if r[1] == sort_by_target_cell_rid:
+                            dct[r[0]] += r[3]
+                else:
+                    extra_data_title = (
+                        f"Number of in + out synapses to {sort_by_target_cell_rid}"
+                    )
+                    dct = defaultdict(int)
+                    for r in con_table:
+                        if (
+                            r[0] == sort_by_target_cell_rid
+                            or r[1] == sort_by_target_cell_rid
+                        ):
                             dct[r[0]] += r[3]
                 extra_data = {
                     "title": extra_data_title,
