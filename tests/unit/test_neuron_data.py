@@ -1,4 +1,5 @@
 import os
+import random
 from collections import defaultdict
 from unittest import TestCase
 
@@ -24,7 +25,7 @@ from src.utils.formatting import (
     make_web_safe,
     is_proper_textual_annotation,
 )
-from tests import TEST_DATA_ROOT_PATH
+from tests import TEST_DATA_ROOT_PATH, log_dev_url_for_root_ids
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
 
@@ -292,6 +293,9 @@ class NeuronDataTest(TestCase):
 
         upstream = self.neuron_db.search("{upstream} 720575940646952324")
         self.assertEqual(204, len(upstream))
+
+        reciprocal = self.neuron_db.search("{reciprocal} 720575940646952324")
+        self.assertEqual(29, len(reciprocal))
 
     def test_downstream_upstream_region_queries(self):
         downstream = self.neuron_db.search(
@@ -736,3 +740,26 @@ class NeuronDataTest(TestCase):
                 for lbl in ndata["label"]:
                     for t in COLUMNAR_CELL_TYPE_GROUPS.keys():
                         self.assertTrue(t.lower() not in lbl.lower().split(), lbl)
+
+    def test_3_loops(self):
+        ins, outs = self.neuron_db.input_output_partner_sets()
+        triangles = set()
+        nodes_to_triangles = defaultdict(set)
+        for a in self.neuron_db.neuron_data.keys():
+            for b in outs[a]:
+                if b in ins[a]:
+                    continue
+                for c in ins[a].intersection(outs[b]):
+                    if c in ins[b] or c in outs[a]:
+                        continue
+                    trngl = tuple(sorted([a, b, c]))
+                    triangles.add(trngl)
+                    for n in [a, b, c]:
+                        nodes_to_triangles[n].add(trngl)
+        print(
+            f"{len(nodes_to_triangles)=}, {len(triangles)=}, {max([len(s) for s in nodes_to_triangles.values()])=} {min([len(s) for s in nodes_to_triangles.values()])=}"
+        )
+
+        for trpl in random.sample(triangles, 10):
+            log_dev_url_for_root_ids(root_ids=list(trpl), caption="sample")
+        self.assertEqual(280558, len(triangles))
