@@ -10,6 +10,7 @@ static/raw_data/
 static/experimental_data/
 static/gcs_ls_logs/
 static/secrets/
+notebooks/
 
 # Mac
 .DS_Store
