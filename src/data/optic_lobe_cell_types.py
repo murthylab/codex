@@ -46,3 +46,20 @@ COLUMNAR_CELL_SUPER_CLASSES = {
     "sensory",
     "visual_projection",
 }
+
+COLUMNAR_CELL_TYPE_OUTPUT_NEUROPIL_FILTERS = {
+    "Mi9": {"LO_L", "LO_R", "LOP_L", "LOP_R"},
+    "T4a": {"LO_L", "LO_R"},
+    "T4b": {"LO_L", "LO_R"},
+    "T4c": {"LO_L", "LO_R"},
+    "T4d": {"LO_L", "LO_R"},
+}
+
+
+def feasible_candidate(type_group, output_neuropils):
+    assert type_group in COLUMNAR_CELL_TYPE_GROUPS
+    if type_group not in COLUMNAR_CELL_TYPE_OUTPUT_NEUROPIL_FILTERS:
+        return True
+    return COLUMNAR_CELL_TYPE_OUTPUT_NEUROPIL_FILTERS[type_group].isdisjoint(
+        output_neuropils
+    )

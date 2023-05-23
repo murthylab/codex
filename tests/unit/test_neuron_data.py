@@ -1,5 +1,4 @@
 import os
-import random
 from collections import defaultdict
 from unittest import TestCase
 
@@ -16,6 +15,7 @@ from src.data.neuron_data_initializer import (
 from src.data.optic_lobe_cell_types import (
     COLUMNAR_CELL_TYPE_GROUPS,
     COLUMNAR_CELL_SUPER_CLASSES,
+    feasible_candidate,
 )
 from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
@@ -25,7 +25,7 @@ from src.utils.formatting import (
     make_web_safe,
     is_proper_textual_annotation,
 )
-from tests import TEST_DATA_ROOT_PATH, log_dev_url_for_root_ids
+from tests import TEST_DATA_ROOT_PATH
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
 
@@ -740,3 +740,7 @@ class NeuronDataTest(TestCase):
                 for lbl in ndata["label"]:
                     for t in COLUMNAR_CELL_TYPE_GROUPS.keys():
                         self.assertTrue(t.lower() not in lbl.lower().split(), lbl)
+
+    def test_columnar_candidate_neuropil_filter(self):
+        pils = self.neuron_db.neuron_data[720575940604570046]["output_neuropils"]
+        self.assertFalse(feasible_candidate("T4a", pils), pils)

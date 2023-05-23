@@ -227,7 +227,7 @@ def cached_cell_details(
 
     insert_neuron_list_links(
         "cells with similar morphology (NBLAST based)",
-        len(neuron_db.get_similar_shape_cells(root_id)),
+        len(neuron_db.get_similar_shape_cells(root_id, include_self=False)),
         '<i class="fa-regular fa-clone"></i>',
         search_endpoint=url_for(
             "app.search", filter_string=f"{OP_SIMILAR_SHAPE} {root_id}"

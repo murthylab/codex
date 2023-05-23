@@ -7,6 +7,7 @@ from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.optic_lobe_cell_types import (
     COLUMNAR_CELL_TYPE_GROUPS,
     COLUMNAR_CELL_SUPER_CLASSES,
+    feasible_candidate,
 )
 from src.data.search_index import SearchIndex
 from src.data.structured_search_filters import (
@@ -295,6 +296,7 @@ class NeuronDB(object):
     def get_similar_shape_cells(
         self,
         root_id,
+        include_self,
         min_score=MIN_NBLAST_SCORE_SIMILARITY,
         top_k=99999,
     ):
@@ -309,7 +311,8 @@ class NeuronDB(object):
             if self.get_neuron_data(root_id).get("similar_cell_scores")
             else []
         )
-        scores.append((root_id, 10))  # include self
+        if include_self:
+            scores.append((root_id, 10))
         scores = sorted(scores, key=lambda p: -p[1])[:top_k]
         return {p[0]: p[1] for p in scores}
 
@@ -599,10 +602,12 @@ class NeuronDB(object):
                     type_group_name
                 ]
 
-        def similar_unannotated_cells(cells):
+        def similar_unannotated_cells(type_group, cells):
             candidates = set()
             for c in cells:
-                candidates |= set(self.get_similar_shape_cells(c).keys())
+                candidates |= set(
+                    self.get_similar_shape_cells(c, include_self=False).keys()
+                )
             candidates = set(
                 [
                     rid
@@ -611,9 +616,19 @@ class NeuronDB(object):
                     in COLUMNAR_CELL_SUPER_CLASSES
                 ]
             )
-            return candidates - all_annotated_columnar_neurons
+            candidates -= all_annotated_columnar_neurons
+            return set(
+                [
+                    c
+                    for c in candidates
+                    if feasible_candidate(
+                        type_group=type_group,
+                        output_neuropils=self.neuron_data[c]["output_neuropils"],
+                    )
+                ]
+            )
 
         return {
-            t: (v, similar_unannotated_cells(v))
+            t: (v, similar_unannotated_cells(t, v))
             for t, v in type_to_annotated_neuron_sets.items()
         }

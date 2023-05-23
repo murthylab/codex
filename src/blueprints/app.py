@@ -455,7 +455,7 @@ def search_results_flywire_url():
 
     url = nglui.url_for_random_sample(
         filtered_root_id_list,
-        version=data_version,
+        version=data_version or DEFAULT_DATA_SNAPSHOT_VERSION,
         sample_size=MAX_NEURONS_FOR_DOWNLOAD,
     )
     log_activity(

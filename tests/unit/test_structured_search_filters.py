@@ -54,6 +54,7 @@ class Test(TestCase):
 
             def mock_sim_loader(
                 cell_id,
+                include_self=True,
                 include_upstream=False,
                 include_downstream=False,
                 weighted=False,

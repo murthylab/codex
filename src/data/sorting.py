@@ -107,7 +107,10 @@ def sort_search_results(
                 ids = sorted(ids, key=lambda x: label_count_getter(x))
                 return ids, None
             if sort_by == "twin_cells":
-                dct = {rid: len(similar_shape_cells_getter(rid)) for rid in ids}
+                dct = {
+                    rid: len(similar_shape_cells_getter(rid, include_self=False))
+                    for rid in ids
+                }
                 ids = sorted(ids, key=lambda x: -dct[x])
                 extra_data = {
                     "title": "Number of morphologically similar cells",

@@ -683,7 +683,7 @@ def _make_predicate(
     elif op == OP_SIMILAR_SHAPE:
         try:
             cell_id = int(rhs)
-            target_rid_set = set(similar_cells_loader(cell_id))
+            target_rid_set = set(similar_cells_loader(cell_id, include_self=True))
             return lambda x: x["root_id"] in target_rid_set
         except ValueError as e:
             raise_malformed_structured_search_query(
