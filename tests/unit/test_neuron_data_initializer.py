@@ -39,7 +39,7 @@ class Test(TestCase):
             "side": "left",
         }
         self.assertEqual(
-            ["VLPl1; right; acetylcholine"],
+            ["VLPl1; acetylcholine"],
             clean_and_reduce_labels(["VLPl1; right; acetylcholine"], nd),
         )
 
@@ -81,7 +81,7 @@ class Test(TestCase):
             "side": "right",
         }
         self.assertEqual(
-            ["putative LC25_R, lobula columnar neuron LC25"],
+            ["putative LC25, lobula columnar neuron LC25"],
             clean_and_reduce_labels(
                 [
                     "putative LC25_R, lobula columnar neuron LC25 (corrected)",
@@ -91,7 +91,7 @@ class Test(TestCase):
             ),
         )
         self.assertEqual(
-            ["post correction label", "putative LC25_R, lobula columnar neuron LC25"],
+            ["post correction label", "putative LC25, lobula columnar neuron LC25"],
             clean_and_reduce_labels(
                 [
                     "post correction label",
@@ -103,7 +103,7 @@ class Test(TestCase):
         )
 
         self.assertEqual(
-            ["putative LC25_R, lobula columnar neuron LC25"],
+            ["putative LC25, lobula columnar neuron LC25"],
             clean_and_reduce_labels(
                 [
                     "putative LC25_R, lobula columnar neuron LC25 (corrected)",
@@ -113,7 +113,7 @@ class Test(TestCase):
             ),
         )
         self.assertEqual(
-            ["post correction label", "putative LC25_R, lobula columnar neuron LC25"],
+            ["post correction label", "putative LC25, lobula columnar neuron LC25"],
             clean_and_reduce_labels(
                 [
                     "post correction label",

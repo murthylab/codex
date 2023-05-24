@@ -2,7 +2,7 @@
 {% block title %} Explore Categories {% endblock title %}
 {% block content %}
 
-{% if category_data|length > 1 %}
+{% if categories|length > 1 %}
 
 <div class="card-columns custom-columns" id="data_container" style="padding: 1px;">
     {% for category_data in categories %}

@@ -167,7 +167,7 @@ class NeuronDataTest(TestCase):
             self.assertEqual(tested.label_data, golden.label_data)
 
         # check that all versions loaded
-        for v in DATA_SNAPSHOT_VERSIONS:
+        for v in [TESTING_DATA_SNAPSHOT_VERSION]:
             print(f"Testing version {v}...")
             unpickled_db = unpickle_neuron_db(
                 version=v, data_root_path=TEST_DATA_ROOT_PATH

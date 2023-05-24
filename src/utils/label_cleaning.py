@@ -167,6 +167,8 @@ def clean_and_reduce_labels(labels_latest_to_oldest, neuron_data):
     labels = [remove_duplicate_tokens(lbl, ",") for lbl in labels if lbl]
     labels = [remove_subsumed_tokens(lbl, ";") for lbl in labels if lbl]
     labels = [remove_subsumed_tokens(lbl, ",") for lbl in labels if lbl]
+    # remove redundant once more (after the round of corrections)
+    labels = remove_redundant_parts(labels, neuron_data)
     labels = sorted(set([lbl for lbl in labels if lbl]))
 
     return labels
