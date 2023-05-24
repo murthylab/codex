@@ -519,6 +519,13 @@ def todo_list():
         "https://docs.google.com/document/d/1iPtT9teD9i2k2YN7XrKjeY9UwPo7s9CNFWtmCkRelkg/edit?usp=sharing"
     )
 
+@base.route("/announcement", methods=["GET"])
+@request_wrapper
+def announcement():
+    log_activity("Loading announcement")
+    return redirect(
+        "https://docs.google.com/document/d/1MoCj36XdjSUrSfhx00Zn0RF5PwL27iRXLz15BufZRO0/edit?usp=sharing"
+    )
 
 @base.route("/demo_clip", methods=["GET"])
 @request_wrapper

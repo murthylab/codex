@@ -1,13 +1,15 @@
 {% extends "base_barebones.html" %}
 
 {% block base_barebones_content %}
-<!--h6 style="background: purple; color: white; text-align: center; font-size: 14px;">
-    FlyWire data snapshot v630 (release candidate) is now available for preview. To switch versions use settings.
-</-->
-{% if data_version and data_version != "630_lrc" %}
+{% if data_version and data_version != "630" %}
 <h6 style="background: orange; color: white; text-align: center; font-size: 14px; padding: 5px;">
     Showing FlyWire data version <b>{{data_version}}</b> &nbsp;
     <a href="{{url_for('base.index')}}">start over to switch to latest version <i class="fa-solid fa-arrow-right"></i></a>
+</h6>
+{% else %}
+<h6 style="background: purple; color: white; text-align: center; font-size: 14px;">
+    Hemisphere annotations were recently corrected. Read the announcement
+    <a href="{{url_for('base.announcement')}}" target="_blank" style="color: yellow">here</a>.
 </h6>
 {% endif %}
 
