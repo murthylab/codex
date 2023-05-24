@@ -299,11 +299,11 @@ class NeuronDataTest(TestCase):
 
     def test_downstream_upstream_region_queries(self):
         downstream = self.neuron_db.search(
-            "left {downstream_region} 720575940643467886"
+            "right {downstream_region} 720575940643467886"
         )
         self.assertEqual(16, len(downstream))
         downstream = self.neuron_db.search(
-            "right {downstream_region} 720575940643467886"
+            "left {downstream_region} 720575940643467886"
         )
         self.assertEqual(0, len(downstream))
         downstream = self.neuron_db.search(
@@ -324,9 +324,9 @@ class NeuronDataTest(TestCase):
             sorted(downstream),
         )
 
-        upstream = self.neuron_db.search("left {upstream_region} 720575940643467886")
-        self.assertEqual(38, len(upstream))
         upstream = self.neuron_db.search("right {upstream_region} 720575940643467886")
+        self.assertEqual(38, len(upstream))
+        upstream = self.neuron_db.search("left {upstream_region} 720575940643467886")
         self.assertEqual(0, len(upstream))
         upstream = self.neuron_db.search("center {upstream_region} 720575940643467886")
         self.assertEqual(11, len(upstream))

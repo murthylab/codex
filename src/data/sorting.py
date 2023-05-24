@@ -221,7 +221,9 @@ def sort_search_results(
                 }
                 ids = sorted(ids, key=lambda x: distance_map[x])
             elif parts[0] == NBLAST_SCORE:
-                sim_scores = similar_shape_cells_getter(sort_by_target_cell_rid, include_self=True)
+                sim_scores = similar_shape_cells_getter(
+                    sort_by_target_cell_rid, include_self=True
+                )
                 extra_data = {
                     "title": "Morphological Similarity Score",
                     "column_name": "NBLAST",

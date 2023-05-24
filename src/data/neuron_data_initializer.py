@@ -19,8 +19,8 @@ from src.configuration import MIN_NBLAST_SCORE_SIMILARITY
 from src.utils.formatting import (
     nanometer_to_flywire_coordinates,
     make_web_safe,
-    can_be_flywire_root_id,
 )
+from src.utils.label_cleaning import clean_and_reduce_labels
 from src.utils.logging import log
 
 NEURON_DATA_ATTRIBUTE_TYPES = {
@@ -450,100 +450,3 @@ def hemisphere_fingerprint(input_pils, output_pils):
         return f"{fp(input_pils)}/{fp(output_pils)}"
     else:
         return ""
-
-
-# label cleanup logic below
-
-
-def compact_label(label):
-    parts_to_hide = [
-        "; Part of comprehensive neck connective tracing, contact Connectomics Group Cambridge for more detailed information on descending/ascending neurons",
-        " (total brain fart (not part of the name of the neuron))",
-    ]
-    for p in parts_to_hide:
-        label = label.replace(p, "")
-    return label
-
-
-def remove_redundant_parts(labels, neuron_data):
-    attribs_lc = set(
-        [
-            attrib.lower()
-            for attrib in (
-                [
-                    neuron_data[k]
-                    for k in [
-                        "nt_type",
-                        "flow",
-                        "super_class",
-                        "class",
-                        "sub_class",
-                        "hemilineage",
-                        "side",
-                        "nerve",
-                    ]
-                ]
-                + neuron_data["cell_type"]
-                + neuron_data["hemibrain_type"]
-                + [NEURO_TRANSMITTER_NAMES.get(neuron_data["nt_type"])]
-            )
-            if attrib
-        ]
-    )
-
-    res = [
-        ";".join(
-            [
-                part
-                for part in label.split(";")
-                if part.lower().strip() not in attribs_lc
-            ]
-        ).strip()
-        for label in labels
-    ]
-    return [lbl for lbl in res if lbl]
-
-
-# removes all labels older than correction.
-def remove_corrected(labels_latest_to_oldest):
-    correction_prefixes = [
-        "Correction: ",
-        "Tm16 is wrong. this is: ",
-        "L1 label is wrong",
-    ]
-    for cp in correction_prefixes:
-        for i, lbl in enumerate(labels_latest_to_oldest):
-            if lbl.startswith(cp):
-                return labels_latest_to_oldest[:i] + [lbl[len(cp) :]]
-
-    correction_suffixes = [
-        " (correction)",
-        " (corrected)",
-        " - L1 Label Incorrect",
-        " - L2 Label Incorrect",
-        " - R2 Label Incorrect (spelling error)",
-        "; L5 label is incorrect",
-        "; L1 - Lamina monopolar 3; L3 is incorrect and submitted by accident",
-        " (I just pasted a segment ID here and accidentally submitted. sorry)",
-    ]
-    for cp in correction_suffixes:
-        for i, lbl in enumerate(labels_latest_to_oldest):
-            if lbl.endswith(cp):
-                return labels_latest_to_oldest[:i] + [lbl[: -len(cp)]]
-
-    return labels_latest_to_oldest
-
-
-def blacklisted(lbl):
-    blacklisted_labels = {"not a neuron", "correction - not optic lobe"}
-    return lbl.lower() in blacklisted_labels or can_be_flywire_root_id(lbl)
-
-
-def clean_and_reduce_labels(labels_latest_to_oldest, neuron_data):
-    labels = [make_web_safe(compact_label(lbl)) for lbl in labels_latest_to_oldest]
-    labels = [lbl for lbl in labels if not blacklisted(lbl)]
-    labels = remove_redundant_parts(labels, neuron_data)
-    labels = remove_corrected(labels)
-    labels = sorted(set([lbl for lbl in labels if lbl]))
-
-    return labels
