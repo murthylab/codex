@@ -25,6 +25,7 @@ from src.utils.formatting import (
     make_web_safe,
     is_proper_textual_annotation,
 )
+from src.utils.parsing import tokenize
 from tests import TEST_DATA_ROOT_PATH
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
@@ -626,6 +627,41 @@ class NeuronDataTest(TestCase):
                         partial_redundancy_cnt += 1
         self.assertEqual(0, complete_redundancy_cnt)
         self.assertEqual(0, partial_redundancy_cnt)
+
+    def test_label_cleaning(self):
+        for nd in self.neuron_db.neuron_data.values():
+            labels = nd["label"]
+            self.assertEqual(len(labels), len(set(labels)))
+            self.assertTrue(all([len(lbl) > 1 for lbl in labels]), labels)
+            for lbl in labels:
+                lbllc = lbl.lower()
+                self.assertFalse(
+                    any(
+                        [
+                            b in lbllc
+                            for b in [
+                                "left",
+                                "right",
+                                "lhs",
+                                "rhs",
+                                "correction",
+                                "correct",
+                                "wrong",
+                            ]
+                        ]
+                    ),
+                    lbllc,
+                )
+                tokens = tokenize(lbllc)
+                self.assertFalse(
+                    any(
+                        [
+                            any([tk.endswith(s) for s in ["_l", "_r", "-l", "-r"]])
+                            for tk in tokens
+                        ]
+                    ),
+                    lbllc,
+                )
 
     def test_connection_filters(self):
         rid_list = list(self.neuron_db.neuron_data.keys())[:100]
