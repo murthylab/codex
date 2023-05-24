@@ -69,7 +69,9 @@
             <th scope="col" title="Neurotransmitter type prediction and confidence score">NT</th>
             <th scope="col" title="Length / Area / Volume (in micrometers)">Size</th>
             <th scope="col" title="Upstream/Downstream partners and synapse hemispheres">Partners</th>
-            <th scope="col" title="Annotations provided by members of the FlyWire community">Identification Labels</th>
+            <th scope="col" title="Annotations provided by members of the FlyWire community">Identification Labels
+                <a href="" style="color:teal;" data-toggle="modal" data-target="#communityLabelsModal">[?]</a>
+            </th>
         </tr>
         </thead>
         <tbody>
@@ -222,6 +224,7 @@
 </ul>
 
 {% include "cell_annotations_modal.html" %}
+{% include "community_labels_modal.html" %}
 
 {% endif %}
 
