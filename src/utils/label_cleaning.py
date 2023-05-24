@@ -1,3 +1,5 @@
+from itertools import zip_longest
+
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.utils.formatting import make_web_safe, can_be_flywire_root_id
 
@@ -157,6 +159,29 @@ def blacklisted(lbl):
     return lbl.lower() in blacklisted_labels or can_be_flywire_root_id(lbl)
 
 
+def significant_diff_chars(str1, str2):
+    res = set()
+    for c in zip_longest(str1, str2):
+        if c[0] != c[1]:
+            res.add(c[0])
+            res.add(c[1])
+    return not res.issubset({"'", "`", ".", ",", "-", "_", ":", ";", " ", None})
+
+
+def dedupe_up_to_insignificant_chars(labels):
+    if len(labels) < 2:
+        return labels
+    dupe_indices = []
+    for i, lbl1 in enumerate(labels):
+        for j, lbl2 in enumerate(labels):
+            if j > i:
+                if not significant_diff_chars(lbl1, lbl2):
+                    dupe_indices.append(j)
+    if dupe_indices:
+        labels = [lbl for i, lbl in enumerate(labels) if i not in dupe_indices]
+    return labels
+
+
 def clean_and_reduce_labels(labels_latest_to_oldest, neuron_data):
     labels = [make_web_safe(compact_label(lbl)) for lbl in labels_latest_to_oldest]
     labels = [lbl for lbl in labels if not blacklisted(lbl)]
@@ -170,5 +195,6 @@ def clean_and_reduce_labels(labels_latest_to_oldest, neuron_data):
     # remove redundant once more (after the round of corrections)
     labels = remove_redundant_parts(labels, neuron_data)
     labels = sorted(set([lbl for lbl in labels if lbl]))
+    labels = dedupe_up_to_insignificant_chars(labels)
 
     return labels

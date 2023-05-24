@@ -25,6 +25,7 @@ from src.utils.formatting import (
     make_web_safe,
     is_proper_textual_annotation,
 )
+from src.utils.label_cleaning import significant_diff_chars
 from src.utils.parsing import tokenize
 from tests import TEST_DATA_ROOT_PATH
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
@@ -627,6 +628,20 @@ class NeuronDataTest(TestCase):
                         partial_redundancy_cnt += 1
         self.assertEqual(0, complete_redundancy_cnt)
         self.assertEqual(0, partial_redundancy_cnt)
+
+    def test_labels_duplication(self):
+        self.assertTrue(significant_diff_chars("ba", "bfc"))
+        self.assertFalse(significant_diff_chars("ba:", "ba"))
+
+        for nd in self.neuron_db.neuron_data.values():
+            labels = nd["label"]
+            if len(labels) > 1:
+                for i, lbl1 in enumerate(labels):
+                    for j, lbl2 in enumerate(labels):
+                        if j > i:
+                            self.assertTrue(
+                                significant_diff_chars(lbl1, lbl2), f"{lbl1} --> {lbl2}"
+                            )
 
     def test_label_cleaning(self):
         for nd in self.neuron_db.neuron_data.values():
