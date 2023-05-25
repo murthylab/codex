@@ -1,4 +1,5 @@
 import os
+import string
 from collections import defaultdict
 from unittest import TestCase
 
@@ -633,6 +634,8 @@ class NeuronDataTest(TestCase):
         self.assertTrue(significant_diff_chars("ba", "bfc"))
         self.assertFalse(significant_diff_chars("ba:", "ba"))
 
+        seps = string.ascii_letters + string.digits + "_"
+
         for nd in self.neuron_db.neuron_data.values():
             labels = nd["label"]
             if len(labels) > 1:
@@ -642,6 +645,17 @@ class NeuronDataTest(TestCase):
                             self.assertTrue(
                                 significant_diff_chars(lbl1, lbl2), f"{lbl1} --> {lbl2}"
                             )
+                            if len(lbl1) == len(lbl2):
+                                continue
+                            sl, ll = (
+                                (lbl1, lbl2) if len(lbl1) < len(lbl2) else (lbl2, lbl1)
+                            )
+                            if ll.startswith(sl):
+                                sep = ll[len(sl)]
+                                self.assertTrue(
+                                    sep in seps,
+                                    f"Separator {sep} breaks prefix: {lbl1} -> {lbl2}",
+                                )
 
     def test_label_cleaning(self):
         for nd in self.neuron_db.neuron_data.values():

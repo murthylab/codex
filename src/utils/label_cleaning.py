@@ -1,3 +1,4 @@
+import string
 from itertools import zip_longest
 
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
@@ -75,8 +76,11 @@ def remove_subsumed_tokens(lbl, delim):
 # shortens labels
 def compact_label(label):
     parts_to_hide = [
-        "; Part of comprehensive neck connective tracing, contact Connectomics Group Cambridge for more detailed information on descending/ascending neurons",
+        "; Part of comprehensive neck connective tracing, contact Connectomics Group Cambridge for more detailed "
+        "information on descending/ascending neurons",
         " (total brain fart (not part of the name of the neuron))",
+        "Taisz ... Galili 2022 doi:10.1101/2022.05.13.491877",
+        "; https://doi.org/10.1101/2021.12.20.473513",
     ]
     for p in parts_to_hide:
         label = label.replace(p, "")
@@ -182,12 +186,31 @@ def dedupe_up_to_insignificant_chars(labels):
     return labels
 
 
+def dedupe_prefixes(labels):
+    if len(labels) < 2:
+        return labels
+    alphanum_ = string.digits + string.ascii_letters + "_"
+    dupe_indices = []
+    for i, lbl1 in enumerate(labels):
+        for j, lbl2 in enumerate(labels):
+            if len(lbl1) > len(lbl2) and lbl1.startswith(lbl2):
+                sep_char = lbl1[len(lbl2)]
+                if sep_char not in alphanum_:
+                    dupe_indices.append(j)
+    if dupe_indices:
+        print(f"{labels} -->")
+        labels = [lbl for i, lbl in enumerate(labels) if i not in dupe_indices]
+        print(f"--> {labels}")
+    return labels
+
+
 def clean_and_reduce_labels(labels_latest_to_oldest, neuron_data):
     labels = [make_web_safe(compact_label(lbl)) for lbl in labels_latest_to_oldest]
     labels = [lbl for lbl in labels if not blacklisted(lbl)]
     labels = remove_redundant_parts(labels, neuron_data)
     labels = remove_corrected(labels)
     labels = [remove_left_right(lbl) for lbl in labels if lbl]
+
     labels = [remove_duplicate_tokens(lbl, ";") for lbl in labels if lbl]
     labels = [remove_duplicate_tokens(lbl, ",") for lbl in labels if lbl]
     labels = [remove_subsumed_tokens(lbl, ";") for lbl in labels if lbl]
@@ -196,5 +219,6 @@ def clean_and_reduce_labels(labels_latest_to_oldest, neuron_data):
     labels = remove_redundant_parts(labels, neuron_data)
     labels = sorted(set([lbl for lbl in labels if lbl]))
     labels = dedupe_up_to_insignificant_chars(labels)
+    labels = dedupe_prefixes(labels)
 
     return labels
