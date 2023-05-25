@@ -1,3 +1,4 @@
+import datetime
 import os.path
 import shutil
 from collections import defaultdict
@@ -129,16 +130,24 @@ def init_cave_client():
     return CAVEclient(CAVE_DATASTACK_NAME, auth_token=auth_token)
 
 
-def load_neuron_info_from_cave(client, version, write_user_infos_table=False):
+def load_neuron_info_from_cave(
+    client, materialization_version, write_user_infos_table=False
+):
     print("Downloading 'neuron_information_v2' with CAVE client..")
-    df = client.materialize.query_table("neuron_information_v2")
+    df = client.materialize.live_live_query(
+        "neuron_information_v2",
+        timestamp=datetime.datetime.utcnow(),
+        allow_missing_lookups=True,
+    )
     print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
     supervoxel_ids = df["pt_supervoxel_id"].astype(np.uint64)
-    mat_timestamp = client.materialize.get_version_metadata(version)["time_stamp"]
+    mat_timestamp = client.materialize.get_version_metadata(materialization_version)[
+        "time_stamp"
+    ]
     df["pt_root_id"] = client.chunkedgraph.get_roots(
         supervoxel_ids, timestamp=mat_timestamp
     )
-    print(f"Mapped to version {version}")
+    print(f"Mapped to version {materialization_version}")
     neuron_info_table = [
         [
             "root_id",
@@ -304,7 +313,9 @@ def update_cave_data_file(name, db_load_func, cave_client, version):
     fpath = compiled_data_file_path(version=version, filename=f"{name}.csv.gz")
 
     print(f"Loading {name} from DB..")
-    new_content = db_load_func(client=cave_client, version=version)
+    new_content = db_load_func(
+        client=cave_client, materialization_version=version.split("_")[0]
+    )
 
     comp_backup_and_update_csv(fpath, content=new_content)
 
@@ -374,17 +385,14 @@ def update_neuron_classification_table_file(version):
                 val_col=f_content[0].index("class"),
             )
         elif f == "coarse_anno.feather":
-            if int(version) < 571:
-                expected_columns = ["root_id", "flow", "super_class", "cell_class"]
-            else:
-                expected_columns = [
-                    "root_id",
-                    "flow",
-                    "super_class",
-                    "cell_class",
-                    "cell_sub_class",
-                    "cell_type",
-                ]
+            expected_columns = [
+                "root_id",
+                "flow",
+                "super_class",
+                "cell_class",
+                "cell_sub_class",
+                "cell_type",
+            ]
             assert all([col in f_content[0] for col in expected_columns])
             load(
                 dct=flow_dict,
@@ -404,19 +412,18 @@ def update_neuron_classification_table_file(version):
                 rid_col=f_content[0].index("root_id"),
                 val_col=f_content[0].index("cell_class"),
             )
-            if int(version) >= 571:
-                load(
-                    dct=sub_class_dict,
-                    tbl=f_content,
-                    rid_col=f_content[0].index("root_id"),
-                    val_col=f_content[0].index("cell_sub_class"),
-                )
-                load(
-                    dct=cell_type_dict,
-                    tbl=f_content,
-                    rid_col=f_content[0].index("root_id"),
-                    val_col=f_content[0].index("cell_type"),
-                )
+            load(
+                dct=sub_class_dict,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("cell_sub_class"),
+            )
+            load(
+                dct=cell_type_dict,
+                tbl=f_content,
+                rid_col=f_content[0].index("root_id"),
+                val_col=f_content[0].index("cell_type"),
+            )
         elif f == "nerve_anno.feather":
             assert all([col in f_content[0] for col in ["root_id", "nerve"]])
             load(
@@ -510,11 +517,7 @@ def update_cell_stats_table_file(version):
             dct[r[rid_col]] = r[val_col]
             all_root_ids.add(r[rid_col])
 
-    # older than 571:
-    if int(version) < 571:
-        size_cols = ["area_nm2", "size_nm3", "path_length_nm"]
-    else:
-        size_cols = ["area", "volume", "path_length"]
+    size_cols = ["area", "volume", "path_length"]
     assert all([col in f_content[0] for col in ["root_id"] + size_cols])
     load(
         dct=area_dict,

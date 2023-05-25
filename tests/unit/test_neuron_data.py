@@ -1,4 +1,5 @@
 import os
+import string
 from collections import defaultdict
 from unittest import TestCase
 
@@ -25,6 +26,8 @@ from src.utils.formatting import (
     make_web_safe,
     is_proper_textual_annotation,
 )
+from src.utils.label_cleaning import significant_diff_chars
+from src.utils.parsing import tokenize
 from tests import TEST_DATA_ROOT_PATH
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
@@ -299,11 +302,11 @@ class NeuronDataTest(TestCase):
 
     def test_downstream_upstream_region_queries(self):
         downstream = self.neuron_db.search(
-            "left {downstream_region} 720575940643467886"
+            "right {downstream_region} 720575940643467886"
         )
         self.assertEqual(16, len(downstream))
         downstream = self.neuron_db.search(
-            "right {downstream_region} 720575940643467886"
+            "left {downstream_region} 720575940643467886"
         )
         self.assertEqual(0, len(downstream))
         downstream = self.neuron_db.search(
@@ -324,9 +327,9 @@ class NeuronDataTest(TestCase):
             sorted(downstream),
         )
 
-        upstream = self.neuron_db.search("left {upstream_region} 720575940643467886")
-        self.assertEqual(38, len(upstream))
         upstream = self.neuron_db.search("right {upstream_region} 720575940643467886")
+        self.assertEqual(38, len(upstream))
+        upstream = self.neuron_db.search("left {upstream_region} 720575940643467886")
         self.assertEqual(0, len(upstream))
         upstream = self.neuron_db.search("center {upstream_region} 720575940643467886")
         self.assertEqual(11, len(upstream))
@@ -626,6 +629,68 @@ class NeuronDataTest(TestCase):
                         partial_redundancy_cnt += 1
         self.assertEqual(0, complete_redundancy_cnt)
         self.assertEqual(0, partial_redundancy_cnt)
+
+    def test_labels_duplication(self):
+        self.assertTrue(significant_diff_chars("ba", "bfc"))
+        self.assertFalse(significant_diff_chars("ba:", "ba"))
+
+        seps = string.ascii_letters + string.digits + "_"
+
+        for nd in self.neuron_db.neuron_data.values():
+            labels = nd["label"]
+            if len(labels) > 1:
+                for i, lbl1 in enumerate(labels):
+                    for j, lbl2 in enumerate(labels):
+                        if j > i:
+                            self.assertTrue(
+                                significant_diff_chars(lbl1, lbl2), f"{lbl1} --> {lbl2}"
+                            )
+                            if len(lbl1) == len(lbl2):
+                                continue
+                            sl, ll = (
+                                (lbl1, lbl2) if len(lbl1) < len(lbl2) else (lbl2, lbl1)
+                            )
+                            if ll.startswith(sl):
+                                sep = ll[len(sl)]
+                                self.assertTrue(
+                                    sep in seps,
+                                    f"Separator {sep} breaks prefix: {lbl1} -> {lbl2}",
+                                )
+
+    def test_label_cleaning(self):
+        for nd in self.neuron_db.neuron_data.values():
+            labels = nd["label"]
+            self.assertEqual(len(labels), len(set(labels)))
+            self.assertTrue(all([len(lbl) > 1 for lbl in labels]), labels)
+            for lbl in labels:
+                lbllc = lbl.lower()
+                self.assertFalse(
+                    any(
+                        [
+                            b in lbllc
+                            for b in [
+                                "left",
+                                "right",
+                                "lhs",
+                                "rhs",
+                                "correction",
+                                "correct",
+                                "wrong",
+                            ]
+                        ]
+                    ),
+                    lbllc,
+                )
+                tokens = tokenize(lbllc)
+                self.assertFalse(
+                    any(
+                        [
+                            any([tk.endswith(s) for s in ["_l", "_r", "-l", "-r"]])
+                            for tk in tokens
+                        ]
+                    ),
+                    lbllc,
+                )
 
     def test_connection_filters(self):
         rid_list = list(self.neuron_db.neuron_data.keys())[:100]

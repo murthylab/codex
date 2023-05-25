@@ -2,6 +2,7 @@
 {% block title %} Explore Categories {% endblock title %}
 {% block content %}
 
+{% if categories|length > 1 %}
 
 <div class="card-columns custom-columns" id="data_container" style="padding: 1px;">
     {% for category_data in categories %}
@@ -35,7 +36,6 @@
     {% endfor %}
 </div>
 
-{% if category_data|length > 1 %}
 <form class="form-inline">
     <label style="margin: 20px;">Num Top Values</label>
     <select style="margin: 20px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit()"
@@ -54,6 +54,39 @@
         {% endfor %}
     </select>
 </form>
+
+{% else %}
+
+
+{% for category_data in categories %}
+<div class="card" style="margin: 5px; padding: 0px;">
+    <div class="card-header" style="color: purple;" >
+        <a href="{{url_for('app.explore', for_attr_name=category_data['key'], top_values=10000, data_version=data_version)}}">{{category_data['caption']|safe}}</a>
+    </div>
+    <div class="card-body" style="margin: 0px; padding: 0px;">
+        <table class="table table-hover">
+            <thead>
+                <tr style="color: grey"><td>value</td><td class='text-nowrap'># cells</td></tr>
+            </thead>
+            <tbody>
+        {% for val, count in category_data['counts'] %}
+            <tr>
+                <td class="align-middle" style="width: 100%; text-align: left; margin: 0px; padding: 0px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 100px;">
+                    <a class="btn btn btn-link my-2 my-sm-0" title="{{val}}"
+                        href="{{url_for('app.search', filter_string=category_data['key'] + ' == ' + val, data_version=data_version)}}">
+                        {{val}}
+                    </a>
+                </td>
+                <td>
+                        {{display(count)}}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
+{% endfor %}
+
 {% endif %}
 
 
