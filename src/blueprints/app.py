@@ -569,10 +569,14 @@ def count_columnar_cells():
         for cell_id in cell_ids:
             try:
                 cell = neuron_db.neuron_data[int(cell_id)]
-                mrk = cell["marker"][0] if cell["marker"] else None
-                if mrk and mrk.startswith("columnar:"):
-                    counts[mrk.split(":")[1]] += 1
-                else:
+                mrks = cell["marker"] or []
+                marked = False
+                for mrk in mrks:
+                    if mrk.startswith("columnar:"):
+                        counts[mrk.split(":")[1]] += 1
+                        marked = True
+                        break
+                if not marked:
                     counts["Not marked as columnar"] += 1
             except Exception:
                 counts["Invalid Cell ID"] += 1
