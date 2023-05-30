@@ -490,7 +490,7 @@ def optic_lobe_tagging():
         query = f"marker == columnar_candidate:{candidates_for}"
         if side:
             query += f" && side == {side}"
-        return redirect(url_for("app.search", filter_string=query))
+        return redirect(url_for("app.search", filter_string=query, sort_by="random"))
     else:
         neuron_db = NeuronDataFactory.instance().get()
 
@@ -570,8 +570,8 @@ def count_columnar_cells():
             try:
                 cell = neuron_db.neuron_data[int(cell_id)]
                 mrk = cell["marker"][0] if cell["marker"] else None
-                if mrk and not mrk.startswith("candidate"):
-                    counts[mrk] += 1
+                if mrk and mrk.startswith("columnar:"):
+                    counts[mrk.split(":")[1]] += 1
                 else:
                     counts["Not marked as columnar"] += 1
             except Exception:

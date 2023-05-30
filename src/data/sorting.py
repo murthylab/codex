@@ -1,4 +1,5 @@
 from collections import defaultdict
+from random import shuffle
 
 from src.data.structured_search_filters import (
     OP_DOWNSTREAM,
@@ -46,6 +47,7 @@ SORT_BY_OPTIONS = {
     "twin_cells": "# Twin cells (high -> low)",
     "nt_type": "Neurotransmitter Type",
     "morphology_cluster": "Morphology Cluster",
+    "random": "Random",
 }
 
 
@@ -94,6 +96,9 @@ def sort_search_results(
     try:
         sort_by = sort_by or infer_sort_by(query)
         if sort_by:
+            if sort_by == "random":
+                shuffle(ids)
+                return ids, None
             if sort_by == "-partners":
                 ids = sorted(ids, key=lambda x: -partner_count_getter(x))
                 return ids, None

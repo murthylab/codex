@@ -198,9 +198,9 @@ def dedupe_prefixes(labels):
                 if sep_char not in alphanum_:
                     dupe_indices.append(j)
     if dupe_indices:
-        print(f"{labels} -->")
+        # print(f"{labels} -->")
         labels = [lbl for i, lbl in enumerate(labels) if i not in dupe_indices]
-        print(f"--> {labels}")
+        # print(f"--> {labels}")
     return labels
 
 
