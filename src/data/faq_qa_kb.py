@@ -18,7 +18,10 @@ def operators_list(ops):
 
 def attr_list(attrs):
     def _make_list_item(a):
-        return f"<b>{a.name}</b> {a.description}"
+        res = f"<b>{a.name}</b> {a.description}"
+        if a.value_range:
+            res += f" [<small style='color: purple'>{', '.join(a.value_range)}</small>]"
+        return res
 
     li = [_make_list_item(a) for a in attrs]
     return "".join([f"<li>{i}</li>" for i in li])
@@ -47,7 +50,7 @@ FAQ_QA_KB = {
         f"<br> <b>Search attributes</b> <ul> {attr_list(STRUCTURED_SEARCH_ATTRIBUTES)} </ul>"
         f"<br> <b>Binary operators</b> <ul> {operators_list(STRUCTURED_SEARCH_BINARY_OPERATORS)} </ul>"
         f"<br> <b>Unary operators</b> <ul> {operators_list(STRUCTURED_SEARCH_UNARY_OPERATORS)} </ul>"
-        f"<br> <b>Chaining operators</b> <ul> {operators_list(STRUCTURED_SEARCH_NARY_OPERATORS)} </ul>",
+        f"<br> <b>Logical chaining operators</b> <ul> {operators_list(STRUCTURED_SEARCH_NARY_OPERATORS)} </ul>",
     },
     "names": {
         "q": "Where did the cell names originate?",

@@ -41,32 +41,16 @@ class SearchAttribute(object):
 
 STRUCTURED_SEARCH_ATTRIBUTES = [
     SearchAttribute(
+        description="ID of the cell, unique across data versions but might get replaced if altered by proofreading",
+        name="root_id",
+        value_convertor=lambda x: int(x),
+        alternative_names=["id", "cell_id"],
+    ),
+    SearchAttribute(
         description="Human readable label assigned during cell identification process "
         "(each cell can have zero or more labels)",
         name="label",
         alternative_names=["tag", "labels", "identification", "annotation"],
-    ),
-    SearchAttribute(
-        description="Neuro-transmitter type",
-        name="nt_type",
-        alternative_names=["nt", "neurotransmitter", "neuro_transmitter"],
-        value_convertor=lambda x: lookup_nt_type(x),
-        value_range=sorted(NEURO_TRANSMITTER_NAMES),
-    ),
-    SearchAttribute(
-        description="Nerve",
-        name="nerve",
-        alternative_names=["nerve_type"],
-        value_range=[
-            "CV",
-            "AN",
-            "MxLbN",
-            "OCN",
-            "PhN",
-            "aPhN",
-            "NCC",
-            "ON",
-        ],
     ),
     SearchAttribute(
         description="Neuron side / hemisphere",
@@ -75,9 +59,11 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         value_range=["left", "right", "center"],
     ),
     SearchAttribute(
-        description="Flow classification",
-        name="flow",
-        value_range=["intrinsic", "efferent", "afferent"],
+        description="Neuro-transmitter type",
+        name="nt_type",
+        alternative_names=["nt", "neurotransmitter", "neuro_transmitter"],
+        value_convertor=lambda x: lookup_nt_type(x),
+        value_range=sorted(NEURO_TRANSMITTER_NAMES),
     ),
     SearchAttribute(
         description="Brain region / neuropil with upstream synaptic connections",
@@ -111,6 +97,11 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         ],
         list_convertor=lambda x: tokenize(x),
         value_range=sorted(HEMISPHERES),
+    ),
+    SearchAttribute(
+        description="Flow, refers to containment of the neuron in the brain",
+        name="flow",
+        value_range=["intrinsic", "efferent", "afferent"],
     ),
     SearchAttribute(
         description="Cell typing attribute, indicates function or other property of the cell",
@@ -202,6 +193,26 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         name="hemilineage",
     ),
     SearchAttribute(
+        description="Nerve type, if applicable",
+        name="nerve",
+        alternative_names=["nerve_type"],
+        value_range=[
+            "CV",
+            "AN",
+            "MxLbN",
+            "OCN",
+            "PhN",
+            "aPhN",
+            "NCC",
+            "ON",
+        ],
+    ),
+    SearchAttribute(
+        description="Automatically assigned name (based on most significant input/output regions) - "
+                    "unique across data versions, but might get replaced if affected by proofreading",
+        name="name",
+    ),
+    SearchAttribute(
         description="Automatically assigned group name (based on most significant input/output regions)",
         name="group",
     ),
@@ -213,17 +224,6 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
     SearchAttribute(
         description="Automatically generated connectivity clusters (based on pairwise Jaccard similarity scores)",
         name="connectivity_cluster",
-    ),
-    SearchAttribute(
-        description="Automatically assigned name (based on most significant input/output regions) - "
-        "unique across data versions, but might get replaced if affected by proofreading",
-        name="name",
-    ),
-    SearchAttribute(
-        description="ID of the cell, unique across data versions but might get replaced if altered by proofreading",
-        name="root_id",
-        value_convertor=lambda x: int(x),
-        alternative_names=["id", "cell_id"],
     ),
     SearchAttribute(
         description="Generic cell markers",
