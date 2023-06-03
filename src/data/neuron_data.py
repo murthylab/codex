@@ -273,7 +273,7 @@ class NeuronDB(object):
 
     # Returns value ranges for all attributes with not too many different values. Used for advanced search dropdowns.
     @lru_cache
-    def dynamic_ranges(self, range_cardinality_cap=20):
+    def dynamic_ranges(self, range_cardinality_cap=40):
         res = {}
         for dct in self.categories(
             top_values=range_cardinality_cap, exclude_internal_markers=False

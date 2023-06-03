@@ -3,7 +3,7 @@ import string
 from collections import defaultdict
 from unittest import TestCase
 
-from src.data.brain_regions import REGIONS
+from src.data.brain_regions import REGIONS, HEMISPHERES
 from src.data.local_data_loader import (
     unpickle_neuron_db,
     read_csv,
@@ -18,6 +18,7 @@ from src.data.optic_lobe_cell_types import (
     COLUMNAR_CELL_SUPER_CLASSES,
     feasible_candidate,
 )
+from src.data.structured_search_filters import STRUCTURED_SEARCH_ATTRIBUTES
 from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
     TESTING_DATA_SNAPSHOT_VERSION,
@@ -813,6 +814,39 @@ class NeuronDataTest(TestCase):
     def test_dynamic_ranges(self):
         self.assertEqual(
             {
+                "data_class_range": [
+                    "optic_lobes",
+                    "Kenyon_Cell",
+                    "L1-5",
+                    "visual",
+                    "CX",
+                    "mechanosensory",
+                    "AN",
+                    "olfactory",
+                    "medulla_intrinsic",
+                    "DN",
+                    "ALPN",
+                    "LHLN",
+                    "ALLN",
+                    "gustatory",
+                    "DAN",
+                    "bilateral",
+                    "TuBu",
+                    "unknown_sensory",
+                    "motor",
+                    "MBON",
+                    "mAL",
+                    "hygrosensory",
+                    "ocellar",
+                    "LHCENT",
+                    "pars intercerebralis",
+                    "thermosensory",
+                    "pars lateralis",
+                    "ALIN",
+                    "ALON",
+                    "MBIN",
+                    "CSD",
+                ],
                 "data_flow_range": ["intrinsic", "afferent", "efferent"],
                 "data_nerve_range": [
                     "CV",
@@ -860,3 +894,21 @@ class NeuronDataTest(TestCase):
             },
             self.neuron_db.dynamic_ranges(),
         )
+
+        for attr in STRUCTURED_SEARCH_ATTRIBUTES:
+            if attr.name in ["input_neuropils", "output_neuropils"]:
+                self.assertEqual(set(attr.value_range), set(REGIONS.keys()))
+            elif attr.name in ["input_hemisphere", "output_hemisphere"]:
+                self.assertEqual(set(attr.value_range), set(HEMISPHERES))
+            else:
+                data_range_key = f"data_{attr.name}_range"
+                if not attr.value_range:
+                    self.assertTrue(
+                        data_range_key not in self.neuron_db.dynamic_ranges()
+                    )
+                else:
+                    self.assertEqual(
+                        set(attr.value_range),
+                        set(self.neuron_db.dynamic_ranges()[data_range_key]),
+                        attr.name,
+                    )

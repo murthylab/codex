@@ -15,6 +15,9 @@ from src.data.structured_search_filters import (
     UnarySearchOperator,
     NarySearchOperator,
     _match_list_of_neuropils,
+    STRUCTURED_SEARCH_ATTRIBUTES,
+    closest_attribute_by_name,
+    _search_attribute_by_name,
 )
 
 
@@ -184,3 +187,56 @@ class Test(TestCase):
         self.assertEqual(
             {"AME_L", "ME_L", "ME_R", "AME_R"}, _match_list_of_neuropils("medulla")
         )
+
+    def test_attributes_consistency(self):
+        names_and_alternative_names = []
+        for so in STRUCTURED_SEARCH_ATTRIBUTES:
+            names_and_alternative_names.append(so.name)
+            names_and_alternative_names.extend(so.alternative_names)
+            self.assertTrue(so.value_range is None or isinstance(so.value_range, list))
+        self.assertEqual(
+            len(names_and_alternative_names), len(set(names_and_alternative_names))
+        )
+
+        seps = ["-", "_", " "]
+        for n in names_and_alternative_names:
+            self.assertEqual(n, n.lower())
+            for s1 in seps:
+                for s2 in seps:
+                    if s1 == s2:
+                        continue
+                    if s1 in n:
+                        self.assertFalse(s2 in n, f"Mixed {s1} and {s2} in {n}")
+                        altname = n.replace(s1, s2)
+                        self.assertTrue(
+                            altname in names_and_alternative_names,
+                            f"{n} but not {altname}",
+                        )
+
+        for a in STRUCTURED_SEARCH_ATTRIBUTES:
+            for n in a.alternative_names + [a.name]:
+                score, attr = closest_attribute_by_name(n)
+                self.assertEqual(0, score)
+                self.assertEqual(attr, a)
+
+        score, attr = closest_attribute_by_name("Input Hemisphere")
+        self.assertEqual(0, score)
+        self.assertEqual("input_hemisphere", attr.name)
+
+        score, attr = closest_attribute_by_name("ID")
+        self.assertEqual(0, score)
+        self.assertEqual("root_id", attr.name)
+
+        score, attr = closest_attribute_by_name("tags")
+        self.assertEqual(1, score)
+        self.assertEqual("label", attr.name)
+
+        score, attr = closest_attribute_by_name("flowing")
+        self.assertEqual(3, score)
+        self.assertEqual("flow", attr.name)
+
+    def test_attributes_lookup(self):
+        for a in STRUCTURED_SEARCH_ATTRIBUTES:
+            for n in a.alternative_names + [a.name]:
+                self.assertEqual(a, _search_attribute_by_name(n))
+                self.assertEqual(a, _search_attribute_by_name(n.upper()))

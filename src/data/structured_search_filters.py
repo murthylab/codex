@@ -10,201 +10,240 @@ from src.data.brain_regions import (
 from src.data.neurotransmitters import lookup_nt_type, NEURO_TRANSMITTER_NAMES
 from src.utils.graph_algos import pathways
 from src.utils.logging import log_error
-from src.utils.parsing import tokenize
+from src.utils.parsing import tokenize, edit_distance
 
 
 class SearchAttribute(object):
     def __init__(
         self,
-        name,
-        value_getter,
-        value_convertor,
-        list_convertor,
         description,
-        value_range,
+        name,
+        alternative_names=None,
+        value_getter=None,
+        value_convertor=None,
+        list_convertor=None,
+        value_range=None,
     ):
-        self.name = name
-        self.value_getter = value_getter
-        self.value_convertor = value_convertor
-        self.list_convertor = list_convertor
         self.description = description
+        self.name = name
+        self.alternative_names = alternative_names or []
+        # potentially extend alternative names for different separator chars
+        for n in (alternative_names or []) + [name]:
+            assert " " not in n and "-" not in n
+            if "_" in n:
+                self.alternative_names.append(n.replace("_", "-"))
+                self.alternative_names.append(n.replace("_", " "))
+        self.value_getter = value_getter or (lambda nd: nd[name])
+        self.value_convertor = value_convertor
+        self.list_convertor = list_convertor or (lambda x: tokenize(x))
         self.value_range = value_range
 
 
 STRUCTURED_SEARCH_ATTRIBUTES = [
     SearchAttribute(
+        description="Human readable label assigned during cell identification process "
+        "(each cell can have zero or more labels)",
         name="label",
-        value_getter=lambda nd: nd["label"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Human readable label assigned during cell identification process. Each cell can have zero or more labels.",
-        value_range=None,
+        alternative_names=["tag", "labels", "identification", "annotation"],
     ),
     SearchAttribute(
-        name="nt_type",
-        value_getter=lambda nd: nd["nt_type"],
-        value_convertor=lambda x: lookup_nt_type(x),
-        list_convertor=lambda x: tokenize(x),
         description="Neuro-transmitter type",
+        name="nt_type",
+        alternative_names=["nt", "neurotransmitter", "neuro_transmitter"],
+        value_convertor=lambda x: lookup_nt_type(x),
         value_range=sorted(NEURO_TRANSMITTER_NAMES),
     ),
     SearchAttribute(
-        name="nerve",
-        value_getter=lambda nd: nd["nerve"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
         description="Nerve",
-        value_range="data_nerve_range",
+        name="nerve",
+        alternative_names=["nerve_type"],
+        value_range=[
+            "CV",
+            "AN",
+            "MxLbN",
+            "OCN",
+            "PhN",
+            "aPhN",
+            "NCC",
+            "ON",
+        ],
     ),
     SearchAttribute(
-        name="side",
-        value_getter=lambda nd: nd["side"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
         description="Neuron side / hemisphere",
-        value_range="data_side_range",
+        name="side",
+        alternative_names=["hemisphere"],
+        value_range=["left", "right", "center"],
     ),
     SearchAttribute(
-        name="flow",
-        value_getter=lambda nd: nd["flow"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
         description="Flow classification",
-        value_range="data_flow_range",
+        name="flow",
+        value_range=["intrinsic", "efferent", "afferent"],
     ),
     SearchAttribute(
-        name="input_neuropil",
-        value_getter=lambda nd: nd["input_neuropils"],
+        description="Brain region / neuropil with upstream synaptic connections",
+        name="input_neuropils",
+        alternative_names=["input_neuropil", "input_regions", "input_region"],
         value_convertor=lambda x: match_to_neuropil(x),
         list_convertor=lambda x: _match_list_of_neuropils(x),
-        description="Brain region / neuropil with upstream synaptic connections.",
         value_range=sorted(REGIONS.keys()),
     ),
     SearchAttribute(
-        name="output_neuropil",
-        value_getter=lambda nd: nd["output_neuropils"],
+        description="Brain region / neuropil with downstream synaptic connections",
+        name="output_neuropils",
+        alternative_names=["output_neuropil", "output_regions", "output_region"],
         value_convertor=lambda x: match_to_neuropil(x),
         list_convertor=lambda x: _match_list_of_neuropils(x),
-        description="Brain region / neuropil with downstream synaptic connections.",
         value_range=sorted(REGIONS.keys()),
     ),
     SearchAttribute(
+        description="Brain hemisphere / side with upstream synaptic connections",
         name="input_hemisphere",
+        alternative_names=["input_side"],
         value_getter=lambda nd: [neuropil_hemisphere(p) for p in nd["input_neuropils"]],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Brain hemisphere / side with upstream synaptic connections.",
         value_range=sorted(HEMISPHERES),
     ),
     SearchAttribute(
+        description="Brain hemisphere / side with downstream synaptic connections",
         name="output_hemisphere",
+        alternative_names=["output_side"],
         value_getter=lambda nd: [
             neuropil_hemisphere(p) for p in nd["output_neuropils"]
         ],
-        value_convertor=None,
         list_convertor=lambda x: tokenize(x),
-        description="Brain hemisphere / side with downstream synaptic connections.",
         value_range=sorted(HEMISPHERES),
     ),
     SearchAttribute(
+        description="Cell typing attribute, indicates function or other property of the cell",
         name="super_class",
-        value_getter=lambda nd: nd["super_class"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Cell typing attribute. Indicates function or other property of the cell.",
-        value_range="data_super_class_range",
+        value_range=[
+            "optic",
+            "central",
+            "sensory",
+            "visual_projection",
+            "ascending",
+            "descending",
+            "visual_centrifugal",
+            "motor",
+            "endocrine",
+        ],
     ),
     SearchAttribute(
+        description="Cell typing attribute, indicates function or other property of the cell",
         name="class",
-        value_getter=lambda nd: nd["class"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Cell typing attribute. Indicates function or other property of the cell.",
-        value_range="data_class_range",
+        value_range=[
+            "optic_lobes",
+            "Kenyon_Cell",
+            "L1-5",
+            "visual",
+            "CX",
+            "mechanosensory",
+            "AN",
+            "olfactory",
+            "medulla_intrinsic",
+            "DN",
+            "ALPN",
+            "LHLN",
+            "ALLN",
+            "gustatory",
+            "DAN",
+            "bilateral",
+            "TuBu",
+            "unknown_sensory",
+            "motor",
+            "MBON",
+            "mAL",
+            "hygrosensory",
+            "ocellar",
+            "LHCENT",
+            "pars intercerebralis",
+            "thermosensory",
+            "pars lateralis",
+            "ALIN",
+            "ALON",
+            "MBIN",
+            "CSD",
+        ],
     ),
     SearchAttribute(
+        description="Cell typing attribute, indicates function or other property of the cell",
         name="sub_class",
-        value_getter=lambda nd: nd["sub_class"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Cell typing attribute. Indicates function or other property of the cell.",
-        value_range="data_sub_class_range",
+        value_range=[
+            "columnar",
+            "eye bristle",
+            "tangential",
+            "multiglomerular",
+            "auditory",
+            "head bristle",
+            "uniglomerular",
+            "ring neuron",
+            "ocellar",
+            "taste peg",
+            "pharyngeal_nerve_sensory_group2",
+            "accessory_pharyngeal_nerve_sensory_group2",
+            "accessory_pharyngeal_nerve_sensory_group1",
+            "pharyngeal_nerve_sensory_group1",
+            "ocellar_interneuron",
+            "descending",
+            "antennal_nerve_ascending_sensory",
+            "LNOa",
+        ],
     ),
     SearchAttribute(
+        description="Cell typing attribute, indicates function or other property of the cell",
         name="cell_type",
-        value_getter=lambda nd: nd["cell_type"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Cell typing attribute. Indicates function or other property of the cell.",
-        value_range="data_cell_type_range",
+        alternative_names=["type"],
     ),
     SearchAttribute(
+        description="Cell typing attribute from Janelia hemibrain dataset",
         name="hemibrain_type",
-        value_getter=lambda nd: nd["hemibrain_type"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Cell typing attribute from Janelia hemibrain dataset.",
-        value_range="data_hemibrain_type_range",
     ),
     SearchAttribute(
+        description="Lineage from Janelia hemibrain dataset",
         name="hemilineage",
-        value_getter=lambda nd: nd["hemilineage"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Lineage from Janelia hemibrain dataset.",
-        value_range="data_hemilineage_range",
     ),
     SearchAttribute(
+        description="Automatically assigned group name (based on most significant input/output regions)",
         name="group",
-        value_getter=lambda nd: nd["group"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Automatically assigned group name (based on properties of the cell).",
-        value_range=None,
     ),
     SearchAttribute(
+        description="Automatically generated morphology clusters (based on pairwise NBLAST scores)",
         name="morphology_cluster",
-        value_getter=lambda nd: nd["morphology_cluster"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Automatically generated morphology clusters (based on pairwise NBLAST scores).",
-        value_range=None,
+        alternative_names=["shape_cluster", "nblast_cluster"],
     ),
     SearchAttribute(
+        description="Automatically generated connectivity clusters (based on pairwise Jaccard similarity scores)",
         name="connectivity_cluster",
-        value_getter=lambda nd: nd["connectivity_cluster"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Automatically generated connectivity clusters (based on pairwise Jaccard similarity scores).",
-        value_range=None,
     ),
     SearchAttribute(
+        description="Automatically assigned name (based on most significant input/output regions) - "
+        "unique across data versions, but might get replaced if affected by proofreading",
         name="name",
-        value_getter=lambda nd: nd["name"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Automatically assigned name (based on properties of the cell). Unique across data versions, but might get replaced if affected by proofreading.",
-        value_range=None,
     ),
     SearchAttribute(
-        name="id",
-        value_getter=lambda nd: nd["root_id"],
+        description="ID of the cell, unique across data versions but might get replaced if altered by proofreading",
+        name="root_id",
         value_convertor=lambda x: int(x),
-        list_convertor=lambda x: tokenize(x),
-        description="ID of the cell. Unique across data versions, but might get replaced if affected by proofreading.",
-        value_range=None,
+        alternative_names=["id", "cell_id"],
     ),
     SearchAttribute(
+        description="Generic cell markers",
         name="marker",
-        value_getter=lambda nd: nd["marker"],
-        value_convertor=None,
-        list_convertor=lambda x: tokenize(x),
-        description="Generic cell markers.",
-        value_range=None,
     ),
 ]
 
 SEARCH_ATTRIBUTE_NAMES = [a.name for a in STRUCTURED_SEARCH_ATTRIBUTES]
+
+
+def closest_attribute_by_name(attr_name):
+    attr_name = attr_name.lower()
+    closest_score, closest_attr = None, None
+    for a in STRUCTURED_SEARCH_ATTRIBUTES:
+        for n in a.alternative_names + [a.name]:
+            score = edit_distance(n, attr_name)
+            if closest_score is None or score < closest_score:
+                closest_score = score
+                closest_attr = a
+    return closest_score, closest_attr
 
 
 # Structured search operators
@@ -509,11 +548,11 @@ def _match_list_of_neuropils(txt):
         return set.union(*[lookup_neuropil_set(t) for t in tokenize(txt)])
 
 
-def _raise_unsupported_attr_for_structured_search(attr_name):
+def _raise_unsupported_attr_for_structured_search(attr_name, closest_attr_name):
     raise_malformed_structured_search_query(
-        f"Structured query by attribute <b>{attr_name}</b> is not supported. Possible solutions:"
-        f"<br>- look for typos in <b>{attr_name}</b>, or try searching by one of the supported "
-        f"attribute: {', '.join(SEARCH_ATTRIBUTE_NAMES)}"
+        f"Attribute <b>{attr_name}</b> is not recognized - closest match is {closest_attr_name}. "
+        f"Possible solutions:<br>- correct typos in <b>{attr_name}</b>, or try searching by one of the supported "
+        f"attributes: {', '.join(SEARCH_ATTRIBUTE_NAMES)}"
     )
 
 
@@ -537,12 +576,10 @@ def raise_malformed_structured_search_query(msg="Malformed structured search que
 
 
 def _search_attribute_by_name(name):
-    matches = [sa for sa in STRUCTURED_SEARCH_ATTRIBUTES if sa.name == name]
-    if len(matches) != 1:
-        raise_malformed_structured_search_query(
-            f"Attribute name '{name}' is not recognized"
-        )
-    return matches[0]
+    edit_dist, attr = closest_attribute_by_name(name)
+    if edit_dist != 0:
+        _raise_unsupported_attr_for_structured_search(name, attr.name)
+    return attr
 
 
 def _search_operator_by_name(name):
@@ -553,7 +590,6 @@ def _search_operator_by_name(name):
 
 
 def _make_comparison_predicate(lhs, rhs, op, case_sensitive):
-    lhs = lhs.lower()
     search_attr = _search_attribute_by_name(lhs)
 
     # attempt conversion
@@ -564,7 +600,7 @@ def _make_comparison_predicate(lhs, rhs, op, case_sensitive):
     except Exception as e:
         log_error(f"Conversion failed: {rhs=}, {e}")
         _raise_invalid_value_for_structured_search(
-            attr_name=lhs, value=rhs, valid_values=search_attr.value_range
+            attr_name=search_attr.name, value=rhs, valid_values=search_attr.value_range
         )
 
     def op_checker(val):
@@ -593,7 +629,6 @@ def _make_comparison_predicate(lhs, rhs, op, case_sensitive):
 
 
 def _make_has_predicate(rhs):
-    rhs = rhs.lower()
     search_attr = _search_attribute_by_name(rhs)
     return lambda nd: search_attr.value_getter(nd)
 
@@ -644,7 +679,7 @@ def _make_predicate(
         search_attr = _search_attribute_by_name(lhs)
         rhs_items = search_attr.list_convertor(rhs)
         # optimization for "id" lookups
-        if lhs == "id":
+        if search_attr.name == "root_id":
             idset = set(rhs_items)
             if op == OP_IN:
                 return lambda n: str(n["root_id"]) in idset
@@ -866,7 +901,7 @@ def parse_search_query(search_query):
     return chaining_rule, free_form, structured
 
 
-def get_advanced_search_data(current_query, dynamic_ranges):
+def get_advanced_search_data(current_query):
     def clean(dct):
         clean_dict = {}
         for k, v in dct.items():
@@ -876,17 +911,6 @@ def get_advanced_search_data(current_query, dynamic_ranges):
                 clean_dict[k] = v
         return clean_dict
 
-    def assign_dynamic_ranges(dct):
-        # check if range should be pulled from data
-        if "value_range" in dct and isinstance(dct["value_range"], str):
-            # if range was provided, assign it (it should be a list)
-            if dct["value_range"] in dynamic_ranges:
-                dct["value_range"] = sorted(dynamic_ranges[dct["value_range"]])
-            # else remove range entry from the dict
-            else:
-                dct["value_range"] = None
-        return dct
-
     current_query = parse_search_query(current_query)
     res = {
         "operators": {
@@ -895,8 +919,7 @@ def get_advanced_search_data(current_query, dynamic_ranges):
             + STRUCTURED_SEARCH_UNARY_OPERATORS
         },
         "attributes": {
-            sa.name: assign_dynamic_ranges(clean(sa.__dict__))
-            for sa in STRUCTURED_SEARCH_ATTRIBUTES
+            sa.name: clean(sa.__dict__) for sa in STRUCTURED_SEARCH_ATTRIBUTES
         },
         "current_query": {"chaining": current_query[0], "terms": current_query[2]},
     }
