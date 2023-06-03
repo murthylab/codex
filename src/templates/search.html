@@ -96,14 +96,28 @@
                 <a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);">{{neuron.name}}</a>
                 <br>
                 <small>{{highlighted_terms.get(neuron.root_id, neuron.root_id)|safe}}</small>
-                {% if neuron.similar_cell_scores %}
                 <br>
-                <small>
+                <br>
+                <small style="color: purple">Similar cells</small>
+                <span style="font-size: 11px;">
+                    {% if neuron.similar_cell_scores %}
+                    <br>
+                    shape:
                     <a href="{{url_for('app.search', filter_string='{similar_shape} ' + neuron.root_id|string, data_version=data_version)}}">
-                       <i class="fa-regular fa-clone"></i> {{neuron.similar_cell_scores|length}} similar cells
+                            {{neuron.similar_cell_scores|length}} cells
                     </a>
-                </small>
-                {% endif %}
+                    {% endif %}
+                    <br>
+                    i/o: <a href="{{url_for('app.search', filter_string='{similar_connectivity} ' + neuron.root_id|string, data_version=data_version)}}">
+                       <i class="fa-solid fa-arrow-down-up-across-line"></i>
+                    </a>
+                    &nbsp; in: <a href="{{url_for('app.search', filter_string='{similar_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       <i class="fa-solid fa-arrows-up-to-line"></i>
+                    </a>
+                    &nbsp; out: <a href="{{url_for('app.search', filter_string='{similar_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       <i class="fa-solid fa-arrows-down-to-line"></i>
+                    </a>
+                </span>
             </td>
             <td style="color:#3A3A3A;">
                 {% with caption="Side", tooltip="Soma side of the neuron from the fly’s perspective",

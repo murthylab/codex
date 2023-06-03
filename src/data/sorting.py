@@ -10,6 +10,7 @@ from src.data.structured_search_filters import (
     OP_SIMILAR_SHAPE,
     OP_SIMILAR_CONNECTIVITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
+    OP_SIMILAR_CONNECTIVITY,
 )
 from src.utils.graph_algos import reachable_nodes
 from src.utils.logging import log_error, log
@@ -19,8 +20,9 @@ UPSTREAM_SYNAPSE_COUNT = "upstream_synapse_count"
 RECIPROCAL_SYNAPSE_COUNT = "reciprocal_synapse_count"
 DISTANCE_FROM = "distance_from"
 NBLAST_SCORE = "nblast_score"
-JACCARD_SIMILARITY_UPSTREAM = "jaccard_upstream"
-JACCARD_SIMILARITY_DOWNSTREAM = "jaccard_downstream"
+JACCARD_SIMILARITY = "jaccard_similarity"
+JACCARD_SIMILARITY_UPSTREAM = "jaccard_similarity_upstream"
+JACCARD_SIMILARITY_DOWNSTREAM = "jaccard_similarity_downstream"
 ITEM_COUNT = "item_count"
 
 SORTABLE_OPS = {
@@ -29,6 +31,7 @@ SORTABLE_OPS = {
     OP_RECIPROCAL: RECIPROCAL_SYNAPSE_COUNT,
     OP_PATHWAYS: DISTANCE_FROM,
     OP_SIMILAR_SHAPE: NBLAST_SCORE,
+    OP_SIMILAR_CONNECTIVITY: JACCARD_SIMILARITY,
     OP_SIMILAR_CONNECTIVITY_UPSTREAM: JACCARD_SIMILARITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM: JACCARD_SIMILARITY_DOWNSTREAM,
     None: ITEM_COUNT,
@@ -64,6 +67,7 @@ def infer_sort_by(query):
                 UPSTREAM_SYNAPSE_COUNT,
                 RECIPROCAL_SYNAPSE_COUNT,
                 NBLAST_SCORE,
+                JACCARD_SIMILARITY,
                 JACCARD_SIMILARITY_UPSTREAM,
                 JACCARD_SIMILARITY_DOWNSTREAM,
             ]:
@@ -236,18 +240,21 @@ def sort_search_results(
                 }
                 ids = sorted(ids, key=lambda x: -sim_scores[x])
             elif parts[0] in [
+                JACCARD_SIMILARITY,
                 JACCARD_SIMILARITY_UPSTREAM,
                 JACCARD_SIMILARITY_DOWNSTREAM,
             ]:
                 con_scores = similar_connectivity_cells_getter(
                     sort_by_target_cell_rid,
                     weighted=False,
-                    include_upstream=parts[0] == JACCARD_SIMILARITY_UPSTREAM,
-                    include_downstream=parts[0] == JACCARD_SIMILARITY_DOWNSTREAM,
+                    include_upstream=parts[0]
+                    in [JACCARD_SIMILARITY_UPSTREAM, JACCARD_SIMILARITY],
+                    include_downstream=parts[0]
+                    in [JACCARD_SIMILARITY_DOWNSTREAM, JACCARD_SIMILARITY],
                 )
                 extra_data = {
-                    "title": "Overlap Jaccard Similarity Score",
-                    "column_name": "Overlap",
+                    "title": "Jaccard Similarity Coefficient",
+                    "column_name": "Jaccard",
                     "values_dict": {k: str(v)[:4] for k, v in con_scores.items()},
                 }
                 ids = sorted(ids, key=lambda x: -con_scores[x])

@@ -209,7 +209,7 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
     ),
     SearchAttribute(
         description="Automatically assigned name (based on most significant input/output regions) - "
-                    "unique across data versions, but might get replaced if affected by proofreading",
+        "unique across data versions, but might get replaced if affected by proofreading",
         name="name",
     ),
     SearchAttribute(

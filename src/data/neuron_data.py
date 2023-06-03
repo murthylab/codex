@@ -322,7 +322,8 @@ class NeuronDB(object):
     def get_similar_connectivity_cells(
         self,
         root_id,
-        threshold=0.2,
+        threshold=0.1,
+        top_limit=20,
         include_upstream=True,
         include_downstream=True,
         weighted=False,
@@ -374,7 +375,7 @@ class NeuronDB(object):
             score = calc_similarity_score(rid, ndata)
             if score >= threshold:
                 scores.append((rid, score))
-        scores = sorted(scores, key=lambda p: -p[1])
+        scores = sorted(scores, key=lambda p: -p[1])[:top_limit]
         return {p[0]: p[1] for p in scores}
 
     def get_label_data(self, root_id):

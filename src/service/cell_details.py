@@ -13,6 +13,7 @@ from src.data.structured_search_filters import (
     OP_SIMILAR_SHAPE,
     OP_SIMILAR_CONNECTIVITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
+    OP_SIMILAR_CONNECTIVITY,
 )
 from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 from src.utils import nglui
@@ -233,15 +234,17 @@ def cached_cell_details(
             "app.search", filter_string=f"{OP_SIMILAR_SHAPE} {root_id}"
         ),
     )
+
+    # cells with similar connectivity
     sim_con_up = neuron_db.get_similar_connectivity_cells(
         root_id, include_upstream=True, include_downstream=False, weighted=False
     )
     num_sim_con_up = len(sim_con_up) - (1 if root_id in sim_con_up else 0)
     if num_sim_con_up:
         insert_neuron_list_links(
-            "cells with similar upstream connectivity",
+            "cells with similar inputs",
             num_sim_con_up,
-            '<i class="fa-regular fa-clone"></i>',
+            '<i class="fa-solid fa-arrows-up-to-line"></i>',
             search_endpoint=url_for(
                 "app.search",
                 filter_string=f"{OP_SIMILAR_CONNECTIVITY_UPSTREAM} {root_id}",
@@ -253,12 +256,26 @@ def cached_cell_details(
     num_sim_con_down = len(sim_con_down) - (1 if root_id in sim_con_down else 0)
     if num_sim_con_down:
         insert_neuron_list_links(
-            "cells with similar downstream connectivity",
+            "cells with similar outputs",
             num_sim_con_down,
-            '<i class="fa-regular fa-clone"></i>',
+            '<i class="fa-solid fa-arrows-down-to-line"></i>',
             search_endpoint=url_for(
                 "app.search",
                 filter_string=f"{OP_SIMILAR_CONNECTIVITY_DOWNSTREAM} {root_id}",
+            ),
+        )
+    sim_con = neuron_db.get_similar_connectivity_cells(
+        root_id, include_upstream=True, include_downstream=True, weighted=False
+    )
+    num_sim_con = len(sim_con) - (1 if root_id in sim_con else 0)
+    if num_sim_con:
+        insert_neuron_list_links(
+            "cells with similar inputs and outputs",
+            num_sim_con,
+            '<i class="fa-solid fa-arrow-down-up-across-line"></i>',
+            search_endpoint=url_for(
+                "app.search",
+                filter_string=f"{OP_SIMILAR_CONNECTIVITY} {root_id}",
             ),
         )
 
