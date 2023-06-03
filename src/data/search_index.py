@@ -1,7 +1,7 @@
 from src.data.vocabulary import STOP_WORDS
 from src.utils.logging import log
 
-from src.utils.parsing import tokenize
+from src.utils.parsing import tokenize, edit_distance
 
 
 class SearchIndex(object):
@@ -30,24 +30,6 @@ class SearchIndex(object):
             f"Search index created: {len(self.CS_token_to_row_id)=} {len(self.ci_token_to_row_id)=}"
             f" {len(self.CS_label_to_row_id)=} {len(self.ci_label_to_row_id)=}"
         )
-
-    @staticmethod
-    def edit_distance(s1, s2):
-        if len(s1) > len(s2):
-            s1, s2 = s2, s1
-
-        distances = range(len(s1) + 1)
-        for i2, c2 in enumerate(s2):
-            distances_ = [i2 + 1]
-            for i1, c1 in enumerate(s1):
-                if c1 == c2:
-                    distances_.append(distances[i1])
-                else:
-                    distances_.append(
-                        1 + min((distances[i1], distances[i1 + 1], distances_[-1]))
-                    )
-            distances = distances_
-        return distances[-1]
 
     @staticmethod
     def add_to_index(t, rid, index_dict):
@@ -171,8 +153,8 @@ class SearchIndex(object):
         # make deterministic (if few minimums)
         key_set = sorted(key_set)
 
-        closest = min(key_set, key=lambda x: self.edit_distance(x, term))
-        return closest, self.edit_distance(closest, term)
+        closest = min(key_set, key=lambda x: edit_distance(x, term))
+        return closest, edit_distance(closest, term)
 
     def all_doc_ids(self):
         res_set = set()

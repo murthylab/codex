@@ -809,3 +809,54 @@ class NeuronDataTest(TestCase):
     def test_columnar_candidate_neuropil_filter(self):
         pils = self.neuron_db.neuron_data[720575940604570046]["output_neuropils"]
         self.assertFalse(feasible_candidate("T4a", pils), pils)
+
+    def test_dynamic_ranges(self):
+        self.assertEqual(
+            {
+                "data_flow_range": ["intrinsic", "afferent", "efferent"],
+                "data_nerve_range": [
+                    "CV",
+                    "AN",
+                    "MxLbN",
+                    "OCN",
+                    "PhN",
+                    "aPhN",
+                    "NCC",
+                    "ON",
+                ],
+                "data_nt_type_range": ["ACH", "GLUT", "GABA", "DA", "SER", "OCT"],
+                "data_side_range": ["right", "left", "center"],
+                "data_sub_class_range": [
+                    "columnar",
+                    "eye bristle",
+                    "tangential",
+                    "multiglomerular",
+                    "auditory",
+                    "head bristle",
+                    "uniglomerular",
+                    "ring neuron",
+                    "ocellar",
+                    "taste peg",
+                    "pharyngeal_nerve_sensory_group2",
+                    "accessory_pharyngeal_nerve_sensory_group2",
+                    "accessory_pharyngeal_nerve_sensory_group1",
+                    "pharyngeal_nerve_sensory_group1",
+                    "ocellar_interneuron",
+                    "descending",
+                    "antennal_nerve_ascending_sensory",
+                    "LNOa",
+                ],
+                "data_super_class_range": [
+                    "optic",
+                    "central",
+                    "sensory",
+                    "visual_projection",
+                    "ascending",
+                    "descending",
+                    "visual_centrifugal",
+                    "motor",
+                    "endocrine",
+                ],
+            },
+            self.neuron_db.dynamic_ranges(),
+        )

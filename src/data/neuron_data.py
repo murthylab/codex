@@ -197,7 +197,7 @@ class NeuronDB(object):
         return sorted(vals)
 
     @lru_cache
-    def categories(self, top_values=10, for_attr_name=None):
+    def categories(self, top_values, exclude_internal_markers, for_attr_name=None):
         value_counts_dict = defaultdict(lambda: defaultdict(int))
         assigned_to_num_cells_dict = defaultdict(int)
         category_attr_names = {
@@ -229,7 +229,7 @@ class NeuronDB(object):
                     assigned = False
                     for c in val:
                         if (
-                            v == "marker" and ":" in c
+                            v == "marker" and exclude_internal_markers and ":" in c
                         ):  # skip temporary OL tagging markers
                             continue
                         else:
@@ -273,10 +273,12 @@ class NeuronDB(object):
 
     # Returns value ranges for all attributes with not too many different values. Used for advanced search dropdowns.
     @lru_cache
-    def dynamic_ranges(self):
+    def dynamic_ranges(self, range_cardinality_cap=20):
         res = {}
-        for dct in self.categories(top_values=20):
-            if len(dct["counts"]) < 20:
+        for dct in self.categories(
+            top_values=range_cardinality_cap, exclude_internal_markers=False
+        ):
+            if len(dct["counts"]) < range_cardinality_cap:
                 res[f"data_{dct['key']}_range"] = [p[0] for p in dct["counts"]]
         return res
 

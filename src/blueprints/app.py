@@ -184,7 +184,11 @@ def explore():
         top_values=top_values,
         categories=NeuronDataFactory.instance()
         .get(data_version)
-        .categories(top_values=top_values, for_attr_name=for_attr_name),
+        .categories(
+            top_values=top_values,
+            exclude_internal_markers=True,
+            for_attr_name=for_attr_name,
+        ),
     )
 
 

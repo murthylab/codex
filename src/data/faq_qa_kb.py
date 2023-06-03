@@ -44,10 +44,10 @@ FAQ_QA_KB = {
         "with and/or rules like so: <b>class == JON && nt_type != GABA</b> or similarly "
         "<b>class == JON || class == olfactory || class == dsx</b> etc. (but different chaining rules cannot be "
         "mixed)."
+        f"<br> <b>Search attributes</b> <ul> {attr_list(STRUCTURED_SEARCH_ATTRIBUTES)} </ul>"
         f"<br> <b>Binary operators</b> <ul> {operators_list(STRUCTURED_SEARCH_BINARY_OPERATORS)} </ul>"
         f"<br> <b>Unary operators</b> <ul> {operators_list(STRUCTURED_SEARCH_UNARY_OPERATORS)} </ul>"
-        f"<br> <b>Chaining operators</b> <ul> {operators_list(STRUCTURED_SEARCH_NARY_OPERATORS)} </ul>"
-        f"<br> <b>Search attributes</b> <ul> {attr_list(STRUCTURED_SEARCH_ATTRIBUTES)} </ul>",
+        f"<br> <b>Chaining operators</b> <ul> {operators_list(STRUCTURED_SEARCH_NARY_OPERATORS)} </ul>",
     },
     "names": {
         "q": "Where did the cell names originate?",
