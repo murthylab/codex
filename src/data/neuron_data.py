@@ -388,6 +388,22 @@ class NeuronDB(object):
                 break
         return res
 
+    @lru_cache
+    def get_similar_spectral_cells(
+        self,
+        root_id,
+        include_upstream=True,
+        include_downstream=True,
+        limit=100,
+    ):
+        scores = self.svd.rid_score_pairs_sorted(
+            rid=root_id, up=include_upstream, down=include_downstream
+        )
+        res = {}
+        for p in scores[:limit]:
+            res[p[0]] = p[1]
+        return res
+
     def get_label_data(self, root_id):
         root_id = int(root_id)
         return self.label_data.get(root_id)
@@ -443,6 +459,7 @@ class NeuronDB(object):
                 connections_loader=self.connections_up_down,
                 similar_cells_loader=self.get_similar_shape_cells,
                 similar_connectivity_loader=self.get_similar_connectivity_cells,
+                similar_spectral_loader=self.get_similar_spectral_cells,
                 case_sensitive=case_sensitive,
             )
             term_search_results.append(

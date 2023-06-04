@@ -41,6 +41,7 @@ class NeuronDataTest(TestCase):
                     "grouped_connection_counts",
                     "grouped_reciprocal_connection_counts",
                     "search_index",
+                    "svd",
                 ]
             ),
             sorted(self.neuron_db.__dict__.keys()),
@@ -55,6 +56,7 @@ class NeuronDataTest(TestCase):
             "grouped_synapse_counts": "108 K",
             "grouped_connection_counts": "111 K",
             "grouped_reciprocal_connection_counts": "69 K",
+            "svd": "300 M",
         }
 
         def approx_size(ob):
@@ -84,6 +86,7 @@ class NeuronDataTest(TestCase):
             "grouped_reciprocal_connection_counts": approx_size(
                 self.neuron_db.grouped_reciprocal_connection_counts
             ),
+            "svd": approx_size(self.neuron_db.svd),
         }
 
         def compare_approx_sizes(exp, act):

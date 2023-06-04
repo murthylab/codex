@@ -268,6 +268,9 @@ OP_SIMILAR_CONNECTIVITY = "{similar_connectivity}"
 OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED = "{similar_upstream_weighted}"
 OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED = "{similar_downstream_weighted}"
 OP_SIMILAR_CONNECTIVITY_WEIGHTED = "{similar_connectivity_weighted}"
+OP_SIMILAR_SPECTRAL_UPSTREAM = "{similar_spectral_upstream}"
+OP_SIMILAR_SPECTRAL_DOWNSTREAM = "{similar_spectral_downstream}"
+OP_SIMILAR_SPECTRAL = "{similar_spectral}"
 OP_PATHWAYS = "{pathways}"
 OP_AND = "{and}"
 OP_OR = "{or}"
@@ -510,6 +513,27 @@ STRUCTURED_SEARCH_OPERATORS = [
         rhs_description="Cell ID",
         rhs_range=None,
     ),
+    UnarySearchOperator(
+        name=OP_SIMILAR_SPECTRAL_UPSTREAM,
+        shorthand="~su",
+        description="Unary, matches cells that have similar spectral decomposition upstream of specified Cell ID",
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    UnarySearchOperator(
+        name=OP_SIMILAR_SPECTRAL_DOWNSTREAM,
+        shorthand="~sd",
+        description="Unary, matches cells that have similar spectral decomposition downstream of specified Cell ID",
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
+    UnarySearchOperator(
+        name=OP_SIMILAR_SPECTRAL,
+        shorthand="~sc",
+        description="Unary, matches cells that have similar spectral decomposition (both up and downstream) to specified Cell ID",
+        rhs_description="Cell ID",
+        rhs_range=None,
+    ),
     BinarySearchOperator(
         name=OP_PATHWAYS,
         shorthand="->",
@@ -640,6 +664,7 @@ def _make_predicate(
     connections_loader,
     similar_cells_loader,
     similar_connectivity_loader,
+    similar_spectral_loader,
     case_sensitive,
 ):
     lhs = structured_term.get("lhs")  # lhs is optional e.g. for unary operators
@@ -758,6 +783,23 @@ def _make_predicate(
             raise_malformed_structured_search_query(
                 f"Invalid cell id '{rhs}' in operator '{op}', error: {e}"
             )
+    elif op in [
+        OP_SIMILAR_SPECTRAL,
+        OP_SIMILAR_SPECTRAL_DOWNSTREAM,
+        OP_SIMILAR_SPECTRAL_UPSTREAM,
+    ]:
+        try:
+            cell_id = int(rhs)
+            target_rid_dict = similar_spectral_loader(
+                cell_id,
+                include_upstream=op != OP_SIMILAR_SPECTRAL_DOWNSTREAM,
+                include_downstream=op != OP_SIMILAR_SPECTRAL_UPSTREAM,
+            )
+            return lambda x: x["root_id"] in target_rid_dict
+        except ValueError as e:
+            raise_malformed_structured_search_query(
+                f"Invalid cell id '{rhs}' in operator '{op}', error: {e}"
+            )
     elif op == OP_PATHWAYS:
         pathway_distance_map = pathways(
             source=lhs,
@@ -783,6 +825,7 @@ def make_structured_terms_predicate(
     connections_loader,
     similar_cells_loader,
     similar_connectivity_loader,
+    similar_spectral_loader,
     case_sensitive,
 ):
     predicates = [
@@ -793,6 +836,7 @@ def make_structured_terms_predicate(
             connections_loader=connections_loader,
             similar_cells_loader=similar_cells_loader,
             similar_connectivity_loader=similar_connectivity_loader,
+            similar_spectral_loader=similar_spectral_loader,
             case_sensitive=case_sensitive,
         )
         for t in structured_terms

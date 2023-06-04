@@ -11,6 +11,9 @@ from src.data.structured_search_filters import (
     OP_SIMILAR_CONNECTIVITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
     OP_SIMILAR_CONNECTIVITY,
+    OP_SIMILAR_SPECTRAL_UPSTREAM,
+    OP_SIMILAR_SPECTRAL_DOWNSTREAM,
+    OP_SIMILAR_SPECTRAL,
 )
 from src.utils.graph_algos import reachable_nodes
 from src.utils.logging import log_error, log
@@ -23,6 +26,9 @@ NBLAST_SCORE = "nblast_score"
 JACCARD_SIMILARITY = "jaccard_similarity"
 JACCARD_SIMILARITY_UPSTREAM = "jaccard_similarity_upstream"
 JACCARD_SIMILARITY_DOWNSTREAM = "jaccard_similarity_downstream"
+COSINE_SIMILARITY = "cosine_similarity"
+COSINE_SIMILARITY_UPSTREAM = "cosine_similarity_upstream"
+COSINE_SIMILARITY_DOWNSTREAM = "cosine_similarity_downstream"
 ITEM_COUNT = "item_count"
 
 SORTABLE_OPS = {
@@ -34,6 +40,9 @@ SORTABLE_OPS = {
     OP_SIMILAR_CONNECTIVITY: JACCARD_SIMILARITY,
     OP_SIMILAR_CONNECTIVITY_UPSTREAM: JACCARD_SIMILARITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM: JACCARD_SIMILARITY_DOWNSTREAM,
+    OP_SIMILAR_SPECTRAL: COSINE_SIMILARITY,
+    OP_SIMILAR_SPECTRAL_UPSTREAM: COSINE_SIMILARITY_UPSTREAM,
+    OP_SIMILAR_SPECTRAL_DOWNSTREAM: COSINE_SIMILARITY_DOWNSTREAM,
     None: ITEM_COUNT,
 }
 
@@ -70,6 +79,9 @@ def infer_sort_by(query):
                 JACCARD_SIMILARITY,
                 JACCARD_SIMILARITY_UPSTREAM,
                 JACCARD_SIMILARITY_DOWNSTREAM,
+                COSINE_SIMILARITY,
+                COSINE_SIMILARITY_UPSTREAM,
+                COSINE_SIMILARITY_DOWNSTREAM,
             ]:
                 target_cell_id = part["rhs"]
             else:
@@ -94,6 +106,7 @@ def sort_search_results(
     partner_count_getter,
     similar_shape_cells_getter,
     similar_connectivity_cells_getter,
+    similar_spectral_cells_getter,
     connections_getter,
     sort_by=None,
 ):
@@ -258,6 +271,24 @@ def sort_search_results(
                     "values_dict": {k: str(v)[:4] for k, v in con_scores.items()},
                 }
                 ids = sorted(ids, key=lambda x: -con_scores[x])
+            elif parts[0] in [
+                COSINE_SIMILARITY,
+                COSINE_SIMILARITY_UPSTREAM,
+                COSINE_SIMILARITY_DOWNSTREAM,
+            ]:
+                sp_scores = similar_spectral_cells_getter(
+                    sort_by_target_cell_rid,
+                    include_upstream=parts[0] != COSINE_SIMILARITY_DOWNSTREAM,
+                    include_downstream=parts[0] != COSINE_SIMILARITY_UPSTREAM,
+                )
+                extra_data = {
+                    "title": "Cosine Similarity Score",
+                    "column_name": "Cosine",
+                    "values_dict": {
+                        k: str(round(v * 10) / 10) for k, v in sp_scores.items()
+                    },
+                }
+                ids = sorted(ids, key=lambda x: -sp_scores[x])
             else:
                 raise ValueError(f"Unsupported sort_by parameter: {sort_by}")
 
