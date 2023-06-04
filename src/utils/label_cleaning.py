@@ -131,6 +131,7 @@ def remove_redundant_parts(labels, neuron_data):
 def remove_corrected(labels_latest_to_oldest):
     correction_prefixes = [
         "Correction: ",
+        "(correction) ",
         "Tm16 is wrong. this is: ",
         "L1 label is wrong",
     ]
