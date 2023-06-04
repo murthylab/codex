@@ -1,7 +1,9 @@
 import os
 import string
 from collections import defaultdict
+from datetime import datetime
 from unittest import TestCase
+
 
 from src.data.brain_regions import REGIONS, HEMISPHERES
 from src.data.local_data_loader import (
@@ -680,7 +682,7 @@ class NeuronDataTest(TestCase):
                             ]
                         ]
                     ),
-                    lbllc,
+                    labels,
                 )
                 tokens = tokenize(lbllc)
                 self.assertFalse(
@@ -912,3 +914,65 @@ class NeuronDataTest(TestCase):
                         set(self.neuron_db.dynamic_ranges()[data_range_key]),
                         attr.name,
                     )
+
+    def test_svd(self):
+        rid = 720575940621675174
+        print(datetime.now())
+        score_pairs = self.neuron_db.svd.rid_score_pairs_sorted(
+            rid, up=True, down=True
+        )[:10]
+        self.assertEqual(
+            [
+                720575940621675174,
+                720575940646126190,
+                720575940626457406,
+                720575940628452520,
+                720575940646114926,
+                720575940626477498,
+                720575940627152668,
+                720575940605688492,
+                720575940633017939,
+                720575940622831740,
+            ],
+            [p[0] for p in score_pairs],
+        )
+        score_pairs = self.neuron_db.svd.rid_score_pairs_sorted(
+            rid, up=False, down=True
+        )[:10]
+        self.assertEqual(
+            [
+                720575940621675174,
+                720575940646114926,
+                720575940626662346,
+                720575940636372335,
+                720575940626947971,
+                720575940636258423,
+                720575940622831740,
+                720575940607420290,
+                720575940626379568,
+                720575940628452520,
+            ],
+            [p[0] for p in score_pairs],
+        )
+        score_pairs = self.neuron_db.svd.rid_score_pairs_sorted(
+            rid, up=True, down=False
+        )[:10]
+        self.assertEqual(
+            [
+                720575940621675174,
+                720575940646126190,
+                720575940626457406,
+                720575940626477498,
+                720575940633017939,
+                720575940605688492,
+                720575940624931564,
+                720575940636933751,
+                720575940628452520,
+                720575940635615339,
+            ],
+            [p[0] for p in score_pairs],
+        )
+        print(datetime.now())
+
+        for rid in self.neuron_db.svd.vecs.keys():
+            self.assertTrue(rid in self.neuron_db.neuron_data)

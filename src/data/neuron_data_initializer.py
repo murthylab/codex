@@ -109,6 +109,7 @@ def initialize_neuron_data(
     nblast_rows,
     morphology_cluster_rows,
     connectivity_cluster_rows,
+    svd_rows,
 ):
     neuron_attributes = {}
     neuron_connection_rows = []
@@ -434,6 +435,7 @@ def initialize_neuron_data(
         grouped_synapse_counts=grouped_synapse_counts,
         grouped_connection_counts=grouped_connection_counts,
         grouped_reciprocal_connection_counts=grouped_reciprocal_connection_counts,
+        svd_rows=svd_rows,
     )
 
 

@@ -17,6 +17,7 @@ from src.data.structured_search_filters import (
     OP_IN,
 )
 from src.configuration import MIN_NBLAST_SCORE_SIMILARITY
+from src.data.svd import Svd
 from src.utils.formatting import (
     display,
     percentage,
@@ -55,6 +56,7 @@ class NeuronDB(object):
         grouped_synapse_counts,
         grouped_connection_counts,
         grouped_reciprocal_connection_counts,
+        svd_rows,
     ):
         self.neuron_data = neuron_attributes
         self.connections_ = Connections(neuron_connection_rows)
@@ -63,6 +65,7 @@ class NeuronDB(object):
         self.grouped_connection_counts = grouped_connection_counts
         self.grouped_reciprocal_connection_counts = grouped_reciprocal_connection_counts
         self.meta_data = {"labels_file_timestamp": labels_file_timestamp}
+        self.svd = Svd(svd_rows)
 
         log("App initialization building search index..")
 
@@ -322,11 +325,12 @@ class NeuronDB(object):
     def get_similar_connectivity_cells(
         self,
         root_id,
-        threshold=0.1,
-        top_limit=20,
         include_upstream=True,
         include_downstream=True,
         weighted=False,
+        include_score_threshold=0.2,
+        min_score_threshold=0.1,
+        min_score_limit=20,
     ):
         if weighted:
             ins, outs = self.input_output_partners_with_synapse_counts()
@@ -341,7 +345,7 @@ class NeuronDB(object):
 
         def calc_range_for_threshold(attr_name):
             val = self.get_neuron_data(root_id)[attr_name]
-            return val * threshold, val / threshold
+            return val * min_score_threshold, val / min_score_threshold
 
         upstream_filter_range = calc_range_for_threshold(upstream_filter_attr_name)
         downstream_filter_range = calc_range_for_threshold(downstream_filter_attr_name)
@@ -373,10 +377,16 @@ class NeuronDB(object):
         scores = []
         for rid, ndata in self.neuron_data.items():
             score = calc_similarity_score(rid, ndata)
-            if score >= threshold:
+            if score >= min_score_threshold:
                 scores.append((rid, score))
-        scores = sorted(scores, key=lambda p: -p[1])[:top_limit]
-        return {p[0]: p[1] for p in scores}
+        scores = sorted(scores, key=lambda p: -p[1])
+        res = {}
+        for p in scores:
+            if p[1] >= include_score_threshold or len(res) < min_score_limit:
+                res[p[0]] = p[1]
+            else:
+                break
+        return res
 
     def get_label_data(self, root_id):
         root_id = int(root_id)
