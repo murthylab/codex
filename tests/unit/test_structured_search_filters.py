@@ -72,6 +72,7 @@ class Test(TestCase):
                     connections_loader=mock_con_loader,
                     similar_cells_loader=mock_sim_loader,
                     similar_connectivity_loader=mock_sim_loader,
+                    similar_spectral_loader=mock_sim_loader,
                     case_sensitive=False,
                 )
             )
@@ -83,6 +84,7 @@ class Test(TestCase):
                     connections_loader=mock_con_loader,
                     similar_cells_loader=mock_sim_loader,
                     similar_connectivity_loader=mock_sim_loader,
+                    similar_spectral_loader=mock_sim_loader,
                     case_sensitive=True,
                 )
             )

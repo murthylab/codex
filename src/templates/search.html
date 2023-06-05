@@ -100,34 +100,35 @@
                 <br>
                 {% if neuron.similar_cell_scores %}
                 <small>
-                    <a href="{{url_for('app.search', filter_string='{similar_shape} ' + neuron.root_id|string, data_version=data_version)}}">
-                            {{neuron.similar_cell_scores|length}} similar shape cells
+                    <span style="color: purple">similar shape: </span>
+                    <a href="{{url_for('app.search', filter_string='{similar_shape} ' + neuron.root_id|string, data_version=data_version)}}" target="_blank">
+                            {{neuron.similar_cell_scores|length}} cells
                     </a>
                 </small>
                 {% endif %}
                 <br>
 
-                <small style="color: purple" onclick="document.getElementById('similar_to_{{neuron.root_id}}').hidden = false;">similar connectivity <i class="fa-solid fa-caret-down"></i></small>
+                <small style="color: purple" onclick="elem = document.getElementById('similar_to_{{neuron.root_id}}'); elem.hidden = !elem.hidden;">similar connectivity <i class="fa-solid fa-caret-down"></i></small>
                 <span style="font-size: 11px;" id="similar_to_{{neuron.root_id}}" hidden>
                     <br>
-                    Jaccard: <a href="{{url_for('app.search', filter_string='{similar_connectivity} ' + neuron.root_id|string, data_version=data_version)}}">
+                    Jaccard: <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_connectivity} ' + neuron.root_id|string, data_version=data_version)}}">
                        i/o
                     </a>|
-                    <a href="{{url_for('app.search', filter_string='{similar_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                    <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
                        in
                     </a>|
-                     <a href="{{url_for('app.search', filter_string='{similar_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                     <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
                        out
                     </a>
 
                     <br>
-                    Cosine: <a href="{{url_for('app.search', filter_string='{similar_spectral} ' + neuron.root_id|string, data_version=data_version)}}">
+                    Cosine: <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral} ' + neuron.root_id|string, data_version=data_version)}}">
                        i/o
                     </a>|
-                    <a href="{{url_for('app.search', filter_string='{similar_spectral_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                    <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
                        in
                     </a>|
-                    <a href="{{url_for('app.search', filter_string='{similar_spectral_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                    <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
                        out
                     </a>
                 </span>

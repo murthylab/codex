@@ -14,6 +14,9 @@ from src.data.structured_search_filters import (
     OP_SIMILAR_CONNECTIVITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
     OP_SIMILAR_CONNECTIVITY,
+    OP_SIMILAR_SPECTRAL,
+    OP_SIMILAR_SPECTRAL_UPSTREAM,
+    OP_SIMILAR_SPECTRAL_DOWNSTREAM,
 )
 from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 from src.utils import nglui
@@ -278,6 +281,36 @@ def cached_cell_details(
                 filter_string=f"{OP_SIMILAR_CONNECTIVITY} {root_id}",
             ),
         )
+
+    insert_neuron_list_links(
+        "cells with similar input and output embeddings",
+        "find",
+        '<i class="fa-solid fa-gears"></i>',
+        search_endpoint=url_for(
+            "app.search",
+            filter_string=f"{OP_SIMILAR_SPECTRAL} {root_id}",
+        ),
+    )
+
+    insert_neuron_list_links(
+        "cells with similar input embeddings",
+        "find",
+        '<i class="fa-solid fa-gears"></i>',
+        search_endpoint=url_for(
+            "app.search",
+            filter_string=f"{OP_SIMILAR_SPECTRAL_UPSTREAM} {root_id}",
+        ),
+    )
+
+    insert_neuron_list_links(
+        "cells with similar output embeddings",
+        "find",
+        '<i class="fa-solid fa-gears"></i>',
+        search_endpoint=url_for(
+            "app.search",
+            filter_string=f"{OP_SIMILAR_SPECTRAL_DOWNSTREAM} {root_id}",
+        ),
+    )
 
     # reachability analysis link
     if connectivity_table and not reachability_stats:
