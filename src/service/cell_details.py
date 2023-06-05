@@ -109,19 +109,24 @@ def cached_cell_details(
             ]
         ),
         "Identification Labels": concat_labels(nd["label"]),
-        "Labeling log": concat_labels(labeling_log),
-        "Last DB sync": concat_labels(
-            [f'<b style="color: green">{neuron_db.labels_ingestion_timestamp()}</b>']
+        f'Labeling log<br><small style="color: green"><b>{neuron_db.labels_ingestion_timestamp()}</b></small>': concat_labels(
+            labeling_log
         ),
     }
 
     related_cells = []
+    further_analysis = []
 
-    def insert_neuron_list_links(key, num_neurons, icon, search_endpoint):
+    def insert_related_cell_links(key, num_neurons, icon, search_endpoint):
         if num_neurons:
             related_cells.append(
                 f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{icon}&nbsp; {display(num_neurons)} {key}</a>'
             )
+
+    def insert_further_analysis_links(key, icon, search_endpoint):
+        further_analysis.append(
+            f'<a class="btn btn-link" href="{search_endpoint}" target="_blank">{icon}&nbsp; {key}</a>'
+        )
 
     connectivity_table = neuron_db.cell_connections(root_id)
 
@@ -137,7 +142,7 @@ def cached_cell_details(
                 input_neuropil_synapse_count[r[2]] += r[3]
                 input_nt_type_count[r[4].upper()] += r[3]
 
-        insert_neuron_list_links(
+        insert_related_cell_links(
             f"input cells (upstream) with {MIN_SYN_THRESHOLD}+ synapses",
             nd["input_cells"],
             '<i class="fa-solid fa-arrow-up"></i>',
@@ -145,7 +150,7 @@ def cached_cell_details(
                 "app.search", filter_string=f"{OP_UPSTREAM} {root_id}"
             ),
         )
-        insert_neuron_list_links(
+        insert_related_cell_links(
             f"output cells (downstream) with {MIN_SYN_THRESHOLD}+ synapses",
             nd["output_cells"],
             '<i class="fa-solid fa-arrow-down"></i>',
@@ -154,9 +159,11 @@ def cached_cell_details(
             ),
         )
         if "reciprocal" in nd["marker"]:
-            insert_neuron_list_links(
-                f"reciprocal feedback cells with {MIN_SYN_THRESHOLD}+ synapses",
-                "show",
+            up, dn = neuron_db.connections_up_down(root_id)
+            reciprocal_count = len(set(up).intersection(dn))
+            insert_related_cell_links(
+                f"reciprocal cells (both up- and downstream) with {MIN_SYN_THRESHOLD}+ synapses",
+                reciprocal_count,
                 '<i class="fa-solid fa-arrow-right-arrow-left"></i>',
                 search_endpoint=url_for(
                     "app.search", filter_string=f"{OP_RECIPROCAL} {root_id}"
@@ -229,7 +236,7 @@ def cached_cell_details(
     else:
         charts = {}
 
-    insert_neuron_list_links(
+    insert_related_cell_links(
         "cells with similar morphology (NBLAST based)",
         len(neuron_db.get_similar_shape_cells(root_id, include_self=False)),
         '<i class="fa-regular fa-clone"></i>',
@@ -244,7 +251,7 @@ def cached_cell_details(
     )
     num_sim_con_up = len(sim_con_up) - (1 if root_id in sim_con_up else 0)
     if num_sim_con_up:
-        insert_neuron_list_links(
+        insert_related_cell_links(
             "cells with similar inputs",
             num_sim_con_up,
             '<i class="fa-solid fa-arrows-up-to-line"></i>',
@@ -258,7 +265,7 @@ def cached_cell_details(
     )
     num_sim_con_down = len(sim_con_down) - (1 if root_id in sim_con_down else 0)
     if num_sim_con_down:
-        insert_neuron_list_links(
+        insert_related_cell_links(
             "cells with similar outputs",
             num_sim_con_down,
             '<i class="fa-solid fa-arrows-down-to-line"></i>',
@@ -272,7 +279,7 @@ def cached_cell_details(
     )
     num_sim_con = len(sim_con) - (1 if root_id in sim_con else 0)
     if num_sim_con:
-        insert_neuron_list_links(
+        insert_related_cell_links(
             "cells with similar inputs and outputs",
             num_sim_con,
             '<i class="fa-solid fa-arrow-down-up-across-line"></i>',
@@ -282,33 +289,30 @@ def cached_cell_details(
             ),
         )
 
-    insert_neuron_list_links(
-        "cells with similar input and output embeddings",
-        "find",
-        '<i class="fa-solid fa-gears"></i>',
-        search_endpoint=url_for(
-            "app.search",
-            filter_string=f"{OP_SIMILAR_SPECTRAL} {root_id}",
-        ),
-    )
-
-    insert_neuron_list_links(
-        "cells with similar input embeddings",
-        "find",
-        '<i class="fa-solid fa-gears"></i>',
+    insert_further_analysis_links(
+        "Find cells with similar input embeddings",
+        '<i class="fa-solid fa-arrows-up-to-line"></i>',
         search_endpoint=url_for(
             "app.search",
             filter_string=f"{OP_SIMILAR_SPECTRAL_UPSTREAM} {root_id}",
         ),
     )
 
-    insert_neuron_list_links(
-        "cells with similar output embeddings",
-        "find",
-        '<i class="fa-solid fa-gears"></i>',
+    insert_further_analysis_links(
+        "Find cells with similar output embeddings",
+        '<i class="fa-solid fa-arrows-down-to-line"></i>',
         search_endpoint=url_for(
             "app.search",
             filter_string=f"{OP_SIMILAR_SPECTRAL_DOWNSTREAM} {root_id}",
+        ),
+    )
+
+    insert_further_analysis_links(
+        "Find cells with similar input and output embeddings",
+        '<i class="fa-solid fa-arrow-down-up-across-line"></i>',
+        search_endpoint=url_for(
+            "app.search",
+            filter_string=f"{OP_SIMILAR_SPECTRAL} {root_id}",
         ),
     )
 
@@ -324,7 +328,7 @@ def cached_cell_details(
             f'<a class="btn btn-link" onclick="loading(event);" href="{rurl}"><i class="fa-solid fa-gears"></i> &nbsp; '
             "Run reachability analysis and reload</a>"
         )
-        related_cells.append(hlink)
+        further_analysis.append(hlink)
 
     # remove empty items
     cell_attributes = {k: v for k, v in cell_attributes.items() if v}
@@ -362,6 +366,7 @@ def cached_cell_details(
         cell_annotations=cell_annotations,
         cell_extra_data=cell_extra_data,
         related_cells=related_cells,
+        further_analysis=further_analysis,
         charts=charts,
         load_connections=1 if connectivity_table and len(connectivity_table) > 1 else 0,
     )
