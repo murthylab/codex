@@ -302,7 +302,7 @@ class BinarySearchOperator(SearchOperator):
         lhs_description,
         lhs_range,
         rhs_description,
-        rhs_range,
+        rhs_range=None,
         rhs_force_text=None,
         rhs_multiple=None,
     ):
@@ -321,7 +321,7 @@ class BinarySearchOperator(SearchOperator):
 
 
 class UnarySearchOperator(SearchOperator):
-    def __init__(self, name, shorthand, description, rhs_description, rhs_range):
+    def __init__(self, name, shorthand, description, rhs_description, rhs_range=None):
         super().__init__(
             name=name,
             shorthand=shorthand,
@@ -350,7 +350,6 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Value",
-        rhs_range=None,
     ),
     BinarySearchOperator(
         name=OP_NOT_EQUAL,
@@ -359,7 +358,6 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Value",
-        rhs_range=None,
     ),
     BinarySearchOperator(
         name=OP_STARTS_WITH,
@@ -368,7 +366,6 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Prefix",
-        rhs_range=None,
         rhs_force_text="true",
     ),
     BinarySearchOperator(
@@ -378,7 +375,6 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Substring",
-        rhs_range=None,
         rhs_force_text="true",
     ),
     BinarySearchOperator(
@@ -388,7 +384,6 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Substring",
-        rhs_range=None,
         rhs_force_text="true",
     ),
     BinarySearchOperator(
@@ -398,7 +393,6 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Values",
-        rhs_range=None,
         rhs_multiple="true",
     ),
     BinarySearchOperator(
@@ -408,7 +402,6 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_description="Attribute",
         lhs_range=SEARCH_ATTRIBUTE_NAMES,
         rhs_description="Values",
-        rhs_range=None,
         rhs_multiple="true",
     ),
     UnarySearchOperator(
@@ -430,14 +423,12 @@ STRUCTURED_SEARCH_OPERATORS = [
         shorthand="^^",
         description="Unary, matches cells upstream of specified Cell ID",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_DOWNSTREAM,
         shorthand="!^",
         description="Unary, matches cells downstream of specified Cell ID",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     BinarySearchOperator(
         name=OP_UPSTREAM_REGION,
@@ -446,7 +437,6 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_description="Region or Side",
         lhs_range=HEMISPHERES + sorted(REGIONS.keys()),
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     BinarySearchOperator(
         name=OP_DOWNSTREAM_REGION,
@@ -455,84 +445,72 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_description="Region or Side",
         lhs_range=HEMISPHERES + sorted(REGIONS.keys()),
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_RECIPROCAL,
         shorthand="^v",
         description="Unary, matches reciprocal-feedback cells that are both downstream and upstream of specified Cell ID",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_SIMILAR_SHAPE,
         shorthand="~~",
         description="Unary, matches cells that are similar in shape to specified Cell ID",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_SIMILAR_CONNECTIVITY_UPSTREAM,
         shorthand="~u",
         description="Unary, matches cells that have similar upstream connectivity to specified Cell ID",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
         shorthand="~d",
         description="Unary, matches cells that have similar downstream connectivity to specified Cell ID",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_SIMILAR_CONNECTIVITY,
         shorthand="~c",
         description="Unary, matches cells that have similar connectivity (both up and downstream) to specified Cell ID",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED,
         shorthand="~wu",
         description="Unary, matches cells that have similar upstream connectivity to specified Cell ID, weighted by synapse counts",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED,
         shorthand="~wd",
         description="Unary, matches cells that have similar downstream connectivity to specified Cell ID, weighted by synapse counts",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_SIMILAR_CONNECTIVITY_WEIGHTED,
         shorthand="~wc",
         description="Unary, matches cells that have similar connectivity (both up and downstream) to specified Cell ID, weighted by synapse counts",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_SIMILAR_SPECTRAL_UPSTREAM,
         shorthand="~su",
         description="Unary, matches cells that have similar spectral decomposition upstream of specified Cell ID",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_SIMILAR_SPECTRAL_DOWNSTREAM,
         shorthand="~sd",
         description="Unary, matches cells that have similar spectral decomposition downstream of specified Cell ID",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     UnarySearchOperator(
         name=OP_SIMILAR_SPECTRAL,
         shorthand="~sc",
         description="Unary, matches cells that have similar spectral decomposition (both up and downstream) to specified Cell ID",
         rhs_description="Cell ID",
-        rhs_range=None,
     ),
     BinarySearchOperator(
         name=OP_PATHWAYS,
@@ -541,7 +519,6 @@ STRUCTURED_SEARCH_OPERATORS = [
         lhs_description="Source Cell ID",
         lhs_range=None,
         rhs_description="Target Cell ID",
-        rhs_range=None,
     ),
     NarySearchOperator(
         name=OP_AND, shorthand="&&", description="N-ary, all terms are true"
