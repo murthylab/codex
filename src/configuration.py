@@ -49,6 +49,11 @@ DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS = {
     "column containing the FlyWire Root ID of the cell, followed by a column for every combination of neuropil X "
     "input/output X synapse/partner. Note: this resource is a convenience, it can be derived from the connectivity "
     "table.",
+    "synapse_coordinates": "Individual synapse coordinates (x, y, z in nanometers). Typically synapse locations are "
+    "bounded within a 3D bounding box, for compactness this table only provides coordinates of "
+    "a single point in the detected bounding box. Also for compactness, empty pre/post id "
+    "columns should be inferred by looking up in the table at the last non-empty value "
+    "respectively.",
 }
 
 GOOGLE_CLIENT_ID = (
