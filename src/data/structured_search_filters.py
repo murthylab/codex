@@ -271,6 +271,7 @@ OP_SIMILAR_CONNECTIVITY_WEIGHTED = "{similar_connectivity_weighted}"
 OP_SIMILAR_SPECTRAL_UPSTREAM = "{similar_spectral_upstream}"
 OP_SIMILAR_SPECTRAL_DOWNSTREAM = "{similar_spectral_downstream}"
 OP_SIMILAR_SPECTRAL = "{similar_spectral}"
+OP_PROJECTED_EMBEDDING = "{projected_embedding}"
 OP_PATHWAYS = "{pathways}"
 OP_AND = "{and}"
 OP_OR = "{or}"
@@ -300,8 +301,8 @@ class BinarySearchOperator(SearchOperator):
         shorthand,
         description,
         lhs_description,
-        lhs_range,
         rhs_description,
+        lhs_range=None,
         rhs_range=None,
         rhs_force_text=None,
         rhs_multiple=None,
@@ -513,11 +514,17 @@ STRUCTURED_SEARCH_OPERATORS = [
         rhs_description="Cell ID",
     ),
     BinarySearchOperator(
+        name=OP_PROJECTED_EMBEDDING,
+        shorthand="~pe",
+        description="Binary, matches cells with connectivity embeddings that extend from LHS to RHS",
+        lhs_description="Source Cell ID",
+        rhs_description="Target Cell ID",
+    ),
+    BinarySearchOperator(
         name=OP_PATHWAYS,
         shorthand="->",
         description="Binary, match all cells along shortest-path pathways from LHS to RHS",
         lhs_description="Source Cell ID",
-        lhs_range=None,
         rhs_description="Target Cell ID",
     ),
     NarySearchOperator(
@@ -776,6 +783,25 @@ def _make_predicate(
         except ValueError as e:
             raise_malformed_structured_search_query(
                 f"Invalid cell id '{rhs}' in operator '{op}', error: {e}"
+            )
+    elif op in [
+        OP_PROJECTED_EMBEDDING,
+    ]:
+        try:
+            from_cell_id = int(lhs)
+            to_cell_id = int(rhs)
+            target_rid_dict = similar_spectral_loader(
+                root_id=from_cell_id,
+                projected_to_root_id=to_cell_id,
+                include_upstream=True,
+                include_downstream=True,
+                limit=5,
+            )
+            target_rid_set = set(target_rid_dict.keys()) - {from_cell_id, to_cell_id}
+            return lambda x: x["root_id"] in target_rid_set
+        except ValueError as e:
+            raise_malformed_structured_search_query(
+                f"Invalid cell id in operator '{op}', error: {e}"
             )
     elif op == OP_PATHWAYS:
         pathway_distance_map = pathways(

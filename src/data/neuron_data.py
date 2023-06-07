@@ -392,13 +392,31 @@ class NeuronDB(object):
     def get_similar_spectral_cells(
         self,
         root_id,
+        projected_to_root_id=None,
         include_upstream=True,
         include_downstream=True,
         limit=100,
     ):
-        scores = self.svd.rid_score_pairs_sorted(
-            rid=root_id, up=include_upstream, down=include_downstream
-        )
+        if projected_to_root_id:
+            v1 = self.svd.get_vec_copy(
+                root_id, up=include_upstream, down=include_downstream
+            )
+            v2 = self.svd.get_vec_copy(
+                projected_to_root_id, up=include_upstream, down=include_downstream
+            )
+            if not v1 or not v2:
+                return {}
+            vec = []
+            for i, v1v in enumerate(v1):
+                vec.append(v2[i] + (v2[i] - v1v))
+            norm = self.svd.calculate_norm(vec)
+            scores = self.svd.vec_score_pairs_sorted(
+                vec=vec, norm=norm, up=include_upstream, down=include_downstream
+            )
+        else:
+            scores = self.svd.rid_score_pairs_sorted(
+                rid=root_id, up=include_upstream, down=include_downstream
+            )
         res = {}
         for p in scores[:limit]:
             res[p[0]] = p[1]
