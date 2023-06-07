@@ -55,8 +55,11 @@ class Test(TestCase):
                 else:
                     return [], []
 
-            def mock_sim_loader(
-                cell_id,
+            def mock_list_loader(
+                cell_id=None,
+                root_id=None,
+                projected_to_root_id=None,
+                limit=0,
                 include_self=True,
                 include_upstream=False,
                 include_downstream=False,
@@ -64,15 +67,27 @@ class Test(TestCase):
             ):
                 return []
 
+            def mock_dict_loader(
+                cell_id=None,
+                root_id=None,
+                projected_to_root_id=None,
+                limit=0,
+                include_self=True,
+                include_upstream=False,
+                include_downstream=False,
+                weighted=False,
+            ):
+                return {}
+
             self.assertIsNotNone(
                 _make_predicate(
                     st,
                     mock_con_loader,
                     mock_con_loader,
                     connections_loader=mock_con_loader,
-                    similar_cells_loader=mock_sim_loader,
-                    similar_connectivity_loader=mock_sim_loader,
-                    similar_spectral_loader=mock_sim_loader,
+                    similar_cells_loader=mock_list_loader,
+                    similar_connectivity_loader=mock_list_loader,
+                    similar_spectral_loader=mock_dict_loader,
                     case_sensitive=False,
                 )
             )
@@ -82,9 +97,9 @@ class Test(TestCase):
                     mock_con_loader,
                     mock_con_loader,
                     connections_loader=mock_con_loader,
-                    similar_cells_loader=mock_sim_loader,
-                    similar_connectivity_loader=mock_sim_loader,
-                    similar_spectral_loader=mock_sim_loader,
+                    similar_cells_loader=mock_list_loader,
+                    similar_connectivity_loader=mock_list_loader,
+                    similar_spectral_loader=mock_dict_loader,
                     case_sensitive=True,
                 )
             )
