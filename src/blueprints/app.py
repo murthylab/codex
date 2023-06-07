@@ -186,7 +186,7 @@ def explore():
 def render_neuron_list(
     data_version,
     template_name,
-    filtered_root_id_list,
+    sorted_search_result_root_ids,
     filter_string,
     case_sensitive,
     whole_word,
@@ -198,7 +198,9 @@ def render_neuron_list(
 ):
     neuron_db = NeuronDataFactory.instance().get(data_version)
     pagination_info, page_ids, page_size, page_size_options = pagination_data(
-        items_list=filtered_root_id_list, page_number=page_number, page_size=page_size
+        items_list=sorted_search_result_root_ids,
+        page_number=page_number,
+        page_size=page_size,
     )
 
     display_data = [neuron_db.get_neuron_data(i) for i in page_ids]
@@ -244,10 +246,10 @@ def render_neuron_list(
         skeleton_thumbnail_urls=skeleton_thumbnail_urls,
         # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
         # Otherwise it will be available as downloadable file.
-        root_ids_str=",".join([str(ddi) for ddi in filtered_root_id_list])
-        if len(filtered_root_id_list) <= MAX_NEURONS_FOR_DOWNLOAD
+        root_ids_str=",".join([str(ddi) for ddi in sorted_search_result_root_ids])
+        if len(sorted_search_result_root_ids) <= MAX_NEURONS_FOR_DOWNLOAD
         else [],
-        num_items=len(filtered_root_id_list),
+        num_items=len(sorted_search_result_root_ids),
         searched_for_root_id=can_be_flywire_root_id(filter_string),
         pagination_info=pagination_info,
         page_size=page_size,
@@ -262,10 +264,44 @@ def render_neuron_list(
         sort_by=sort_by,
         sort_by_options=SORT_BY_OPTIONS,
         advanced_search_data=get_advanced_search_data(current_query=filter_string),
-        multi_val_attrs=neuron_db.multi_val_attrs(filtered_root_id_list),
+        multi_val_attrs=neuron_db.multi_val_attrs(sorted_search_result_root_ids),
         non_uniform_labels=neuron_db.non_uniform_labels(
-            page_ids=page_ids, all_ids=filtered_root_id_list
+            page_ids=page_ids, all_ids=sorted_search_result_root_ids
         ),
+    )
+
+
+def _search_and_sort():
+    filter_string = request.args.get("filter_string", "")
+    data_version = request.args.get("data_version", "")
+    case_sensitive = request.args.get("case_sensitive", 0, type=int)
+    whole_word = request.args.get("whole_word", 0, type=int)
+    sort_by = request.args.get("sort_by")
+    neuron_db = NeuronDataFactory.instance().get(data_version)
+    filtered_root_id_list = neuron_db.search(
+        filter_string, case_sensitive=case_sensitive, word_match=whole_word
+    )
+    return sort_search_results(
+        query=filter_string,
+        ids=filtered_root_id_list,
+        output_sets=neuron_db.output_sets(),
+        label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["label"]),
+        nt_type_getter=lambda x: neuron_db.get_neuron_data(x)["nt_type"],
+        morphology_cluster_getter=lambda x: neuron_db.get_neuron_data(x)[
+            "morphology_cluster"
+        ],
+        synapse_neuropil_count_getter=lambda x: len(
+            neuron_db.get_neuron_data(x)["input_neuropils"]
+        )
+        + len(neuron_db.get_neuron_data(x)["output_neuropils"]),
+        size_getter=lambda x: neuron_db.get_neuron_data(x)["size_nm"],
+        partner_count_getter=lambda x: len(neuron_db.output_sets()[x])
+        + len(neuron_db.input_sets()[x]),
+        similar_shape_cells_getter=neuron_db.get_similar_shape_cells,
+        similar_connectivity_cells_getter=neuron_db.get_similar_connectivity_cells,
+        similar_spectral_cells_getter=neuron_db.get_similar_spectral_cells,
+        connections_getter=lambda x: neuron_db.cell_connections(x),
+        sort_by=sort_by,
     )
 
 
@@ -280,54 +316,30 @@ def search():
     case_sensitive = request.args.get("case_sensitive", 0, type=int)
     whole_word = request.args.get("whole_word", 0, type=int)
     sort_by = request.args.get("sort_by")
-    neuron_db = NeuronDataFactory.instance().get(data_version)
+
     hint = None
-    extra_data = None
     log(
         f"Loading search page {page_number} {activity_suffix(filter_string, data_version)}"
     )
-    filtered_root_id_list = neuron_db.search(
-        filter_string, case_sensitive=case_sensitive, word_match=whole_word
-    )
-    if filtered_root_id_list:
-        if len(filtered_root_id_list) == 1:
-            if filter_string == str(filtered_root_id_list[0]):
+    sorted_search_result_root_ids, extra_data = _search_and_sort()
+    if sorted_search_result_root_ids:
+        if len(sorted_search_result_root_ids) == 1:
+            if filter_string == str(sorted_search_result_root_ids[0]):
                 log_activity("Single cell match, redirecting to cell details")
                 return redirect(
                     url_for(
                         "app.cell_details",
-                        root_id=filtered_root_id_list[0],
+                        root_id=sorted_search_result_root_ids[0],
                         data_version=data_version,
                     )
                 )
 
         log_activity(
-            f"Loaded {len(filtered_root_id_list)} search results for page {page_number} "
+            f"Loaded {len(sorted_search_result_root_ids)} search results for page {page_number} "
             f"{activity_suffix(filter_string, data_version)}"
         )
-        filtered_root_id_list, extra_data = sort_search_results(
-            query=filter_string,
-            ids=filtered_root_id_list,
-            output_sets=neuron_db.output_sets(),
-            label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["label"]),
-            nt_type_getter=lambda x: neuron_db.get_neuron_data(x)["nt_type"],
-            morphology_cluster_getter=lambda x: neuron_db.get_neuron_data(x)[
-                "morphology_cluster"
-            ],
-            synapse_neuropil_count_getter=lambda x: len(
-                neuron_db.get_neuron_data(x)["input_neuropils"]
-            )
-            + len(neuron_db.get_neuron_data(x)["output_neuropils"]),
-            size_getter=lambda x: neuron_db.get_neuron_data(x)["size_nm"],
-            partner_count_getter=lambda x: len(neuron_db.output_sets()[x])
-            + len(neuron_db.input_sets()[x]),
-            similar_shape_cells_getter=neuron_db.get_similar_shape_cells,
-            similar_connectivity_cells_getter=neuron_db.get_similar_connectivity_cells,
-            similar_spectral_cells_getter=neuron_db.get_similar_spectral_cells,
-            connections_getter=lambda x: neuron_db.cell_connections(x),
-            sort_by=sort_by,
-        )
     else:
+        neuron_db = NeuronDataFactory.instance().get(data_version)
         hint, edist = neuron_db.closest_token(
             filter_string, case_sensitive=case_sensitive
         )
@@ -336,7 +348,7 @@ def search():
     return render_neuron_list(
         data_version=data_version,
         template_name="search.html",
-        filtered_root_id_list=filtered_root_id_list,
+        sorted_search_result_root_ids=sorted_search_result_root_ids,
         filter_string=filter_string,
         case_sensitive=case_sensitive,
         whole_word=whole_word,
@@ -354,18 +366,14 @@ def search():
 def download_search_results():
     filter_string = request.args.get("filter_string", "")
     data_version = request.args.get("data_version", "")
-    case_sensitive = request.args.get("case_sensitive", 0, type=int)
-    whole_word = request.args.get("whole_word", 0, type=int)
     neuron_db = NeuronDataFactory.instance().get(data_version)
 
     log_activity(
         f"Downloading search results {activity_suffix(filter_string, data_version)}"
     )
-    filtered_root_id_list = neuron_db.search(
-        search_query=filter_string, case_sensitive=case_sensitive, word_match=whole_word
-    )
+    sorted_search_result_root_ids, extra_data = _search_and_sort()
     log_activity(
-        f"For download got {len(filtered_root_id_list)} results {activity_suffix(filter_string, data_version)}"
+        f"For download got {len(sorted_search_result_root_ids)} results {activity_suffix(filter_string, data_version)}"
     )
 
     cols = [
@@ -389,7 +397,7 @@ def download_search_results():
         "connectivity_cluster",
     ]
     data = [cols]
-    for i in filtered_root_id_list:
+    for i in sorted_search_result_root_ids:
         data.append(
             [str(neuron_db.get_neuron_data(i)[c]).replace(",", ";") for c in cols]
         )
@@ -408,20 +416,15 @@ def download_search_results():
 def root_ids_from_search_results():
     filter_string = request.args.get("filter_string", "")
     data_version = request.args.get("data_version", "")
-    case_sensitive = request.args.get("case_sensitive", 0, type=int)
-    whole_word = request.args.get("whole_word", 0, type=int)
-    neuron_db = NeuronDataFactory.instance().get(data_version)
 
     log_activity(f"Listing Cell IDs {activity_suffix(filter_string, data_version)}")
-    filtered_root_id_list = neuron_db.search(
-        search_query=filter_string, case_sensitive=case_sensitive, word_match=whole_word
-    )
+    sorted_search_result_root_ids, extra_data = _search_and_sort()
     log_activity(
-        f"For list cell ids got {len(filtered_root_id_list)} results {activity_suffix(filter_string, data_version)}"
+        f"For list cell ids got {len(sorted_search_result_root_ids)} results {activity_suffix(filter_string, data_version)}"
     )
     fname = f"root_ids_{re.sub('[^0-9a-zA-Z]+', '_', filter_string)}.txt"
     return Response(
-        ",".join([str(rid) for rid in filtered_root_id_list]),
+        ",".join([str(rid) for rid in sorted_search_result_root_ids]),
         mimetype="text/csv",
         headers={"Content-disposition": f"attachment; filename={fname}"},
     )
@@ -433,22 +436,20 @@ def root_ids_from_search_results():
 def search_results_flywire_url():
     filter_string = request.args.get("filter_string", "")
     data_version = request.args.get("data_version", "")
-    case_sensitive = request.args.get("case_sensitive", 0, type=int)
-    whole_word = request.args.get("whole_word", 0, type=int)
-    neuron_db = NeuronDataFactory.instance().get(data_version)
+    request.args.get("case_sensitive", 0, type=int)
+    request.args.get("whole_word", 0, type=int)
+    NeuronDataFactory.instance().get(data_version)
 
     log_activity(
         f"Generating URL search results {activity_suffix(filter_string, data_version)}"
     )
-    filtered_root_id_list = neuron_db.search(
-        filter_string, case_sensitive=case_sensitive, word_match=whole_word
-    )
+    sorted_search_result_root_ids, extra_data = _search_and_sort()
     log_activity(
-        f"For URLs got {len(filtered_root_id_list)} results {activity_suffix(filter_string, data_version)}"
+        f"For URLs got {len(sorted_search_result_root_ids)} results {activity_suffix(filter_string, data_version)}"
     )
 
     url = nglui.url_for_random_sample(
-        filtered_root_id_list,
+        sorted_search_result_root_ids,
         version=data_version or DEFAULT_DATA_SNAPSHOT_VERSION,
         sample_size=MAX_NEURONS_FOR_DOWNLOAD,
     )

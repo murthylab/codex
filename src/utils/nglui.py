@@ -58,7 +58,11 @@ def url_for_random_sample(root_ids, version, sample_size=50):
     # make the random subset selections deterministic across executions
     random.seed(420)
     if len(root_ids) > sample_size:
-        root_ids = random.sample(root_ids, sample_size)
+        # make a sorted sample to preserve original order
+        root_ids = [
+            root_ids[i]
+            for i in sorted(random.sample(range(len(root_ids)), sample_size))
+        ]
     return url_for_root_ids(root_ids, version=version)
 
 
