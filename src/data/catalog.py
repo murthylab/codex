@@ -2,7 +2,6 @@ _CODEX_DATA_SCHEMA = {
     # one row per id
     "neurons": [
         "root_id",
-        "name",
         "group",
         "nt_type",
         "nt_type_score",

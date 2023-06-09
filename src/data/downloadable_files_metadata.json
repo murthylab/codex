@@ -1,24 +1,24 @@
 {
   "file_sizes": {
     "630": {
-      "neurons.csv.gz": 2010416,
+      "neurons.csv.gz": 1610831,
       "classification.csv.gz": 992703,
       "cell_stats.csv.gz": 2399653,
       "morphology_clusters.csv.gz": 736744,
       "connectivity_clusters.csv.gz": 522912,
       "connections.csv.gz": 26124953,
-      "labels.csv.gz": 2948628,
+      "labels.csv.gz": 2966433,
       "coordinates.csv.gz": 4584155,
       "neuropil_synapse_table.csv.gz": 4490002,
       "synapse_coordinates.csv.gz": 281523733
     },
     "571": {
-      "neurons.csv.gz": 1926110,
+      "neurons.csv.gz": 1634035,
       "classification.csv.gz": 808205,
       "cell_stats.csv.gz": 2257920,
       "morphology_clusters.csv.gz": 209413,
       "connections.csv.gz": 32220716,
-      "labels.csv.gz": 2946168,
+      "labels.csv.gz": 2963742,
       "coordinates.csv.gz": 3945113,
       "neuropil_synapse_table.csv.gz": 2866446
     }
@@ -27,18 +27,17 @@
     "630": {
       "neurons.csv.gz": {
         "# rows": "127,978 (+ header)",
-        "# columns": "11",
+        "# columns": "10",
         "col 1 - root_id": "all rows contain unique values",
-        "col 2 - name": "all rows contain unique values",
-        "col 3 - group": "634 unique values",
-        "col 4 - nt_type": "6 unique values in 118,564 rows, empty in 9,414 rows",
-        "col 5 - nt_type_score": "74 unique values of type FLOAT in range [-1 .. 1]",
-        "col 6 - da_avg": "97 unique values of type FLOAT in range [0 .. 0.96]",
-        "col 7 - ser_avg": "101 unique values of type FLOAT in range [0 .. 1]",
-        "col 8 - gaba_avg": "101 unique values of type FLOAT in range [0 .. 1]",
-        "col 9 - glut_avg": "100 unique values of type FLOAT in range [0 .. 0.99]",
-        "col 10 - ach_avg": "101 unique values of type FLOAT in range [0 .. 1]",
-        "col 11 - oct_avg": "84 unique values of type FLOAT in range [0 .. 1]"
+        "col 2 - group": "634 unique values",
+        "col 3 - nt_type": "6 unique values in 118,564 rows, empty in 9,414 rows",
+        "col 4 - nt_type_score": "74 unique values of type FLOAT in range [-1 .. 1]",
+        "col 5 - da_avg": "97 unique values of type FLOAT in range [0 .. 0.96]",
+        "col 6 - ser_avg": "101 unique values of type FLOAT in range [0 .. 1]",
+        "col 7 - gaba_avg": "101 unique values of type FLOAT in range [0 .. 1]",
+        "col 8 - glut_avg": "100 unique values of type FLOAT in range [0 .. 0.99]",
+        "col 9 - ach_avg": "101 unique values of type FLOAT in range [0 .. 1]",
+        "col 10 - oct_avg": "84 unique values of type FLOAT in range [0 .. 1]"
       },
       "classification.csv.gz": {
         "# rows": "127,978 (+ header)",
@@ -84,17 +83,17 @@
         "col 5 - nt_type": "6 unique values"
       },
       "labels.csv.gz": {
-        "# rows": "112,015 (+ header)",
+        "# rows": "112,631 (+ header)",
         "# columns": "9",
-        "col 1 - root_id": "77,262 unique values",
-        "col 2 - label": "6,402 unique values",
-        "col 3 - user_id": "129 unique values",
-        "col 4 - position": "90,473 unique values",
-        "col 5 - supervoxel_id": "89,679 unique values",
+        "col 1 - root_id": "77,846 unique values",
+        "col 2 - label": "6,406 unique values",
+        "col 3 - user_id": "130 unique values",
+        "col 4 - position": "91,082 unique values",
+        "col 5 - supervoxel_id": "90,285 unique values",
         "col 6 - label_id": "all rows contain unique values",
-        "col 7 - date_created": "399 unique values",
-        "col 8 - user_name": "126 unique values in 111,363 rows, empty in 652 rows",
-        "col 9 - user_affiliation": "51 unique values in 111,301 rows, empty in 714 rows"
+        "col 7 - date_created": "400 unique values",
+        "col 8 - user_name": "127 unique values in 111,979 rows, empty in 652 rows",
+        "col 9 - user_affiliation": "51 unique values in 111,917 rows, empty in 714 rows"
       },
       "coordinates.csv.gz": {
         "# rows": "207,700 (+ header)",
@@ -441,18 +440,17 @@
     "571": {
       "neurons.csv.gz": {
         "# rows": "117,605 (+ header)",
-        "# columns": "11",
+        "# columns": "10",
         "col 1 - root_id": "all rows contain unique values",
-        "col 2 - name": "all rows contain unique values",
-        "col 3 - group": "1,524 unique values",
-        "col 4 - nt_type": "6 unique values in 106,983 rows, empty in 10,622 rows",
-        "col 5 - nt_type_score": "73 unique values of type FLOAT in range [-1 .. 1]",
-        "col 6 - da_avg": "100 unique values of type FLOAT in range [0 .. 0.98]",
-        "col 7 - ser_avg": "102 unique values of type FLOAT in range [0 .. 1]",
-        "col 8 - gaba_avg": "102 unique values of type FLOAT in range [0 .. 1]",
-        "col 9 - glut_avg": "102 unique values of type FLOAT in range [0 .. 1]",
-        "col 10 - ach_avg": "102 unique values of type FLOAT in range [0 .. 1]",
-        "col 11 - oct_avg": "69 unique values of type FLOAT in range [0 .. 0.92]"
+        "col 2 - group": "1,524 unique values",
+        "col 3 - nt_type": "6 unique values in 106,983 rows, empty in 10,622 rows",
+        "col 4 - nt_type_score": "73 unique values of type FLOAT in range [-1 .. 1]",
+        "col 5 - da_avg": "100 unique values of type FLOAT in range [0 .. 0.98]",
+        "col 6 - ser_avg": "102 unique values of type FLOAT in range [0 .. 1]",
+        "col 7 - gaba_avg": "102 unique values of type FLOAT in range [0 .. 1]",
+        "col 8 - glut_avg": "102 unique values of type FLOAT in range [0 .. 1]",
+        "col 9 - ach_avg": "102 unique values of type FLOAT in range [0 .. 1]",
+        "col 10 - oct_avg": "69 unique values of type FLOAT in range [0 .. 0.92]"
       },
       "classification.csv.gz": {
         "# rows": "123,303 (+ header)",
@@ -492,17 +490,17 @@
         "col 5 - nt_type": "6 unique values"
       },
       "labels.csv.gz": {
-        "# rows": "112,015 (+ header)",
+        "# rows": "112,631 (+ header)",
         "# columns": "9",
-        "col 1 - root_id": "76,119 unique values",
-        "col 2 - label": "6,402 unique values",
-        "col 3 - user_id": "129 unique values",
-        "col 4 - position": "90,473 unique values",
-        "col 5 - supervoxel_id": "89,679 unique values",
+        "col 1 - root_id": "76,698 unique values",
+        "col 2 - label": "6,406 unique values",
+        "col 3 - user_id": "130 unique values",
+        "col 4 - position": "91,082 unique values",
+        "col 5 - supervoxel_id": "90,285 unique values",
         "col 6 - label_id": "all rows contain unique values",
-        "col 7 - date_created": "399 unique values",
-        "col 8 - user_name": "126 unique values in 111,363 rows, empty in 652 rows",
-        "col 9 - user_affiliation": "51 unique values in 111,301 rows, empty in 714 rows"
+        "col 7 - date_created": "400 unique values",
+        "col 8 - user_name": "127 unique values in 111,979 rows, empty in 652 rows",
+        "col 9 - user_affiliation": "51 unique values in 111,917 rows, empty in 714 rows"
       },
       "coordinates.csv.gz": {
         "# rows": "179,104 (+ header)",
