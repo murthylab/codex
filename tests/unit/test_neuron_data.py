@@ -984,9 +984,9 @@ class NeuronDataTest(TestCase):
         self.assertEqual(len(set([nd["name"].lower() for nd in all_nds])), len(all_nds))
 
         # most names are extracted from annotations (not from neuropils)
-        nds_with_neuropil_name = set([
-            nd["root_id"] for nd in all_nds if nd["name"].startswith(nd["group"])
-        ])
+        nds_with_neuropil_name = set(
+            [nd["root_id"] for nd in all_nds if nd["name"].startswith(nd["group"])]
+        )
         self.assertLess(len(nds_with_neuropil_name), 0.6 * len(all_nds))
 
         # check names have 1 or 2 parts (and if 2, second is counter)

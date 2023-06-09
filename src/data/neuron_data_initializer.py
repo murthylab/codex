@@ -513,11 +513,14 @@ def assign_names_from_annotations(neuron_data):
     # if there are multiple options, chose one deterministically
     def least_used_name(lst):
         least_used_count = min([token_to_cell_counts[tk] for tk in lst])
-        return sorted([tk for tk in lst if token_to_cell_counts[tk] == least_used_count])[0]
+        return sorted(
+            [tk for tk in lst if token_to_cell_counts[tk] == least_used_count]
+        )[0]
 
     # assign running numbers by size (num partners), and to make deterministic secondary sort is by root id
     for nd in sorted(
-        neuron_data.values(), key=lambda x: -((x["input_cells"] + x["output_cells"]) * x["root_id"])
+        neuron_data.values(),
+        key=lambda x: -((x["input_cells"] + x["output_cells"]) * x["root_id"]),
     ):
         rid = nd["root_id"]
         base_name = least_used_name(cell_to_potential_names[rid])
