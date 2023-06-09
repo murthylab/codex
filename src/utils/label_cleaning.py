@@ -114,17 +114,24 @@ def remove_redundant_parts(labels, neuron_data):
         ]
     )
 
+    def rewrite(lbl):
+        for rprefix in ["putative "]:
+            if lbl.lower().startswith(rprefix):
+                lbl = lbl[len(rprefix) :]
+        return lbl
+
     res = [
         ";".join(
             [
-                part
+                rewrite(part)
                 for part in label.split(";")
                 if part.lower().strip() not in attribs_lc
             ]
         ).strip()
         for label in labels
     ]
-    return [lbl for lbl in res if lbl]
+    # remove empty or one-char labels
+    return [lbl for lbl in res if len(lbl) > 1]
 
 
 # removes all labels older than correction.
@@ -142,6 +149,7 @@ def remove_corrected(labels_latest_to_oldest):
 
     correction_suffixes = [
         " (correction)",
+        " (correction due to brain fart)",
         " (corrected)",
         " - L1 Label Incorrect",
         " - L2 Label Incorrect",
