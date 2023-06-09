@@ -682,7 +682,7 @@ class NeuronDataTest(TestCase):
                             ]
                         ]
                     ),
-                    labels,
+                    f"{nd['root_id']}: {labels}",
                 )
                 tokens = tokenize(lbllc)
                 self.assertFalse(
@@ -976,3 +976,48 @@ class NeuronDataTest(TestCase):
 
         for rid in self.neuron_db.svd.vecs.keys():
             self.assertTrue(rid in self.neuron_db.neuron_data)
+
+    def test_naming(self):
+        all_nds = list(self.neuron_db.neuron_data.values())
+
+        # all names are unique ignoring case
+        self.assertEqual(len(set([nd["name"].lower() for nd in all_nds])), len(all_nds))
+
+        # most names are extracted from annotations (not from neuropils)
+        nds_with_neuropil_name = set([
+            nd["root_id"] for nd in all_nds if nd["name"].startswith(nd["group"])
+        ])
+        self.assertLess(len(nds_with_neuropil_name), 0.6 * len(all_nds))
+
+        # check names have 1 or 2 parts (and if 2, second is counter)
+        for nd in all_nds:
+            name_parts = nd["name"].split(".")
+            base_name = name_parts[0]
+            self.assertGreater(len(base_name), 1)
+            if len(name_parts) == 2:
+                self.assertGreater(int(name_parts[1]), 0)
+            elif len(name_parts) == 3:
+                self.assertTrue(nd["root_id"] in nds_with_neuropil_name)
+                self.assertGreater(int(name_parts[2]), 0)
+            else:
+                self.assertEqual(len(name_parts), 1, name_parts)
+
+            # check forbidden substrings
+            for fbd in [
+                " ",
+                ".",
+                ",",
+                "?",
+                "ascending",
+                "descending",
+                "unclassified",
+                "clone",
+                "test",
+                "odd",
+                "putative",
+                "fbbt_",
+                "eye_",
+                "murthy",
+                "seung",
+            ]:
+                self.assertTrue(fbd not in base_name.lower())

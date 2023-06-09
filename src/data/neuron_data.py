@@ -332,6 +332,10 @@ class NeuronDB(object):
         min_score_threshold=0.1,
         min_score_limit=20,
     ):
+        if not self.is_in_dataset(root_id):
+            raise ValueError(
+                f"{root_id} is not a valid cell ID or not included in this data snapshot."
+            )
         if weighted:
             ins, outs = self.input_output_partners_with_synapse_counts()
             jaccard_score = jaccard_weighted
@@ -440,7 +444,8 @@ class NeuronDB(object):
         if not search_query:
             return sorted(
                 self.neuron_data.keys(),
-                key=lambda rid: self.neuron_data[rid]["area_nm"],
+                key=lambda rid: self.neuron_data[rid]["input_cells"]
+                + self.neuron_data[rid]["output_cells"],
                 reverse=True,
             )
 

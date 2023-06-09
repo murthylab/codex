@@ -48,9 +48,7 @@ def infer_nt_type_and_score(scores):
         return "", -1.0
 
 
-def assign_names_and_groups(
-    all_neurons_set, input_neuropill_counts, output_neuropill_counts
-):
+def assign_groups(all_neurons_set, input_neuropill_counts, output_neuropill_counts):
     def make_group_name(root_id):
         def max_pil(counts):
             return (
@@ -77,11 +75,10 @@ def assign_names_and_groups(
         group_lists[make_group_name(rid)].append(rid)
 
     groups = {}
-    names = {}
+
     for k, v in group_lists.items():
         for i, rid in enumerate(v):
             groups[rid] = k
-            names[rid] = f"{k}.{i + 1}"
 
     print(f"Num groups: {len(group_lists)}")
     print(f"Largest bucket: {max([(len(v), k) for k, v in group_lists.items()])}")
@@ -91,8 +88,8 @@ def assign_names_and_groups(
     print(
         f"Buckets with >100 cells: {len([v for v in group_lists.values() if len(v) > 100])}"
     )
-    print(f"Sample: {list(names.values())[500:5000:1000]}")
-    return names, groups
+
+    return groups
 
 
 def compile_neuron_rows(
@@ -129,8 +126,8 @@ def compile_neuron_rows(
         f"Collected neuropil counts for cell naming from {len(syn_table_content) - 1} rows"
     )
 
-    # assign names and groups based on in/out neuropils
-    names, groups = assign_names_and_groups(
+    # assign groups based on in/out neuropils
+    groups = assign_groups(
         proofread_rids_set, input_neuropill_counts, output_neuropill_counts
     )
 
@@ -144,12 +141,11 @@ def compile_neuron_rows(
     )
 
     neuron_rows = [
-        ["root_id", "name", "group", "nt_type", "nt_type_score"]
+        ["root_id", "group", "nt_type", "nt_type_score"]
         + [f"{nt_type.lower()}_avg" for nt_type in NEURO_TRANSMITTER_NAMES]
     ]
     for rid in sorted(proofread_rids_set):
         row = [rid]
-        row.append(names[rid])
         row.append(groups[rid])
         row.append(rid_to_nt_type[rid][0] if rid in rid_to_nt_type else "")
         row.append(rid_to_nt_type[rid][1] if rid in rid_to_nt_type else 0.0)
