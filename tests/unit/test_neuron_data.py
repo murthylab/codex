@@ -612,7 +612,7 @@ class NeuronDataTest(TestCase):
         for nd in self.neuron_db.neuron_data.values():
             annos = []
             for k, v in nd.items():
-                if k in ["label", "marker"]:
+                if k in ["label", "name", "marker"]:
                     continue
                 if isinstance(v, str):
                     annos.append(v)
@@ -992,13 +992,21 @@ class NeuronDataTest(TestCase):
         # check names have 1 or 2 parts (and if 2, second is counter)
         for nd in all_nds:
             name_parts = nd["name"].split(".")
+            suffix = name_parts[-1]
+
+            # region based name
+            if nd["name"] == nd["group"] or nd["name"].startswith(f'{nd["group"]}.'):
+                group_parts = nd["group"].split(".")
+                if len(name_parts) > len(group_parts):
+                    self.assertEqual(len(name_parts), len(group_parts) + 1)
+                    self.assertFalse(suffix in "LR", f'{nd["group"]} {nd["name"]}')
+                    self.assertGreater(int(suffix), 0)
+                continue
+
             base_name = name_parts[0]
             self.assertGreater(len(base_name), 1)
             if len(name_parts) == 2:
-                self.assertGreater(int(name_parts[1]), 0)
-            elif len(name_parts) == 3:
-                self.assertTrue(nd["root_id"] in nds_with_neuropil_name)
-                self.assertGreater(int(name_parts[2]), 0)
+                self.assertTrue(suffix in ["L", "R"] or int(suffix) > 0)
             else:
                 self.assertEqual(len(name_parts), 1, name_parts)
 
@@ -1021,3 +1029,32 @@ class NeuronDataTest(TestCase):
                 "seung",
             ]:
                 self.assertTrue(fbd not in base_name.lower())
+
+        # Check that for pairs, L/R is used instead of running index.
+        # Also check that for singleton basenames, no running index is appended
+        base_name_to_neurons = defaultdict(list)
+        for nd in self.neuron_db.neuron_data.values():
+            if nd["name"] == nd["group"] or nd["name"].startswith(nd["group"] + "."):
+                continue
+            name_parts = nd["name"].split(".")
+            if len(name_parts) == 2:
+                base_name_to_neurons[name_parts[0]].append(nd)
+            else:
+                self.assertFalse(name_parts[-1] in ["L", "R"], name_parts)
+
+        for n, lst in base_name_to_neurons.items():
+            if len(lst) == 2:
+                s0, s1 = lst[0]["side"], lst[1]["side"]
+                if s0 != s1 and s0 in ["left", "right"] and s1 in ["left", "right"]:
+                    self.assertEqual(
+                        s0[0].upper(), lst[0]["name"].split(".")[-1], lst[0]["name"]
+                    )
+                    self.assertEqual(
+                        s1[0].upper(), lst[1]["name"].split(".")[-1], lst[1]["name"]
+                    )
+
+        for bn, lst in base_name_to_neurons.items():
+            if len(lst) == 1:
+                self.assertFalse(
+                    lst[0]["name"].split(".")[-1].isnumeric(), lst[0]["name"]
+                )

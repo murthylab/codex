@@ -95,7 +95,7 @@
             <td>
                 <a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);">{{neuron.name}}</a>
                 <br>
-                <small>{{highlighted_terms.get(neuron.root_id, neuron.root_id)|safe}}</small>
+                <small style="font-size: 10px;">{{highlighted_terms.get(neuron.root_id, neuron.root_id)|safe}}</small>
                 <br>
                 <br>
                 {% if neuron.similar_cell_scores %}
@@ -111,7 +111,7 @@
                 <small style="color: purple" onclick="elem = document.getElementById('similar_to_{{neuron.root_id}}'); elem.hidden = !elem.hidden;">similar connectivity <i class="fa-solid fa-caret-down"></i></small>
                 <span style="font-size: 11px;" id="similar_to_{{neuron.root_id}}" hidden>
                     <br>
-                    Jaccard: <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_connectivity} ' + neuron.root_id|string, data_version=data_version)}}">
+                    strict: <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_connectivity} ' + neuron.root_id|string, data_version=data_version)}}">
                        i/o
                     </a>|
                     <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
@@ -122,7 +122,7 @@
                     </a>
 
                     <br>
-                    Cosine: <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral} ' + neuron.root_id|string, data_version=data_version)}}">
+                    embedding: <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral} ' + neuron.root_id|string, data_version=data_version)}}">
                        i/o
                     </a>|
                     <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_upstream} ' + neuron.root_id|string, data_version=data_version)}}">

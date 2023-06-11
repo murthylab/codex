@@ -22,8 +22,9 @@ def get_testing_neuron_db(version=TESTING_DATA_SNAPSHOT_VERSION):
 assert APP_ENVIRONMENT == "DEV"
 
 # Helper for inspecting cell lists in dev server
-def log_dev_url_for_root_ids(caption, root_ids):
+def log_dev_url_for_root_ids(caption, root_ids, prod=False):
+    burl = "https://codex.flywire.ai" if prod else "http://localhost:5000"
     print(
-        f"{caption}: http://localhost:5000/app/search?filter_string="
+        f"{caption}: {burl}/app/search?filter_string="
         f"{'%2C+'.join([str(rid) for rid in root_ids])}&page_size=100"
     )
