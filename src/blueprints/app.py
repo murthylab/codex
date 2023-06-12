@@ -392,7 +392,6 @@ def download_search_results():
         "side",
         "input_synapses",
         "output_synapses",
-        "hemisphere_fingerprint",
         "morphology_cluster",
         "connectivity_cluster",
     ]

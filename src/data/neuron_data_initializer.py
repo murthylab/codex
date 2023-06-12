@@ -64,8 +64,6 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     "output_cells": int,
     "output_synapses": int,
     "output_neuropils": list,
-    # Left/Center/Right X In/Out
-    "hemisphere_fingerprint": str,
     # Marked coordinates by FlyWire community
     "position": list,
     # Cell size measurements
@@ -377,9 +375,6 @@ def initialize_neuron_data(
         nd["output_neuropils"] = sorted(output_neuropils[rid])
         nd["input_synapses"] = input_synapses[rid]
         nd["output_synapses"] = output_synapses[rid]
-        nd["hemisphere_fingerprint"] = hemisphere_fingerprint(
-            nd["input_neuropils"], nd["output_neuropils"]
-        )
         nd["input_cells"] = len(input_cells[rid])
         nd["output_cells"] = len(output_cells[rid])
 
@@ -550,17 +545,3 @@ def assign_names_from_annotations(neuron_data):
                 swap_id_with_side(lst[0])
                 swap_id_with_side(lst[1])
 
-
-def hemisphere_fingerprint(input_pils, output_pils):
-    def fp(pils):
-        if pils:
-            hemispheres = set([neuropil_hemisphere(p) for p in pils])
-            if len(hemispheres) > 1:
-                return "Mix"
-            else:
-                return hemispheres.pop()
-
-    if input_pils or output_pils:
-        return f"{fp(input_pils)}/{fp(output_pils)}"
-    else:
-        return ""
