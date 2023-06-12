@@ -91,6 +91,8 @@ from src.utils.thumbnails import url_for_skeleton
 from src.data.structured_search_filters import get_advanced_search_data
 from src.data.braincircuits import neuron2line
 
+from src.service.motif_search import MotifSearchQuery
+
 app = Blueprint("app", __name__, url_prefix="/app")
 
 
@@ -1416,3 +1418,35 @@ def my_labels():
                 title=f"Cells labeled by user ID {user_id} ({fetch_user_email(session)})",
                 message=f"{rids_str}",
             )
+
+
+
+@app.route("/motifs/", methods=["GET", "POST"])
+@request_wrapper
+@require_data_access
+def motifs():
+    if request.method == "POST":
+        try:
+            data = request.get_json()
+        except Exception as e:
+            log_error(f"Error parsing request json: {e=}")
+            return {"msg": f"Error parsing request json: {e=}"}, 400
+        sketch_query = data["motifJson"]
+        try:
+            motifs_query = MotifSearchQuery.from_sketch_query(
+                sketch_query, NeuronDataFactory.instance()
+            )
+        except Exception as e:
+            log_error(f"Error parsing motif query: {e=}")
+            return {"msg": f"Error parsing motif query: {e=}"}, 500
+
+        try:
+            search_results = motifs_query.search()
+            print(search_results[0])
+        except Exception as e:
+            log_error(f"Error searching for motif: {e=}")
+            return {"msg": f"Error searching for motif: {e=}"}, 400
+
+        return {"msg": "OK", "results": search_results}, 200
+
+    return render_template("motif_search.html", regions=list(REGIONS.keys()))

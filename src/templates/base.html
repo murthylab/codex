@@ -24,7 +24,7 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
+
           {% set tabs = [['explore', 'Explore', 'app'],
                         ['search', 'Search', 'app'],
                         ['stats', 'Stats', 'app'],
@@ -33,6 +33,7 @@
                         ['path_length', 'Pathways', 'app'],
                         ['neuropils', 'Neuropils', 'app'],
                         ['heatmaps', 'Heatmaps', 'app'],
+                        ['motifs', 'Motif Search', 'app'],
                         ['about_codex', 'About', 'base'],
                         ]%}
         {% for page in tabs %}

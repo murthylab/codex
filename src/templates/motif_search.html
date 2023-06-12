@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% block title %}Motif Search{% endblock title %} {% block content %}
+<p>Outer</p>
+<div id="root" class="h-100"></div>
+<script type="module">
+  import { render } from "https://esm.sh/react-dom";
+  import { createElement } from "https://esm.sh/react";
+  import MotifSearch  from "/js/motif_search.js";
+  render(createElement(() => MotifSearch({regions: {{ regions | tojson }} })), document.getElementById("root"));
+</script>
+{% endblock content %}

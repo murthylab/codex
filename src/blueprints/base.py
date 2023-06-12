@@ -192,6 +192,16 @@ def styles(filename):
     )
 
 
+
+@base.route("/js/<path:filename>")
+def js(filename):
+    return send_from_directory(
+        os.path.join(base.root_path, "../../static/js"), filename
+    )
+
+
+
+
 @base.route("/error", methods=["GET", "POST"])
 @request_wrapper
 def error():
