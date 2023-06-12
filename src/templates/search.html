@@ -58,16 +58,16 @@
         <thead>
         <tr>
             <th scope="col" title="Names are auto-assigned based on annotations and primary input/output regions; IDs correspond to FlyWire root ids for selected data version">Name/ID</th>
-            <th scope="col" title="Hierarchical annotations">
-                Classification
-                <a href="" style="color:teal;" data-toggle="modal" data-target="#cellAnnotationsModal">[?]</a>
-            </th>
             {% if extra_data %}
                 <th scope="col" title="{{extra_data.title}}">{{extra_data.column_name}}</th>
             {% endif %}
             <th scope="col" title="Neurotransmitter type prediction and confidence score">NT</th>
             <th scope="col" title="Length / Area / Volume (in micrometers)">Size</th>
             <th scope="col" title="Upstream/Downstream partners and related cells">Related Cells</th>
+            <th scope="col" title="Hierarchical annotations">
+                Classification
+                <a href="" style="color:teal;" data-toggle="modal" data-target="#cellAnnotationsModal">[?]</a>
+            </th>
             <th scope="col" title="Annotations provided by members of the FlyWire community">Identification Labels
                 <a href="" style="color:teal;" data-toggle="modal" data-target="#communityLabelsModal">[?]</a>
             </th>
@@ -83,8 +83,7 @@
                 <a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);">{{neuron.name}}</a>
                 <br>
                 <small style="font-size: 10px;">{{highlighted_terms.get(neuron.root_id, neuron.root_id)|safe}}</small>
-                <br>
-                <div style="position: relative; text-align: center; color: white; width: 200px; height: 150px;">
+                <div style="margin-top: -20px; margin-bottom: -10px; position: relative; text-align: center; color: white; width: 200px; height: 150px;">
                     <a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);"><img
                        class="skeleton_thumbnail"
                        src="{{skeleton_thumbnail_urls.get(neuron.root_id)[0]}}"
@@ -96,13 +95,89 @@
                     </div>
                 </div>
             </td>
+            {% if extra_data %}
+                <td style="color:black;">{{extra_data.values_dict.get(neuron.root_id)}}</td>
+            {% endif %}
+            <td style="color:#3A3AAA;">{{highlighted_terms.get(neuron.nt_type, neuron.nt_type)|safe}}
+                {% if neuron.nt_type %}
+                <br><small style="color: {{'green' if neuron.nt_type_score > 0.65 else ('orange' if neuron.nt_type_score > 0.45 else 'red')}}">{{neuron.nt_type_score}}</small>
+                {% endif %}
+                <div class="spotfilter">
+                    {% if neuron.nt_type and 'nt_type' in multi_val_attrs %}
+                    <span class="td_filter_buttons">
+                        <nobr>
+                        <button title="Exclude {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt_type != {{neuron.nt_type}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt_type == {{neuron.nt_type}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                        </nobr>
+                    </span>
+                    <br>
+                    <span class="td_filter_buttons_caption">
+                        <!--apply filter-->
+                    </span>
+                    {% else %}
+                        <span class="td_filter_buttons_caption" style="color: orange">
+                            all matches
+                        </span>
+                    {% endif %}
+                </div>
+            </td>
+            <td style="color:grey;"><small>
+                <nobr>
+                {{nanos_to_formatted_micros(neuron.length_nm, 1)|safe}}<br>
+                {{nanos_to_formatted_micros(neuron.area_nm, 2)|safe}}<br>
+                {{nanos_to_formatted_micros(neuron.size_nm, 3)|safe}}
+                </nobr>
+            </small></td>
+            <td>
+                <nobr>
+                <small>
+                <a href="{{url_for('app.search', filter_string='{upstream} ' + neuron.root_id|string, data_version=data_version)}}" target="_blank">
+                    <i class="fa-solid fa-arrow-up"></i> &nbsp; {{display(neuron.input_cells)}} upstream
+                </a>
+                    <br>
+                <a href="{{url_for('app.search', filter_string='{downstream} ' + neuron.root_id|string, data_version=data_version)}}" target="_blank">
+                    <i class="fa-solid fa-arrow-down"></i> &nbsp; {{display(neuron.output_cells)}} downstream
+                </a>
+                </small>
+                <br>
+                {% if neuron.similar_cell_scores %}
+                <small>
+                    <a href="{{url_for('app.search', filter_string='{similar_shape} ' + neuron.root_id|string, data_version=data_version)}}" target="_blank">
+                            <i class="fa-regular fa-clone"></i> {{neuron.similar_cell_scores|length}} with similar shape
+                    </a>
+                </small>
+                <br>
+                {% endif %}
+
+                <small style="color: purple" onclick="elem = document.getElementById('similar_to_{{neuron.root_id}}'); elem.hidden = !elem.hidden;">cells with similar connectivity <i class="fa-solid fa-caret-down"></i></small>
+                <span style="font-size: 11px;" id="similar_to_{{neuron.root_id}}" hidden>
+                    <br>
+                    strict: <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_connectivity} ' + neuron.root_id|string, data_version=data_version)}}">
+                       i/o
+                    </a>|
+                    <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       in
+                    </a>|
+                     <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       out
+                    </a>
+
+                    <br>
+                    embedding: <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral} ' + neuron.root_id|string, data_version=data_version)}}">
+                       i/o
+                    </a>|
+                    <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       in
+                    </a>|
+                    <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       out
+                    </a>
+                </span>
+                </nobr>
+            </td>
             <td style="color:#3A3A3A;">
                 {% with caption="Side", tooltip="Soma side of the neuron from the fly’s perspective",
                     attr_key="side", attr_val=neuron.side, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
-                %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
-
-                {% with caption="Nerve", tooltip="Nerve through which the neuron is entering/exiting the nervous system",
-                    attr_key="nerve", attr_val=neuron.nerve, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
 
                 {% with caption="Flow", tooltip="Top hierarchical annotation describing signal flow of this neuron",
@@ -129,84 +204,13 @@
                     attr_key="hemibrain_type", attr_val=neuron.hemibrain_type, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_multiple_values.html" %} {% endwith %}
 
+                {% with caption="Nerve", tooltip="Nerve through which the neuron is entering/exiting the nervous system",
+                    attr_key="nerve", attr_val=neuron.nerve, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
+                %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
+
                 {% with caption="Hemilineage", tooltip="Mapped lineage from Janelia hemibrain dataset",
                     attr_key="hemilineage", attr_val=neuron.hemilineage, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
-            </td>
-            {% if extra_data %}
-                <td style="color:black;">{{extra_data.values_dict.get(neuron.root_id)}}</td>
-            {% endif %}
-            <td style="color:#3A3AAA;">{{highlighted_terms.get(neuron.nt_type, neuron.nt_type)|safe}}
-                {% if neuron.nt_type %}
-                <br><small style="color: {{'green' if neuron.nt_type_score > 0.65 else ('orange' if neuron.nt_type_score > 0.45 else 'red')}}">{{neuron.nt_type_score}}</small>
-                {% endif %}
-                <div class="spotfilter">
-                    {% if neuron.nt_type and 'nt_type' in multi_val_attrs %}
-                    <span class="td_filter_buttons">
-                        <button title="Exclude {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt_type != {{neuron.nt_type}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
-                        <button title="Show only {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt_type == {{neuron.nt_type}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
-                    </span>
-                    <br>
-                    <span class="td_filter_buttons_caption">
-                        apply filter
-                    </span>
-                    {% else %}
-                        <span class="td_filter_buttons_caption" style="color: orange">
-                            all matches
-                        </span>
-                    {% endif %}
-                </div>
-            </td>
-            <td style="color:purple;"><small>
-                {{nanos_to_formatted_micros(neuron.length_nm, 1)|safe}}<br>
-                {{nanos_to_formatted_micros(neuron.area_nm, 2)|safe}}<br>
-                {{nanos_to_formatted_micros(neuron.size_nm, 3)|safe}}
-            </small></td>
-            <td>
-                <small>
-                <a href="{{url_for('app.search', filter_string='{upstream} ' + neuron.root_id|string, data_version=data_version)}}" target="_blank">
-                    <i class="fa-solid fa-arrow-up"></i> &nbsp; {{display(neuron.input_cells)}} upstream
-                </a>
-                    <br>
-                <a href="{{url_for('app.search', filter_string='{downstream} ' + neuron.root_id|string, data_version=data_version)}}" target="_blank">
-                    <i class="fa-solid fa-arrow-down"></i> &nbsp; {{display(neuron.output_cells)}} downstream
-                </a>
-                </small>
-                <br>
-                {% if neuron.similar_cell_scores %}
-                <small>
-                    <span style="color: purple">similar shape: </span>
-                    <a href="{{url_for('app.search', filter_string='{similar_shape} ' + neuron.root_id|string, data_version=data_version)}}" target="_blank">
-                            {{neuron.similar_cell_scores|length}} cells
-                    </a>
-                </small>
-                {% endif %}
-                <br>
-
-                <small style="color: purple" onclick="elem = document.getElementById('similar_to_{{neuron.root_id}}'); elem.hidden = !elem.hidden;">similar connectivity <i class="fa-solid fa-caret-down"></i></small>
-                <span style="font-size: 11px;" id="similar_to_{{neuron.root_id}}" hidden>
-                    <br>
-                    strict: <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_connectivity} ' + neuron.root_id|string, data_version=data_version)}}">
-                       i/o
-                    </a>|
-                    <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
-                       in
-                    </a>|
-                     <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
-                       out
-                    </a>
-
-                    <br>
-                    embedding: <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral} ' + neuron.root_id|string, data_version=data_version)}}">
-                       i/o
-                    </a>|
-                    <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
-                       in
-                    </a>|
-                    <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
-                       out
-                    </a>
-                </span>
 
             </td>
             <td style="color:#3A3A3A;">
@@ -215,11 +219,13 @@
                     <small><b>&#x2022;</b> &nbsp;{{highlighted_terms.get(tg, tg)|safe}}</small>
                     {% if tg in non_uniform_labels %}
                     <span class="td_filter_buttons">
+                        <nobr>
                         <button title="Exclude items with this label" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label != {{tg}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
                         <button title="Show only items with this label" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label == {{tg}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                        </nobr>
                     </span>
                     <span class="td_filter_buttons_caption">
-                        apply filter
+                        <!--apply filter-->
                     </span>
                     {% else %}
                     <span class="td_filter_buttons_caption" style="color: orange">

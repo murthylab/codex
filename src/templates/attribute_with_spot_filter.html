@@ -1,5 +1,6 @@
 {% if attr_val %}
     <div class="spotfilter">
+        <nobr>
         <small><span style="color: teal" title="{{tooltip}}">{{caption}}</span>
             {{highlighted_terms.get(attr_val, attr_val)|safe}}
         </small>
@@ -9,12 +10,13 @@
             <button title="Show only {{attr_val}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('{{attr_key}} == {{attr_val}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
         </span>
         <span class="td_filter_buttons_caption">
-            apply filter
+            <!--apply filter-->
         </span>
         {% else %}
             <span class="td_filter_buttons_caption" style="color: orange">
                 all matches
             </span>
         {% endif %}
+        </nobr>
     </div>
 {% endif %}
