@@ -453,7 +453,7 @@ def search_results_flywire_url():
         sample_size=MAX_NEURONS_FOR_DOWNLOAD,
     )
     log_activity(
-        f"Redirecting results {activity_suffix(filter_string, data_version)} to FlyWire {format_link(url)}"
+        f"Redirecting {len(sorted_search_result_root_ids)} results {activity_suffix(filter_string, data_version)} to FlyWire"
     )
     return ngl_redirect_with_browser_check(ngl_url=url)
 
@@ -602,7 +602,7 @@ def flywire_url():
     )
     if log_request:
         log_activity(
-            f"Redirecting for {root_ids} to FlyWire {format_link(url)}, {proofreading_url=}"
+            f"Redirecting for {len(root_ids)} root ids to FlyWire, {proofreading_url=}"
         )
     return ngl_redirect_with_browser_check(ngl_url=url)
 
