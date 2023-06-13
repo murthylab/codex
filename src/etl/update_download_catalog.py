@@ -2,7 +2,7 @@ import json
 import os
 
 from src.configuration import (
-    DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS,
+    DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS,
     DOWNLOADABLE_FILE_EXTENSION,
     DOWNLOADABLE_FILES_METADATA_FILE,
 )
@@ -15,7 +15,7 @@ def fetch_file_sizes(data_root_path=DATA_ROOT_PATH):
     file_sizes = {}
     for v in DATA_SNAPSHOT_VERSIONS:
         file_sizes[v] = {}
-        for p, desc in DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS.items():
+        for p, desc in DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS.items():
             fname = f"{p}{DOWNLOADABLE_FILE_EXTENSION}"
             fpath = f"{data_root_path}/{v}/{fname}"
             if os.path.isfile(fpath):
@@ -95,7 +95,7 @@ def fetch_file_contents(data_root_path=DATA_ROOT_PATH):
     file_contents = {}
     for v in DATA_SNAPSHOT_VERSIONS:
         file_contents[v] = {}
-        for p, desc in DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS.items():
+        for p, desc in DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS.items():
             fname = f"{p}{DOWNLOADABLE_FILE_EXTENSION}"
             fpath = f"{data_root_path}/{v}/{fname}"
             if os.path.isfile(fpath):

@@ -43,10 +43,7 @@ def download():
                 title="Unknown resource",
                 message=f"Download resource not recognized: '{data_product}'",
             )
-        return redirect(
-            f"https://storage.googleapis.com/flywire-data/codex/data/{data_version}/"
-            f"{DOWNLOAD_CATALOG[data_version][data_product].file_name}"
-        )
+        return redirect(DOWNLOAD_CATALOG[data_version][data_product].file_url)
     else:
         log_user_help("API: rendering download page")
         return render_template(

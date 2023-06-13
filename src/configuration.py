@@ -12,7 +12,7 @@ DOWNLOADABLE_FILE_FORMAT = "compressed CSV file (gzip)"
 # take care of various working directories (tests, local app, cloud app, update scripts)
 APP_ROOT = os.getenv("APP_HOME", "codex").replace("/", "")
 DOWNLOADABLE_FILES_METADATA_FILE = f"{os.getcwd().split(APP_ROOT)[0]}/{APP_ROOT}/src/data/downloadable_files_metadata.json"
-DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS = {
+DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS = {
     "neurons": "Cell name, group and NT type predictions. "
     "For every cell in the dataset, specifies auto-generated name and group (based on primary input and output "
     "neuropils) as well as the predicted NT type  of the cell along with the prediction scores for individual "
@@ -54,6 +54,14 @@ DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS = {
     "a single point in the detected bounding box. Also for compactness, empty pre/post id "
     "columns should be inferred by looking up in the table at the last non-empty value "
     "respectively.",
+}
+DOWNLOADABLE_ARCHIVE_FILES = {
+    "skeleton_swc_files": {
+        "description": "Gzipped archive of all Skeleton files in SWC format.",
+        "file_url": "https://storage.googleapis.com/flywire-data/codex/skeleton_swcs/flywire_skeleton_swcs.tar.gz",
+        "file_format": "gzipped tar file",
+        "file_size": 329000000,
+    }
 }
 
 GOOGLE_CLIENT_ID = (

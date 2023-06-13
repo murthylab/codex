@@ -75,7 +75,6 @@ from src.utils.formatting import (
 from src.utils.graph_algos import distance_matrix
 from src.utils.logging import (
     log_activity,
-    format_link,
     log,
     log_user_help,
     log_warning,

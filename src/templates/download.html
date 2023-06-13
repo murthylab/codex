@@ -48,6 +48,7 @@
                         <br><br>
                         <b>File info</b><br>{{display(v.file_size)}} bytes, {{v.file_format}}
                         <br><br>
+                        {% if v.file_content %}
                         <b>Content stats</b><br>
                         <table class="table table-hover table-sm">
                             {% for sk, sv in v.file_content.items() %}
@@ -58,6 +59,7 @@
                             {% endfor %}
                         </table>
                         <br>
+                        {% endif %}
                         <button class="btn btn btn-primary my-2 my-sm-0" type="submit" name="data_product" value="{{k}}">
                             <i class="fa-solid fa-download"></i> &nbsp; {{v.file_name}}
                         </button>

@@ -6,7 +6,7 @@ from src.data.download_catalog import (
     DOWNLOADABLE_FILE_CONTENTS,
 )
 from src.configuration import (
-    DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS,
+    DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS,
 )
 from src.data.versions import DATA_SNAPSHOT_VERSIONS
 from src.etl.update_download_catalog import fetch_file_sizes, fetch_file_contents
@@ -15,7 +15,7 @@ from tests import TEST_DATA_ROOT_PATH
 
 class Test(TestCase):
     def test_downloadable_products_descriptions(self):
-        products = list(DOWNLOADABLE_PRODUCT_TITLES_AND_DESCRIPTIONS.values())
+        products = list(DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS.values())
         for i, p1 in enumerate(products):
             for p2 in products[i + 1 :]:
                 self.assertNotEqual(p1, p2)
