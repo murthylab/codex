@@ -10,6 +10,12 @@ from src.utils.logging import log
 
 log("App initialization started")
 codex = Flask(__name__)
+
+if os.environ.get("CODEX_ENABLE_PROFILING", ""):
+    from werkzeug.middleware.profiler import ProfilerMiddleware
+
+    codex.wsgi_app = ProfilerMiddleware(codex.wsgi_app)
+
 codex.secret_key = os.environ["FLASK_SECRET_KEY"]
 codex.config["PERMANENT_SESSION_LIFETIME"] = 12 * 31 * 24 * 60 * 60  # 12 months
 codex.register_blueprint(
