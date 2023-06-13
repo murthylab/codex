@@ -1065,8 +1065,7 @@ class NeuronDataTest(TestCase):
         assign_names_from_annotations(neuron_data)
 
         def strip_id(n):
-            # TODO: remove lower - dedupe by case
-            parts = n.lower().split(".")
+            parts = n.split(".")
             if parts[-1].isnumeric():
                 return ".".join(parts[:-1])
             else:

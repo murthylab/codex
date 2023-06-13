@@ -15,7 +15,7 @@ def extract_label_parts(lbl, with_subparts):
 
 
 def make_canonic(s):
-    return s.lower().replace(" ", "_").replace("-", "_")
+    return s.upper().replace(" ", "_").replace("-", "_")
 
 
 def is_valid_token(t, canonic_coarse_annos):
@@ -62,7 +62,6 @@ def assign_names_from_annotations(neuron_data):
     assigned_set = set()
     token_to_cell_counts = defaultdict(int)
     cell_to_potential_names = defaultdict(list)
-    case_deduped_tokens = {}
 
     canonic_coarse_annos = set(
         [make_canonic(nd["super_class"]) for nd in neuron_data.values()]
@@ -94,12 +93,7 @@ def assign_names_from_annotations(neuron_data):
                         cell_tokens.add(part)
         if cell_tokens:
             # if there are tokens differing only by case, default to one (the first occurance)
-            cell_tokens = set(
-                [
-                    case_deduped_tokens.setdefault(make_canonic(t), t)
-                    for t in cell_tokens
-                ]
-            )
+            cell_tokens = set([make_canonic(t) for t in cell_tokens])
             assigned_set.add(rid)
         else:
             cell_tokens.add(nd["group"])
