@@ -1,55 +1,104 @@
 from collections import defaultdict
 
+from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
+
+
+def extract_label_parts(lbl, with_subparts):
+    parts = []
+    for super_part in lbl.split(";"):
+        if with_subparts:
+            for sub_part in super_part.split(","):
+                parts.append(sub_part.strip())
+        else:
+            parts.append(super_part.strip())
+    return parts
+
+
+def make_canonic(s):
+    return s.lower().replace(" ", "_").replace("-", "_")
+
+
+def is_valid_token(t, canonic_coarse_annos):
+    if any([c in t for c in [" ", ".", ",", "?", "(", ")", "[", "]"]]):
+        return False
+    if any(
+        [
+            c in t.lower()
+            for c in [
+                "ascending",
+                "descending",
+                "unclassified",
+                "clone",
+                "test",
+                "odd",
+                "putative",
+                "fbbt",
+                "eye_",
+                "murthy",
+                "seung",
+            ]
+        ]
+    ):
+        return False
+    if any(
+        [
+            t.lower().startswith(c)
+            for c in [
+                "put_",
+            ]
+        ]
+    ):
+        return False
+    if t.isnumeric():
+        return False
+    if t.isalpha() and (t == t.lower() or t == t.capitalize()):
+        return False
+    if make_canonic(t) in canonic_coarse_annos:
+        return False
+    return True
+
 
 def assign_names_from_annotations(neuron_data):
     assigned_set = set()
     token_to_cell_counts = defaultdict(int)
     cell_to_potential_names = defaultdict(list)
     case_deduped_tokens = {}
-    lc_groups = set([nd["group"].lower() for nd in neuron_data.values()])
 
-    def is_valid_token(t):
-        if any([c in t for c in [" ", ".", ",", "?"]]):
-            return False
-        if any(
-            [
-                c in t.lower()
-                for c in [
-                    "ascending",
-                    "descending",
-                    "unclassified",
-                    "clone",
-                    "test",
-                    "odd",
-                    "putative",
-                    "fbbt_",
-                    "eye_",
-                    "murthy",
-                    "seung",
-                ]
-            ]
-        ):
-            return False
-        if t.isalpha() and (t == t.lower() or t == t.capitalize()):
-            return False
-        if t.lower() in lc_groups:
-            return False
-        return True
+    canonic_coarse_annos = set(
+        [make_canonic(nd["super_class"]) for nd in neuron_data.values()]
+    )
+    canonic_coarse_annos |= set(
+        [make_canonic(nd["group"]) for nd in neuron_data.values()]
+    )
+    canonic_coarse_annos |= set(
+        [make_canonic(nt_key) for nt_key in NEURO_TRANSMITTER_NAMES.keys()]
+    )
+    canonic_coarse_annos |= set(
+        [make_canonic(nt_desc) for nt_desc in NEURO_TRANSMITTER_NAMES.values()]
+    )
 
     for rid, nd in neuron_data.items():
         cell_tokens = set()
-        for t in nd["cell_type"] + nd["hemibrain_type"]:
-            if is_valid_token(t):
-                cell_tokens.add(t)
         for lb in nd["label"]:
-            for part in lb.split(";"):
-                part = part.strip()
-                if is_valid_token(part):
+            for part in extract_label_parts(lb, with_subparts=False):
+                if is_valid_token(part, canonic_coarse_annos):
                     cell_tokens.add(part)
+        for t in nd["cell_type"] + nd["hemibrain_type"]:
+            if is_valid_token(t, canonic_coarse_annos):
+                cell_tokens.add(t)
+        if not cell_tokens:
+            # try split labels further, sometimes identifiers are separated from free text with "," insteas ";"
+            for lb in nd["label"]:
+                for part in extract_label_parts(lb, with_subparts=True):
+                    if is_valid_token(part, canonic_coarse_annos):
+                        cell_tokens.add(part)
         if cell_tokens:
             # if there are tokens differing only by case, default to one (the first occurance)
             cell_tokens = set(
-                [case_deduped_tokens.setdefault(t.lower(), t) for t in cell_tokens]
+                [
+                    case_deduped_tokens.setdefault(make_canonic(t), t)
+                    for t in cell_tokens
+                ]
             )
             assigned_set.add(rid)
         else:
@@ -64,7 +113,7 @@ def assign_names_from_annotations(neuron_data):
 
     for t1 in list(token_to_cell_counts.keys()):
         for t2 in list(token_to_cell_counts.keys()):
-            if t1 != t2 and t1.lower() == t2.lower():
+            if t1 != t2 and make_canonic(t1) == make_canonic(t2):
                 print(f"{t1} --> {t2}")
                 assert False
 

@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime
 from unittest import TestCase
 
-
+from src.data.auto_naming import assign_names_from_annotations
 from src.data.brain_regions import REGIONS, HEMISPHERES
 from src.data.local_data_loader import (
     unpickle_neuron_db,
@@ -12,7 +12,6 @@ from src.data.local_data_loader import (
 )
 from src.data.neuron_data_initializer import (
     NEURON_DATA_ATTRIBUTE_TYPES,
-    hemisphere_fingerprint,
     clean_and_reduce_labels,
 )
 from src.data.optic_lobe_cell_types import (
@@ -31,7 +30,7 @@ from src.utils.formatting import (
 )
 from src.utils.label_cleaning import significant_diff_chars
 from src.utils.parsing import tokenize
-from tests import TEST_DATA_ROOT_PATH
+from tests import TEST_DATA_ROOT_PATH, log_dev_url_for_root_ids
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
 
@@ -97,7 +96,6 @@ class NeuronDataTest(TestCase):
             "similar_connectivity_scores": 20000,
             "morphology_cluster": 84000,
             "connectivity_cluster": 84000,
-            "hemisphere_fingerprint": 5000,
             "marker": 102000,
         }
 
@@ -497,22 +495,6 @@ class NeuronDataTest(TestCase):
             self.assertGreater(volume, 1000 * 1000 * 1000)
             self.assertGreater(area, ln)
             self.assertGreater(volume, area + ln)
-
-    def test_hemisphere_fingerprint(self):
-        self.assertEqual(
-            "Left/Right",
-            hemisphere_fingerprint(["AMMC_L", "IPS_L"], ["IPS_R"]),
-        )
-        self.assertEqual(
-            "Mix/Mix",
-            hemisphere_fingerprint(
-                ["AMMC_L", "GNG", "IPS_L", "IPS_R", "SAD"], ["GNG", "IPS_R", "SAD"]
-            ),
-        )
-        self.assertEqual(
-            "None/Mix", hemisphere_fingerprint([], ["GNG", "IPS_R", "SAD"])
-        )
-        self.assertEqual("", hemisphere_fingerprint([], []))
 
     def test_get_neuron_data(self):
         self.assertGreater(
@@ -1058,3 +1040,41 @@ class NeuronDataTest(TestCase):
                 self.assertFalse(
                     lst[0]["name"].split(".")[-1].isnumeric(), lst[0]["name"]
                 )
+
+    def test_norms(self):
+        # TODO: tighten these tests
+        norms = self.neuron_db.svd.norms
+        max_up = max([n.up for n in norms.values()])
+        min_up = min([n.up for n in norms.values()])
+        print(f"{max_up=} {min_up=}")
+        self.assertGreater(30 * min_up, max_up)
+
+        max_down = max([n.down for n in norms.values()])
+        min_down = min([n.down for n in norms.values()])
+        print(f"{max_down=} {min_down=}")
+        self.assertGreater(15 * min_down, max_down)
+
+        max_up_down = max([n.up_down for n in norms.values()])
+        min_up_down = min([n.up_down for n in norms.values()])
+        print(f"{max_up_down=} {min_up_down=}")
+        self.assertGreater(20 * min_up_down, max_up_down)
+
+    def test_alternative_naming(self):
+        neuron_data = self.neuron_db.neuron_data
+        old_names = {rid: nd["name"] for rid, nd in neuron_data.items()}
+        assign_names_from_annotations(neuron_data)
+
+        def strip_id(n):
+            # TODO: remove lower - dedupe by case
+            parts = n.lower().split(".")
+            if parts[-1].isnumeric():
+                return ".".join(parts[:-1])
+            else:
+                return n
+
+        diff_count = 0
+        for rid, nd in neuron_data.items():
+            if strip_id(old_names[rid]) != strip_id(nd["name"]):
+                diff_count += 1
+                log_dev_url_for_root_ids(f'{old_names[rid]} -> {nd["name"]}', [rid])
+        self.assertEqual(0, diff_count)
