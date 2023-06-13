@@ -245,53 +245,36 @@ def cached_cell_details(
         ),
     )
 
-    # cells with similar connectivity
-    sim_con_up = neuron_db.get_similar_connectivity_cells(
-        root_id, include_upstream=True, include_downstream=False, weighted=False
+    insert_further_analysis_links(
+        "Find cells with similar partners up- and downstream",
+        '<i class="fa-solid fa-arrow-down-up-across-line"></i>',
+        search_endpoint=url_for(
+            "app.search",
+            filter_string=f"{OP_SIMILAR_CONNECTIVITY} {root_id}",
+        ),
     )
-    num_sim_con_up = len(sim_con_up) - (1 if root_id in sim_con_up else 0)
-    if num_sim_con_up:
-        insert_related_cell_links(
-            "cells with similar inputs",
-            num_sim_con_up,
-            '<i class="fa-solid fa-arrows-up-to-line"></i>',
-            search_endpoint=url_for(
-                "app.search",
-                filter_string=f"{OP_SIMILAR_CONNECTIVITY_UPSTREAM} {root_id}",
-            ),
-        )
-    sim_con_down = neuron_db.get_similar_connectivity_cells(
-        root_id, include_upstream=False, include_downstream=True, weighted=False
+
+    insert_further_analysis_links(
+        "Find cells with similar input and output embeddings",
+        '<i class="fa-solid fa-arrows-to-circle"></i>',
+        search_endpoint=url_for(
+            "app.search",
+            filter_string=f"{OP_SIMILAR_SPECTRAL} {root_id}",
+        ),
     )
-    num_sim_con_down = len(sim_con_down) - (1 if root_id in sim_con_down else 0)
-    if num_sim_con_down:
-        insert_related_cell_links(
-            "cells with similar outputs",
-            num_sim_con_down,
-            '<i class="fa-solid fa-arrows-down-to-line"></i>',
-            search_endpoint=url_for(
-                "app.search",
-                filter_string=f"{OP_SIMILAR_CONNECTIVITY_DOWNSTREAM} {root_id}",
-            ),
-        )
-    sim_con = neuron_db.get_similar_connectivity_cells(
-        root_id, include_upstream=True, include_downstream=True, weighted=False
+
+    insert_further_analysis_links(
+        "Find cells with similar partners upstream",
+        '<i class="fa-solid fa-arrows-up-to-line"></i>',
+        search_endpoint=url_for(
+            "app.search",
+            filter_string=f"{OP_SIMILAR_CONNECTIVITY_UPSTREAM} {root_id}",
+        ),
     )
-    num_sim_con = len(sim_con) - (1 if root_id in sim_con else 0)
-    if num_sim_con:
-        insert_related_cell_links(
-            "cells with similar inputs and outputs",
-            num_sim_con,
-            '<i class="fa-solid fa-arrow-down-up-across-line"></i>',
-            search_endpoint=url_for(
-                "app.search",
-                filter_string=f"{OP_SIMILAR_CONNECTIVITY} {root_id}",
-            ),
-        )
 
     insert_further_analysis_links(
         "Find cells with similar input embeddings",
-        '<i class="fa-solid fa-arrows-up-to-line"></i>',
+        '<i class="fa-solid fa-arrow-up-short-wide"></i>',
         search_endpoint=url_for(
             "app.search",
             filter_string=f"{OP_SIMILAR_SPECTRAL_UPSTREAM} {root_id}",
@@ -299,20 +282,20 @@ def cached_cell_details(
     )
 
     insert_further_analysis_links(
-        "Find cells with similar output embeddings",
+        "Find cells with similar partners downstream",
         '<i class="fa-solid fa-arrows-down-to-line"></i>',
         search_endpoint=url_for(
             "app.search",
-            filter_string=f"{OP_SIMILAR_SPECTRAL_DOWNSTREAM} {root_id}",
+            filter_string=f"{OP_SIMILAR_CONNECTIVITY_DOWNSTREAM} {root_id}",
         ),
     )
 
     insert_further_analysis_links(
-        "Find cells with similar input and output embeddings",
-        '<i class="fa-solid fa-arrow-down-up-across-line"></i>',
+        "Find cells with similar output embeddings",
+        '<i class="fa-solid fa-arrow-down-wide-short"></i>',
         search_endpoint=url_for(
             "app.search",
-            filter_string=f"{OP_SIMILAR_SPECTRAL} {root_id}",
+            filter_string=f"{OP_SIMILAR_SPECTRAL_DOWNSTREAM} {root_id}",
         ),
     )
 
