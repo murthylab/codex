@@ -149,30 +149,34 @@
                 <br>
                 {% endif %}
 
-                <small style="color: purple" onclick="elem = document.getElementById('similar_to_{{neuron.root_id}}'); elem.hidden = !elem.hidden;">cells with similar connectivity <i class="fa-solid fa-caret-down"></i></small>
-                <span style="font-size: 11px;" id="similar_to_{{neuron.root_id}}" hidden>
-                    <br>
-                    strict: <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_connectivity} ' + neuron.root_id|string, data_version=data_version)}}">
-                       i/o
-                    </a>|
-                    <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
-                       in
-                    </a>|
-                     <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
-                       out
+                <small style="color: purple" id="similar_to_{{neuron.root_id}}_header" onclick="elem = document.getElementById('similar_to_{{neuron.root_id}}_body'); elem.hidden = !elem.hidden; elem = document.getElementById('similar_to_{{neuron.root_id}}_header'); elem.hidden = !elem.hidden;">cells with similar connectivity <i class="fa-solid fa-caret-down"></i></small>
+                <div id="similar_to_{{neuron.root_id}}_body" hidden>
+                    <small style="color: teal" onclick="elem = document.getElementById('similar_to_{{neuron.root_id}}_body'); elem.hidden = !elem.hidden; elem = document.getElementById('similar_to_{{neuron.root_id}}_header'); elem.hidden = !elem.hidden;">cells with similar partners <i class="fa-solid fa-caret-up"></i></small>
+                    <div style="font-size: 11px;">
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_connectivity} ' + neuron.root_id|string, data_version=data_version)}}">
+                       upstream and downstream
+                    </a><br>
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       upstream
+                    </a><br>
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       downstream
                     </a>
+                    </div>
 
-                    <br>
-                    embedding: <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral} ' + neuron.root_id|string, data_version=data_version)}}">
-                       i/o
-                    </a>|
-                    <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
-                       in
-                    </a>|
-                    <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
-                       out
+                    <small style="color: teal">cells with similar embeddings</small>
+                    <div style="font-size: 11px;">
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral} ' + neuron.root_id|string, data_version=data_version)}}">
+                       input and output
+                    </a><br>
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       input
+                    </a><br>
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       output
                     </a>
-                </span>
+                    </div>
+                </div>
                 </nobr>
             </td>
             <td style="color:#3A3A3A;">
