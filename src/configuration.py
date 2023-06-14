@@ -56,7 +56,7 @@ DOWNLOADABLE_ARCHIVE_FILES = {
         "file_url": "https://storage.googleapis.com/flywire-data/codex/skeleton_swcs/flywire_skeleton_swcs.tar.gz",
         "file_format": "gzipped tar file",
         "file_size": 329000000,
-        "content": {}
+        "content": {},
     },
     "synapse_coordinates": {
         "description": "Individual synapse coordinates (x, y, z in nanometers). Typically synapse locations are "

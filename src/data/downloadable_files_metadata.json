@@ -7,7 +7,7 @@
       "morphology_clusters.csv.gz": 736744,
       "connectivity_clusters.csv.gz": 522912,
       "connections.csv.gz": 26124953,
-      "labels.csv.gz": 2640179,
+      "labels.csv.gz": 2647732,
       "coordinates.csv.gz": 4584155,
       "neuropil_synapse_table.csv.gz": 4490002
     },
@@ -17,7 +17,7 @@
       "cell_stats.csv.gz": 2257920,
       "morphology_clusters.csv.gz": 209413,
       "connections.csv.gz": 32220716,
-      "labels.csv.gz": 2375320,
+      "labels.csv.gz": 2382375,
       "coordinates.csv.gz": 3945113,
       "neuropil_synapse_table.csv.gz": 2866446
     }
@@ -82,17 +82,17 @@
         "col 5 - nt_type": "6 unique values"
       },
       "labels.csv.gz": {
-        "# rows": "101,907 (+ header)",
+        "# rows": "102,149 (+ header)",
         "# columns": "9",
-        "col 1 - root_id": "70,232 unique values",
-        "col 2 - label": "6,376 unique values",
+        "col 1 - root_id": "70,473 unique values",
+        "col 2 - label": "6,377 unique values",
         "col 3 - user_id": "131 unique values",
-        "col 4 - position": "81,046 unique values",
-        "col 5 - supervoxel_id": "80,341 unique values",
+        "col 4 - position": "81,288 unique values",
+        "col 5 - supervoxel_id": "80,583 unique values",
         "col 6 - label_id": "all rows contain unique values",
         "col 7 - date_created": "406 unique values",
-        "col 8 - user_name": "128 unique values in 101,257 rows, empty in 650 rows",
-        "col 9 - user_affiliation": "51 unique values in 101,194 rows, empty in 713 rows"
+        "col 8 - user_name": "128 unique values in 101,499 rows, empty in 650 rows",
+        "col 9 - user_affiliation": "51 unique values in 101,436 rows, empty in 713 rows"
       },
       "coordinates.csv.gz": {
         "# rows": "207,700 (+ header)",
@@ -480,17 +480,17 @@
         "col 5 - nt_type": "6 unique values"
       },
       "labels.csv.gz": {
-        "# rows": "93,363 (+ header)",
+        "# rows": "93,591 (+ header)",
         "# columns": "9",
-        "col 1 - root_id": "63,444 unique values",
-        "col 2 - label": "6,096 unique values",
+        "col 1 - root_id": "63,670 unique values",
+        "col 2 - label": "6,098 unique values",
         "col 3 - user_id": "128 unique values",
-        "col 4 - position": "73,010 unique values",
-        "col 5 - supervoxel_id": "72,383 unique values",
+        "col 4 - position": "73,238 unique values",
+        "col 5 - supervoxel_id": "72,611 unique values",
         "col 6 - label_id": "all rows contain unique values",
         "col 7 - date_created": "400 unique values",
-        "col 8 - user_name": "125 unique values in 92,722 rows, empty in 641 rows",
-        "col 9 - user_affiliation": "49 unique values in 92,659 rows, empty in 704 rows"
+        "col 8 - user_name": "125 unique values in 92,950 rows, empty in 641 rows",
+        "col 9 - user_affiliation": "49 unique values in 92,887 rows, empty in 704 rows"
       },
       "coordinates.csv.gz": {
         "# rows": "179,104 (+ header)",

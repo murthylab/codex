@@ -17,20 +17,32 @@ class Connections(object):
         self.rid_to_pils = {rid: set() for rid in self.rids_list}
         self.compact_connections_representation = {}
         self.synapse_count = 0
+        self.input_synapse_counts = {}
+        self.output_synapse_counts = {}
         for r in connection_rows:
             from_rid, to_rid = int(r[0]), int(r[1])
-            from_rid_idx, to_rid_idx = (
-                self.rid_to_idx[from_rid],
-                self.rid_to_idx[to_rid],
-            )
             pil, syn_cnt, nt_type = r[2], int(r[3]), r[4]
             self.synapse_count += syn_cnt
             self.rid_to_pils[from_rid].add(pil)
             self.rid_to_pils[to_rid].add(pil)
+
+            # update the input/output synapse counts (across regions)
+            from_dict = self.output_synapse_counts.setdefault(from_rid, {})
+            from_dict[to_rid] = from_dict.get(to_rid, 0) + syn_cnt
+            to_dict = self.output_synapse_counts.setdefault(to_rid, {})
+            to_dict[from_rid] = to_dict.get(from_rid, 0) + syn_cnt
+
+            # update the compacted by-region connectivity with NT types
+            from_rid_idx, to_rid_idx = (
+                self.rid_to_idx[from_rid],
+                self.rid_to_idx[to_rid],
+            )
             pil_dict = self.compact_connections_representation.setdefault(pil, {})
             from_dict = pil_dict.setdefault(from_rid_idx, {})
             from_dict[to_rid_idx] = SYN_COUNT_MULTIPLIER * syn_cnt + NT_TO_ID[nt_type]
-            connection_set.add(len(rids_set) * from_rid_idx + to_rid)
+
+            # for counting number of connected pairs
+            connection_set.add(len(rids_set) * from_rid_idx + to_rid_idx)
         self.connection_count = len(connection_set)
 
     def all_rows(self, min_syn_count=None):
@@ -96,6 +108,9 @@ class Connections(object):
                         syn_cnt,
                         nt_type,
                     )
+
+    def input_output_synapse_counts(self):
+        return self.input_synapse_counts, self.output_synapse_counts
 
     def num_synapses(self):
         return self.synapse_count
