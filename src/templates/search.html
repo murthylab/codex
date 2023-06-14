@@ -83,7 +83,7 @@
                 <a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);">{{neuron.name}}</a>
                 <br>
                 <small style="font-size: 10px;">{{highlighted_terms.get(neuron.root_id, neuron.root_id)|safe}}</small>
-                <div style="margin-top: -20px; margin-bottom: -10px; position: relative; text-align: center; color: white; width: 200px; height: 150px;">
+                <div style="position: relative; text-align: center; color: white; width: 200px; height: 150px;">
                     <a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);"><img
                        class="skeleton_thumbnail"
                        src="{{skeleton_thumbnail_urls.get(neuron.root_id)[0]}}"

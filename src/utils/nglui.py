@@ -96,7 +96,7 @@ def url_for_cells(segment_ids, data_version):
             {
                 "type": "segmentation",
                 "source": f"precomputed://gs://flywire_v141_m{data_version}",
-                "tab": "source",
+                "tab": "segments",
                 "segments": [
                     str(sid) for sid in segment_ids
                 ],  # BEWARE: JSON can't handle big ints
@@ -106,7 +106,10 @@ def url_for_cells(segment_ids, data_version):
         "showSlices": False,
         "perspectiveViewBackgroundColor": "#ffffff",
         "showDefaultAnnotations": False,
-        "selectedLayer": {"visible": False, "layer": f"flywire_v141_m{data_version}"},
+        "selectedLayer": {
+            "visible": len(segment_ids) > 1,
+            "layer": f"flywire_v141_m{data_version}",
+        },
         "layout": "3d",
     }
 
