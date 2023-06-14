@@ -97,11 +97,11 @@ class NeuronDB(object):
 
     @lru_cache
     def input_output_partner_sets(self, min_syn_count=0):
-        ins = defaultdict(set)
-        outs = defaultdict(set)
-        for r in self.connections_.all_rows(min_syn_count=min_syn_count):
-            ins[r[1]].add(r[0])
-            outs[r[0]].add(r[1])
+        ins, outs = self.input_output_partners_with_synapse_counts(
+            min_syn_count=min_syn_count
+        )
+        ins = {k: set(v.keys()) for k, v in ins.items()}
+        outs = {k: set(v.keys()) for k, v in outs.items()}
         return ins, outs
 
     @lru_cache
@@ -116,6 +116,12 @@ class NeuronDB(object):
 
             ins = {k: apply_syn_threshold(v) for k, v in ins.items()}
             outs = {k: apply_syn_threshold(v) for k, v in outs.items()}
+
+        for rid in self.neuron_data.keys():
+            if rid not in ins:
+                ins[rid] = {}
+            if rid not in outs:
+                outs[rid] = {}
         return ins, outs
 
     @lru_cache
@@ -376,10 +382,10 @@ class NeuronDB(object):
                 return 0
 
             if include_upstream:
-                combined_score += jaccard_score(ins.get(root_id), ins.get(r))
+                combined_score += jaccard_score(ins[root_id], ins[r])
                 num_scores += 1
             if include_downstream:
-                combined_score += jaccard_score(outs.get(root_id), outs.get(r))
+                combined_score += jaccard_score(outs[root_id], outs[r])
                 num_scores += 1
             return combined_score / num_scores
 

@@ -282,7 +282,6 @@ def collect_leaderboard_data(label_data, top_n, include_lab_leaderboard):
 def jaccard_weighted(d1, d2):
     if not d1 and not d2:
         return 0
-    d1, d2 = d1 or {}, d2 or {}
     combined_key_set = set(d1.keys()).union(d2.keys())
     min_sum = 0
     max_sum = 0

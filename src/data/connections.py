@@ -29,7 +29,7 @@ class Connections(object):
             # update the input/output synapse counts (across regions)
             from_dict = self.output_synapse_counts.setdefault(from_rid, {})
             from_dict[to_rid] = from_dict.get(to_rid, 0) + syn_cnt
-            to_dict = self.output_synapse_counts.setdefault(to_rid, {})
+            to_dict = self.input_synapse_counts.setdefault(to_rid, {})
             to_dict[from_rid] = to_dict.get(from_rid, 0) + syn_cnt
 
             # update the compacted by-region connectivity with NT types
