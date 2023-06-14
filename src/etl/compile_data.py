@@ -110,12 +110,11 @@ def comp_backup_and_update_csv(fpath, content):
         print(f"Backing up {fpath} to {fpath_bkp}..")
         shutil.copy2(fpath, fpath_bkp)
         if diff_rows:
-            print("Old content summary")
+            print(f"Diff rows {diff_rows}, old content summary:")
             summarize_csv(old_content)
     else:
         print(f"Previous file {fpath} not found.")
-
-    print("New content summary")
+    print("New content summary:")
     summarize_csv(content)
     print(f"Writing to {fpath}..")
     write_csv(filename=fpath, rows=content, compress=True)
@@ -130,16 +129,39 @@ def init_cave_client():
     return CAVEclient(CAVE_DATASTACK_NAME, auth_token=auth_token)
 
 
-def load_neuron_info_from_cave(
-    client, materialization_version, write_user_infos_table=False
-):
+def load_neuron_info_from_cave(client, old_content, materialization_version):
+    output_table_columns = [
+        "root_id",
+        "label",
+        "user_id",
+        "position",
+        "supervoxel_id",
+        "label_id",
+        "date_created",
+        "user_name",
+        "user_affiliation",
+    ]
+
     print("Downloading 'neuron_information_v2' with CAVE client..")
     df = client.materialize.live_live_query(
         "neuron_information_v2",
         timestamp=datetime.datetime.utcnow(),
         allow_missing_lookups=True,
     )
-    print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
+    df_columns_list = df.columns.to_list()
+    print(f"Downloaded {len(df)} rows with columns {df_columns_list}")
+
+    if old_content:
+        assert old_content[0] == output_table_columns
+        label_id_col = output_table_columns.index("label_id")
+        old_label_ids = set([int(r[label_id_col]) for r in old_content[1:]])
+        df = df[~df["id"].isin(old_label_ids)]
+        print(
+            f"Old content has {len(old_label_ids)} labels, reduced data frame to {len(df)} new labels"
+        )
+    else:
+        print("No old content, ingesting all")
+
     supervoxel_ids = df["pt_supervoxel_id"].astype(np.uint64)
     mat_timestamp = client.materialize.get_version_metadata(materialization_version)[
         "time_stamp"
@@ -148,29 +170,32 @@ def load_neuron_info_from_cave(
         supervoxel_ids, timestamp=mat_timestamp
     )
     print(f"Mapped to version {materialization_version}")
-    neuron_info_table = [
-        [
-            "root_id",
-            "label",
-            "user_id",
-            "position",
-            "supervoxel_id",
-            "label_id",
-            "date_created",
-        ]
-    ]
+
     user_ids = set()
-    for index, d in df.iterrows():
-        user_ids.add(d["user_id"])
-        neuron_info_table.append(
+    col_idx_dict = {
+        col_name: df_columns_list.index(col_name) + 1
+        for col_name in [
+            "pt_root_id",
+            "tag",
+            "user_id",
+            "pt_position",
+            "pt_supervoxel_id",
+            "id",
+            "created",
+        ]
+    }
+    new_labels_table = []
+    for d in df.itertuples():
+        user_ids.add(d[col_idx_dict["user_id"]])
+        new_labels_table.append(
             [
-                int(d["pt_root_id"]),
-                str(d["tag"]),
-                int(d["user_id"]),
-                str(d["pt_position"]),
-                int(d["pt_supervoxel_id"]),
-                int(d["id"]),
-                str(d["created"]).split()[0],
+                int(d[col_idx_dict["pt_root_id"]]),
+                str(d[col_idx_dict["tag"]]),
+                int(d[col_idx_dict["user_id"]]),
+                str(d[col_idx_dict["pt_position"]]),
+                int(d[col_idx_dict["pt_supervoxel_id"]]),
+                int(d[col_idx_dict["id"]]),
+                str(d[col_idx_dict["created"]]).split()[0],
             ]
         )
 
@@ -180,16 +205,8 @@ def load_neuron_info_from_cave(
         f"Fetched user infos: {len(user_infos)}, not found: {len(user_ids - set(user_id_to_info.keys()))}"
     )
 
-    if write_user_infos_table:
-        print("Writing user infos table...")
-        user_infos_table = [["id", "name", "affiliation"]]
-        for u in user_infos:
-            user_infos_table.append([u["id"], u["name"], u["pi"]])
-        write_csv("user_infos.csv", rows=user_infos_table)
-
     uinfo_not_found = 0
-    neuron_info_table[0].extend(["user_name", "user_affiliation"])
-    for r in neuron_info_table[1:]:
+    for r in new_labels_table:
         uinfo = user_id_to_info.get(r[2])
         if uinfo:
             r.extend([uinfo[0], uinfo[1]])
@@ -197,10 +214,13 @@ def load_neuron_info_from_cave(
             r.extend(["", ""])
             uinfo_not_found += 1
     print(f"Annos without uinfo: {uinfo_not_found}")
-    return neuron_info_table
+
+    output_table = old_content if old_content else [output_table_columns]
+    output_table.extend(new_labels_table)
+    return output_table
 
 
-def load_proofreading_info_from_cave(client, version):
+def load_proofreading_info_from_cave(client, old_content, version):
     print("Downloading 'proofreading_status_public_v1' with CAVE client..")
     df = client.materialize.query_table("proofreading_status_public_v1")
     print(f"Downloaded {len(df)} rows with columns {df.columns.to_list()}")
@@ -235,7 +255,9 @@ def val_counts(table):
                 if len(r) > i and str(r[i]).lower() in UNDEFINED_THINGS
             ]
         )
-        types[c] = list(set([type(r[i]) for r in table[1:] if len(r) > i]))
+        types[c] = ", ".join(
+            list(set([str(type(r[i])).split("'")[1] for r in table[1:] if len(r) > i]))
+        )
         try:
             if not c.endswith("_id"):
                 bounds[c] = (
@@ -251,21 +273,19 @@ def val_counts(table):
 def summarize_csv(content):
     uniq_counts, miss_counts, undefined_counts, types, bounds = val_counts(content)
     for c in content[0]:
-        print(f"Column '{c}'")
-        print(f"- unique val counts: {uniq_counts[c][0]}, {uniq_counts[c][1]}")
+        col_text = f"    {c}:"
+        col_text += f" unique {uniq_counts[c][0]} {uniq_counts[c][1]}"
         if miss_counts.get(c):
-            print(f"- missing val counts: {miss_counts[c]}")
+            col_text += f"; missing {miss_counts[c]}"
         if undefined_counts.get(c):
-            print(f"- undefined val counts: {undefined_counts[c]}")
-        print(f"- data types: {types[c]}")
+            col_text += f"; undefined {undefined_counts[c]}"
+        col_text += f"; types {types[c]}"
         if bounds.get(c):
-            print(f"- numeral type bounds: {bounds[c]}")
+            col_text += f"; bounds {bounds[c]}"
+        print(col_text)
 
 
 def compare_csvs(old_table, new_table, print_diffs=3, first_cols=999):
-    def summarize(hdr, diff_rows):
-        summarize_csv([hdr] + [r.split(",") for r in diff_rows])
-
     def prntdiffs(diff_rows):
         for i, r in enumerate(diff_rows):
             if i >= print_diffs:
@@ -308,16 +328,35 @@ def compare_csvs(old_table, new_table, print_diffs=3, first_cols=999):
     return len(on_dfset) + len(no_dfset)
 
 
-def update_cave_data_file(name, db_load_func, cave_client, version):
+def update_cave_data_file(name, db_load_func, client, version):
     print(f"Updating {name} file..")
     fpath = compiled_data_file_path(version=version, filename=f"{name}.csv.gz")
+    old_content = read_csv(fpath) if os.path.isfile(fpath) else None
 
     print(f"Loading {name} from DB..")
     new_content = db_load_func(
-        client=cave_client, materialization_version=version.split("_")[0]
+        client=client,
+        old_content=old_content,
+        materialization_version=version.split("_")[0],
     )
 
-    comp_backup_and_update_csv(fpath, content=new_content)
+    # project to neurons in dataset
+    neurons_table = read_csv(
+        compiled_data_file_path(version=version, filename="neurons.csv.gz")
+    )
+    root_id_col = neurons_table[0].index("root_id")
+    neuron_rids_in_dataset = set([int(r[root_id_col]) for r in neurons_table[1:]])
+
+    root_id_col = new_content[0].index("root_id")
+    filtered_content = [new_content[0]] + [
+        r for r in new_content[1:] if int(r[root_id_col]) in neuron_rids_in_dataset
+    ]
+    if len(filtered_content) < len(new_content):
+        print(
+            f"Filtered out {len(new_content) - len(filtered_content)} rows referring to root ids outside of the dataset"
+        )
+
+    comp_backup_and_update_csv(fpath, content=filtered_content)
 
 
 def update_neuron_classification_table_file(version):
@@ -845,14 +884,14 @@ if __name__ == "__main__":
             update_cave_data_file(
                 name="coordinates",
                 db_load_func=load_proofreading_info_from_cave,
-                cave_client=cave_client,
+                client=cave_client,
                 version=v,
             )
         if config["update_labels"]:
             update_cave_data_file(
                 name="labels",
                 db_load_func=load_neuron_info_from_cave,
-                cave_client=cave_client,
+                client=cave_client,
                 version=v,
             )
         if config["update_nblast_scores"]:
