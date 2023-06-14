@@ -150,6 +150,7 @@ def remove_corrected(labels_latest_to_oldest):
     correction_suffixes = [
         " (correction)",
         " (correction due to brain fart)",
+        " (correction due to brainfart)",
         " (corrected)",
         " - L1 Label Incorrect",
         " - L2 Label Incorrect",

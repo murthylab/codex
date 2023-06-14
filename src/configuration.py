@@ -49,11 +49,6 @@ DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS = {
     "column containing the FlyWire Root ID of the cell, followed by a column for every combination of neuropil X "
     "input/output X synapse/partner. Note: this resource is a convenience, it can be derived from the connectivity "
     "table.",
-    "synapse_coordinates": "Individual synapse coordinates (x, y, z in nanometers). Typically synapse locations are "
-    "bounded within a 3D bounding box, for compactness this table only provides coordinates of "
-    "a single point in the detected bounding box. Also for compactness, empty pre/post id "
-    "columns should be inferred by looking up in the table at the last non-empty value "
-    "respectively.",
 }
 DOWNLOADABLE_ARCHIVE_FILES = {
     "skeleton_swc_files": {
@@ -61,7 +56,28 @@ DOWNLOADABLE_ARCHIVE_FILES = {
         "file_url": "https://storage.googleapis.com/flywire-data/codex/skeleton_swcs/flywire_skeleton_swcs.tar.gz",
         "file_format": "gzipped tar file",
         "file_size": 329000000,
-    }
+        "content": {}
+    },
+    "synapse_coordinates": {
+        "description": "Individual synapse coordinates (x, y, z in nanometers). Typically synapse locations are "
+        "bounded within a 3D bounding box, for compactness this table only provides coordinates of "
+        "a single point in the detected bounding box. Also for compactness, empty pre/post id "
+        "columns should be inferred by looking up in the table at the last non-empty value "
+        "respectively.",
+        "file_url": "https://storage.googleapis.com/flywire-data/codex/data/630/synapse_coordinates.csv.gz",
+        "file_format": DOWNLOADABLE_FILE_FORMAT,
+        "file_size": 281523733,
+        "version": "630",
+        "content": {
+            "# rows": "32,970,606 (+ header)",
+            "# columns": "5",
+            "col 1 - pre_root_id": "121,327 unique values in 121,327 rows, empty in 32,849,279 rows",
+            "col 2 - post_root_id": "119,687 unique values in 2,612,073 rows, empty in 30,358,533 rows",
+            "col 3 - x": "181,181 unique values of type INT in range [97,920 .. 891,008]",
+            "col 4 - y": "80,815 unique values of type INT in range [65,152 .. 406,664]",
+            "col 5 - z": "6,700 unique values of type INT in range [3,200 .. 271,760]",
+        },
+    },
 }
 
 GOOGLE_CLIENT_ID = (

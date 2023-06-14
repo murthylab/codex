@@ -37,12 +37,15 @@ for version, assets in DOWNLOADABLE_FILE_CONTENTS.items():
         )
 
 for archive, details in DOWNLOADABLE_ARCHIVE_FILES.items():
-    for catalog in DOWNLOAD_CATALOG.values():
+    for version, catalog in DOWNLOAD_CATALOG.items():
+        # some archives are specific to version
+        if details.get("version", version) != version:
+            continue
         catalog[archive] = DownloadableProduct(
             description=details["description"],
             file_name=details["file_url"].split("/")[-1],
             file_url=details["file_url"],
             file_format=details["file_format"],
             file_size=details["file_size"],
-            file_content={},
+            file_content=details["content"],
         )
