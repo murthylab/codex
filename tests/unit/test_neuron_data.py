@@ -97,6 +97,7 @@ class NeuronDataTest(TestCase):
             "morphology_cluster": 84000,
             "connectivity_cluster": 84000,
             "marker": 102000,
+            "twin_root_id": 75000,
         }
 
         for k in NEURON_DATA_ATTRIBUTE_TYPES.keys():
@@ -560,6 +561,7 @@ class NeuronDataTest(TestCase):
     def test_attribute_coverage(self):
         sparse_attrs = {
             "similar_cell_scores",
+            "twin_root_id",
             "similar_connectivity_scores",
             "label",
             "nerve",
