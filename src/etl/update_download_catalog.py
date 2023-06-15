@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 from src.configuration import (
     DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS,
@@ -7,15 +8,16 @@ from src.configuration import (
     DOWNLOADABLE_FILES_METADATA_FILE,
 )
 from src.data.local_data_loader import DATA_ROOT_PATH, read_csv
-from src.data.versions import DATA_SNAPSHOT_VERSIONS
+from src.data.versions import DATA_SNAPSHOT_VERSIONS, DEFAULT_DATA_SNAPSHOT_VERSION
 from src.utils.formatting import display
 
 
-def fetch_file_sizes(data_root_path=DATA_ROOT_PATH):
+def fetch_file_sizes(versions, products, data_root_path=DATA_ROOT_PATH):
+    print("fetching file sizes...")
     file_sizes = {}
-    for v in DATA_SNAPSHOT_VERSIONS:
+    for v in versions:
         file_sizes[v] = {}
-        for p, desc in DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS.items():
+        for p in products:
             fname = f"{p}{DOWNLOADABLE_FILE_EXTENSION}"
             fpath = f"{data_root_path}/{v}/{fname}"
             if os.path.isfile(fpath):
@@ -23,7 +25,9 @@ def fetch_file_sizes(data_root_path=DATA_ROOT_PATH):
     return file_sizes
 
 
-def fetch_file_contents(data_root_path=DATA_ROOT_PATH):
+def fetch_file_contents(versions, products, data_root_path=DATA_ROOT_PATH):
+    print("fetching file contents...")
+
     def extract_contents(fpath):
         rows = read_csv(fpath)
 
@@ -93,9 +97,9 @@ def fetch_file_contents(data_root_path=DATA_ROOT_PATH):
         return res
 
     file_contents = {}
-    for v in DATA_SNAPSHOT_VERSIONS:
+    for v in versions:
         file_contents[v] = {}
-        for p, desc in DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS.items():
+        for p in products:
             fname = f"{p}{DOWNLOADABLE_FILE_EXTENSION}"
             fpath = f"{data_root_path}/{v}/{fname}"
             if os.path.isfile(fpath):
@@ -103,15 +107,45 @@ def fetch_file_contents(data_root_path=DATA_ROOT_PATH):
     return file_contents
 
 
-def update_catalog():
+def update_catalog(versions, products, merge_to):
+    print(
+        f"Updating catalog for versions: {','.join(versions)} and products: {','.join(products)}"
+    )
+    fsizes = fetch_file_sizes(versions, products)
+    fcontents = fetch_file_contents(versions, products)
+    if merge_to:
+        metadata = merge_to
+        for v in versions:
+            metadata["file_sizes"][v].update(fsizes[v])
+            metadata["file_contents"][v].update(fcontents[v])
+    else:
+        metadata = {
+            "file_sizes": fsizes,
+            "file_contents": fcontents,
+        }
 
-    metadata = {
-        "file_sizes": fetch_file_sizes(),
-        "file_contents": fetch_file_contents(),
-    }
+    print("writing to file")
     with open(DOWNLOADABLE_FILES_METADATA_FILE, mode="w") as f:
         json.dump(metadata, f, indent=2)
+    print("done.")
 
 
 if __name__ == "__main__":
-    update_catalog()
+    versions_ = DATA_SNAPSHOT_VERSIONS
+    products_ = list(DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS.keys())
+    merge_to_ = None
+    if len(sys.argv) > 1:
+        if len(sys.argv) == 2 and sys.argv[1] == "-labels_in_default_version_only":
+            versions_ = [DEFAULT_DATA_SNAPSHOT_VERSION]
+            products_ = ["labels"]
+            with open(DOWNLOADABLE_FILES_METADATA_FILE) as f:
+                merge_to_ = json.load(f)
+                if not merge_to_:
+                    print(
+                        f"Partial update failed because existing catalog json file could not be loaded from {DOWNLOADABLE_FILES_METADATA_FILE}"
+                    )
+                    exit(1)
+        else:
+            print(f"Unrecognized args: {sys.argv[1:]}")
+            exit(1)
+    update_catalog(versions=versions_, products=products_, merge_to=merge_to_)

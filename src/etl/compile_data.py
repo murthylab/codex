@@ -1,6 +1,7 @@
 import datetime
 import os.path
 import shutil
+import sys
 from collections import defaultdict
 
 import numpy as np
@@ -20,7 +21,7 @@ from src.data.local_data_loader import read_csv, write_csv
 #  - download it into RAW_DATA_ROOT_FOLDER and name it as NEURON_NT_TYPES_FILE_NAME below
 # Get token from here: https://global.daf-apis.com/auth/api/v1/create_token
 # and store it in this file (no quotes)
-from src.data.versions import DATA_SNAPSHOT_VERSIONS
+from src.data.versions import DATA_SNAPSHOT_VERSIONS, DEFAULT_DATA_SNAPSHOT_VERSION
 from src.etl.synapse_table_processor import (
     compile_connection_rows,
     compile_neuron_rows,
@@ -838,8 +839,16 @@ def inspect_feather(version, fname):
 
 
 if __name__ == "__main__":
+    versions_ = DATA_SNAPSHOT_VERSIONS
+    if len(sys.argv) > 1:
+        if len(sys.argv) == 2 and sys.argv[1] == "-default_version_only":
+            versions_ = [DEFAULT_DATA_SNAPSHOT_VERSION]
+        else:
+            print(f"Unrecognized args: {sys.argv[1:]}")
+            exit(1)
+
     config = {
-        "versions": DATA_SNAPSHOT_VERSIONS,
+        "versions": versions_,
         # UTILS
         "columns_to_remove": {},
         "headers_to_add": {},
