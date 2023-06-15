@@ -140,9 +140,9 @@
                 </a>
                 </small>
                 <br>
-                {% if neuron.twin_root_id %}
+                {% if neuron.mirror_twin_root_id %}
                 <small>
-                    <a href="{{url_for('app.search', filter_string=neuron.root_id|string + ', ' + neuron.twin_root_id|string, data_version=data_version)}}" target="_blank">
+                    <a href="{{url_for('app.search', filter_string=neuron.root_id|string + ', ' + neuron.mirror_twin_root_id|string, data_version=data_version)}}" target="_blank">
                             <i class="fa-solid fa-bezier-curve"></i> &nbsp; mirror twin
                     </a>
                 </small>

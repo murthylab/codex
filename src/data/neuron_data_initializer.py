@@ -33,8 +33,8 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     # FlyWire identifiers. Root IDs change with every edit -> not stable across data snapshots.
     "root_id": int,
     "supervoxel_id": list,
-    # optional twin cell (LR matching)
-    "twin_root_id": int,
+    # optional mirror/twin cell (LR matching)
+    "mirror_twin_root_id": int,
     # community identification labels
     "label": list,
     # generic badges for marking special cells (e.g. labeling candidates)
@@ -152,8 +152,8 @@ def initialize_neuron_data(
             twin_2 = int(r[1])
             assert twin_1 != twin_2
             assert twin_1 in neuron_attributes and twin_2 in neuron_attributes
-            neuron_attributes[twin_1]["twin_root_id"] = twin_2
-            neuron_attributes[twin_2]["twin_root_id"] = twin_1
+            neuron_attributes[twin_1]["mirror_twin_root_id"] = twin_2
+            neuron_attributes[twin_2]["mirror_twin_root_id"] = twin_1
 
     log(
         f"App initialization processing classification data with {len(classification_rows)} rows.."

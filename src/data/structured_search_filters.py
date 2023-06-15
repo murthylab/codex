@@ -218,9 +218,9 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
     ),
     SearchAttribute(
         description="ID of the mirror-twin cell, optional",
-        name="twin_root_id",
+        name="mirror_twin_root_id",
         value_convertor=lambda x: int(x),
-        alternative_names=["twin", "mirror_id", "mirror"],
+        alternative_names=["twin", "mirror", "mirror_twin"],
     ),
     SearchAttribute(
         description="Automatically generated morphology clusters (based on pairwise NBLAST scores)",

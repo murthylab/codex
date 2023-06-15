@@ -97,7 +97,7 @@ class NeuronDataTest(TestCase):
             "morphology_cluster": 84000,
             "connectivity_cluster": 84000,
             "marker": 102000,
-            "twin_root_id": 75000,
+            "mirror_twin_root_id": 75000,
         }
 
         for k in NEURON_DATA_ATTRIBUTE_TYPES.keys():
@@ -561,7 +561,7 @@ class NeuronDataTest(TestCase):
     def test_attribute_coverage(self):
         sparse_attrs = {
             "similar_cell_scores",
-            "twin_root_id",
+            "mirror_twin_root_id",
             "similar_connectivity_scores",
             "label",
             "nerve",
@@ -1079,3 +1079,12 @@ class NeuronDataTest(TestCase):
                 diff_count += 1
                 log_dev_url_for_root_ids(f'{old_names[rid]} -> {nd["name"]}', [rid])
         self.assertEqual(0, diff_count)
+
+    def test_mirror_twins(self):
+        for rid, nd in self.neuron_db.neuron_data.items():
+            if nd["mirror_twin_root_id"]:
+                self.assertTrue(nd["side"] in ["left", "right"], nd["side"])
+                twin_cell = self.neuron_db.neuron_data[nd["mirror_twin_root_id"]]
+                self.assertTrue(twin_cell["side"] in ["left", "right"])
+                self.assertNotEqual(nd["side"], twin_cell["side"])
+                self.assertEqual(rid, twin_cell["mirror_twin_root_id"])
