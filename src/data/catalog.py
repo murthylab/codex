@@ -12,6 +12,11 @@ _CODEX_DATA_SCHEMA = {
         "ach_avg",
         "oct_avg",
     ],
+    # LR matching
+    "lr_matching": [
+        "left_root_id",
+        "right_root_id",
+    ],
     # one row per id
     "classification": [
         "root_id",
@@ -72,6 +77,10 @@ _CODEX_DATA_SCHEMA = {
 
 def get_neurons_file_columns():
     return list(_CODEX_DATA_SCHEMA["neurons"])
+
+
+def get_lr_matching_file_columns():
+    return list(_CODEX_DATA_SCHEMA["lr_matching"])
 
 
 def get_classification_file_columns():

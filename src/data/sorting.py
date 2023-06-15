@@ -56,7 +56,7 @@ SORT_BY_OPTIONS = {
     "synapse_neuropils": "# Synapse Regions (low -> high)",
     "-labels": "# Labels (high -> low)",
     "labels": "# Labels (low -> high)",
-    "twin_cells": "# Twin cells (high -> low)",
+    "similar_shape_cells": "# Similar shape cells (high -> low)",
     "nt_type": "Neurotransmitter Type",
     "morphology_cluster": "Morphology Cluster",
     "random": "Random",
@@ -128,7 +128,7 @@ def sort_search_results(
             if sort_by == "labels":
                 ids = sorted(ids, key=lambda x: label_count_getter(x))
                 return ids, None
-            if sort_by == "twin_cells":
+            if sort_by == "similar_shape_cells":
                 dct = {
                     rid: len(similar_shape_cells_getter(rid, include_self=False))
                     for rid in ids

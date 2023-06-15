@@ -24,6 +24,7 @@ NBLAST_FILE_NAME = "nblast.csv.gz"
 MORPHOLOGY_CLUSTERS_FILE_NAME = "morphology_clusters.csv.gz"
 CONNECTIVITY_CLUSTERS_FILE_NAME = "connectivity_clusters.csv.gz"
 SVD_FILE_NAME = "svd.csv.gz"
+LR_MATCHING_FILE_NAME = "lr_matching.csv.gz"
 
 
 NEURON_DB_PICKLE_FILE_NAME = "neuron_db.pickle.gz"
@@ -89,6 +90,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     morphology_cluster_rows = _read_data(MORPHOLOGY_CLUSTERS_FILE_NAME)
     connectivity_cluster_rows = _read_data(CONNECTIVITY_CLUSTERS_FILE_NAME)
     svd_rows = _read_data(SVD_FILE_NAME)
+    lr_matching_rows = _read_data(LR_MATCHING_FILE_NAME)
 
     log(
         f"App initialization loading data from {data_file_path}:\n"
@@ -110,6 +112,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         morphology_cluster_rows=morphology_cluster_rows,
         connectivity_cluster_rows=connectivity_cluster_rows,
         svd_rows=svd_rows,
+        lr_matching_rows=lr_matching_rows,
     )
     # free mem
     del neuron_rows

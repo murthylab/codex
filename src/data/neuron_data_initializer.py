@@ -12,6 +12,7 @@ from src.data.catalog import (
     get_cell_stats_file_columns,
     get_morphology_clusters_columns,
     get_connectivity_clusters_columns,
+    get_lr_matching_file_columns,
 )
 from src.data.neuron_data import NeuronDB
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
@@ -32,6 +33,8 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     # FlyWire identifiers. Root IDs change with every edit -> not stable across data snapshots.
     "root_id": int,
     "supervoxel_id": list,
+    # optional twin cell (LR matching)
+    "twin_root_id": int,
     # community identification labels
     "label": list,
     # generic badges for marking special cells (e.g. labeling candidates)
@@ -109,6 +112,7 @@ def initialize_neuron_data(
     morphology_cluster_rows,
     connectivity_cluster_rows,
     svd_rows,
+    lr_matching_rows,
 ):
     neuron_attributes = {}
     neuron_connection_rows = []
@@ -139,6 +143,17 @@ def initialize_neuron_data(
                 for attr_name, attr_type in NEURON_DATA_ATTRIBUTE_TYPES.items()
             }
         )
+
+    if lr_matching_rows:
+        log("App initialization processing LR matching (twins) data..")
+        assert lr_matching_rows[0] == get_lr_matching_file_columns()
+        for i, r in enumerate(lr_matching_rows[1:]):
+            twin_1 = int(r[0])
+            twin_2 = int(r[1])
+            assert twin_1 != twin_2
+            assert twin_1 in neuron_attributes and twin_2 in neuron_attributes
+            neuron_attributes[twin_1]["twin_root_id"] = twin_2
+            neuron_attributes[twin_2]["twin_root_id"] = twin_1
 
     log(
         f"App initialization processing classification data with {len(classification_rows)} rows.."
