@@ -159,6 +159,7 @@ def remove_corrected(labels_latest_to_oldest):
         " - L2 Label Incorrect",
         " - R2 Label Incorrect (spelling error)",
         "; L5 label is incorrect",
+        "; L1 label is wrong",
         "; L1 - Lamina monopolar 3; L3 is incorrect and submitted by accident",
         " (I just pasted a segment ID here and accidentally submitted. sorry)",
     ]

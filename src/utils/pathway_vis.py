@@ -2,6 +2,7 @@ from collections import defaultdict
 from functools import lru_cache
 
 from src.utils.graph_algos import pathways
+from src.utils.logging import log_error
 
 
 def sort_layers(node_layers, cons):
@@ -12,43 +13,46 @@ def sort_layers(node_layers, cons):
         layers[layer].append(node)
 
     if len(layers) > 3:
-        # node_cons: {node id: [(connected node id, weight of connection) for all connections]}
-        node_cons = defaultdict(list)
-        for con in cons:
-            node_cons[con[0]].append((con[1], con[2]))
-            node_cons[con[1]].append((con[0], con[2]))
+        try:
+            # node_cons: {node id: [(connected node id, weight of connection) for all connections]}
+            node_cons = defaultdict(list)
+            for con in cons:
+                node_cons[con[0]].append((con[1], con[2]))
+                node_cons[con[1]].append((con[0], con[2]))
 
-        # layer1_weights: {node id: total weight of node's connections to layer 2} for all layer 1 nodes
-        layer1_weights = defaultdict(int)
-        for node in layers[1]:
-            for con in node_cons[node]:
-                if node_layers[con[0]] == 2:
-                    layer1_weights[node] += con[1]
+            # layer1_weights: {node id: total weight of node's connections to layer 2} for all layer 1 nodes
+            layer1_weights = defaultdict(int)
+            for node in layers[1]:
+                for con in node_cons[node]:
+                    if node_layers[con[0]] == 2:
+                        layer1_weights[node] += con[1]
 
-        # initially sort first layer by weights from root
-        layers[1].sort(key=lambda x: layer1_weights[x], reverse=True)
+            # initially sort first layer by weights from root
+            layers[1].sort(key=lambda x: layer1_weights[x], reverse=True)
 
-        def sort_layer(sort_i, ref_i):
-            layer_ref = layers[ref_i]
-            layer_sort = layers[sort_i]
-            layer_matches = {}
-            for rnode in layer_sort:
-                best_weight = 0
-                best_node = None
-                for con in node_cons[rnode]:
-                    if node_layers[con[0]] == ref_i and con[1] > best_weight:
-                        best_weight = con[1]
-                        best_node = con[0]
-                match_pos = layer_ref.index(best_node)
-                layer_matches[rnode] = match_pos
-            layer_sort.sort(key=lambda x: layer_matches[x])
+            def sort_layer(sort_i, ref_i):
+                layer_ref = layers[ref_i]
+                layer_sort = layers[sort_i]
+                layer_matches = {}
+                for rnode in layer_sort:
+                    best_weight = 0
+                    best_node = None
+                    for con in node_cons[rnode]:
+                        if node_layers[con[0]] == ref_i and con[1] > best_weight:
+                            best_weight = con[1]
+                            best_node = con[0]
+                    match_pos = layer_ref.index(best_node)
+                    layer_matches[rnode] = match_pos
+                layer_sort.sort(key=lambda x: layer_matches[x])
 
-        # sort layer lists by best matching with prior layer
-        for i in range(1, len(layers) - 2):
-            sort_layer(i + 1, i)
+            # sort layer lists by best matching with prior layer
+            for i in range(1, len(layers) - 2):
+                sort_layer(i + 1, i)
 
-        # re-sort first layer to match second layer
-        sort_layer(1, 2)
+            # re-sort first layer to match second layer
+            sort_layer(1, 2)
+        except Exception as e:
+            log_error(f"Exception while sorting layers: {e}")
 
     # add node position in layer to node_layers
     for node in node_layers:

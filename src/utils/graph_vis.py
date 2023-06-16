@@ -204,7 +204,7 @@ def make_graph_html(
 
     def edge_width(weight):
         if large_weights or layers is not None:
-            return min(10, 50 * weight / max_syn_count)
+            return min(10, 50 * weight / (max_syn_count or 1))
         else:
             return len(str(weight))
 

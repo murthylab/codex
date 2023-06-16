@@ -281,6 +281,10 @@ class Test(TestCase):
 
     def test_remove_corrected(self):
         self.assertEqual(
+            ["T1"],
+            remove_corrected(["T1; L1 label is wrong", "L1"]),
+        )
+        self.assertEqual(
             ["Lamina monopolar 2; L2"],
             remove_corrected(["Correction: Lamina monopolar 2; L2"]),
         )

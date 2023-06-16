@@ -597,7 +597,7 @@ class NeuronDataTest(TestCase):
         for nd in self.neuron_db.neuron_data.values():
             annos = []
             for k, v in nd.items():
-                if k in ["label", "name", "marker"]:
+                if k in ["label", "name", "marker", "cell_type", "hemibrain_type"]:
                     continue
                 if isinstance(v, str):
                     annos.append(v)

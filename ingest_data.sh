@@ -10,14 +10,7 @@ if [ "$opt" = "-fast" ]; then
    python3 -m src.etl.compile_data -default_version_only
    python3 -m src.etl.pickle_data -default_version_only
    python3 -m src.etl.update_download_catalog -labels_in_default_version_only
-   python3 -m pytest tests/unit/test_catalog.py -x
-   python3 -m pytest tests/unit/test_label_cleaning.py -x
-   python3 -m pytest tests/unit/test_label_cleaning.py -x
-   python3 -m pytest tests/unit/test_neuron_data.py -x
-   python3 -m pytest tests/unit/test_neuron_data_initializer.py -x
-   python3 -m pytest tests/unit/test_optic_lobe_cell_types.py -x
-   python3 -m pytest tests/unit/test_search.py -x
-   python3 -m pytest tests/unit/test_stats_utils.py -x
+   python3 -m pytest tests/unit -x
    python3 -m pytest tests/integration/test_download_catalog.py -x
 else
    echo "Running full ingestion pipeline.."

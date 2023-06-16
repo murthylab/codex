@@ -196,7 +196,7 @@ def load_neuron_info_from_cave(client, old_content, materialization_version):
                 str(d[col_idx_dict["pt_position"]]),
                 int(d[col_idx_dict["pt_supervoxel_id"]]),
                 int(d[col_idx_dict["id"]]),
-                str(d[col_idx_dict["created"]]).split()[0],
+                str(d[col_idx_dict["created"]]).split(".")[0],
             ]
         )
 
