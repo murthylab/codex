@@ -23,53 +23,58 @@ def remove_left_right(lbl):
             "-LHS",
         ]:
             w = w.replace(bt, "")
-        for delim in [";", ":", ",", "_", "-"]:
+            w = w.strip()
+        delims = [";", ":", ",", "_", "-"]
+        for delim in delims:
             for bt in ["_l", "_r", "-l", "-r"]:
                 w = w.replace(f"{bt}{delim}", delim)
                 w = w.replace(f"{bt.upper()}{delim}", delim)
                 if w.endswith(bt) or w.endswith(bt.upper()):
                     w = w[: -len(bt)]
-        if w:
+                w = w.strip()
+        if w and w not in delims:
             clean_words.append(w)
     res = " ".join(clean_words)
-    # if res != lbl:
-    #    print(f"{lbl} ----> {res}")
     return res
 
 
 # dedupes identical parts of the label
-def remove_duplicate_tokens(lbl, delim):
-    tokens = [t.strip() for t in lbl.split(delim)]
-    tokens = [t for t in tokens if t]
-    seen_set = set()
-    new_tokens = []
-    for t in tokens:
-        if t not in seen_set:
-            seen_set.add(t)
-            new_tokens.append(t)
-    res = f"{delim} ".join(new_tokens)
-    # if res != lbl:
-    #    print(f"{lbl} ----> {res}")
+def remove_duplicate_tokens(lbl):
+    res = lbl
+    for delim in [";"]:
+        tokens = [t.strip() for t in lbl.split(delim)]
+        tokens = [t for t in tokens if t]
+        seen_set = set()
+        new_tokens = []
+        for t in tokens:
+            if t not in seen_set:
+                seen_set.add(t)
+                new_tokens.append(t)
+        if len(new_tokens) < len(tokens):
+            res = f"{delim} ".join(new_tokens)
     return res
 
 
 # removes parts that are subsumed in the rest of the label (e.g. "LC10; LC10 neuron;" -> "LC10 neuron")
-def remove_subsumed_tokens(lbl, delim):
-    tokens = [t.strip() for t in lbl.split(delim)]
-    tokens = [t for t in tokens if t]
-    new_tokens = []
-    for i, t in enumerate(tokens):
-        if i < len(tokens) - 1:
-            next_token = tokens[i + 1]
-            if (
-                next_token.startswith(f"{t}:")
-                or next_token.endswith(f" {t}")
-                or f" {t}," in next_token
-                or f" {t};" in next_token
-            ):
-                continue
-        new_tokens.append(t)
-    res = f"{delim} ".join(new_tokens)
+def remove_subsumed_tokens(lbl):
+    res = lbl
+    for delim in [";", ","]:
+        tokens = [t.strip() for t in lbl.split(delim)]
+        tokens = [t for t in tokens if t]
+        new_tokens = []
+        for i, t in enumerate(tokens):
+            if i < len(tokens) - 1:
+                next_token = tokens[i + 1]
+                if (
+                    next_token.startswith(f"{t}:")
+                    or next_token.endswith(f" {t}")
+                    or f" {t}," in next_token
+                    or f" {t};" in next_token
+                ):
+                    continue
+            new_tokens.append(t)
+        if len(new_tokens) < len(tokens):
+            res = f"{delim} ".join(new_tokens)
     return res
 
 
@@ -106,8 +111,6 @@ def remove_redundant_parts(labels, neuron_data):
                         "nerve",
                     ]
                 ]
-                + neuron_data["cell_type"]
-                + neuron_data["hemibrain_type"]
                 + [NEURO_TRANSMITTER_NAMES.get(neuron_data["nt_type"])]
             )
             if attrib
@@ -208,27 +211,58 @@ def dedupe_prefixes(labels):
                 if sep_char not in alphanum_:
                     dupe_indices.append(j)
     if dupe_indices:
-        # print(f"{labels} -->")
         labels = [lbl for i, lbl in enumerate(labels) if i not in dupe_indices]
-        # print(f"--> {labels}")
     return labels
+
+
+def dedupe_with_order(labels):
+    res = []
+    seen_set = set()
+    for lbl in labels:
+        if lbl not in seen_set:
+            seen_set.add(lbl)
+            res.append(lbl)
+    return res
+
+
+def strip_and_remove_trailing_deliimiters(labels):
+    res = []
+    delims = [";", ",", ":"]
+    for lbl in labels:
+        lbl = lbl.strip()
+        if any([lbl.endswith(delim) for delim in delims]):
+            lbl = lbl[:-1].strip()
+        res.append(lbl)
+    return res
+
+
+def space_out_deliimiters(labels):
+    res = []
+    delims = [";", ","]
+    for lbl in labels:
+        for delim in delims:
+            parts = lbl.split(delim)
+            lbl = f"{delim} ".join([p.strip() for p in parts])
+        res.append(lbl)
+    return res
 
 
 def clean_and_reduce_labels(labels_latest_to_oldest, neuron_data):
     labels = [make_web_safe(compact_label(lbl)) for lbl in labels_latest_to_oldest]
-    labels = [lbl for lbl in labels if not blacklisted(lbl)]
+    labels = [lbl.strip() for lbl in labels if not blacklisted(lbl)]
     labels = remove_redundant_parts(labels, neuron_data)
     labels = remove_corrected(labels)
     labels = [remove_left_right(lbl) for lbl in labels if lbl]
 
-    labels = [remove_duplicate_tokens(lbl, ";") for lbl in labels if lbl]
-    labels = [remove_duplicate_tokens(lbl, ",") for lbl in labels if lbl]
-    labels = [remove_subsumed_tokens(lbl, ";") for lbl in labels if lbl]
-    labels = [remove_subsumed_tokens(lbl, ",") for lbl in labels if lbl]
+    labels = [remove_duplicate_tokens(lbl) for lbl in labels if lbl]
+    labels = [remove_subsumed_tokens(lbl) for lbl in labels if lbl]
     # remove redundant once more (after the round of corrections)
     labels = remove_redundant_parts(labels, neuron_data)
-    labels = sorted(set([lbl for lbl in labels if lbl]))
+    labels = dedupe_with_order(labels)
     labels = dedupe_up_to_insignificant_chars(labels)
     labels = dedupe_prefixes(labels)
+    labels = space_out_deliimiters(labels)
+    labels = strip_and_remove_trailing_deliimiters(labels)
+    labels = dedupe_with_order(labels)
 
     return labels
