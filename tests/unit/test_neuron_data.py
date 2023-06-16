@@ -30,6 +30,7 @@ from src.utils.formatting import (
 )
 from src.utils.label_cleaning import significant_diff_chars
 from src.utils.parsing import tokenize
+from src.utils.stats import jaccard_binary
 from tests import TEST_DATA_ROOT_PATH, log_dev_url_for_root_ids
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
@@ -1081,6 +1082,8 @@ class NeuronDataTest(TestCase):
         self.assertEqual(0, diff_count)
 
     def test_mirror_twins(self):
+        twin_rids = set()
+        twin_map = {}
         for rid, nd in self.neuron_db.neuron_data.items():
             if nd["mirror_twin_root_id"]:
                 self.assertTrue(nd["side"] in ["left", "right"], nd["side"])
@@ -1088,3 +1091,30 @@ class NeuronDataTest(TestCase):
                 self.assertTrue(twin_cell["side"] in ["left", "right"])
                 self.assertNotEqual(nd["side"], twin_cell["side"])
                 self.assertEqual(rid, twin_cell["mirror_twin_root_id"])
+                twin_rids.add(rid)
+                twin_rids.add(twin_cell["root_id"])
+                twin_map[rid] = twin_cell["root_id"]
+
+        ins, outs = self.neuron_db.input_output_partner_sets()
+
+        ins = {rid: s.intersection(twin_rids) for rid, s in ins.items()}
+        outs = {rid: s.intersection(twin_rids) for rid, s in outs.items()}
+        ins_mirror = {rid: set([twin_map[rid] for rid in s]) for rid, s in ins.items()}
+        outs_mirror = {
+            rid: set([twin_map[rid] for rid in s]) for rid, s in outs.items()
+        }
+
+        jscores = []
+        for lft, rgt in twin_map.items():
+            if lft >= rgt:
+                continue
+            score = (
+                jaccard_binary(ins[lft], ins_mirror[rgt])
+                + jaccard_binary(outs[lft], outs_mirror[rgt])
+            ) / 2
+            jscores.append(score)
+        jscores.sort()
+
+        self.assertGreater(jscores[round(len(jscores) * 0.5)], 0.15)
+        self.assertGreater(jscores[round(len(jscores) * 0.75)], 0.3)
+        self.assertGreater(jscores[round(len(jscores) * 0.9)], 0.45)
