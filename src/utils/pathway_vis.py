@@ -2,7 +2,6 @@ from collections import defaultdict
 from functools import lru_cache
 
 from src.utils.graph_algos import pathways
-from src.utils.logging import log_error
 
 
 def sort_layers(node_layers, cons):
