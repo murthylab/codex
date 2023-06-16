@@ -39,7 +39,10 @@ def sort_layers(node_layers, cons):
                     best_weight = 0
                     best_node = None
                     for node_con in node_cons[rnode]:
-                        if node_layers[node_con[0]] == ref_i and node_con[1] > best_weight:
+                        if (
+                            node_layers[node_con[0]] == ref_i
+                            and node_con[1] > best_weight
+                        ):
                             best_weight = node_con[1]
                             best_node = node_con[0]
                     match_pos = layer_ref.index(best_node)
