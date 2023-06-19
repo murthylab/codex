@@ -1,7 +1,5 @@
 from unittest import TestCase
 
-from src.data.local_data_loader import unpickle_neuron_db
-from src.data.versions import TESTING_DATA_SNAPSHOT_VERSION
 from src.utils.label_cleaning import (
     remove_left_right,
     remove_duplicate_tokens,
@@ -15,15 +13,13 @@ from src.utils.label_cleaning import (
     dedupe_with_order,
     clean_and_reduce_labels,
 )
-from tests import TEST_DATA_ROOT_PATH
+from tests import get_testing_neuron_db
 
 
 class Test(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.neuron_db = unpickle_neuron_db(
-            version=TESTING_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
-        )
+        cls.neuron_db = get_testing_neuron_db()
 
         cls.raw_labels = set()
         for ld_list in cls.neuron_db.label_data.values():

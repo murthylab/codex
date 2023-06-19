@@ -1,22 +1,14 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from src.data.local_data_loader import (
-    unpickle_neuron_db,
-)
-from src.data.versions import (
-    TESTING_DATA_SNAPSHOT_VERSION,
-)
 from src.service.network import compile_network_html
-from tests import TEST_DATA_ROOT_PATH
+from tests import get_testing_neuron_db
 
 
 class ConnectivityTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.neuron_db = unpickle_neuron_db(
-            version=TESTING_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
-        )
+        cls.neuron_db = get_testing_neuron_db()
 
     def test_full_network_generation(self):
         query = "*"

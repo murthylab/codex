@@ -7,7 +7,6 @@ from unittest import TestCase
 from src.data.auto_naming import assign_names_from_annotations
 from src.data.brain_regions import REGIONS, HEMISPHERES
 from src.data.local_data_loader import (
-    unpickle_neuron_db,
     read_csv,
 )
 from src.data.neuron_data_initializer import (
@@ -22,7 +21,6 @@ from src.data.optic_lobe_cell_types import (
 from src.data.structured_search_filters import STRUCTURED_SEARCH_ATTRIBUTES
 from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
-    TESTING_DATA_SNAPSHOT_VERSION,
 )
 from src.utils.formatting import (
     make_web_safe,
@@ -31,16 +29,14 @@ from src.utils.formatting import (
 from src.utils.label_cleaning import significant_diff_chars
 from src.utils.parsing import tokenize
 from src.utils.stats import jaccard_binary
-from tests import TEST_DATA_ROOT_PATH, log_dev_url_for_root_ids
+from tests import TEST_DATA_ROOT_PATH, log_dev_url_for_root_ids, get_testing_neuron_db
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
 
 class NeuronDataTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.neuron_db = unpickle_neuron_db(
-            version=TESTING_DATA_SNAPSHOT_VERSION, data_root_path=TEST_DATA_ROOT_PATH
-        )
+        cls.neuron_db = get_testing_neuron_db()
 
     def all_annotations(self):
         for nd in self.neuron_db.neuron_data.values():
@@ -740,22 +736,90 @@ class NeuronDataTest(TestCase):
         self.assertGreater(2000, df)
 
     def test_similar_connectivity(self):
-        combined_results = 0
-        for rid in list(self.neuron_db.neuron_data.keys())[:20]:
-            combined_results += len(
-                self.neuron_db.get_similar_connectivity_cells(
-                    rid, include_downstream=False
-                )
-            )
-            combined_results += len(
-                self.neuron_db.get_similar_connectivity_cells(
-                    rid, include_upstream=False
-                )
-            )
-            combined_results += len(
-                self.neuron_db.get_similar_connectivity_cells(rid, weighted=True)
-            )
-        self.assertGreater(combined_results, 10000)
+        cell_rid = 720575940639310150
+        self.assertEqual(
+            {
+                720575940611395448: 0.3776573129251701,
+                720575940613079781: 0.14162237978330947,
+                720575940617296757: 0.1008808760775308,
+                720575940629573904: 0.10245754895423853,
+                720575940633212876: 0.1422941578692817,
+                720575940639310150: 1.0,
+            },
+            self.neuron_db.get_similar_connectivity_cells(cell_rid),
+        )
+
+        self.assertEqual(
+            {
+                720575940611395448: 0.5580357142857143,
+                720575940612919219: 0.12446351931330472,
+                720575940617296757: 0.11627906976744186,
+                720575940620975892: 0.11981566820276497,
+                720575940638306163: 0.10661764705882353,
+                720575940639310150: 1.0,
+            },
+            self.neuron_db.get_similar_connectivity_cells(
+                cell_rid, include_downstream=False
+            ),
+        )
+
+        self.assertEqual(
+            {
+                720575940611395448: 0.6313019390581718,
+                720575940612919219: 0.13367609254498714,
+                720575940613079781: 0.11390532544378698,
+                720575940617296757: 0.12254259501965924,
+                720575940620975892: 0.11640995260663507,
+                720575940629573904: 0.12778628551982305,
+                720575940633212876: 0.11902193455591514,
+                720575940639310150: 1.0,
+            },
+            self.neuron_db.get_similar_connectivity_cells(
+                cell_rid, include_downstream=False, weighted=True
+            ),
+        )
+
+    def test_similar_embeddings(self):
+        cell_rid = 720575940639310150
+        self.assertEqual(
+            {
+                720575940611395448: 0.9946819747467505,
+                720575940628445956: 0.9052906941935155,
+                720575940630857276: 0.9045391666934834,
+                720575940637468846: 0.9045594959601143,
+                720575940639310150: 1.0000000000000002,
+            },
+            self.neuron_db.get_similar_spectral_cells(cell_rid, limit=5),
+        )
+
+        self.assertEqual(
+            {
+                720575940611395448: 0.9980352471507598,
+                720575940613079781: 0.9834430769303121,
+                720575940613163286: 0.9274571235206494,
+                720575940633212876: 0.9845749911264506,
+                720575940639310150: 1.0,
+            },
+            self.neuron_db.get_similar_spectral_cells(
+                cell_rid, include_downstream=False, limit=5
+            ),
+        )
+
+        self.assertEqual(
+            {
+                720575940611395448: 0.9408080274764601,
+                720575940613079781: 0.9857815760993802,
+                720575940623889800: 0.8985033709058498,
+                720575940633212876: 0.9856090812591819,
+                720575940639310150: 0.9408301772985264,
+            },
+            self.neuron_db.get_similar_spectral_cells(
+                cell_rid,
+                include_downstream=False,
+                projected_to_root_id=720575940633212876,
+                limit=5,
+            ),
+        )
 
     def test_columnar_cell_tags(self):
         # check marked cells
