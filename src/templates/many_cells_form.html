@@ -1,14 +1,14 @@
 {% extends "base_barebones.html" %}
 
 {% block title %}
-Columnar Cells Counter
+{{title}}
 {% endblock title %}
 
 {% block base_barebones_content %}
 
 <div class="card bg-light mb-3" style="margin: 10px;" id="error">
     <div class="card-header" style="color: teal; font-size: 18px;">
-        <i class="fa-regular fa-eye"></i> Columnar Cells Counter
+        <i class="fa-regular fa-eye"></i> {{title}}
     </div>
     <div class="card-body">
         <p class="lead">{{message|safe}}</p>
@@ -19,8 +19,8 @@ Columnar Cells Counter
     <div class="card-body">
         <form style="margin-top: 10px;">
             <textarea class="form-control" id="cell_ids" rows="15" name="cell_ids"
-                      placeholder="Unlimited cell IDs"></textarea>
-            <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">Analyze
+                      placeholder="List of cell IDs"></textarea>
+            <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post" onclick="loading(event);">Go
             </button>
         </form>
     </div>

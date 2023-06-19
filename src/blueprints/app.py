@@ -582,7 +582,66 @@ def count_columnar_cells():
             )
             log_user_help(f"Counting columnar types for {len(cell_ids)} cells: {msg}")
     return render_template(
-        "count_columnar_cells.html",
+        "many_cells_form.html",
+        title="Count Columnar Cells",
+        message=msg,
+    )
+
+
+@app.route("/find_similar_cells", methods=["GET", "POST"])
+@request_wrapper
+@require_data_access
+def find_similar_cells():
+    log_activity("Finding similar cells")
+    msg = "This tool finds cells that have similar connectivity to <b>any</b> of the specified cells."
+
+    if request.method == "POST":
+        neuron_db = NeuronDataFactory.instance().get()
+        cell_ids = request.form.get("cell_ids")
+        cell_ids = tokenize(cell_ids) if cell_ids else []
+        invalid_cell_ids = []
+        for cell_id in cell_ids:
+            try:
+                neuron_db.neuron_data[int(cell_id)]
+            except Exception as e:
+                print(f"Exception: {e}")
+                invalid_cell_ids.append(cell_id)
+        if invalid_cell_ids:
+            raise ValueError(
+                f"Invalid Cell IDs (not found in v{DEFAULT_DATA_SNAPSHOT_VERSION}): {','.join(invalid_cell_ids)}"
+            )
+
+        if len(cell_ids) > 20:
+            raise ValueError(
+                f"Too many Cell IDs ({len(cell_ids)}), reduce to 20 or less"
+            )
+
+        cell_ids = set([int(cid) for cid in cell_ids])
+        similar_cell_scores = {}
+        for cell_id in cell_ids:
+            dct = neuron_db.get_similar_connectivity_cells(cell_id)
+            for k, v in dct.items():
+                if k in cell_ids:
+                    continue
+                if k not in similar_cell_scores or v > similar_cell_scores[k]:
+                    similar_cell_scores[k] = v
+
+        if similar_cell_scores:
+            msg = "Similar cells with match scores:<br>" + "<br>".join(
+                [
+                    f"<a href='search?filter_string={cell_id}'>{cell_id}</a>: {str(score)[:5]}"
+                    for cell_id, score in sorted(
+                        similar_cell_scores.items(), key=lambda p: -p[1]
+                    )[:200]
+                ]
+            )
+            log_user_help(f"Found {len(similar_cell_scores)} similar cells")
+        else:
+            msg = "No similar cells found"
+            log_user_help(f"No similar cells found for {cell_ids}")
+    return render_template(
+        "many_cells_form.html",
+        title="Find Similar Cells",
         message=msg,
     )
 

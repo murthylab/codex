@@ -62,4 +62,18 @@
     </table>
 </div>
 
+<div class="card bg-light mb-3" style="margin: 10px;" >
+    <div class="card-header">
+        Tools
+    </div>
+    <div class="card-body">
+        <li>
+            <a href="{{url_for('app.find_similar_cells')}}">Find Similar Cells</a>
+        </li>
+        <li>
+            <a href="{{url_for('app.count_columnar_cells')}}">Count Columnar Cells</a>
+        </li>
+    </div>
+</div>
+
 {% endblock content %}
