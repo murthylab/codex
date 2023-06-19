@@ -111,7 +111,9 @@ class NeuronDB(object):
 
             def apply_syn_threshold(syn_counts):
                 return {
-                    rid: cnt for rid, cnt in syn_counts.items() if cnt >= min_syn_count
+                    rid_: cnt
+                    for rid_, cnt in syn_counts.items()
+                    if cnt >= min_syn_count
                 }
 
             ins = {k: apply_syn_threshold(v) for k, v in ins.items()}

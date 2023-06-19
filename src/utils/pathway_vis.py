@@ -79,22 +79,18 @@ def pathway_chart_data_rows(source, target, neuron_db, min_syn_count=0):
             ):
                 path_edges.append((n1, n2))
 
-    combined_edge_weights = defaultdict(int)
-    connection_rows = neuron_db.connections(
-        ids=pathway_nodes.keys(), min_syn_count=min_syn_count
+    _, outs_with_synapse_counts = neuron_db.input_output_partners_with_synapse_counts(
+        min_syn_count=min_syn_count
     )
-    for r in connection_rows:
-        combined_edge_weights[(r[0], r[1])] += r[3]
 
-    data_rows = []
-    for p in path_edges:
-        data_rows.append(
-            [
-                p[0],
-                p[1],
-                combined_edge_weights[(p[0], p[1])],
-            ]
-        )
+    data_rows = [
+        [
+            p[0],
+            p[1],
+            outs_with_synapse_counts[p[0]][p[1]],
+        ]
+        for p in path_edges
+    ]
     sort_layers(pathway_nodes, data_rows)
 
     return pathway_nodes, data_rows
