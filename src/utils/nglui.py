@@ -39,10 +39,11 @@ def url_for_root_ids(
         }
 
         if position is not None:
-            view_options["position"] = [position[0] / 4, position[1] / 4, position[2]]
+            view_options["position"] = position
 
         sb = statebuilder.StateBuilder(
             layers=[img_layer, seg_layer],
+            resolution=[4, 4, 40],
             view_kws=view_options,
         )
 
