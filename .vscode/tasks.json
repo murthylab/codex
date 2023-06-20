@@ -4,12 +4,12 @@
     {
       "label": "Lint",
       "type": "shell",
-      "command": "./lint.sh"
+      "command": "./scripts/lint.sh"
     },
     {
       "label": "Unit Tests",
       "type": "shell",
-      "command": "./run_unit_tests.sh",
+      "command": "./scripts/run_unit_tests.sh",
       "group": {
         "kind": "test",
         "isDefault": true
@@ -18,7 +18,7 @@
     {
       "label": "Integration Tests",
       "type": "shell",
-      "command": "./run_integration_tests.sh",
+      "command": "./scripts/run_integration_tests.sh",
       "group": {
         "kind": "test"
       }
@@ -26,7 +26,7 @@
     {
       "label": "All Tests",
       "type": "shell",
-      "command": "./run_tests.sh",
+      "command": "./scripts/run_tests.sh",
       "group": {
         "kind": "test"
       }
@@ -34,7 +34,7 @@
     {
       "label": "Profile",
       "type": "shell",
-      "command": "./profile.sh"
+      "command": "./scripts/profile.sh"
     }
   ]
 }

@@ -21,7 +21,7 @@ We recommend using an environment manager such as [Conda](https://conda.io):
 ```sh
 conda create -n codex python=3.9
 conda activate codex
-./setup.sh
+./scripts/setup.sh
 ```
 
 Or [Poetry](https://python-poetry.org/):
@@ -41,13 +41,13 @@ CAVE_TOKEN=<your token>
 ## Run service locally
 
 ```bash
-./run_local.sh
+./scripts/run_local.sh
 ```
 
 To run in [Flask debug mode](https://flask.palletsprojects.com/en/2.2.x/debugging/#the-built-in-debugger)
 
 ```sh
-./run_local_dev.sh
+./scripts/run_local_dev.sh
 ```
 
 Navigate to [localhost:5000](http://localhost:5000)
@@ -61,31 +61,31 @@ Run service locally and click around in all pages
 ### Unit tests & code coverage (Required)
 
 ```sh
-./run_unit_tests.sh
+./scripts/run_unit_tests.sh
 ```
 
 ### Integration/perf tests (Optional, requires setup)
 
 ```sh
-./run_integration_tests.sh
+./scripts/run_integration_tests.sh
 ```
 
 ### Run unit tests, integration tests, and coverage for both
 
 ```sh
-./run_tests.sh
+./scripts/run_tests.sh
 ```
 
 ## Linting / code formatting
 
 ```sh
-./lint.sh
+./scripts/lint.sh
 ```
 
 ## Profiling
 
 ```sh
-./profile.sh
+./scripts/profile.sh
 ```
 
 ## Downloading and packaging static data
@@ -111,7 +111,7 @@ python3 -m src.etl.pickle_data
 #### Auto-deployed from the main branch
 
 ```sh
-./deploy-staging.sh
+./scripts/deploy-staging.sh
 ```
 
 ### Prod
@@ -119,7 +119,7 @@ python3 -m src.etl.pickle_data
 [codex.flywire.ai](https://codex.flywire.ai)
 
 ```sh
-./deploy.sh
+./scripts/deploy.sh
 ```
 
 ### Latest revision URL:

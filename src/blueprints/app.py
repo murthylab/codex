@@ -627,15 +627,22 @@ def find_similar_cells():
                     similar_cell_scores[k] = v
 
         if similar_cell_scores:
-            msg = "Similar cells with match scores:<br>" + "<br>".join(
+            top_k = 100
+            top_matches = sorted(similar_cell_scores.items(), key=lambda p: -p[1])[
+                :top_k
+            ]
+            flat_list_of_ids = ",".join([str(m[0]) for m in top_matches])
+            msg = f"<a href='search?filter_string={flat_list_of_ids}'>Show matches in Codex -></a>"
+            msg += f"<br><br>Flat list of matched cell IDs:<br>{flat_list_of_ids}"
+            msg += "<br><br>Individual cell IDs with match scores:<br>" + "<br>".join(
                 [
-                    f"<a href='search?filter_string={cell_id}'>{cell_id}</a>: {str(score)[:5]}"
-                    for cell_id, score in sorted(
-                        similar_cell_scores.items(), key=lambda p: -p[1]
-                    )[:200]
+                    f"<a href='search?filter_string={m[0]}'>{m[0]}</a>: {str(m[1])[:5]}"
+                    for m in top_matches
                 ]
             )
-            log_user_help(f"Found {len(similar_cell_scores)} similar cells")
+            log_user_help(
+                f"Found {len(similar_cell_scores)} similar cells, showing up to top {top_k}"
+            )
         else:
             msg = "No similar cells found"
             log_user_help(f"No similar cells found for {cell_ids}")
