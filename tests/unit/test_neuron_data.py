@@ -821,6 +821,37 @@ class NeuronDataTest(TestCase):
             ),
         )
 
+    def test_find_similar_cells(self):
+        cell_ids = [
+            720575940622318085,
+            720575940621530117,
+            720575940626205702,
+            720575940622228999,
+            720575940615192588,
+            720575940621821985,
+            720575940630901293,
+            720575940630460975,
+            720575940630439471,
+            720575940643607604,
+            720575940637524021,
+            720575940615263298,
+            720575940616575557,
+            720575940623225417,
+            720575940627010642,
+        ]
+        cell_ids = cell_ids[:100]
+        similar_cell_scores = {}
+        for cell_id in cell_ids:
+            dct = self.neuron_db.get_similar_connectivity_cells(
+                cell_id, with_same_attributes="side,super_class"
+            )
+            for k, v in dct.items():
+                if k in cell_ids:
+                    continue
+                if k not in similar_cell_scores or v > similar_cell_scores[k]:
+                    similar_cell_scores[k] = v
+        self.assertEqual(203, len(similar_cell_scores))
+
     def test_columnar_cell_tags(self):
         # check marked cells
         for rid, ndata in self.neuron_db.neuron_data.items():

@@ -611,15 +611,18 @@ def find_similar_cells():
                 f"Invalid Cell IDs (not found in v{DEFAULT_DATA_SNAPSHOT_VERSION}): {','.join(invalid_cell_ids)}"
             )
 
-        if len(cell_ids) > 20:
+        max_input_size = 150
+        if len(cell_ids) > max_input_size:
             raise ValueError(
-                f"Too many Cell IDs ({len(cell_ids)}), reduce to 20 or less"
+                f"Too many Cell IDs ({len(cell_ids)}), reduce to {max_input_size} or less"
             )
 
         cell_ids = set([int(cid) for cid in cell_ids])
         similar_cell_scores = {}
         for cell_id in cell_ids:
-            dct = neuron_db.get_similar_connectivity_cells(cell_id)
+            dct = neuron_db.get_similar_connectivity_cells(
+                cell_id, with_same_attributes="side,super_class"
+            )
             for k, v in dct.items():
                 if k in cell_ids:
                     continue

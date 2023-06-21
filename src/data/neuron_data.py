@@ -341,6 +341,7 @@ class NeuronDB(object):
         include_upstream=True,
         include_downstream=True,
         weighted=False,
+        with_same_attributes=None,
         include_score_threshold=0.2,
         min_score_threshold=0.1,
         min_score_limit=20,
@@ -367,9 +368,16 @@ class NeuronDB(object):
         upstream_filter_range = calc_range_for_threshold(upstream_filter_attr_name)
         downstream_filter_range = calc_range_for_threshold(downstream_filter_attr_name)
 
+        if with_same_attributes:
+            match_attributes = {
+                attr: self.neuron_data[root_id][attr]
+                for attr in with_same_attributes.split(",")
+            }
+        else:
+            match_attributes = None
+
         def calc_similarity_score(r, nd):
-            combined_score, num_scores = 0, 0
-            # optimization filter
+            # optimization filters
             if include_upstream and not (
                 upstream_filter_range[0]
                 <= nd[upstream_filter_attr_name]
@@ -382,7 +390,12 @@ class NeuronDB(object):
                 <= downstream_filter_range[1]
             ):
                 return 0
+            if match_attributes and not all(
+                [nd[attr] == val for attr, val in match_attributes.items()]
+            ):
+                return 0
 
+            combined_score, num_scores = 0, 0
             if include_upstream:
                 combined_score += jaccard_score(ins[root_id], ins[r])
                 num_scores += 1
