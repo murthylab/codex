@@ -13,7 +13,9 @@ from flask import (
     send_from_directory,
     Blueprint,
     jsonify,
+    make_response,
 )
+from flask_limiter import RequestLimit
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from requests import get as get_request
@@ -72,6 +74,7 @@ from src.utils.thumbnails import url_for_skeleton
 base = Blueprint("base", __name__)
 
 num_requests_processed = 0
+num_requests_rate_limited = 0
 num_request_errors = 0
 total_request_serving_time_millis = 0.0
 
@@ -225,6 +228,27 @@ def warning_with_redirect(title, message, redirect_url, redirect_button_text):
     )
 
 
+def limit_exceeded_responder(request_limit: RequestLimit):
+    global num_requests_rate_limited
+    num_requests_rate_limited += 1
+    time.sleep(3)
+    log_error(f"Rate limited: {request.endpoint} ({request_limit.limit})")
+    return make_response(
+        render_template(
+            "error.html",
+            message="Too many requests issued in a short period of time. This mechanism is in place "
+            "to prevent scripts/hacks overloading the service. Limits are generous enough "
+            "to not impact human interaction - if you believe this is not the "
+            "case please send us a message below and we'll check what happened.",
+            title="Rate limited",
+            back_button=True,
+            message_sent=False,
+            user_email=fetch_user_email(session, default_to="email missing"),
+        ),
+        429,
+    )
+
+
 @base.route("/about_codex", methods=["GET", "POST"])
 @request_wrapper
 def about_codex():
@@ -246,6 +270,7 @@ def about_codex():
         instance_uptime=uptime(millis=False),
         instance_num_requests=num_requests_processed,
         instance_error_rate=f'{float(f"{num_request_errors / max(1, num_requests_processed):.1g}"):g}',
+        instance_rate_limited_requests=num_requests_rate_limited,
         instance_mean_response_time=round(
             total_request_serving_time_millis / max(1, num_requests_processed)
         )
