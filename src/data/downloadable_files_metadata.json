@@ -7,7 +7,7 @@
       "morphology_clusters.csv.gz": 736744,
       "connectivity_clusters.csv.gz": 522912,
       "connections.csv.gz": 26124953,
-      "labels.csv.gz": 2948276,
+      "labels.csv.gz": 2951363,
       "coordinates.csv.gz": 4584155,
       "neuropil_synapse_table.csv.gz": 4490002
     },
@@ -82,17 +82,17 @@
         "col 5 - nt_type": "6 unique values"
       },
       "labels.csv.gz": {
-        "# rows": "106,178 (+ header)",
+        "# rows": "106,252 (+ header)",
         "# columns": "9",
-        "col 1 - root_id": "74,202 unique values",
-        "col 2 - label": "6,408 unique values",
+        "col 1 - root_id": "74,273 unique values",
+        "col 2 - label": "6,410 unique values",
         "col 3 - user_id": "132 unique values",
-        "col 4 - position": "85,291 unique values",
-        "col 5 - supervoxel_id": "84,580 unique values",
+        "col 4 - position": "85,365 unique values",
+        "col 5 - supervoxel_id": "84,654 unique values",
         "col 6 - label_id": "all rows contain unique values",
-        "col 7 - date_created": "32,705 unique values",
-        "col 8 - user_name": "129 unique values in 105,528 rows, empty in 650 rows",
-        "col 9 - user_affiliation": "52 unique values in 105,465 rows, empty in 713 rows"
+        "col 7 - date_created": "32,779 unique values",
+        "col 8 - user_name": "129 unique values in 105,602 rows, empty in 650 rows",
+        "col 9 - user_affiliation": "52 unique values in 105,539 rows, empty in 713 rows"
       },
       "coordinates.csv.gz": {
         "# rows": "207,700 (+ header)",
