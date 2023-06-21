@@ -6,4 +6,5 @@ google-cloud-bigquery==3.7.0
 user-agents==2.2.0
 nglui>=2.7.2
 caveclient==4.20.2
+Flask-Limiter==3.3.1
 limits==3.5.0
