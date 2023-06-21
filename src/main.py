@@ -6,7 +6,7 @@ from flask_limiter.util import get_remote_address
 
 from src.blueprints.api import api
 from src.blueprints.app import app
-from src.blueprints.base import base, limit_exceeded_responder
+from src.blueprints.base import base, limit_exceeded_responder, asset
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils.logging import log
 
@@ -20,6 +20,7 @@ limiter = Limiter(
     storage_uri="memory://",
     on_breach=limit_exceeded_responder,
 )
+limiter.exempt(asset)
 
 
 if os.environ.get("CODEX_ENABLE_PROFILING", ""):
