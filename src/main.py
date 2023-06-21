@@ -16,7 +16,7 @@ codex = Flask(__name__)
 limiter = Limiter(
     get_remote_address,
     app=codex,
-    default_limits=["3000 per day", "1000 per hour", "100 per minute", "3 per second"],
+    default_limits=["5000 per day", "2000 per hour", "200 per minute", "5 per second"],
     storage_uri="memory://",
     on_breach=limit_exceeded_responder,
 )

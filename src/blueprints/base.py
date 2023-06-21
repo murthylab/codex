@@ -35,7 +35,6 @@ from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
 )
-from src.main import limiter
 from src.utils.analytics import report_request
 from src.utils.flywire_access import extract_access_token
 from src.utils.cookies import (
@@ -167,7 +166,6 @@ OBSOLETE_ROUTE_DESTINATIONS = {
 
 
 @base.route("/favicon.ico")
-@limiter.exempt
 def favicon():
     return send_from_directory(
         os.path.join(base.root_path, "../../static"), "favicon.ico"
@@ -175,13 +173,11 @@ def favicon():
 
 
 @base.route("/background_image")
-@limiter.exempt
 def background_image():
     return asset(filename=f"bgd{randint(1, 6)}.png")
 
 
 @base.route("/asset/<path:filename>")
-@limiter.exempt
 def asset(filename):
     return send_from_directory(
         os.path.join(base.root_path, "../../static/assets"), filename
@@ -189,7 +185,6 @@ def asset(filename):
 
 
 @base.route("/styles/<path:filename>")
-@limiter.exempt
 def styles(filename):
     return send_from_directory(
         os.path.join(base.root_path, "../../static/styles"), filename
@@ -514,7 +509,6 @@ def data_access_token():
 
 @base.route("/logout", methods=["GET", "POST"])
 @request_wrapper
-@limiter.exempt
 def logout():
     log_activity("Logging out")
     delete_cookies(session)
@@ -553,7 +547,6 @@ def todo_list():
 
 @base.route("/announcement", methods=["GET"])
 @request_wrapper
-@limiter.exempt
 def announcement():
     log_activity("Loading announcement")
     return redirect(
