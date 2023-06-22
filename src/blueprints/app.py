@@ -630,7 +630,7 @@ def find_similar_cells():
                     similar_cell_scores[k] = v
 
         if similar_cell_scores:
-            top_k = 100
+            top_k = 600
             top_matches = sorted(similar_cell_scores.items(), key=lambda p: -p[1])[
                 :top_k
             ]
