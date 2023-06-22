@@ -54,13 +54,13 @@ class NeuronDataTest(TestCase):
     def test_index_data(self):
         self.assertGreater(len(self.neuron_db.neuron_data), 100000)
 
-        def check_num_values_missing(attrib, upper_bound):
+        def check_num_values_missing(attrib, expected_count):
             num_missing = len(
                 [1 for nd in self.neuron_db.neuron_data.values() if not nd[attrib]]
             )
             self.assertLessEqual(
                 num_missing,
-                upper_bound,
+                expected_count,
                 f"Too many missing values for attribute: {attrib}",
             )
 
@@ -95,6 +95,7 @@ class NeuronDataTest(TestCase):
             "connectivity_cluster": 84000,
             "marker": 102000,
             "mirror_twin_root_id": 75000,
+            "length_nm": 7,
         }
 
         for k in NEURON_DATA_ATTRIBUTE_TYPES.keys():
@@ -466,19 +467,19 @@ class NeuronDataTest(TestCase):
         self.assertEqual(expected_list, self.neuron_db.unique_values("sub_class"))
 
     def test_cell_types(self):
-        expected_list_length = 340
+        expected_list_length = 797
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("cell_type"))
         )
 
     def test_hemibrain_types(self):
-        expected_list_length = 2897
+        expected_list_length = 3080
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("hemibrain_type"))
         )
 
     def test_hemilineage(self):
-        expected_list_length = 188
+        expected_list_length = 201
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("hemilineage"))
         )
@@ -488,11 +489,12 @@ class NeuronDataTest(TestCase):
             ln = nd["length_nm"]
             area = nd["area_nm"]
             volume = nd["size_nm"]
-            self.assertGreater(ln, 1000)
-            self.assertGreater(area, 1000 * 1000)
-            self.assertGreater(volume, 1000 * 1000 * 1000)
-            self.assertGreater(area, ln)
-            self.assertGreater(volume, area + ln)
+            if ln:
+                self.assertGreater(ln, 1000)
+                self.assertGreater(area, 1000 * 1000)
+                self.assertGreater(volume, 1000 * 1000 * 1000)
+                self.assertGreater(area, ln)
+                self.assertGreater(volume, area + ln)
 
     def test_get_neuron_data(self):
         self.assertGreater(

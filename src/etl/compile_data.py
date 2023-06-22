@@ -391,7 +391,7 @@ def update_neuron_classification_table_file(version):
     side_dict = {}
     all_root_ids = set()
 
-    for f in files:
+    for f in sorted(files):
         print("----------------------------")
         if not f.endswith(".feather"):
             print(f"Skipping non feather file: {f}")
@@ -416,22 +416,12 @@ def update_neuron_classification_table_file(version):
             if excluded_values:
                 print(f"  !! excluded non proper values {dict(excluded_values)} !!")
 
-        if f == "coarse_cell_classes.feather":
-            assert f_content[0] == ["root_id", "class"]
-            load(
-                dct=class_dict,
-                tbl=f_content,
-                rid_col=f_content[0].index("root_id"),
-                val_col=f_content[0].index("class"),
-            )
-        elif f == "coarse_anno.feather":
+        if f == f"coarse_anno_{version}.feather":
             expected_columns = [
                 "root_id",
                 "flow",
                 "super_class",
                 "cell_class",
-                "cell_sub_class",
-                "cell_type",
             ]
             assert all([col in f_content[0] for col in expected_columns])
             load(
@@ -452,19 +442,31 @@ def update_neuron_classification_table_file(version):
                 rid_col=f_content[0].index("root_id"),
                 val_col=f_content[0].index("cell_class"),
             )
+        elif f == f"cell_sub_class_anno_{version}.feather":
+            expected_columns = [
+                "root_id",
+                "cell_sub_class",
+            ]
+            assert all([col in f_content[0] for col in expected_columns])
             load(
                 dct=sub_class_dict,
                 tbl=f_content,
                 rid_col=f_content[0].index("root_id"),
                 val_col=f_content[0].index("cell_sub_class"),
             )
+        elif f == f"cell_type_anno_{version}.feather":
+            expected_columns = [
+                "root_id",
+                "cell_type",
+            ]
+            assert all([col in f_content[0] for col in expected_columns])
             load(
                 dct=cell_type_dict,
                 tbl=f_content,
                 rid_col=f_content[0].index("root_id"),
                 val_col=f_content[0].index("cell_type"),
             )
-        elif f == "nerve_anno.feather":
+        elif f == f"nerve_anno_{version}.feather":
             assert all([col in f_content[0] for col in ["root_id", "nerve"]])
             load(
                 dct=nerve_dict,
@@ -472,7 +474,7 @@ def update_neuron_classification_table_file(version):
                 rid_col=f_content[0].index("root_id"),
                 val_col=f_content[0].index("nerve"),
             )
-        elif f == "side_anno.feather":
+        elif f == f"side_anno_{version}.feather":
             assert all([col in f_content[0] for col in ["root_id", "side"]])
             load(
                 dct=side_dict,
@@ -480,7 +482,7 @@ def update_neuron_classification_table_file(version):
                 rid_col=f_content[0].index("root_id"),
                 val_col=f_content[0].index("side"),
             )
-        elif f == "hemilineage_anno.feather":
+        elif f == f"hemilineage_anno_{version}.feather":
             assert all(
                 [col in f_content[0] for col in ["root_id", "ito_lee_hemilineage"]]
             )
@@ -490,7 +492,7 @@ def update_neuron_classification_table_file(version):
                 rid_col=f_content[0].index("root_id"),
                 val_col=f_content[0].index("ito_lee_hemilineage"),
             )
-        elif f == "hemibrain_anno.feather":
+        elif f == f"hemibrain_anno_{version}.feather":
             assert all([col in f_content[0] for col in ["root_id", "hemibrain_type"]])
             load(
                 dct=hemibrain_type,
@@ -537,7 +539,9 @@ def update_cell_stats_table_file(version):
         ]
     ]
 
-    fpath = raw_data_file_path(version=version, filename="meta/cell_stats.feather")
+    fpath = raw_data_file_path(
+        version=version, filename=f"meta/skeleton_stats_l2+skeletor_{version}.feather"
+    )
     if not os.path.isfile(fpath):
         print(f"File {fpath} not found. Skipping.")
         return
@@ -551,11 +555,15 @@ def update_cell_stats_table_file(version):
     size_dict = {}
     all_root_ids = set()
 
+    def isnan(vl):
+        return vl != vl
+
     def load(dct, tbl, rid_col, val_col):
         for r in tbl[1:]:
             assert r[rid_col] not in dct
-            dct[r[rid_col]] = r[val_col]
             all_root_ids.add(r[rid_col])
+            if not isnan(r[val_col]):
+                dct[r[rid_col]] = r[val_col]
 
     size_cols = ["area", "volume", "path_length"]
     assert all([col in f_content[0] for col in ["root_id"] + size_cols])
