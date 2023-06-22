@@ -12,6 +12,29 @@ DEFAULT_LIMIT = 1000
 
 EdgeConstraints = namedtuple("EdgeConstraints", "regions min_synapse_count nt_type")
 
+example_form_query = {
+  "enabledAB": "on",
+  "enabledBA": "on",
+  "enabledBC": "on",
+  "enabledCA": "on",
+  "minSynapseCountAB": "2",
+  "minSynapseCountAC": "3",
+  "minSynapseCountBA": "1",
+  "minSynapseCountBC": "6",
+  "minSynapseCountCA": "4",
+  "minSynapseCountCB": "5",
+  "queryA": "mushroom",
+  "queryB": "body",
+  "queryC": "kenyon",
+  "regionAB": "AMMC_R",
+  "regionAC": "Any",
+  "regionBA": "LH_L",
+  "regionBC": "BU_R",
+  "regionCA": "Any",
+  "regionCB": "LH_R"
+}
+
+
 
 class MotifSearchQuery(object):
     def __init__(self, neuron_data_factory=None):
@@ -21,6 +44,37 @@ class MotifSearchQuery(object):
 
     def __repr__(self):
         return f"<MotifSearchQuery with {len(self.nodes)} nodes and {len(self.edges)} edges>"
+
+
+    @classmethod
+    def from_form_query(cls, form_query, neuron_data_factory=None):
+        motif_search_query = cls(neuron_data_factory=neuron_data_factory)
+        for node_name in ["A", "B", "C"]:
+            node_query = form_query.get(f"query{node_name}")
+            if node_query == "":
+                node_query = "*"
+            motif_search_query.add_node(node_name, node_query)
+        for edge_name in ["AB", "BA", "BC", "CB", "CA", "AC"]:
+            from_node, to_node = edge_name[0], edge_name[1]
+            regions = None
+            if form_query.get(f"enabled{edge_name}") == "on":
+                region = form_query.get(f"region{edge_name}")
+                if region == "Any":
+                    region = None
+                min_synapse_count = form_query.get(f"minSynapseCount{edge_name}")
+                if min_synapse_count == "":
+                    min_synapse_count = MIN_SYN_THRESHOLD
+                nt_type = form_query.get(f"ntType{edge_name}")
+                if nt_type == "Any":
+                    nt_type = None
+                motif_search_query.add_edge(
+                    from_node,
+                    to_node,
+                    regions=regions,
+                    min_synapse_count=min_synapse_count,
+                    nt_type=nt_type,
+                )
+        return motif_search_query
 
     @classmethod
     def from_sketch_query(cls, sketch_query, neuron_data_factory=None):

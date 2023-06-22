@@ -4,6 +4,15 @@ import { useState } from "https://esm.sh/react";
 function MotifSearch({ regions, initialResults }) {
   const nodes = ["A", "B", "C"];
   const nueropils = ["Any", ...regions];
+  const NEURO_TRANSMITTER_NAMES = {
+    "DA": "dopamine",
+    "SER": "serotonin",
+    "GABA": "gabaergic",
+    "GLUT": "glutamate",
+    "ACH": "acetylcholine",
+    "OCT": "octopamine",
+}
+
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState();
   const [error, setError] = useState();
@@ -74,7 +83,7 @@ function MotifSearch({ regions, initialResults }) {
           (n) => html`
             <div className="form-group">
               <label for="node${n}">Node ${n} Query</label>
-              <input type="text" className="form-control" id="node${n}" placeholder="Enter node ${n}" />
+              <input type="text" className="form-control" name="query${n}" id="node${n}" placeholder="Enter node ${n}" />
             </div>
           `
         )}
@@ -94,8 +103,8 @@ function MotifSearch({ regions, initialResults }) {
                           <div className="col">Edge ${edge[0]} -> ${edge[1]}</div>
                           <div className="col">
                             <div class="custom-control custom-switch">
-                              <input type="checkbox" class="custom-control-input" id="customSwitch${edge}" />
-                              <label class="custom-control-label" for="customSwitch${edge}">Enabled</label>
+                              <input type="checkbox" class="custom-control-input" id="enabled${edge}" name="enabled${edge}"/>
+                              <label class="custom-control-label" for="enabled${edge}"></label>
                             </div>
                           </div>
                         </div>
@@ -103,14 +112,22 @@ function MotifSearch({ regions, initialResults }) {
 
                       <div className="card-body row">
                         <div className="form-group col">
-                          <label for="neuropil${edge}">Neuropil</label>
-                          <select class="form-control" id="neuropil${edge}" name="neuropil">
+                          <label for="neuropiljk${edge}">Region</label>
+                          <select class="form-control" id="region${edge}" name="region${edge}">
                             ${nueropils.map((r) => html`<option value=${r}>${r}</option>`)}
                           </select>
                         </div>
                         <div className="form-group col">
                           <label for="minSynapseCount${edge}">Min Synapse Count</label>
-                          <input type="number" className="form-control" id="minSynapseCount${edge}" placeholder="Enter min synapse count" />
+                          <input type="number"  className="form-control" name="minSynapseCount${edge}" id="minSynapseCount${edge}" placeholder="(Default=5)" />
+                        </div>
+                        <!-- Neurotransmitter type -->
+                        <div className="form-group col">
+                          <label for="ntType${edge}">Neurotransmitter Type</label>
+                          <select class="form-control" id="ntType${edge}" name="ntType${edge}">
+                            <option value="Any">Any</option>
+                            ${Object.keys(NEURO_TRANSMITTER_NAMES).map((r) => html`<option value=${r}>${NEURO_TRANSMITTER_NAMES[r]}</option>`)}
+                          </select>
                         </div>
                       </div>
                     </div>
@@ -121,7 +138,7 @@ function MotifSearch({ regions, initialResults }) {
           `
         )}
 
-        <button type="submit" className="btn btn-primary" onClick=${() => console.log("submit")}>Submit</button>
+        <button type="submit" className="btn btn-primary">Submit</button>
       </form>
 
       ${warning && html`<div className="alert alert-warning" role="alert">${warning}</div>`}

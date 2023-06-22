@@ -1425,28 +1425,20 @@ def my_labels():
 @request_wrapper
 @require_data_access
 def motifs():
-    if request.method == "POST":
+    if request.args:
         try:
-            data = request.get_json()
-        except Exception as e:
-            log_error(f"Error parsing request json: {e=}")
-            return {"msg": f"Error parsing request json: {e=}"}, 400
-        sketch_query = data["motifJson"]
-        try:
-            motifs_query = MotifSearchQuery.from_sketch_query(
-                sketch_query, NeuronDataFactory.instance()
-            )
+            motifs_query = MotifSearchQuery.from_form_query(request.args, NeuronDataFactory.instance())
         except Exception as e:
             log_error(f"Error parsing motif query: {e=}")
             return {"msg": f"Error parsing motif query: {e=}"}, 500
 
-        try:
+        try: 
             search_results = motifs_query.search()
-            print(search_results[0])
         except Exception as e:
             log_error(f"Error searching for motif: {e=}")
             return {"msg": f"Error searching for motif: {e=}"}, 400
-
+        
         return {"msg": "OK", "results": search_results}, 200
+
 
     return render_template("motif_search.html", regions=list(REGIONS.keys()))
