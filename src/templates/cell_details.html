@@ -81,20 +81,11 @@
         const target_library = document.getElementById("braincircuits-target-library").value;
         modal_body.innerHTML = `<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</\span></div></div>`;
         document.getElementById("brain_circuits_footer").remove()
-        fetch("{{ url_for('app.matching_lines') }}?" + new URLSearchParams({
+        window.open("{{ url_for('app.matching_lines') }}?" + new URLSearchParams({
             segment_id: '{{cell_id}}',
             target_library: target_library,
-        }))
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    modal_body.innerHTML = "<p>There was an error submitting the request. Please try again later.";
-                } else {
-                    modal_body.innerHTML = `<p>Submission Complete! The results will be sent to your email address: ${data.email}</p>`;
-                }
-            })
-
-        }
+        }), '_blank').focus();
+      }
 
 </script>
 <style>

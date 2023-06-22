@@ -98,7 +98,6 @@ def jinja_utils():
 
 @app.route("/stats")
 @request_wrapper
-@require_data_access
 def stats():
     filter_string = request.args.get("filter_string", "")
     data_version = request.args.get("data_version", "")
@@ -144,7 +143,6 @@ def stats():
 
 @app.route("/leaderboard")
 @request_wrapper
-@require_data_access
 def leaderboard():
     query = request.args.get("filter_string", "")
     log_activity("Loading Leaderboard" + (f", query: {query}" if query else ""))
@@ -161,7 +159,6 @@ def leaderboard():
 
 @app.route("/explore")
 @request_wrapper
-@require_data_access
 def explore():
     log_activity("Loading Explore page")
     data_version = request.args.get("data_version", "")
@@ -306,7 +303,6 @@ def _search_and_sort():
 
 @app.route("/search", methods=["GET"])
 @request_wrapper
-@require_data_access
 def search():
     filter_string = request.args.get("filter_string", "")
     page_number = int(request.args.get("page_number", 1))
@@ -361,7 +357,6 @@ def search():
 
 @app.route("/download_search_results")
 @request_wrapper
-@require_data_access
 def download_search_results():
     filter_string = request.args.get("filter_string", "")
     data_version = request.args.get("data_version", "")
@@ -410,7 +405,6 @@ def download_search_results():
 
 @app.route("/root_ids_from_search_results")
 @request_wrapper
-@require_data_access
 def root_ids_from_search_results():
     filter_string = request.args.get("filter_string", "")
     data_version = request.args.get("data_version", "")
@@ -430,7 +424,6 @@ def root_ids_from_search_results():
 
 @app.route("/search_results_flywire_url")
 @request_wrapper
-@require_data_access
 def search_results_flywire_url():
     filter_string = request.args.get("filter_string", "")
     data_version = request.args.get("data_version", "")
@@ -707,7 +700,6 @@ def ngl_redirect_with_browser_check(ngl_url):
 
 @app.route("/cell_coordinates/<path:cell_id>")
 @request_wrapper
-@require_data_access
 def cell_coordinates(cell_id):
     data_version = request.args.get("data_version", "")
     log_activity(f"Loading coordinates for cell {cell_id}, {data_version=}")
@@ -721,32 +713,51 @@ def cell_coordinates(cell_id):
     )
 
 
-@app.route("/cell_details", methods=["GET", "POST"])
+@app.route("/annotate_cell", methods=["GET"])
 @request_wrapper
 @require_data_access
+def annotate_cell():
+    annotation_cell_id = request.args.get("annotation_cell_id", "")
+    annotation_text = request.args.get("annotation_text", "")
+    annotation_coordinates = request.args.get("annotation_coordinates", "")
+
+    fw_user_id = fetch_flywire_user_id(session, required=True)
+    log_user_help(
+        f"Submitting annotation '{annotation_text}' for cell {annotation_cell_id} "
+        f"with user id {fw_user_id} and coordinates {annotation_coordinates}"
+    )
+    return redirect(
+        cell_identification_url(
+            cell_id=annotation_cell_id,
+            user_id=fw_user_id,
+            coordinates=annotation_coordinates,
+            annotation=annotation_text,
+        )
+    )
+
+
+@app.route("/cell_details", methods=["GET", "POST"])
+@request_wrapper
 def cell_details():
     data_version = request.args.get("data_version", "")
     reachability_stats = request.args.get("reachability_stats", 0, type=int)
     neuron_db = NeuronDataFactory.instance().get(data_version)
 
     if request.method == "POST":
+        data_version = request.args.get("data_version", "")
+        neuron_db = NeuronDataFactory.instance().get(data_version)
         annotation_text = request.form.get("annotation_text")
         annotation_coordinates = request.form.get("annotation_coordinates")
         annotation_cell_id = request.form.get("annotation_cell_id")
         if not annotation_coordinates:
             ndata = neuron_db.get_neuron_data(annotation_cell_id)
             annotation_coordinates = ndata["position"][0] if ndata["position"] else None
-        fw_user_id = fetch_flywire_user_id(session, required=True)
-        log_user_help(
-            f"Submitting annotation '{annotation_text}' for cell {annotation_cell_id} "
-            f"with user id {fw_user_id} and coordinates {annotation_coordinates}"
-        )
         return redirect(
-            cell_identification_url(
-                cell_id=annotation_cell_id,
-                user_id=fw_user_id,
-                coordinates=annotation_coordinates,
-                annotation=annotation_text,
+            url_for(
+                "app.annotate_cell",
+                annotation_cell_id=annotation_cell_id,
+                annotation_text=annotation_text,
+                annotation_coordinates=annotation_coordinates,
             )
         )
 
@@ -789,7 +800,6 @@ def cell_details():
 
 @app.route("/pathways")
 @request_wrapper
-@require_data_access
 def pathways():
     source = request.args.get("source_cell_id", type=int)
     target = request.args.get("target_cell_id", type=int)
@@ -828,7 +838,6 @@ def pathways():
 
 @app.route("/path_length")
 @request_wrapper
-@require_data_access
 def path_length():
     source_cell_names_or_ids = request.args.get("source_cell_names_or_ids", "")
     target_cell_names_or_ids = request.args.get("target_cell_names_or_ids", "")
@@ -962,7 +971,6 @@ def path_length():
 
 @app.route("/connectivity")
 @request_wrapper
-@require_data_access
 def connectivity():
     data_version = request.args.get("data_version", "")
     nt_type = request.args.get("nt_type", None)
@@ -1148,7 +1156,6 @@ def flywire_neuropil_url():
 
 @app.route("/neuropils")
 @request_wrapper
-@require_data_access
 def neuropils():
     landing = False
     selected = request.args.get("selected")
@@ -1178,7 +1185,6 @@ def neuropils():
 
 @app.route("/heatmaps")
 @request_wrapper
-@require_data_access
 def heatmaps():
     data_version = request.args.get("data_version", "")
     group_by = request.args.get("group_by")
@@ -1195,7 +1201,7 @@ def heatmaps():
     return render_template("heatmaps.html", **dct)
 
 
-@app.route("/matching_lines/")
+@app.route("/matching_lines")
 @request_wrapper
 @require_data_access
 def matching_lines():
@@ -1204,25 +1210,26 @@ def matching_lines():
     email = fetch_user_email(session)
     cave_token = fetch_flywire_token(session)
     log_activity(f"Calling BrainCircuits API with {segment_id=} {target_library=}")
-    result = None
     try:
         result = neuron2line([segment_id], target_library, email, cave_token)
         log_activity(f"BrainCircuits API call returned {result=}")
+        return render_info(
+            title="Submission complete",
+            message=f"The results will be sent to your email address: {email}",
+        )
     except requests.HTTPError as e:
         log_error(
             f"BrainCircuits API call failed with {e=}. Did you set BRAINCIRCUITS_TOKEN?"
         )
-        return {
-            "error": "BrainCircuits API call failed. Did you set BRAINCIRCUITS_TOKEN?"
-        }, e.response.status_code
     except Exception as e:
         log_error(f"BrainCircuits API call failed with error: {e=}")
-        return {"error": str(e)}, 500
-    result["email"] = email
-    return result
+
+    return render_error(
+        "There was an error submitting the request.<br>Please try again later."
+    )
 
 
-@app.route("/my_labels/")
+@app.route("/my_labels")
 @request_wrapper
 @require_data_access
 def my_labels():

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, session
 from werkzeug.utils import redirect
 
-from src.blueprints.base import request_wrapper, require_data_access, render_error
+from src.blueprints.base import request_wrapper, render_error
 from src.data.download_catalog import DOWNLOAD_CATALOG
 from src.data.versions import (
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
@@ -21,7 +21,6 @@ def jinja_utils():
 
 @api.route("/download")
 @request_wrapper
-@require_data_access
 def download():
     data_version = request.args.get("data_version", "")
     if not data_version:  # empty form - initial load

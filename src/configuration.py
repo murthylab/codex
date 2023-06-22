@@ -91,9 +91,6 @@ ADMIN_DASHBOARD_URLS = {
 
 SUPPORT_EMAIL = "arie@princeton.edu"
 
-# TODO: check all places that fetch Cave token before disabling
-REQUIRE_FLYWIRE_CAVE_TOKEN = True
-
 BUILD_GIT_SHA = os.environ.get("BUILD_GIT_SHA", "na")
 BUILD_TIMESTAMP = os.environ.get("BUILD_TIMESTAMP", "na")
 APP_ENVIRONMENT = str(os.environ.get("APP_ENVIRONMENT", "DEV"))

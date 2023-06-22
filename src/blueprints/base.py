@@ -28,7 +28,6 @@ from src.configuration import (
     ADMIN_DASHBOARD_URLS,
     MIN_SYN_THRESHOLD,
     RedirectHomeError,
-    REQUIRE_FLYWIRE_CAVE_TOKEN,
 )
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data_factory import NeuronDataFactory
@@ -140,11 +139,7 @@ def request_wrapper(func):
 def require_data_access(func):
     @wraps(func)
     def wrap(*args, **kwargs):
-        if (
-            REQUIRE_FLYWIRE_CAVE_TOKEN
-            and not is_granted_data_access(session)
-            and not should_bypass_auth()
-        ):
+        if not is_granted_data_access(session) and not should_bypass_auth():
             if request.endpoint not in [
                 "base.login",
                 "base.logout",
