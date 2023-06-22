@@ -365,8 +365,12 @@ class NeuronDB(object):
             val = self.get_neuron_data(root_id)[attr_name]
             return val * min_score_threshold, val / min_score_threshold
 
-        upstream_filter_range = calc_range_for_threshold(upstream_filter_attr_name)
-        downstream_filter_range = calc_range_for_threshold(downstream_filter_attr_name)
+        upstream_filter_lb, upstream_filter_ub = calc_range_for_threshold(
+            upstream_filter_attr_name
+        )
+        downstream_filter_lb, downstream_filter_ub = calc_range_for_threshold(
+            downstream_filter_attr_name
+        )
 
         if with_same_attributes:
             match_attributes = {
@@ -376,25 +380,29 @@ class NeuronDB(object):
         else:
             match_attributes = None
 
-        def calc_similarity_score(r, nd):
+        def filter_out(nd):
             # optimization filters
             if include_upstream and not (
-                upstream_filter_range[0]
+                upstream_filter_lb
                 <= nd[upstream_filter_attr_name]
-                <= upstream_filter_range[1]
+                <= upstream_filter_ub
             ):
-                return 0
+                return True
             if include_downstream and not (
-                downstream_filter_range[0]
+                downstream_filter_lb
                 <= nd[downstream_filter_attr_name]
-                <= downstream_filter_range[1]
+                <= downstream_filter_ub
             ):
-                return 0
+                return True
             if match_attributes and not all(
                 [nd[attr] == val for attr, val in match_attributes.items()]
             ):
-                return 0
+                return True
+            return False
 
+        def calc_similarity_score(r, nd):
+            if filter_out(nd):
+                return 0
             combined_score, num_scores = 0, 0
             if include_upstream:
                 combined_score += jaccard_score(ins[root_id], ins[r])

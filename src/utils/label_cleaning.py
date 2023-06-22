@@ -162,6 +162,7 @@ def remove_corrected(labels_latest_to_oldest):
         "; L1 label is wrong",
         "; L1 - Lamina monopolar 3; L3 is incorrect and submitted by accident",
         " (I just pasted a segment ID here and accidentally submitted. sorry)",
+        ", wrongly annotated",
     ]
     for cp in correction_suffixes:
         for i, lbl in enumerate(labels_latest_to_oldest):

@@ -296,4 +296,13 @@ def jaccard_weighted(d1, d2):
 def jaccard_binary(s1, s2):
     if not s1 and not s2:
         return 0
-    return len(s1.intersection(s2)) / len(s1.union(s2))
+    if len(s1) <= len(s2):
+        small_set, large_set = s1, s2
+    else:
+        small_set, large_set = s2, s1
+    int_size = 0
+    for e in small_set:
+        if e in large_set:
+            int_size += 1
+
+    return int_size / (len(s1) + len(s2) - int_size)
