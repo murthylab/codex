@@ -5,6 +5,7 @@ from networkx import DiGraph, connected_components, strongly_connected_component
 
 from src.data.local_data_loader import write_csv, unpickle_neuron_db, read_csv
 from src.data.neuron_data_factory import NeuronDataFactory
+from src.data.neuron_data_initializer import NEURON_DATA_ATTRIBUTE_TYPES
 from src.utils.formatting import percentage
 from networkx import Graph, community
 
@@ -137,18 +138,73 @@ def compare_versions(v1, v2):
     ndb1 = unpickle_neuron_db(version=v1)
     ndb2 = unpickle_neuron_db(version=v2)
 
-    print(
-        f"Num neurons in {v1}: {len(ndb1.neuron_data)}, {v2}: {len(ndb2.neuron_data)}"
+    if set(ndb1.neuron_data.keys()) == set(ndb2.neuron_data.keys()):
+        print(f"All {len(ndb1.neuron_data)} neuron IDs equal")
+    else:
+        print(
+            f"Num neurons in {v1}: {len(ndb1.neuron_data)}, {v2}: {len(ndb2.neuron_data)}"
+        )
+        print(
+            f"Num neurons in {v1} and {v2}: {len(set(ndb1.neuron_data.keys()) & set(ndb2.neuron_data.keys()))}"
+        )
+        print(
+            f"Num neurons in {v1} - {v2}: {len(set(ndb1.neuron_data.keys()) - set(ndb2.neuron_data.keys()))}"
+        )
+        print(
+            f"Num neurons in {v2} - {v1}: {len(set(ndb2.neuron_data.keys()) - set(ndb1.neuron_data.keys()))}"
+        )
+
+    common_neuron_rids = set(ndb1.neuron_data.keys()).intersection(
+        ndb2.neuron_data.keys()
     )
-    print(
-        f"Num neurons in {v1} and {v2}: {len(set(ndb1.neuron_data.keys()) & set(ndb2.neuron_data.keys()))}"
-    )
-    print(
-        f"Num neurons in {v1}-{v2}: {len(set(ndb1.neuron_data.keys()) - set(ndb2.neuron_data.keys()))}"
-    )
-    print(
-        f"Num neurons in {v2}-{v1}: {len(set(ndb2.neuron_data.keys()) - set(ndb1.neuron_data.keys()))}"
-    )
+    equal_attrs = []
+    for attr in NEURON_DATA_ATTRIBUTE_TYPES.keys():
+        if any(
+            [
+                r
+                for r in common_neuron_rids
+                if ndb1.neuron_data[r][attr] != ndb2.neuron_data[r][attr]
+            ]
+        ):
+            only_in_1 = len(
+                [
+                    r
+                    for r in common_neuron_rids
+                    if ndb1.neuron_data[r][attr] and not ndb2.neuron_data[r][attr]
+                ]
+            )
+            only_in_2 = len(
+                [
+                    r
+                    for r in common_neuron_rids
+                    if ndb2.neuron_data[r][attr] and not ndb1.neuron_data[r][attr]
+                ]
+            )
+            both_have_same = len(
+                [
+                    r
+                    for r in common_neuron_rids
+                    if ndb1.neuron_data[r][attr]
+                    and ndb2.neuron_data[r][attr]
+                    and ndb1.neuron_data[r][attr] == ndb2.neuron_data[r][attr]
+                ]
+            )
+            both_have_diff = len(
+                [
+                    r
+                    for r in common_neuron_rids
+                    if ndb1.neuron_data[r][attr]
+                    and ndb2.neuron_data[r][attr]
+                    and ndb1.neuron_data[r][attr] != ndb2.neuron_data[r][attr]
+                ]
+            )
+            print(
+                f"- {attr}: {both_have_same=} {both_have_diff=} {only_in_1=} {only_in_2=}"
+            )
+        else:
+            equal_attrs.append(attr)
+    if equal_attrs:
+        print(f"- all values equal for attributes {', '.join(equal_attrs)}")
 
 
 def cluster_SEZ_cells():
@@ -344,7 +400,7 @@ def cluster_by_jaccard_similarities():
 
 
 if __name__ == "__main__":
-    # compare_versions("571", "630")
+    compare_versions("630_before_anno_update", "630")
     # generate_con_jaccard_similarity_table(NeuronDataFactory.instance().get())
     # analyse_con_jaccard_similarities(NeuronDataFactory.instance().get())
-    cluster_by_jaccard_similarities()
+    # cluster_by_jaccard_similarities()
