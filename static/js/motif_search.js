@@ -1,10 +1,12 @@
 import { html } from "https://esm.sh/htm/react/index.module.js";
 import { useState } from "https://esm.sh/react";
 
-
-function MotifSearch({ regions }) {
+function MotifSearch({ regions, initialResults }) {
+  console.log(initialResults);
+  const nueropils = ["MB", "EB", "PB"];
+  const nodes = ["A", "B", "C"];
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState();
+  const [results, setResults] = useState(initialResults);
   const [error, setError] = useState();
   const [warning, setWarning] = useState();
 
@@ -68,8 +70,46 @@ function MotifSearch({ regions }) {
 
   return html`
     <div className="container-fluid h-100">
-      <p>Inner</p>
-      ${warning && html`<div className="alert alert-warning" role="alert">${warning}</div>`} ${loading && html`<div className="spinner-border" role="status"><span className="sr-only">Loading...</span></div>`}
+    <form className="mw-50">
+        ${nodes.map(
+          (n) => html`
+            <div className="form-group">
+              <label for="node${n}">Node ${n} Query</label>
+              <input type="text" className="form-control" id="node${n}" placeholder="Enter node ${n}" />
+            </div>
+          `
+        )}
+
+        ${[['AB', 'BA'], ['AC', 'CA'], ['BC', 'CB']].map((edges) => html`
+          <div className="row p-1">
+            ${edges.map((edge) => html`
+              <div className="col">
+                <div className="card">
+                  <div className="card-header">Edge ${edge[0]} -> ${edge[1]}</div>
+                  <div className="card-body">
+                    <div className="form-group">
+                      <label for="neuropil${edge}">Neuropil</label>
+                      <select class="form-control" id="neuropil${edge}" name="neuropil">
+                        ${nueropils.map((n) => html`<option value=${n}>${n}</option>`)}
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label for="minSynapseCount${edge}">Min Synapse Count</label>
+                      <input type="number" className="form-control" id="minSynapseCount${edge}" placeholder="Enter min synapse count" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `)}
+          </div>
+        `)}
+
+        <button type="submit" className="btn btn-primary" onClick=${() => console.log('submit')} >Submit</button>
+      </form>
+
+
+      ${warning && html`<div className="alert alert-warning" role="alert">${warning}</div>`}
+      ${loading && html`<div className="spinner-border" role="status"><span className="sr-only">Loading...</span></div>`}
       ${error && html`<div className="alert alert-danger" role="alert">${error}</div>`}
     </div>
     <div className="container-fluid h-100">
@@ -102,7 +142,6 @@ function Results({ results }) {
   `;
 }
 
-
 function ResultsTable({ results, selected, setSelected }) {
   const [page, setPage] = useState(0);
   const resultsPerPage = 20;
@@ -121,7 +160,6 @@ function ResultsTable({ results, selected, setSelected }) {
   const startIndex = page * resultsPerPage;
   const endIndex = startIndex + resultsPerPage;
 
-
   return html`
     <table className="table table-hover">
       <thead>
@@ -134,10 +172,9 @@ function ResultsTable({ results, selected, setSelected }) {
         ${results.slice(startIndex, endIndex).map((r, i) => html`<${TableRow} key=${i} result=${r} index=${i} selected=${selected} onRowClick=${setSelected} />`)}
       </tbody>
     </table>
-    <${PaginationControls} totalPages=${totalPages} currentPage=${page} onPageChange=${handlePageChange} maxVisiblePages=${maxVisiblePages} /> 
+    <${PaginationControls} totalPages=${totalPages} currentPage=${page} onPageChange=${handlePageChange} maxVisiblePages=${maxVisiblePages} />
   `;
 }
-
 
 function TableRow({ result, index, selected, onRowClick }) {
   const isActive = index === selected;
@@ -153,11 +190,11 @@ function TableRow({ result, index, selected, onRowClick }) {
             <a title="Click to open in Cell Info" target="_blank" href="/app/cell_details?root_id=${cell.id}">${cell.name}</a>
             <p className="small">${cell.id}</p>
           </td>`
-  )}
-    <td>
-      <button title="Copy Cell ID's" className="btn btn-outline-primary btn-sm" onClick=${() => navigator.clipboard.writeText(cell_ids.join(","))}>
-      <i className="fas fa-copy"></i>
-      </button>
+      )}
+      <td>
+        <button title="Copy Cell ID's" className="btn btn-outline-primary btn-sm" onClick=${() => navigator.clipboard.writeText(cell_ids.join(","))}>
+          <i className="fas fa-copy"></i>
+        </button>
       </td>
     </tr>
   `;
@@ -205,7 +242,9 @@ function PaginationControls({ totalPages, currentPage, onPageChange, maxVisibleP
           </button>
         </li>
         ${visiblePages.map((page) =>
-          page < 0 ? html`<li key=${page} className="page-item disabled"><span className="page-link">...</span></li>` : html`<${PaginationButton} key=${page} page=${page} currentPage=${currentPage} onClick=${onPageChange} />`
+          page < 0
+            ? html`<li key=${page} className="page-item disabled"><span className="page-link">...</span></li>`
+            : html`<${PaginationButton} key=${page} page=${page} currentPage=${currentPage} onClick=${onPageChange} />`
         )}
         <li className="page-item ${currentPage === totalPages - 1 ? "disabled" : ""}">
           <button className="page-link" onClick=${() => onPageChange(currentPage + 1)}>
@@ -217,7 +256,6 @@ function PaginationControls({ totalPages, currentPage, onPageChange, maxVisibleP
   `;
 }
 
-
 function PaginationButton({ page, currentPage, onClick }) {
   return html`
     <li className="page-item ${page === currentPage ? "active" : ""}">
@@ -225,7 +263,6 @@ function PaginationButton({ page, currentPage, onClick }) {
     </li>
   `;
 }
-
 
 function rootIdsFromResult(result) {
   return Object.values(result.nodes).map((v) => v.id);
