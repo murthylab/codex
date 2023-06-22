@@ -2,11 +2,10 @@ import { html } from "https://esm.sh/htm/react/index.module.js";
 import { useState } from "https://esm.sh/react";
 
 function MotifSearch({ regions, initialResults }) {
-  console.log(initialResults);
-  const nueropils = ["MB", "EB", "PB"];
   const nodes = ["A", "B", "C"];
+  const nueropils = ["Any", ...regions];
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState(initialResults);
+  const [results, setResults] = useState();
   const [error, setError] = useState();
   const [warning, setWarning] = useState();
 
@@ -70,7 +69,7 @@ function MotifSearch({ regions, initialResults }) {
 
   return html`
     <div className="container-fluid h-100">
-    <form className="mw-50">
+      <form className="mw-50">
         ${nodes.map(
           (n) => html`
             <div className="form-group">
@@ -79,34 +78,51 @@ function MotifSearch({ regions, initialResults }) {
             </div>
           `
         )}
+        ${[
+          ["AB", "BA"],
+          ["AC", "CA"],
+          ["BC", "CB"],
+        ].map(
+          (edges) => html`
+            <div className="row p-1">
+              ${edges.map(
+                (edge) => html`
+                  <div className="col">
+                    <div className="card">
+                      <div className="card-header">
+                        <div className="row">
+                          <div className="col">Edge ${edge[0]} -> ${edge[1]}</div>
+                          <div className="col">
+                            <div class="custom-control custom-switch">
+                              <input type="checkbox" class="custom-control-input" id="customSwitch${edge}" />
+                              <label class="custom-control-label" for="customSwitch${edge}">Enabled</label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-        ${[['AB', 'BA'], ['AC', 'CA'], ['BC', 'CB']].map((edges) => html`
-          <div className="row p-1">
-            ${edges.map((edge) => html`
-              <div className="col">
-                <div className="card">
-                  <div className="card-header">Edge ${edge[0]} -> ${edge[1]}</div>
-                  <div className="card-body">
-                    <div className="form-group">
-                      <label for="neuropil${edge}">Neuropil</label>
-                      <select class="form-control" id="neuropil${edge}" name="neuropil">
-                        ${nueropils.map((n) => html`<option value=${n}>${n}</option>`)}
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label for="minSynapseCount${edge}">Min Synapse Count</label>
-                      <input type="number" className="form-control" id="minSynapseCount${edge}" placeholder="Enter min synapse count" />
+                      <div className="card-body row">
+                        <div className="form-group col">
+                          <label for="neuropil${edge}">Neuropil</label>
+                          <select class="form-control" id="neuropil${edge}" name="neuropil">
+                            ${nueropils.map((r) => html`<option value=${r}>${r}</option>`)}
+                          </select>
+                        </div>
+                        <div className="form-group col">
+                          <label for="minSynapseCount${edge}">Min Synapse Count</label>
+                          <input type="number" className="form-control" id="minSynapseCount${edge}" placeholder="Enter min synapse count" />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            `)}
-          </div>
-        `)}
+                `
+              )}
+            </div>
+          `
+        )}
 
-        <button type="submit" className="btn btn-primary" onClick=${() => console.log('submit')} >Submit</button>
+        <button type="submit" className="btn btn-primary" onClick=${() => console.log("submit")}>Submit</button>
       </form>
-
 
       ${warning && html`<div className="alert alert-warning" role="alert">${warning}</div>`}
       ${loading && html`<div className="spinner-border" role="status"><span className="sr-only">Loading...</span></div>`}
