@@ -63,7 +63,7 @@ DOWNLOADABLE_ARCHIVE_FILES = {
         "bounded within a 3D bounding box, for compactness this table only provides coordinates of "
         "a single point in the detected bounding box. Also for compactness, empty pre/post id "
         "columns should be inferred by looking up in the table at the last non-empty value "
-        "respectively. Contact flywire@princeton.ai if you need access to more accurate synapse coordinates.",
+        "respectively. Contact flywire@princeton.edu if you need access to more accurate synapse coordinates.",
         "file_url": "https://storage.googleapis.com/flywire-data/codex/data/630/synapse_coordinates.csv.gz",
         "file_format": DOWNLOADABLE_FILE_FORMAT,
         "file_size": 281523733,
