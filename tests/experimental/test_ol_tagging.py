@@ -4,6 +4,7 @@ from collections import defaultdict
 from unittest import TestCase
 
 from src.data.brain_regions import REGIONS
+from src.utils.stats import jaccard_binary
 
 from tests import get_testing_neuron_db
 
@@ -1808,3 +1809,53 @@ class OlTaggingTest(TestCase):
         print(f"All ins list: {len(all_ins)}, set: {len(set(all_ins))}")
         print(f"All outs list: {len(all_outs)}, set: {len(set(all_outs))}")
         print(f"Ins/Outs intersection: {len(set(all_ins).intersection(all_outs))}")
+
+    def test_jaccard_in_class_vs_out_of_class(self):
+        ol_types = {}
+        for rid, nd in self.neuron_db.neuron_data.items():
+            if nd["side"] != "right":
+                continue
+            for mrk in nd["marker"]:
+                if mrk.startswith("columnar"):
+                    ol_types[rid] = mrk.split(":")[1]
+                    break
+
+        ol_rids = list(ol_types.keys())
+        random.shuffle(ol_rids)
+        same_type_jscores = []
+        diff_type_jscores = []
+        same_type_sscores = []
+        diff_type_sscores = []
+        ins, outs = self.neuron_db.input_output_partner_sets()
+        for i in range(10000):
+            rid1 = ol_rids[2 * i]
+            rid2 = ol_rids[2 * i + 1]
+            sscore = self.neuron_db.svd.calculate_cosine_similarity(
+                rid1, rid2, up=True, down=True
+            )
+            jscore = (
+                jaccard_binary(ins[rid1], ins[rid2])
+                + jaccard_binary(outs[rid1], outs[rid2])
+            ) / 2
+
+            if ol_types[rid1] == ol_types[rid2]:
+                same_type_jscores.append(jscore)
+                if sscore is not None:
+                    same_type_sscores.append(sscore)
+            else:
+                diff_type_jscores.append(jscore)
+                if sscore is not None:
+                    diff_type_sscores.append(sscore)
+
+        print(
+            f"Same type avg Jac score: {sum(same_type_jscores) / len(same_type_jscores)}"
+        )
+        print(
+            f"Diff type avg Jac score: {sum(diff_type_jscores) / len(diff_type_jscores)}"
+        )
+        print(
+            f"Same type avg Emb score: {sum(same_type_sscores) / len(same_type_sscores)}"
+        )
+        print(
+            f"Diff type avg Emb score: {sum(diff_type_sscores) / len(diff_type_sscores)}"
+        )
