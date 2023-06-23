@@ -7,6 +7,8 @@ MIN_NBLAST_SCORE_SIMILARITY = 4
 MAX_NEURONS_FOR_DOWNLOAD = 100
 MAX_NODES_FOR_PATHWAY_ANALYSIS = 10
 
+ASSIGN_NAMES_FROM_ANNOTATIONS = False
+
 DOWNLOADABLE_FILE_EXTENSION = ".csv.gz"
 DOWNLOADABLE_FILE_FORMAT = "compressed CSV file (gzip)"
 # take care of various working directories (tests, local app, cloud app, update scripts)

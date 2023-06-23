@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from src.configuration import ASSIGN_NAMES_FROM_ANNOTATIONS
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
 
@@ -78,19 +79,20 @@ def assign_names_from_annotations(neuron_data):
 
     for rid, nd in neuron_data.items():
         cell_tokens = set()
-        for lb in nd["label"]:
-            for part in extract_label_parts(lb, with_subparts=False):
-                if is_valid_token(part, canonic_coarse_annos):
-                    cell_tokens.add(part)
-        for t in nd["cell_type"] + nd["hemibrain_type"]:
-            if is_valid_token(t, canonic_coarse_annos):
-                cell_tokens.add(t)
-        if not cell_tokens:
-            # try split labels further, sometimes identifiers are separated from free text with "," insteas ";"
+        if ASSIGN_NAMES_FROM_ANNOTATIONS:
             for lb in nd["label"]:
-                for part in extract_label_parts(lb, with_subparts=True):
+                for part in extract_label_parts(lb, with_subparts=False):
                     if is_valid_token(part, canonic_coarse_annos):
                         cell_tokens.add(part)
+            for t in nd["cell_type"] + nd["hemibrain_type"]:
+                if is_valid_token(t, canonic_coarse_annos):
+                    cell_tokens.add(t)
+            if not cell_tokens:
+                # try split labels further, sometimes identifiers are separated from free text with "," insteas ";"
+                for lb in nd["label"]:
+                    for part in extract_label_parts(lb, with_subparts=True):
+                        if is_valid_token(part, canonic_coarse_annos):
+                            cell_tokens.add(part)
         if cell_tokens:
             # if there are tokens differing only by case, default to one (the first occurance)
             cell_tokens = set([make_canonic(t) for t in cell_tokens])
