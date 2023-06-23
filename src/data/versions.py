@@ -1,5 +1,5 @@
 DATA_SNAPSHOT_VERSION_DESCRIPTIONS = {
-    "630": "Snapshot 630 - Apr 2023 [RC]",
+    "630": "Snapshot 630 - Apr 2023 [latest release]",
     "571": "Snapshot 571 - Jan 2023",
 }
 
