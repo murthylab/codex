@@ -6,6 +6,7 @@ from src.data.neuron_data_factory import NeuronDataFactory
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.data.structured_search_filters import parse_search_query
 from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
+from src.data.neuron_data import NeuronDB
 
 MAX_NODES = 3
 DEFAULT_LIMIT = 1000
@@ -228,31 +229,31 @@ class MotifSearchQuery(object):
 
     @staticmethod
     def _fetch_feasible_connections(
-        neuron_db, candidate_sets_list, edge_constraints_list
+        neuron_db: NeuronDB, candidate_sets_list, edge_constraints_list
     ):
         # collect all relevant connections (matching the superset of edge constraints)
         regions = set()
-        nt_types = set()
-        min_syn_cnt = None
+        nt_type = None
+        min_syn_count = None
         for ec in edge_constraints_list:
             if not ec:
                 continue
             if ec.min_synapse_count:
-                min_syn_cnt = (
+                min_syn_count = (
                     ec.min_synapse_count
-                    if min_syn_cnt is None
-                    else min(min_syn_cnt, ec.min_synapse_count)
+                    if min_syn_count is None
+                    else min(min_syn_count, ec.min_synapse_count)
                 )
             if ec.regions:
                 regions |= set(ec.regions)
-            if ec.nt_type:
-                nt_types.add(ec.nt_type)
+            if ec.nt_type: # bit of a hack - we only support a single NT type for now
+                nt_type = ec.nt_type
         candidate_connections = neuron_db.connections(
             ids=set.union(*candidate_sets_list),
             induced=True,
-            MIN_SYN_THRESHOLD=min_syn_cnt,
+            min_syn_count=min_syn_count,
             regions=regions or None,
-            nt_types=nt_types or None,
+            nt_type=nt_type or None,
         )
 
         # further filter out connections where both endpoints are from the same candidate set

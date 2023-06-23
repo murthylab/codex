@@ -58,16 +58,17 @@ class Connections(object):
             pils_predicate=lambda pil: pil in self.rid_to_pils[rid],
         )
 
-    def rows_for_set(self, rids, min_syn_count=None, nt_type=None):
+    def rows_for_set(self, rids, min_syn_count=None, nt_type=None, regions=None):
         rids_set = set(rids)
         return self._rows_from_predicates(
             rids_predicate=lambda x, y: x in rids_set or y in rids_set,
             syn_cnt_predicate=(lambda x: x >= min_syn_count) if min_syn_count else None,
             nt_type_predicate=(lambda x: x == nt_type) if nt_type else None,
+            pils_predicate=(lambda pil: pil in regions) if regions else None,
         )
 
     def rows_between_sets(
-        self, source_rids, target_rids, min_syn_count=None, nt_type=None
+        self, source_rids, target_rids, min_syn_count=None, nt_type=None, regions=None
     ):
         source_rids_set = set(source_rids)
         target_rids_set = set(target_rids)
@@ -75,6 +76,7 @@ class Connections(object):
             rids_predicate=lambda x, y: x in source_rids_set and y in target_rids_set,
             syn_cnt_predicate=(lambda x: x >= min_syn_count) if min_syn_count else None,
             nt_type_predicate=(lambda x: x == nt_type) if nt_type else None,
+            pils_predicate=(lambda pil: pil in regions) if regions else None,
         )
 
     def _rows_from_predicates(

@@ -3,7 +3,7 @@ import re
 from collections import defaultdict
 from datetime import datetime
 import requests
-
+import os
 
 from flask import (
     render_template,
@@ -92,6 +92,10 @@ from src.data.structured_search_filters import get_advanced_search_data
 from src.data.braincircuits import neuron2line
 
 from src.service.motif_search import MotifSearchQuery
+
+
+DEBUG = os.environ.get("FLASK_DEBUG") or os.environ.get("APP_ENVIRONMENT") == "DEBUG"
+
 
 app = Blueprint("app", __name__, url_prefix="/app")
 
@@ -1429,14 +1433,20 @@ def motifs():
         try:
             motifs_query = MotifSearchQuery.from_form_query(request.args, NeuronDataFactory.instance())
         except Exception as e:
-            log_error(f"Error parsing motif query: {e=}")
-            return {"msg": f"Error parsing motif query: {e=}"}, 500
+            error = f"Error parsing motif query: {e=}"
+            log_error(error)
+            if DEBUG:
+                raise
+            return {"msg": error}, 500
 
         try: 
             search_results = motifs_query.search()
         except Exception as e:
-            log_error(f"Error searching for motif: {e=}")
-            return {"msg": f"Error searching for motif: {e=}"}, 400
+            error = f"Error searching for motif: {e=}"
+            log_error(error)
+            if DEBUG:
+                raise
+            return {"msg": error}, 400
         
         return {"msg": "OK", "results": search_results}, 200
 
