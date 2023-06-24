@@ -281,7 +281,7 @@ def about_codex():
 @base.route("/about_flywire", methods=["GET", "POST"])
 @request_wrapper
 def about_flywire():
-    log_activity("Loading FlyWire Connectome page")
+    log_activity("Loading FlyWire Credits page")
     return render_template(
         "about_flywire.html",
     )

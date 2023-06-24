@@ -54,10 +54,8 @@ FAQ_QA_KB = {
     },
     "names": {
         "q": "Where did the cell names originate?",
-        "a": "Cell names were assigned automatically. They contain three parts: most prominent input neuropils (brain "
-        "region), most prominent output neuropil, and a running number (to make names unique). Just the first two "
-        "parts define a grouping of cells based on max in / max out neuropil, and this grouping is also available "
-        'in the <a href="/app/explore">Explore</a> page. Note of caution: this naming scheme '
+        "a": "Cell names were assigned automatically based on neuropils (brain regions) where the cells have most "
+        "of their synapstic connections. Note of caution: this naming scheme "
         "will be carried forward with next releases, so as proofreading continues names of certain cells might "
         "change over time.",
     },
@@ -67,11 +65,6 @@ FAQ_QA_KB = {
         "The remaining neurons were assigned to the central brain if they had more than 100 connections in the "
         "central brain (vs the optic lobe), and to the optic lobe otherwise. As cell identification efforts "
         "progress, these classes will evolve too over time.",
-    },
-    "typing": {
-        "q": "Is there additional cell-typing info available?",
-        "a": "Scientist from Jefferis Lab are working on mapping Hemibrain types and other annotations to the FlyWire "
-        "connectome. Once this work is complete we'll surface the data in Codex.",
     },
     "connectivity": {
         "q": "How is connectivity between a pair of cells determined?",

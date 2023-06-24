@@ -1229,6 +1229,34 @@ def matching_lines():
     )
 
 
+@app.route("/labeling_log")
+@request_wrapper
+def labeling_log():
+    root_id = request.args.get("root_id")
+    log_activity(f"Loading labling log for {root_id}")
+    root_id = int(root_id)
+    neuron_db = NeuronDataFactory.instance().get()
+    nd = neuron_db.get_neuron_data(root_id)
+    labels_data = neuron_db.get_label_data(root_id=root_id)
+    labeling_log = [
+        f'<small><b>{ld["label"]}</b> - labeled by {ld["user_name"]}'
+        + (f' from {ld["user_affiliation"]}' if ld["user_affiliation"] else "")
+        + f' on {ld["date_created"]}</small>'
+        for ld in sorted(
+            labels_data or [], key=lambda x: x["date_created"], reverse=True
+        )
+    ]
+
+    def format_log(labels):
+        return "<br>".join([f"&nbsp; <b>&#x2022;</b> &nbsp; {t}" for t in labels])
+
+    return render_info(
+        title=f"Labeling Info & Credits<br><small style='color:teal'>&nbsp;  &nbsp;  &nbsp; {nd['name']}  &#x2022;  {nd['root_id']}</small>",
+        message=format_log(labeling_log)
+        + f"<br><br>Last synced: <b>{neuron_db.labels_ingestion_timestamp()}</b>",
+    )
+
+
 @app.route("/my_labels")
 @request_wrapper
 @require_data_access

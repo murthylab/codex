@@ -27,7 +27,8 @@ def url_for_root_ids(
 
         seg_layer = statebuilder.SegmentationLayerConfig(
             name="Production segmentation",
-            source="graphene://https://prodv1.flywire-daf.com/segmentation/table/fly_v31",
+            # source="graphene://https://prodv1.flywire-daf.com/segmentation/table/fly_v31",  # requires prod access
+            source="graphene://https://prodv1.flywire-daf.com/segmentation/1.0/flywire_public",
             fixed_ids=root_ids,
         )
 

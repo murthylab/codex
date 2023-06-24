@@ -35,16 +35,6 @@ def cached_cell_details(
     cell_names_or_id, root_id, neuron_db, data_version, reachability_stats
 ):
     nd = neuron_db.get_neuron_data(root_id=root_id)
-    labels_data = neuron_db.get_label_data(root_id=root_id)
-    labeling_log = sorted(
-        set(
-            [
-                f'<small>{ld["date_created"]}: <b>{ld["label"]}</b>, {ld["user_name"]}, {ld["user_affiliation"]}</small>'
-                for ld in labels_data or []
-            ]
-        ),
-        reverse=True,
-    )
     pos = (
         nanometer_to_flywire_coordinates(nd["position"][0]) if nd["position"] else None
     )
@@ -108,9 +98,10 @@ def cached_cell_details(
                 if nd[cl]
             ]
         ),
-        "Identification Labels": concat_labels(nd["label"]),
-        f'Labeling log<br><small style="color: green"><b>{neuron_db.labels_ingestion_timestamp()}</b></small>': concat_labels(
-            labeling_log
+        "Community Labels<br><small>"
+        f'<a href="{url_for("app.labeling_log", root_id=root_id)}">'
+        'info & credits <i class="fa-solid fa-up-right-from-square"></i></a></small>': concat_labels(
+            nd["label"]
         ),
     }
 
