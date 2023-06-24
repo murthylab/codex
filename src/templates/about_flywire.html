@@ -19,27 +19,35 @@ About
         <ul>
             <li>FlyWire <a href="https://flywire.ai/tos.html">Terms of Service and Privacy</a> notice</li>
             <li>When using the FlyWire resource in a publication, please cite the applicable papers as outlined
-                in <a href="https://docs.google.com/spreadsheets/d/1eOPxOYoalArVDIhzVis3CsKjETzkdFkRtXSHHY3XdSU/edit#gid=0"
+                in <a href="https://docs.google.com/spreadsheets/d/1eOPxOYoalArVDIhzVis3CsKjETzkdFkRtXSHHY3XdSU"
                       target="_blank">this table</a></li>
             <li>
                 When using FlyWire data pre-publication, please follow
-                the instructions in <a href="https://docs.google.com/document/d/1bUkOB-5JnT3u__JDvAoVDHJ3zr5NXQtV_63yx2w6Tcc/edit"
+                the instructions in <a href="https://docs.google.com/document/d/1bUkOB-5JnT3u__JDvAoVDHJ3zr5NXQtV_63yx2w6Tcc"
                                        target="_blank">this doc</a> (pre-publication access refers to using the
                 latest data in production which has not been made available to the public yet)</li>
-            <li><b>Supported by BRAIN Initiative grant MH117815, MH129268 and U24 NS126935 to Murthy and Seung</b></li>
+            <li>Supported by BRAIN Initiative grant MH117815, MH129268 and U24 NS126935 to Murthy and Seung</li>
         </ul>
         <h6>Data Sources</h6>
         <ul>
             <li>Cell segments were auto-generated from electron-microscopy images with AI</li>
             <li>Cell reconstructions were assembled from segments (proofread) by the FlyWire community (see <a href="https://flywire.ai" target="_blank">FlyWire</a>)</li>
-            <li>Synaptic connections were automatically detected using the <a href="https://www.nature.com/articles/s41592-021-01183-7">Buhmann et al.</a> method</li>
+            <li>Synaptic connections were automatically detected using the <a href="https://www.nature.com/articles/s41592-021-01183-7">Buhmann et al.</a> method and refined with synapse segmentations from <a href="https://link.springer.com/chapter/10.1007/978-3-030-00934-2_36">Heinrich et al.</a></li>
             <li>Free-form labels (cell identification tags) were provided by the FlyWire community - see the <a href="{{url_for('app.leaderboard')}}">labeling leaderboard</a> and detailed credits in each cell info page</li>
             <li>Hierarchical annotations (side, flow, super class, cell class, cell type, Hemibrain type, nerve and hemi-lineage) were provided by Schlegel et al. (Jefferis lab)</li>
             <li>Neurotransmitter types were predicted by <a href="https://www.biorxiv.org/content/10.1101/2020.06.12.148775v2">Eckstein, Bates et al.</a></li>
             <li>Morphological similarity scores (NBLAST based) were computed for the central brain cells by Philipp Schlegel</li>
-            <li>Refer to <a href="https://docs.google.com/spreadsheets/d/1eOPxOYoalArVDIhzVis3CsKjETzkdFkRtXSHHY3XdSU/edit#gid=0"
-                               target="_blank">this table</a> or contact <a href="mailto:flywire@princeton.edu">flywire@princeton.edu</a> for additional info / questions on data credits</li>
+            <li>Refer to the table below or contact <a href="mailto:flywire@princeton.edu">flywire@princeton.edu</a> for additional info / questions on data credits</li>
         </ul>
+    </div>
+</div>
+<div class="card bg-light mb-3" style="margin: 10px;">
+    <div class="card-header" style="color: purple; font-size: 18px;">
+        Citation Guidelines
+    </div>
+    <div class="card-body" style="padding: 0px;" >
+        <iframe style="width: 100%; height: 500px;" src="https://docs.google.com/spreadsheets/d/1eOPxOYoalArVDIhzVis3CsKjETzkdFkRtXSHHY3XdSU" title="citation credits"
+                loading="lazy"></iframe>
     </div>
 </div>
 {% endblock content %}
