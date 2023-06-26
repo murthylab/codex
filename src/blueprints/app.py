@@ -1254,6 +1254,7 @@ def labeling_log():
         title=f"Labeling Info & Credits<br><small style='color:teal'>&nbsp;  &nbsp;  &nbsp; {nd['name']}  &#x2022;  {nd['root_id']}</small>",
         message=format_log(labeling_log)
         + f"<br><br>Last synced: <b>{neuron_db.labels_ingestion_timestamp()}</b>",
+        back_button=0,
     )
 
 

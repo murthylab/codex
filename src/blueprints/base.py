@@ -531,9 +531,11 @@ def render_error(
     return redirect(f"/error?message={message}&title={title}&back_button={back_button}")
 
 
-def render_info(title="Info", message="Operation complete."):
+def render_info(title="Info", message="Operation complete.", back_button=1):
     log_activity(f"Rendering info: {truncate(message, 100, include_length=True)}")
-    return render_template("info.html", title=title, message=message)
+    return render_template(
+        "info.html", title=title, message=message, back_button=back_button
+    )
 
 
 @base.route("/todo_list", methods=["GET"])

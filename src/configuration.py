@@ -39,9 +39,12 @@ DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS = {
     "FlyWire Root IDs of the connected pair ('pre/from' and 'post/to' respectively), the third column contains the "
     "neuropil abbreviation, the fourth contains the number of synapses (aggregated across all connection sites of "
     "the respective pair and neuropil), and the fifth column contains the predicted NT type for the synapses.",
-    "labels": "Identification tags (labeled by FlyWire community). "
-    "Community identification labels with additional information including the author and their affiliation. "
-    "One cell might contain zero or more identification labels.",
+    "labels": "Community identification labels / tags, updated daily. Includes information about contributors and "
+    "their affiliation. "
+    "Each cell (root_id) might have zero or more labels assigned to it - hence the 'root_id' column is not unique. "
+    "Additionally, this table contains raw labels, as they were submitted by the FlyWire community. The "
+    "labels displayed in Codex are processed / refined (de-duplicated, with corrected and redundant "
+    "parts stripped when applicable).",
     "coordinates": "Marked neuron coordinates. "
     "FlyWire Supervoxel IDs and position coordinates for cells in the dataset. One cell might have zero or more "
     "marked coordinates and supervoxel IDs.",
