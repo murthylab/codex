@@ -649,21 +649,57 @@ def find_similar_cells():
     )
 
 
+@app.route("/find_unlabeled_cells", methods=["GET", "POST"])
+@request_wrapper
+@require_data_access
+def find_unlabeled_cells():
+    log_activity("Finding unlabeled cells")
+    msg = "This tool finds unlabeled cells. Just provide a list of cell IDs and it'll print out the unlabeled subset."
+
+    if request.method == "POST":
+        neuron_db = NeuronDataFactory.instance().get()
+        cell_ids = request.form.get("cell_ids")
+        cell_ids = tokenize(cell_ids) if cell_ids else []
+        cell_ids = set(cell_ids)
+        invalid_cell_ids = []
+        unlabeled_cell_ids = []
+        for cell_id in cell_ids:
+            try:
+                nd = neuron_db.neuron_data[int(cell_id)]
+                if not nd["label"]:
+                    unlabeled_cell_ids.append(cell_id)
+            except Exception:
+                invalid_cell_ids.append(cell_id)
+        if unlabeled_cell_ids:
+            msg = "Unlabeled cells:<br>" + ", ".join(unlabeled_cell_ids)
+        else:
+            msg = "No Unlabeled cells found"
+        if invalid_cell_ids:
+            msg += "<br><br>Invalid cells:<br>" + ", ".join(invalid_cell_ids)
+
+        log_user_help(f"Found {len(unlabeled_cell_ids)} out of {len(cell_ids)}")
+    return render_template(
+        "many_cells_form.html",
+        title="Find Unlabeled Cells",
+        message=msg,
+    )
+
+
 @app.route("/flywire_url")
 @request_wrapper
 def flywire_url():
     root_ids = [int(rid) for rid in request.args.getlist("root_ids")]
     data_version = request.args.get("data_version", "")
     log_request = request.args.get("log_request", default=1, type=int)
-    proofreading_url = request.args.get("proofreading_url", default=0, type=int)
+    point_to = request.args.get("point_to")
     url = nglui.url_for_root_ids(
         root_ids,
         version=data_version or DEFAULT_DATA_SNAPSHOT_VERSION,
-        point_to_proofreading_flywire=proofreading_url,
+        point_to=point_to,
     )
     if log_request:
         log_activity(
-            f"Redirecting for {len(root_ids)} root ids to FlyWire, {proofreading_url=}"
+            f"Redirecting for {len(root_ids)} root ids to FlyWire, {point_to=}"
         )
     return ngl_redirect_with_browser_check(ngl_url=url)
 

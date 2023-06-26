@@ -107,9 +107,9 @@
     </div>
     <div class="card-body">
         The Flywire Root ID you searched for is not part of the data snapshot loaded in Codex (see more details below).
-        You can still try to load it in Flywire viewer and map to one of the cells in this dataset manually.
+        If you have access to FlyWire production data, you can load it in Flywire viewer and map to one of the cells in this dataset manually.
         <p><br><a class="btn btn-outline-primary"
-       href="{{url_for('app.flywire_url', root_ids=filter_string, proofreading_url=1)}}" target="_blank"
+       href="{{url_for('app.flywire_url', root_ids=filter_string, point_to='flywire_prod')}}" target="_blank"
        ><i class="fa-solid fa-cube"></i> &nbsp; Open in Flywire</a></p>
     </div>
 </div>

@@ -11,24 +11,32 @@ from src.data.versions import (
 from src.utils.logging import log_error
 
 
-def url_for_root_ids(
-    root_ids, version, point_to_proofreading_flywire=False, position=None
-):
+def url_for_root_ids(root_ids, version, point_to="ngl", position=None):
     if version not in DATA_SNAPSHOT_VERSION_DESCRIPTIONS:
         log_error(
             f"Invalid version '{version}' passed to 'url_for_root_ids'. Falling back to default."
         )
         version = DEFAULT_DATA_SNAPSHOT_VERSION
-    if point_to_proofreading_flywire:
+    if point_to in ["flywire_prod", "flywire_public"]:
         img_layer = statebuilder.ImageLayerConfig(
             name="EM",
             source="precomputed://gs://microns-seunglab/drosophila_v0/alignment/vector_fixer30_faster_v01/v4/image_stitch_v02",
         )
 
+        seg_layer_name = (
+            "Production segmentation"
+            if point_to == "flywire_prod"
+            else "Public segmentation"
+        )
+        seg_layer_source = (
+            "graphene://https://prodv1.flywire-daf.com/segmentation/table/fly_v31"
+            if point_to == "flywire_prod"
+            else "graphene://https://prodv1.flywire-daf.com/segmentation/1.0/flywire_public"
+        )
+
         seg_layer = statebuilder.SegmentationLayerConfig(
-            name="Production segmentation",
-            # source="graphene://https://prodv1.flywire-daf.com/segmentation/table/fly_v31",  # requires prod access
-            source="graphene://https://prodv1.flywire-daf.com/segmentation/1.0/flywire_public",
+            name=seg_layer_name,
+            source=seg_layer_source,
             fixed_ids=root_ids,
         )
 
@@ -49,7 +57,10 @@ def url_for_root_ids(
         )
 
         config = sb.render_state(return_as="dict")
-        config["selectedLayer"] = {"layer": "Production segmentation", "visible": True}
+        config["selectedLayer"] = {
+            "layer": seg_layer_name,
+            "visible": True,
+        }
 
         return f"https://ngl.flywire.ai/#!{urllib.parse.quote(json.dumps(config))}"
     else:

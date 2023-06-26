@@ -41,7 +41,7 @@ def cached_cell_details(
     fw_url = nglui.url_for_root_ids(
         root_ids=[root_id],
         version=data_version or DEFAULT_DATA_SNAPSHOT_VERSION,
-        point_to_proofreading_flywire=True,
+        point_to="flywire_public",
         position=pos,
     )
     cell_attributes = {
