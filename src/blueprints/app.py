@@ -92,9 +92,9 @@ from src.data.structured_search_filters import get_advanced_search_data
 from src.data.braincircuits import neuron2line
 
 from src.service.motif_search import MotifSearchQuery
+from src.configuration import APP_ENVIRONMENT
 
-
-DEBUG = os.environ.get("FLASK_DEBUG") or os.environ.get("APP_ENVIRONMENT") == "DEBUG"
+DEBUG = APP_ENVIRONMENT == "DEV"
 
 
 app = Blueprint("app", __name__, url_prefix="/app")
@@ -1435,8 +1435,7 @@ def motifs():
         except Exception as e:
             error = f"Error parsing motif query: {e=}"
             log_error(error)
-            if DEBUG:
-                raise
+
             return {"msg": error}, 500
 
         try: 
@@ -1444,11 +1443,10 @@ def motifs():
         except Exception as e:
             error = f"Error searching for motif: {e=}"
             log_error(error)
-            if DEBUG:
-                raise
-            return {"msg": error}, 400
+
+            return render_template("motif_search.html",  regions=list(REGIONS.keys()), results=[], error=error)
 
         return render_template("motif_search.html",  regions=list(REGIONS.keys()), results=search_results)
 
 
-    return render_template("motif_search.html", regions=list(REGIONS.keys()))
+    return render_template("motif_search.html", regions=list(REGIONS.keys()), results=[], error=None)

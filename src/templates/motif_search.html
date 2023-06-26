@@ -1,9 +1,25 @@
 {% extends "base.html" %} {% block title %}Motif Search{% endblock title %} {% block content %}
+<div class="card" style="margin: 15px;">
+    <div class="card-header" style="color: purple;">
+        What is this?
+    </div>
+    <div class="card-body">
+        Using this, you can search 
+        <br><br>
+        <button class="btn btn btn-outline-success my-2 my-sm-0" type="button">
+            Try Example Query
+        </button>
+    </div>
+</div>
 <div id="root" class="h-100">Loading...</div>
 <script type="module">
   import { render } from "https://esm.sh/react-dom";
   import { createElement } from "https://esm.sh/react";
   import MotifSearch  from "/js/motif_search.js";
-  render(createElement(() => MotifSearch({regions: {{ regions | tojson }}, initialResults: {{ results | tojson }}})), document.getElementById("root"));
+  render(createElement(() => MotifSearch({regions: {{ regions | tojson }}, 
+                                          initialResults: {{ results | tojson }},
+                                          initialError: {{ error | tojson }}
+                                          })),
+                                          document.getElementById("root"));
 </script>
 {% endblock content %}

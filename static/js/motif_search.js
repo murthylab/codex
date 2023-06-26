@@ -1,21 +1,21 @@
 import { html } from "https://esm.sh/htm/react/index.module.js";
 import { useState } from "https://esm.sh/react";
 
-function MotifSearch({ regions, initialResults }) {
+function MotifSearch({ regions, initialResults, initalError}) {
   const nodes = ["A", "B", "C"];
   const nueropils = ["Any", ...regions];
   const NEURO_TRANSMITTER_NAMES = {
-    "DA": "dopamine",
-    "SER": "serotonin",
-    "GABA": "gabaergic",
-    "GLUT": "glutamate",
-    "ACH": "acetylcholine",
-    "OCT": "octopamine",
-}
+    DA: "dopamine",
+    SER: "serotonin",
+    GABA: "gabaergic",
+    GLUT: "glutamate",
+    ACH: "acetylcholine",
+    OCT: "octopamine",
+  };
 
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(initialResults);
-  const [error, setError] = useState();
+  const [error, setError] = useState(initalError);
   const [warning, setWarning] = useState();
 
   const attributes = {
@@ -37,56 +37,19 @@ function MotifSearch({ regions, initialResults }) {
     NodeFields: { search_query: { label: "Search Query", operators: ["equal"], type: "text" } },
   };
 
-  async function processRequest(motifJson, lim) {
-    if (motifJson.nodes === undefined || motifJson.nodes.length < 2) {
-      setWarning("Please add at least two nodes and one edge to the motif.");
-      return;
-    }
-    if (motifJson.nodes.length > 3) {
-      setWarning("Please add at most three nodes to the motif.");
-      return;
-    }
-    if (motifJson.edges === undefined || motifJson.edges.length < 1) {
-      setWarning("Please add at least one edge to the motif.");
-      return;
-    }
-    setWarning();
-    setError(null);
-    setResults(null);
-    setLoading(true);
-    const requestInit = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ motifJson }),
-    };
-    try {
-      const response = await fetch("/app/motifs/", requestInit);
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data["msg"]);
-      } else {
-        console.log(data);
-        setResults(data.results);
-      }
-    } catch (error) {
-      setError("There was an error fetching Motif results. Try narrowing your search.");
-    }
-    setLoading(false);
-  }
-
   return html`
     <div className="container-fluid h-100">
       <form className="mw-50">
-        ${nodes.map(
-          (n) => html`
-            <div className="form-group">
-              <label for="node${n}">Node ${n} Query</label>
-              <input type="text" className="form-control" name="query${n}" id="node${n}" placeholder="Enter node ${n}" />
-            </div>
-          `
-        )}
+        <div className="row">
+          ${nodes.map(
+            (n) => html`
+              <div className="form-group col">
+                <label for="node${n}">Node ${n} Query</label>
+                <input type="text" className="form-control" name="query${n}" id="node${n}" placeholder="Enter node ${n}" />
+              </div>
+            `
+          )}
+        </div>
         ${[
           ["AB", "BA"],
           ["AC", "CA"],
@@ -103,7 +66,7 @@ function MotifSearch({ regions, initialResults }) {
                           <div className="col">Edge ${edge[0]} -> ${edge[1]}</div>
                           <div className="col">
                             <div class="custom-control custom-switch">
-                              <input type="checkbox" class="custom-control-input" id="enabled${edge}" name="enabled${edge}"/>
+                              <input type="checkbox" class="custom-control-input" id="enabled${edge}" name="enabled${edge}" />
                               <label class="custom-control-label" for="enabled${edge}"></label>
                             </div>
                           </div>
@@ -119,7 +82,7 @@ function MotifSearch({ regions, initialResults }) {
                         </div>
                         <div className="form-group col">
                           <label for="minSynapseCount${edge}">Min Synapse Count</label>
-                          <input type="number"  className="form-control" name="minSynapseCount${edge}" id="minSynapseCount${edge}" placeholder="(Default=5)" />
+                          <input type="number" className="form-control" name="minSynapseCount${edge}" id="minSynapseCount${edge}" placeholder="(Default=5)" />
                         </div>
                         <!-- Neurotransmitter type -->
                         <div className="form-group col">
@@ -137,8 +100,10 @@ function MotifSearch({ regions, initialResults }) {
             </div>
           `
         )}
+        <div className="d-flex justify-content-center">
+          <button type="submit" className="btn btn-primary">Submit</button>
+        </div>
 
-        <button type="submit" className="btn btn-primary">Submit</button>
       </form>
 
       ${warning && html`<div className="alert alert-warning" role="alert">${warning}</div>`}
