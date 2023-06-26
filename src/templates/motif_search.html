@@ -4,53 +4,6 @@
   import { render } from "https://esm.sh/react-dom";
   import { createElement } from "https://esm.sh/react";
   import MotifSearch  from "/js/motif_search.js";
-  const results = {{            [
-                {
-                    "edges": [
-                        {
-                            "from": "a",
-                            "nt_type": "ACH",
-                            "region": "SMP_L",
-                            "syn_count": 19,
-                            "to": "b",
-                        }
-                    ],
-                    "nodes": {
-                        "a": {"id": "720575940613871046", "name": "SMP_L.FLA_R.3"},
-                        "b": {"id": "720575940622839786", "name": "SMP_L.FLA_L.17"},
-                    },
-                },
-                {
-                    "edges": [
-                        {
-                            "from": "a",
-                            "nt_type": "ACH",
-                            "region": "SMP_L",
-                            "syn_count": 7,
-                            "to": "b",
-                        }
-                    ],
-                    "nodes": {
-                        "a": {"id": "720575940617779029", "name": "SMP_L.FLA_R.6"},
-                        "b": {"id": "720575940622839786", "name": "SMP_L.FLA_L.17"},
-                    },
-                },
-                {
-                    "edges": [
-                        {
-                            "from": "a",
-                            "nt_type": "ACH",
-                            "region": "SMP_L",
-                            "syn_count": 5,
-                            "to": "b",
-                        }
-                    ],
-                    "nodes": {
-                        "a": {"id": "720575940612808086", "name": "SMP_L.SMP_L.128"},
-                        "b": {"id": "720575940622839786", "name": "SMP_L.FLA_L.17"},
-                    },
-                },
-            ] | tojson }}
-  render(createElement(() => MotifSearch({regions: {{ regions | tojson }}, initialResults: results})), document.getElementById("root"));
+  render(createElement(() => MotifSearch({regions: {{ regions | tojson }}, initialResults: {{ results | tojson }}})), document.getElementById("root"));
 </script>
 {% endblock content %}

@@ -1447,8 +1447,8 @@ def motifs():
             if DEBUG:
                 raise
             return {"msg": error}, 400
-        
-        return {"msg": "OK", "results": search_results}, 200
+
+        return render_template("motif_search.html",  regions=list(REGIONS.keys()), results=search_results)
 
 
     return render_template("motif_search.html", regions=list(REGIONS.keys()))

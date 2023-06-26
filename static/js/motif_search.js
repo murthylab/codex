@@ -14,7 +14,7 @@ function MotifSearch({ regions, initialResults }) {
 }
 
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState();
+  const [results, setResults] = useState(initialResults);
   const [error, setError] = useState();
   const [warning, setWarning] = useState();
 
