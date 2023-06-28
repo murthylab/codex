@@ -504,19 +504,19 @@ STRUCTURED_SEARCH_OPERATORS = [
     UnarySearchOperator(
         name=OP_SIMILAR_EMBEDDING_UPSTREAM,
         shorthand="~su",
-        description="Unary, matches cells that have similar spectral decomposition upstream of specified Cell ID",
+        description="Unary, matches cells that have similar input vector embeddings to specified Cell ID",
         rhs_description="Cell ID",
     ),
     UnarySearchOperator(
         name=OP_SIMILAR_EMBEDDING_DOWNSTREAM,
         shorthand="~sd",
-        description="Unary, matches cells that have similar spectral decomposition downstream of specified Cell ID",
+        description="Unary, matches cells that have similar output vector embeddings to specified Cell ID",
         rhs_description="Cell ID",
     ),
     UnarySearchOperator(
         name=OP_SIMILAR_EMBEDDING,
         shorthand="~sc",
-        description="Unary, matches cells that have similar spectral decomposition (both up and downstream) to specified Cell ID",
+        description="Unary, matches cells that have similar input/output vector embeddings to specified Cell ID",
         rhs_description="Cell ID",
     ),
     BinarySearchOperator(
