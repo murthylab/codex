@@ -468,19 +468,19 @@ class NeuronDataTest(TestCase):
         self.assertEqual(expected_list, self.neuron_db.unique_values("sub_class"))
 
     def test_cell_types(self):
-        expected_list_length = 797
+        expected_list_length = 1393
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("cell_type"))
         )
 
     def test_hemibrain_types(self):
-        expected_list_length = 3080
+        expected_list_length = 3231
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("hemibrain_type"))
         )
 
     def test_hemilineage(self):
-        expected_list_length = 201
+        expected_list_length = 203
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("hemilineage"))
         )
@@ -1200,3 +1200,37 @@ class NeuronDataTest(TestCase):
         self.assertGreater(jscores[round(len(jscores) * 0.5)], 0.15)
         self.assertGreater(jscores[round(len(jscores) * 0.75)], 0.3)
         self.assertGreater(jscores[round(len(jscores) * 0.9)], 0.45)
+
+    def test_curated_mirror_twins(self):
+        cb_types = defaultdict(list)
+        for rid, nd in self.neuron_db.neuron_data.items():
+            for ct in nd["cell_type"]:
+                if ct.startswith("CB0"):
+                    cb_types[ct].append(nd)
+
+        self.assertEqual(602, len(cb_types))
+        mismatches = 0
+        for k, v in cb_types.items():
+            if k not in ["CB0566"]:  # known side annotation issues
+                self.assertEqual(["left", "right"], sorted([nd["side"] for nd in v]), k)
+            nd1, nd2 = v[0], v[1]
+            if (
+                nd1["mirror_twin_root_id"]
+                and nd1["mirror_twin_root_id"] != nd2["root_id"]
+            ):
+                mismatches += 1
+                log_dev_url_for_root_ids(
+                    "m1, 1, 2",
+                    [nd1["mirror_twin_root_id"], nd1["root_id"], nd2["root_id"]],
+                )
+            if (
+                nd2["mirror_twin_root_id"]
+                and nd2["mirror_twin_root_id"] != nd1["root_id"]
+            ):
+                mismatches += 1
+                log_dev_url_for_root_ids(
+                    "m2, 1, 2",
+                    [nd2["mirror_twin_root_id"], nd1["root_id"], nd2["root_id"]],
+                )
+        # TODO: make this 0
+        self.assertEqual(29, mismatches)

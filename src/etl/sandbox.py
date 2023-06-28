@@ -166,20 +166,18 @@ def compare_versions(v1, v2):
                 if ndb1.neuron_data[r][attr] != ndb2.neuron_data[r][attr]
             ]
         ):
-            only_in_1 = len(
-                [
-                    r
-                    for r in common_neuron_rids
-                    if ndb1.neuron_data[r][attr] and not ndb2.neuron_data[r][attr]
-                ]
-            )
-            only_in_2 = len(
-                [
-                    r
-                    for r in common_neuron_rids
-                    if ndb2.neuron_data[r][attr] and not ndb1.neuron_data[r][attr]
-                ]
-            )
+            only_in_1 = [
+                ndb1.neuron_data[r][attr]
+                for r in common_neuron_rids
+                if ndb1.neuron_data[r][attr] and not ndb2.neuron_data[r][attr]
+            ]
+
+            only_in_2 = [
+                ndb2.neuron_data[r][attr]
+                for r in common_neuron_rids
+                if ndb2.neuron_data[r][attr] and not ndb1.neuron_data[r][attr]
+            ]
+
             both_have_same = len(
                 [
                     r
@@ -189,17 +187,20 @@ def compare_versions(v1, v2):
                     and ndb1.neuron_data[r][attr] == ndb2.neuron_data[r][attr]
                 ]
             )
-            both_have_diff = len(
-                [
-                    r
-                    for r in common_neuron_rids
-                    if ndb1.neuron_data[r][attr]
-                    and ndb2.neuron_data[r][attr]
-                    and ndb1.neuron_data[r][attr] != ndb2.neuron_data[r][attr]
-                ]
-            )
+            both_have_diff = [
+                f"{ndb1.neuron_data[r][attr]} vs {ndb2.neuron_data[r][attr]}"
+                for r in common_neuron_rids
+                if ndb1.neuron_data[r][attr]
+                and ndb2.neuron_data[r][attr]
+                and ndb1.neuron_data[r][attr] != ndb2.neuron_data[r][attr]
+            ]
+
             print(
-                f"- {attr}: {both_have_same=} {both_have_diff=} {only_in_1=} {only_in_2=}"
+                f"- {attr}:"
+                f"\n   Both have same: {both_have_same}"
+                f"\n   Both have diff {len(both_have_diff)}: {both_have_diff[:500]}"
+                f"\n   Only in 1 {len(only_in_1)}: {only_in_1[:500]}"
+                f"\n   Only in 2 {len(only_in_2)}: {only_in_2[:500]}"
             )
         else:
             equal_attrs.append(attr)
@@ -400,7 +401,7 @@ def cluster_by_jaccard_similarities():
 
 
 if __name__ == "__main__":
-    compare_versions("630_before_anno_update", "630")
+    compare_versions("630_before_cb_matches", "630")
     # generate_con_jaccard_similarity_table(NeuronDataFactory.instance().get())
     # analyse_con_jaccard_similarities(NeuronDataFactory.instance().get())
     # cluster_by_jaccard_similarities()
