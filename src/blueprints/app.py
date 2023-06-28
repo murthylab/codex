@@ -573,7 +573,7 @@ def count_columnar_cells():
                     for p in sorted(counts.items(), key=lambda x: -x[1])
                 ]
             )
-            log_user_help(f"Counting columnar types for {len(cell_ids)} cells: {msg}")
+            log_activity(f"Counting columnar types for {len(cell_ids)} cells: {msg}")
     return render_template(
         "many_cells_form.html",
         title="Count Columnar Cells",
@@ -636,12 +636,12 @@ def find_similar_cells():
                     for m in top_matches
                 ]
             )
-            log_user_help(
+            log_activity(
                 f"Found {len(similar_cell_scores)} similar cells, showing up to top {top_k}"
             )
         else:
             msg = "No similar cells found"
-            log_user_help(f"No similar cells found for {cell_ids}")
+            log_activity(f"No similar cells found for {cell_ids}")
     return render_template(
         "many_cells_form.html",
         title="Find Similar Cells",
@@ -677,7 +677,9 @@ def find_unlabeled_cells():
         if invalid_cell_ids:
             msg += "<br><br>Invalid cells:<br>" + ", ".join(invalid_cell_ids)
 
-        log_user_help(f"Found {len(unlabeled_cell_ids)} out of {len(cell_ids)}")
+        log_activity(
+            f"Found {len(unlabeled_cell_ids)} unlabeled cells out of {len(cell_ids)}"
+        )
     return render_template(
         "many_cells_form.html",
         title="Find Unlabeled Cells",

@@ -557,7 +557,6 @@ def announcement():
 
 
 @base.route("/demo_clip", methods=["GET"])
-@request_wrapper
 def demo_clip():
     log_activity("Loading demo clips")
     return redirect("https://www.youtube.com/@flywireprinceton4189/search?query=codex")
