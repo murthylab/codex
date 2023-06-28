@@ -274,9 +274,9 @@ OP_SIMILAR_CONNECTIVITY = "{similar_connectivity}"
 OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED = "{similar_upstream_weighted}"
 OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED = "{similar_downstream_weighted}"
 OP_SIMILAR_CONNECTIVITY_WEIGHTED = "{similar_connectivity_weighted}"
-OP_SIMILAR_SPECTRAL_UPSTREAM = "{similar_spectral_upstream}"
-OP_SIMILAR_SPECTRAL_DOWNSTREAM = "{similar_spectral_downstream}"
-OP_SIMILAR_SPECTRAL = "{similar_spectral}"
+OP_SIMILAR_EMBEDDING_UPSTREAM = "{similar_embedding_upstream}"
+OP_SIMILAR_EMBEDDING_DOWNSTREAM = "{similar_embedding_downstream}"
+OP_SIMILAR_EMBEDDING = "{similar_embedding}"
 OP_PROJECTED_EMBEDDING = "{projected_embedding}"
 OP_PATHWAYS = "{pathways}"
 OP_AND = "{and}"
@@ -502,19 +502,19 @@ STRUCTURED_SEARCH_OPERATORS = [
         rhs_description="Cell ID",
     ),
     UnarySearchOperator(
-        name=OP_SIMILAR_SPECTRAL_UPSTREAM,
+        name=OP_SIMILAR_EMBEDDING_UPSTREAM,
         shorthand="~su",
         description="Unary, matches cells that have similar spectral decomposition upstream of specified Cell ID",
         rhs_description="Cell ID",
     ),
     UnarySearchOperator(
-        name=OP_SIMILAR_SPECTRAL_DOWNSTREAM,
+        name=OP_SIMILAR_EMBEDDING_DOWNSTREAM,
         shorthand="~sd",
         description="Unary, matches cells that have similar spectral decomposition downstream of specified Cell ID",
         rhs_description="Cell ID",
     ),
     UnarySearchOperator(
-        name=OP_SIMILAR_SPECTRAL,
+        name=OP_SIMILAR_EMBEDDING,
         shorthand="~sc",
         description="Unary, matches cells that have similar spectral decomposition (both up and downstream) to specified Cell ID",
         rhs_description="Cell ID",
@@ -654,7 +654,7 @@ def _make_predicate(
     connections_loader,
     similar_cells_loader,
     similar_connectivity_loader,
-    similar_spectral_loader,
+    similar_embedding_loader,
     case_sensitive,
 ):
     lhs = structured_term.get("lhs")  # lhs is optional e.g. for unary operators
@@ -774,16 +774,16 @@ def _make_predicate(
                 f"Invalid cell id '{rhs}' in operator '{op}', error: {e}"
             )
     elif op in [
-        OP_SIMILAR_SPECTRAL,
-        OP_SIMILAR_SPECTRAL_DOWNSTREAM,
-        OP_SIMILAR_SPECTRAL_UPSTREAM,
+        OP_SIMILAR_EMBEDDING,
+        OP_SIMILAR_EMBEDDING_DOWNSTREAM,
+        OP_SIMILAR_EMBEDDING_UPSTREAM,
     ]:
         try:
             cell_id = int(rhs)
-            target_rid_dict = similar_spectral_loader(
+            target_rid_dict = similar_embedding_loader(
                 cell_id,
-                include_upstream=op != OP_SIMILAR_SPECTRAL_DOWNSTREAM,
-                include_downstream=op != OP_SIMILAR_SPECTRAL_UPSTREAM,
+                include_upstream=op != OP_SIMILAR_EMBEDDING_DOWNSTREAM,
+                include_downstream=op != OP_SIMILAR_EMBEDDING_UPSTREAM,
             )
             return lambda x: x["root_id"] in target_rid_dict
         except ValueError as e:
@@ -796,7 +796,7 @@ def _make_predicate(
         try:
             from_cell_id = int(lhs)
             to_cell_id = int(rhs)
-            target_rid_dict = similar_spectral_loader(
+            target_rid_dict = similar_embedding_loader(
                 root_id=from_cell_id,
                 projected_to_root_id=to_cell_id,
                 include_upstream=True,
@@ -834,7 +834,7 @@ def make_structured_terms_predicate(
     connections_loader,
     similar_cells_loader,
     similar_connectivity_loader,
-    similar_spectral_loader,
+    similar_embedding_loader,
     case_sensitive,
 ):
     predicates = [
@@ -845,7 +845,7 @@ def make_structured_terms_predicate(
             connections_loader=connections_loader,
             similar_cells_loader=similar_cells_loader,
             similar_connectivity_loader=similar_connectivity_loader,
-            similar_spectral_loader=similar_spectral_loader,
+            similar_embedding_loader=similar_embedding_loader,
             case_sensitive=case_sensitive,
         )
         for t in structured_terms

@@ -6,16 +6,19 @@ Norms = namedtuple("Norms", "up down up_down")
 
 class Svd(object):
     def __init__(self, svd_table):
+        print(f"Table columns: {svd_table[0]}")
+
         self.up_vec_len = int((len(svd_table[0]) - 1) / 2)
         self.down_vec_len = int((len(svd_table[0]) - 1) / 2)
 
-        assert svd_table[0] == ["root_id"] + [
-            f"up{i + 1}" for i in range(0, self.up_vec_len)
-        ] + [f"down{i + 1}" for i in range(0, self.down_vec_len)]
+        up_columns = [f"up{i + 1}" for i in range(0, self.up_vec_len)]
+        down_columns = [f"down{i + 1}" for i in range(0, self.up_vec_len)]
+        assert sorted(svd_table[0]) == sorted(["root_id"] + up_columns + down_columns)
+        col_index = {c: i for i, c in enumerate(svd_table[0])}
 
         self.vecs = {
-            int(r[0]): [
-                float(r[i + 1]) for i in range(0, self.up_vec_len + self.down_vec_len)
+            int(r[col_index["root_id"]]): [
+                float(r[col_index[c]]) for c in up_columns + down_columns
             ]
             for r in svd_table[1:]
         }

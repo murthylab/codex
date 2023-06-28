@@ -11,9 +11,9 @@ from src.data.structured_search_filters import (
     OP_SIMILAR_CONNECTIVITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
     OP_SIMILAR_CONNECTIVITY,
-    OP_SIMILAR_SPECTRAL_UPSTREAM,
-    OP_SIMILAR_SPECTRAL_DOWNSTREAM,
-    OP_SIMILAR_SPECTRAL,
+    OP_SIMILAR_EMBEDDING_UPSTREAM,
+    OP_SIMILAR_EMBEDDING_DOWNSTREAM,
+    OP_SIMILAR_EMBEDDING,
 )
 from src.utils.graph_algos import reachable_nodes
 from src.utils.logging import log_error, log
@@ -40,9 +40,9 @@ SORTABLE_OPS = {
     OP_SIMILAR_CONNECTIVITY: JACCARD_SIMILARITY,
     OP_SIMILAR_CONNECTIVITY_UPSTREAM: JACCARD_SIMILARITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM: JACCARD_SIMILARITY_DOWNSTREAM,
-    OP_SIMILAR_SPECTRAL: COSINE_SIMILARITY,
-    OP_SIMILAR_SPECTRAL_UPSTREAM: COSINE_SIMILARITY_UPSTREAM,
-    OP_SIMILAR_SPECTRAL_DOWNSTREAM: COSINE_SIMILARITY_DOWNSTREAM,
+    OP_SIMILAR_EMBEDDING: COSINE_SIMILARITY,
+    OP_SIMILAR_EMBEDDING_UPSTREAM: COSINE_SIMILARITY_UPSTREAM,
+    OP_SIMILAR_EMBEDDING_DOWNSTREAM: COSINE_SIMILARITY_DOWNSTREAM,
     None: ITEM_COUNT,
 }
 
@@ -106,7 +106,7 @@ def sort_search_results(
     partner_count_getter,
     similar_shape_cells_getter,
     similar_connectivity_cells_getter,
-    similar_spectral_cells_getter,
+    similar_embedding_cells_getter,
     connections_getter,
     sort_by=None,
 ):
@@ -276,7 +276,7 @@ def sort_search_results(
                 COSINE_SIMILARITY_UPSTREAM,
                 COSINE_SIMILARITY_DOWNSTREAM,
             ]:
-                sp_scores = similar_spectral_cells_getter(
+                sp_scores = similar_embedding_cells_getter(
                     sort_by_target_cell_rid,
                     include_upstream=parts[0] != COSINE_SIMILARITY_DOWNSTREAM,
                     include_downstream=parts[0] != COSINE_SIMILARITY_UPSTREAM,

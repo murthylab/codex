@@ -175,13 +175,13 @@
 
                     <small style="color: teal">cells with similar embeddings</small>
                     <div style="font-size: 11px;">
-                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral} ' + neuron.root_id|string, data_version=data_version)}}">
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_embedding} ' + neuron.root_id|string, data_version=data_version)}}">
                        input and output
                     </a><br>
-                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_embedding_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
                        input
                     </a><br>
-                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_spectral_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_embedding_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
                        output
                     </a>
                     </div>

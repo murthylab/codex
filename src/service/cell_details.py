@@ -14,9 +14,9 @@ from src.data.structured_search_filters import (
     OP_SIMILAR_CONNECTIVITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
     OP_SIMILAR_CONNECTIVITY,
-    OP_SIMILAR_SPECTRAL,
-    OP_SIMILAR_SPECTRAL_UPSTREAM,
-    OP_SIMILAR_SPECTRAL_DOWNSTREAM,
+    OP_SIMILAR_EMBEDDING,
+    OP_SIMILAR_EMBEDDING_UPSTREAM,
+    OP_SIMILAR_EMBEDDING_DOWNSTREAM,
 )
 from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 from src.utils import nglui
@@ -250,7 +250,7 @@ def cached_cell_details(
         '<i class="fa-solid fa-arrows-to-circle"></i>',
         search_endpoint=url_for(
             "app.search",
-            filter_string=f"{OP_SIMILAR_SPECTRAL} {root_id}",
+            filter_string=f"{OP_SIMILAR_EMBEDDING} {root_id}",
         ),
     )
 
@@ -268,7 +268,7 @@ def cached_cell_details(
         '<i class="fa-solid fa-arrow-up-short-wide"></i>',
         search_endpoint=url_for(
             "app.search",
-            filter_string=f"{OP_SIMILAR_SPECTRAL_UPSTREAM} {root_id}",
+            filter_string=f"{OP_SIMILAR_EMBEDDING_UPSTREAM} {root_id}",
         ),
     )
 
@@ -286,7 +286,7 @@ def cached_cell_details(
         '<i class="fa-solid fa-arrow-down-wide-short"></i>',
         search_endpoint=url_for(
             "app.search",
-            filter_string=f"{OP_SIMILAR_SPECTRAL_DOWNSTREAM} {root_id}",
+            filter_string=f"{OP_SIMILAR_EMBEDDING_DOWNSTREAM} {root_id}",
         ),
     )
 

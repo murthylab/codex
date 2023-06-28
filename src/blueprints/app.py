@@ -295,7 +295,7 @@ def _search_and_sort():
         + len(neuron_db.input_sets()[x]),
         similar_shape_cells_getter=neuron_db.get_similar_shape_cells,
         similar_connectivity_cells_getter=neuron_db.get_similar_connectivity_cells,
-        similar_spectral_cells_getter=neuron_db.get_similar_spectral_cells,
+        similar_embedding_cells_getter=neuron_db.get_similar_embedding_cells,
         connections_getter=lambda x: neuron_db.cell_connections(x),
         sort_by=sort_by,
     )

@@ -427,7 +427,7 @@ class NeuronDB(object):
         return res
 
     @lru_cache
-    def get_similar_spectral_cells(
+    def get_similar_embedding_cells(
         self,
         root_id,
         projected_to_root_id=None,
@@ -516,7 +516,7 @@ class NeuronDB(object):
                 connections_loader=self.connections_up_down,
                 similar_cells_loader=self.get_similar_shape_cells,
                 similar_connectivity_loader=self.get_similar_connectivity_cells,
-                similar_spectral_loader=self.get_similar_spectral_cells,
+                similar_embedding_loader=self.get_similar_embedding_cells,
                 case_sensitive=case_sensitive,
             )
             term_search_results.append(
