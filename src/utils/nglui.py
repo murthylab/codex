@@ -11,6 +11,9 @@ from src.data.versions import (
 from src.utils.logging import log_error
 
 
+NGL_FLAT_BASE_URL = "https://ngl.cave-explorer.org"
+
+
 def url_for_root_ids(root_ids, version, point_to="ngl", position=None):
     if version not in DATA_SNAPSHOT_VERSION_DESCRIPTIONS:
         log_error(
@@ -126,7 +129,7 @@ def url_for_cells(segment_ids, data_version):
         "layout": "3d",
     }
 
-    return f"https://neuroglancer-demo.appspot.com/#!{urllib.parse.quote(json.dumps(config))}"
+    return f"{NGL_FLAT_BASE_URL}/#!{urllib.parse.quote(json.dumps(config))}"
 
 
 def url_for_neuropils(segment_ids=None):
@@ -180,4 +183,4 @@ def url_for_neuropils(segment_ids=None):
         "layout": "3d",
     }
 
-    return f"https://neuroglancer-demo.appspot.com/#!{urllib.parse.quote(json.dumps(config))}"
+    return f"{NGL_FLAT_BASE_URL}/#!{urllib.parse.quote(json.dumps(config))}"
