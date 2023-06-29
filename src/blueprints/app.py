@@ -90,7 +90,7 @@ from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
 from src.data.structured_search_filters import get_advanced_search_data
 from src.data.braincircuits import neuron2line
-
+from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.service.motif_search import MotifSearchQuery
 from src.configuration import APP_ENVIRONMENT
 
@@ -1429,6 +1429,9 @@ def my_labels():
 @request_wrapper
 @require_data_access
 def motifs():
+
+
+
     if request.args:
         try:
             motifs_query = MotifSearchQuery.from_form_query(request.args, NeuronDataFactory.instance())
@@ -1444,9 +1447,11 @@ def motifs():
             error = f"Error searching for motif: {e=}"
             log_error(error)
 
-            return render_template("motif_search.html",  regions=list(REGIONS.keys()), results=[], error=error)
+            return render_template("motif_search.html",  regions=list(REGIONS.keys()), results=[], error=error, NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES)
+            
+        print(search_results)
 
-        return render_template("motif_search.html",  regions=list(REGIONS.keys()), results=search_results)
+        return render_template("motif_search.html",  regions=list(REGIONS.keys()), results=search_results, query=request.args, NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES)
 
 
-    return render_template("motif_search.html", regions=list(REGIONS.keys()), results=[], error=None)
+    return render_template("motif_search.html", regions=list(REGIONS.keys()), error=None, NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES)

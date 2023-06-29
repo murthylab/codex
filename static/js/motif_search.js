@@ -1,10 +1,37 @@
 import { html } from "https://esm.sh/htm/react/index.module.js";
 import { useState } from "https://esm.sh/react";
 
-function MotifSearch({ regions, initialResults, initalError}) {
-  const nodes = ["A", "B", "C"];
-  const nueropils = ["Any", ...regions];
-  const NEURO_TRANSMITTER_NAMES = {
+function MotifSearch({  results, query }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState();
+  const [warning, setWarning] = useState();
+
+  return html`
+    <div className="container-fluid h-100">
+      
+      ${warning && html`<div className="alert alert-warning" role="alert">${warning}</div>`}
+      ${loading && html`<div className="spinner-border" role="status"><span className="sr-only">Loading...</span></div>`}
+      ${error && html`<div className="alert alert-danger" role="alert">${error}</div>`}
+    </div>
+    <div className="container-fluid h-100">
+      ${results
+        ? html`<div>
+            <${Results} results=${results} />
+          </div>`
+        : ExplainerCard()}
+    </div>
+  `;
+}
+
+function MotifForm({regions }) {
+  const NODES = ["A", "B", "C"];
+  const EDGES = [
+    ["AB", "BA"],
+    ["AC", "CA"],
+    ["BC", "CB"],
+  ];
+  const NEUROPILS = ["Any", ...regions];
+  const NEUROTRANSMITTERS = {
     DA: "dopamine",
     SER: "serotonin",
     GABA: "gabaergic",
@@ -13,110 +40,82 @@ function MotifSearch({ regions, initialResults, initalError}) {
     OCT: "octopamine",
   };
 
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState(initialResults);
-  const [error, setError] = useState(initalError);
-  const [warning, setWarning] = useState();
-
-  const attributes = {
-    EdgeFields: {
-      regions: {
-        fieldSettings: {
-          listValues: regions,
-        },
-        label: "Region",
-        operators: ["multiselect_equals"],
-        type: "multiselect",
-      },
-      min_synapse_count: {
-        label: "Min Synapse Count",
-        operators: ["equal"],
-        type: "number",
-      },
-    },
-    NodeFields: { search_query: { label: "Search Query", operators: ["equal"], type: "text" } },
-  };
-
   return html`
-    <div className="container-fluid h-100">
-      <form className="mw-50">
-        <div className="row">
-          ${nodes.map(
-            (n) => html`
-              <div className="form-group col">
-                <label for="node${n}">Node ${n} Query</label>
-                <input type="text" className="form-control" name="query${n}" id="node${n}" placeholder="Enter node ${n}" />
-              </div>
-            `
-          )}
-        </div>
-        ${[
-          ["AB", "BA"],
-          ["AC", "CA"],
-          ["BC", "CB"],
-        ].map(
-          (edges) => html`
-            <div className="row p-1">
-              ${edges.map(
-                (edge) => html`
-                  <div className="col">
-                    <div className="card">
-                      <div className="card-header">
-                        <div className="row">
-                          <div className="col">Edge ${edge[0]} -> ${edge[1]}</div>
-                          <div className="col">
-                            <div class="custom-control custom-switch">
-                              <input type="checkbox" class="custom-control-input" id="enabled${edge}" name="enabled${edge}" />
-                              <label class="custom-control-label" for="enabled${edge}"></label>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="card-body row">
-                        <div className="form-group col">
-                          <label for="neuropiljk${edge}">Region</label>
-                          <select class="form-control" id="region${edge}" name="region${edge}">
-                            ${nueropils.map((r) => html`<option value=${r}>${r}</option>`)}
-                          </select>
-                        </div>
-                        <div className="form-group col">
-                          <label for="minSynapseCount${edge}">Min Synapse Count</label>
-                          <input type="number" className="form-control" name="minSynapseCount${edge}" id="minSynapseCount${edge}" placeholder="(Default=5)" />
-                        </div>
-                        <!-- Neurotransmitter type -->
-                        <div className="form-group col">
-                          <label for="ntType${edge}">Neurotransmitter Type</label>
-                          <select class="form-control" id="ntType${edge}" name="ntType${edge}">
-                            <option value="Any">Any</option>
-                            ${Object.keys(NEURO_TRANSMITTER_NAMES).map((r) => html`<option value=${r}>${NEURO_TRANSMITTER_NAMES[r]}</option>`)}
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                `
-              )}
+    <form className="mw-50">
+      <div className="row">
+        ${NODES.map(
+          (n) => html`
+            <div className="form-group col">
+              <label for="node${n}">Node ${n} Query</label>
+              <input type="text" className="form-control" name="query${n}" id="node${n}" placeholder="Enter node ${n}" />
             </div>
           `
         )}
-        <div className="d-flex justify-content-center">
-          <button type="submit" className="btn btn-primary">Submit</button>
-        </div>
+      </div>
+      ${EDGES.map(
+        (edges) => html`
+          <div className="row p-1">
+            ${edges.map(
+              (edge) => html`
+                <div className="col">
+                  <div className="card">
+                    <div className="card-header">
+                      <div className="row">
+                        <div className="col">Edge ${edge[0]} -> ${edge[1]}</div>
+                        <div className="col">
+                          <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="enabled${edge}" name="enabled${edge}" />
+                            <label class="custom-control-label" for="enabled${edge}"></label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-      </form>
-
-      ${warning && html`<div className="alert alert-warning" role="alert">${warning}</div>`}
-      ${loading && html`<div className="spinner-border" role="status"><span className="sr-only">Loading...</span></div>`}
-      ${error && html`<div className="alert alert-danger" role="alert">${error}</div>`}
-    </div>
-    <div className="container-fluid h-100">
-      ${results &&
-      html`<div>
-        <${Results} results=${results} />
-      </div>`}
-    </div>
+                    <div className="card-body row">
+                      <div className="form-group col">
+                        <label for="neuropiljk${edge}">Region</label>
+                        <select class="form-control" id="region${edge}" name="region${edge}">
+                          ${NEUROPILS.map((r) => html`<option value=${r}>${r}</option>`)}
+                        </select>
+                      </div>
+                      <div className="form-group col">
+                        <label for="minSynapseCount${edge}">Min Synapse Count</label>
+                        <input type="number" className="form-control" name="minSynapseCount${edge}" id="minSynapseCount${edge}" placeholder="(Default=5)" />
+                      </div>
+                      <!-- Neurotransmitter type -->
+                      <div className="form-group col">
+                        <label for="ntType${edge}">Neurotransmitter Type</label>
+                        <select class="form-control" id="ntType${edge}" name="ntType${edge}">
+                          <option value="Any">Any</option>
+                          ${Object.keys(NEUROTRANSMITTERS).map((r) => html`<option value=${r}>${NEUROTRANSMITTERS[r]}</option>`)}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `
+            )}
+          </div>
+        `
+      )}
+      <div className="d-flex justify-content-center">
+        <button type="submit" className="btn btn-primary">Submit</button>
+      </div>
+    </form>
   `;
+}
+
+function ExplainerCard() {
+  return html`<div>
+    <div class="card" style=${{ margin: "15px" }}>
+      <div class="card-header" sttyle=${{ color: "purple" }}>What is this?</div>
+      <div class="card-body">
+        [TODO: explanatory text]
+        <br /><br />
+        <button class="btn btn btn-outline-success my-2 my-sm-0" type="button">Try Example Query</button>
+      </div>
+    </div>
+  </div>`;
 }
 
 function Results({ results }) {
