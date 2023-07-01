@@ -438,7 +438,7 @@ def index(path):
 
 
 def render_auth_page(redirect_to="/"):
-    log_activity(f"Rendering auth page with redirect to {redirect_to}")
+    log(f"Rendering auth page with redirect to {redirect_to}")
     return render_template(
         "auth.html",
         client_id=GOOGLE_CLIENT_ID,

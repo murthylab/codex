@@ -76,7 +76,6 @@ from src.utils.graph_algos import distance_matrix
 from src.utils.logging import (
     log_activity,
     log,
-    log_user_help,
     log_warning,
     log_error,
 )
@@ -760,7 +759,7 @@ def annotate_cell():
     annotation_coordinates = request.args.get("annotation_coordinates", "")
 
     fw_user_id = fetch_flywire_user_id(session, required=True)
-    log_user_help(
+    log_activity(
         f"Submitting annotation '{annotation_text}' for cell {annotation_cell_id} "
         f"with user id {fw_user_id} and coordinates {annotation_coordinates}"
     )

@@ -9,7 +9,7 @@ from src.data.versions import (
 )
 from src.utils.cookies import fetch_user_name
 from src.utils.formatting import display
-from src.utils.logging import log_user_help
+from src.utils.logging import log_activity
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
@@ -36,7 +36,7 @@ def download():
 
     data_product = request.args.get("data_product")
     if data_product:
-        log_user_help(f"API: downloading '{data_product}' for version '{data_version}'")
+        log_activity(f"API: downloading '{data_product}' for version '{data_version}'")
         if data_product not in DOWNLOAD_CATALOG[data_version]:
             return render_error(
                 title="Unknown resource",
@@ -44,7 +44,7 @@ def download():
             )
         return redirect(DOWNLOAD_CATALOG[data_version][data_product].file_url)
     else:
-        log_user_help("API: rendering download page")
+        log_activity("API: rendering download page")
         return render_template(
             "download.html",
             agree_chk=agree_chk,
