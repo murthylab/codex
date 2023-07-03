@@ -4,6 +4,8 @@ from collections import defaultdict
 from unittest import TestCase
 
 from src.data.brain_regions import REGIONS
+from src.data.local_data_loader import read_csv, write_csv
+from src.utils.graph_algos import reachable_nodes
 from src.utils.stats import jaccard_binary
 
 from tests import get_testing_neuron_db
@@ -1858,4 +1860,48 @@ class OlTaggingTest(TestCase):
         )
         print(
             f"Diff type avg Emb score: {sum(diff_type_sscores) / len(diff_type_sscores)}"
+        )
+
+    def test_dsx_fru_tables(self):
+        dsxfru_table = read_csv(
+            "../../static/experimental_data/dsxfru/Dsxfru_630_V6.csv"
+        )
+        print(dsxfru_table[0])
+        rid_col = dsxfru_table[0].index("RootID_630")
+        dsxfru_rids = [int(r[rid_col]) for r in dsxfru_table[1:]]
+        self.assertEqual(len(dsxfru_rids), len(set(dsxfru_rids)))
+        not_in_ds = []
+        for rid in dsxfru_rids:
+            if not self.neuron_db.is_in_dataset(rid):
+                not_in_ds.append(rid)
+        print(len(not_in_ds))
+        dsxfru_rids = set(dsxfru_rids) - set(not_in_ds)
+        print(len(dsxfru_rids))
+
+        con_rows = self.neuron_db.connections_.rows_between_sets(
+            dsxfru_rids, dsxfru_rids
+        )
+        syn_counts = defaultdict(int)
+        for r in con_rows:
+            syn_counts[(r[0], r[1])] += r[3]
+        syn_counts_table = [["from", "to", "syn_count"]] + [
+            [k[0], k[1], v] for k, v in syn_counts.items()
+        ]
+        write_csv(
+            "../../static/experimental_data/dsxfru/dsxfru_syn_table_v6.csv",
+            rows=syn_counts_table,
+        )
+
+        ins, outs = self.neuron_db.input_output_partner_sets()
+        path_lengths = []
+        for r in dsxfru_rids:
+            reachable = reachable_nodes([r], neighbor_sets=outs, max_depth=3)
+            for k, v in reachable.items():
+                if v > 0:
+                    path_lengths.append([r, k, v])
+
+        path_table = [["from", "to", "shortest_path_length"]] + path_lengths
+        write_csv(
+            "../../static/experimental_data/dsxfru/dsxfru_path_length_table_v6.csv",
+            rows=path_table,
         )

@@ -16,11 +16,13 @@ def neighbors(sources, neighbor_sets):
 
 
 # given set of sources, calculates the distance to all other reachable nodes into a dict (rid -> distance)
-def reachable_nodes(sources, neighbor_sets, stop_target=None):
+def reachable_nodes(sources, neighbor_sets, stop_target=None, max_depth=None):
     depth = 0
     reached = {s: 0 for s in sources}
     frontier = set(sources)
     while frontier:
+        if max_depth is not None and depth == max_depth:
+            break
         if stop_target is not None and stop_target in frontier:
             break
         depth += 1

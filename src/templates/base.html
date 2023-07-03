@@ -25,18 +25,19 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          {% set tabs = [['explore', 'Explore'],
-                        ['search', 'Search'],
-                        ['stats', 'Stats'],
-                        ['cell_details', 'Cell Info'],
-                        ['connectivity', 'Network'],
-                        ['path_length', 'Pathways'],
-                        ['neuropils', 'Neuropils'],
-                        ['heatmaps', 'Heatmaps'],
+          {% set tabs = [['explore', 'Explore', 'app'],
+                        ['search', 'Search', 'app'],
+                        ['stats', 'Stats', 'app'],
+                        ['cell_details', 'Cell Info', 'app'],
+                        ['connectivity', 'Network', 'app'],
+                        ['path_length', 'Pathways', 'app'],
+                        ['neuropils', 'Neuropils', 'app'],
+                        ['heatmaps', 'Heatmaps', 'app'],
+                        ['about_codex', 'About', 'base'],
                         ]%}
         {% for page in tabs %}
           <li class="nav-item text-nowrap">
-            <a onclick="loading(event);" class="nav-link" id="nav_{{ page[0] }}" href="{{url_for('app.' + page[0])}}">{{ page[1] }}</a>
+            <a onclick="loading(event);" class="nav-link" id="nav_{{ page[0] }}" href="{{url_for(page[2] + '.' + page[0])}}">{{ page[1] }}</a>
           </li>
         {% endfor %}
 
@@ -45,7 +46,6 @@
                   More
                 </a>
                 <div class="dropdown-menu" aria-labelledby="nav_more_active">
-                  <a class="dropdown-item" id="nav_about_codex" href="{{url_for('base.about_codex')}}">About Codex</a>
                   <a class="dropdown-item" id="nav_about_flywire" href="{{url_for('base.about_flywire')}}">FlyWire Info & Credits</a>
                   <a class="dropdown-item" id="nav_faq" href="{{url_for('base.faq')}}">FAQ</a>
                   <a class="dropdown-item" id="nav_optic_lobe_tagging" href="{{url_for('app.optic_lobe_tagging')}}">Optic Lobe Tagging</a>

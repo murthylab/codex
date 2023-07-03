@@ -64,6 +64,7 @@ def url_for_root_ids(root_ids, version, point_to="ngl", position=None):
             "layer": seg_layer_name,
             "visible": True,
         }
+        config["jsonStateServer"] = "https://globalv1.flywire-daf.com/nglstate/post"
 
         return f"https://ngl.flywire.ai/#!{urllib.parse.quote(json.dumps(config))}"
     else:
