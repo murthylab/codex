@@ -61,7 +61,6 @@ from src.utils import nglui
 from src.utils.cookies import (
     fetch_flywire_user_id,
     fetch_user_email,
-    fetch_flywire_token,
 )
 from src.utils.formatting import (
     synapse_table_to_csv_string,
@@ -1262,15 +1261,13 @@ def heatmaps():
 
 @app.route("/matching_lines")
 @request_wrapper
-@require_data_access
 def matching_lines():
     segment_id = request.args.get("segment_id")
     target_library = request.args.get("target_library")
     email = fetch_user_email(session)
-    cave_token = fetch_flywire_token(session)
     log_activity(f"Calling BrainCircuits API with {segment_id=} {target_library=}")
     try:
-        result = neuron2line([segment_id], target_library, email, cave_token)
+        result = neuron2line([segment_id], target_library, email)
         log_activity(f"BrainCircuits API call returned {result=}")
         return render_info(
             title="Submission complete",

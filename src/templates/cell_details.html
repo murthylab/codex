@@ -84,7 +84,7 @@
         window.open("{{ url_for('app.matching_lines') }}?" + new URLSearchParams({
             segment_id: '{{cell_id}}',
             target_library: target_library,
-        }), '_blank').focus();
+        }), '_self').focus();
       }
 
 </script>
