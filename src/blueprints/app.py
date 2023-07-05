@@ -260,8 +260,20 @@ def render_neuron_list(
         sort_by_options=SORT_BY_OPTIONS,
         advanced_search_data=get_advanced_search_data(current_query=filter_string),
         multi_val_attrs=neuron_db.multi_val_attrs(sorted_search_result_root_ids),
-        non_uniform_labels=neuron_db.non_uniform_labels(
-            page_ids=page_ids, all_ids=sorted_search_result_root_ids
+        non_uniform_labels=neuron_db.non_uniform_values(
+            list_attr_key="label",
+            page_ids=page_ids,
+            all_ids=sorted_search_result_root_ids,
+        ),
+        non_uniform_cell_types=neuron_db.non_uniform_values(
+            list_attr_key="cell_type",
+            page_ids=page_ids,
+            all_ids=sorted_search_result_root_ids,
+        ),
+        non_uniform_hemibrain_types=neuron_db.non_uniform_values(
+            list_attr_key="hemibrain_type",
+            page_ids=page_ids,
+            all_ids=sorted_search_result_root_ids,
         ),
     )
 

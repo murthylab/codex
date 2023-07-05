@@ -47,7 +47,7 @@ def cached_cell_details(
     cell_attributes = {
         "Name": nd["name"],
         "FlyWire Root ID": f"{root_id}<br><small>"
-        f'<a href="{fw_url}" target="_blank">Open in FlyWire <i class="fa-solid fa-up-right-from-square"></i> </a><br>'
+        f'<a href="{fw_url}" target="_blank">Open in FlyWire editor <i class="fa-solid fa-up-right-from-square"></i> </a><br>'
         f'<a href="cell_coordinates/{root_id}?data_version={data_version}" target="_blank">Supervoxel IDs and Coordinates <i class="fa-solid fa-up-right-from-square"></i> </a>'
         "</small>",
         "Partners<br><small>Synapses</small>": '<a href="'

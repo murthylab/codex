@@ -68,6 +68,7 @@ from src.utils.request_context import (
     build_request_context,
     set_elapsed_time,
     set_exception,
+    ip_addr,
 )
 from src.utils.thumbnails import url_for_skeleton
 
@@ -232,7 +233,9 @@ def limit_exceeded_responder(request_limit: RequestLimit):
     global num_requests_rate_limited
     num_requests_rate_limited += 1
     time.sleep(3)
-    log_error(f"Rate limited: {request.endpoint} ({request_limit.limit})")
+    log_error(
+        f"Rate limited for {ip_addr()}: {request.endpoint} ({request_limit.limit})"
+    )
     return make_response(
         render_template(
             "error.html",

@@ -2,19 +2,19 @@ import os
 
 from flask import Flask
 from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 
 from src.blueprints.api import api
 from src.blueprints.app import app
 from src.blueprints.base import base, limit_exceeded_responder, asset
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils.logging import log
+from src.utils.request_context import ip_addr
 
 log("App initialization started")
 codex = Flask(__name__)
 
 limiter = Limiter(
-    get_remote_address,
+    ip_addr,
     app=codex,
     default_limits=["5000 per day", "2000 per hour", "200 per minute", "5 per second"],
     storage_uri="memory://",
