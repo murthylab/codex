@@ -39,6 +39,19 @@ FAQ_QA_KB = {
         "proofreading database tables use the "
         '<a href="https://github.com/seung-lab/CAVEclient">Cave Client Python library</a> instead.',
     },
+    "connectome_graph": {
+        "q": "How is the connectome modeled as a network graph?",
+        "a": "The connectome forms a directed graph where nodes correspond to neurons and edges to synaptic "
+             "connections. Edges have the following properties: number of synapses, region (neuropil), "
+             "predicted neurotransmitter type. Nodes have various annotations, including hierarchical classification, "
+             "identification labels, neurotransmitter predictions, side, and more. A pair of nodes can be connected "
+             "with multiple edges corresponding to different brain regions.",
+    },
+    "data_download": {
+        "q": "Can I download the connectome data?",
+        "a": f"Yes, visit the <a href='/api/download'>data download portal</a> to review and "
+             "download the FlyWire connectome data resources.",
+    },
     "structured_search": {
         "q": "Is there an advanced search/filter? Can I search for specific attribute values?",
         "a": f"Yes, for certain attributes ({', '.join(SEARCH_ATTRIBUTE_NAMES)}) you can search using "
