@@ -458,7 +458,7 @@ def search_results_flywire_url():
     log_activity(
         f"Redirecting {len(sorted_search_result_root_ids)} results {activity_suffix(filter_string, data_version)} to FlyWire"
     )
-    return ngl_redirect_with_browser_check(ngl_url=url)
+    return ngl_redirect_with_client_check(ngl_url=url)
 
 
 @app.route("/optic_lobe_tagging")
@@ -714,10 +714,21 @@ def flywire_url():
         log_activity(
             f"Redirecting for {len(root_ids)} root ids to FlyWire, {point_to=}"
         )
-    return ngl_redirect_with_browser_check(ngl_url=url)
+    return ngl_redirect_with_client_check(ngl_url=url)
 
 
-def ngl_redirect_with_browser_check(ngl_url):
+def ngl_redirect_with_client_check(ngl_url):
+    ua = parse_ua(str(request.user_agent))
+    # iOS (iPhone/iPad) does not render brain meshes or neuropils
+    if "iOS" in ua.get_os():
+        return warning_with_redirect(
+            title="Device not supported",
+            message="Neuroglancer (3D neuron rendering) may not be supported on your mobile iOS device. "
+            "Compatible platforms: Mac / PC / Android",
+            redirect_url=ngl_url,
+            redirect_button_text="Proceed anyway",
+        )
+
     min_supported = {
         "Chrome": 51,
         "Edge": 51,
@@ -725,7 +736,6 @@ def ngl_redirect_with_browser_check(ngl_url):
         "Safari": 15,
         "Opera": 95,
     }
-    ua = parse_ua(str(request.user_agent))
     # browser_family can contain other parts, e.g. "Mobile Safari", or "Chrome Mobile". Use substring match.
     browser = None
     bfl = ua.browser.family.lower()
@@ -1200,7 +1210,7 @@ def flywire_neuropil_url():
     selected = request.args.get("selected")
     segment_ids = [REGIONS[r][0] for r in selected.split(",") if r in REGIONS]
     url = nglui.url_for_neuropils(segment_ids)
-    return ngl_redirect_with_browser_check(ngl_url=url)
+    return ngl_redirect_with_client_check(ngl_url=url)
 
 
 @app.route("/neuropils")

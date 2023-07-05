@@ -48,15 +48,15 @@ class NeuronDataTest(TestCase):
         )
 
         expected_sizes = {
-            "connections_": "814 M",
-            "neuron_data": "549 M",
-            "search_index": "235 M",
-            "label_data": "87 M",
+            "connections_": "816 M",
+            "neuron_data": "551 M",
+            "search_index": "258 M",
+            "label_data": "109 M",
             "meta_data": "17 K",
             "grouped_synapse_counts": "108 K",
             "grouped_connection_counts": "111 K",
             "grouped_reciprocal_connection_counts": "69 K",
-            "svd": "300 M",
+            "svd": "304 M",
         }
 
         def approx_size(ob):
