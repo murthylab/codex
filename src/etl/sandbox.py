@@ -399,6 +399,7 @@ def cluster_by_jaccard_similarities():
         compress=True,
     )
 
+
 def make_rid_to_morpho_cluster_map_for_dsxfru(neuron_db):
     rid_to_morpho_cluster = {}
     morpho_cluster_to_rids = defaultdict(list)
@@ -408,6 +409,7 @@ def make_rid_to_morpho_cluster_map_for_dsxfru(neuron_db):
         morpho_cluster_to_rids[mc].append(rid)
     print(f"Num clusters: {len(set(rid_to_morpho_cluster.values()))}")
     return rid_to_morpho_cluster, morpho_cluster_to_rids
+
 
 def make_morphology_graph_jscores_for_dsxfru(neuron_db, jscores_fname):
     rid_to_morpho_cluster, _ = make_rid_to_morpho_cluster_map_for_dsxfru(neuron_db)
@@ -430,12 +432,17 @@ def make_morphology_graph_jscores_for_dsxfru(neuron_db, jscores_fname):
             if i2 <= i1:
                 continue
 
-            jscore = (jaccard_weighted(morpho_graph_ins.get(n1), morpho_graph_ins.get(n2)) + jaccard_weighted(
-                morpho_graph_outs.get(n1), morpho_graph_outs.get(n2))) / 2
+            jscore = (
+                jaccard_weighted(morpho_graph_ins.get(n1), morpho_graph_ins.get(n2))
+                + jaccard_weighted(morpho_graph_outs.get(n1), morpho_graph_outs.get(n2))
+            ) / 2
             if jscore:
                 jscores[(n1, n2)] = jscore
     print(f"Num jscores: {len(jscores)}")
-    write_csv(jscores_fname, rows=[[k[0], k[1], v] for k, v in jscores.items()], compress=True)
+    write_csv(
+        jscores_fname, rows=[[k[0], k[1], v] for k, v in jscores.items()], compress=True
+    )
+
 
 def cluster_with_morpho_jscores_for_dsxfru(neuron_db, morpho_jscores_fname):
     _, mc_to_rids = make_rid_to_morpho_cluster_map_for_dsxfru(neuron_db)
@@ -482,7 +489,7 @@ def cluster_with_morpho_jscores_for_dsxfru(neuron_db, morpho_jscores_fname):
 if __name__ == "__main__":
     neuron_db = NeuronDataFactory.instance().get()
     morpho_jscores_fname = "static/experimental_data/morpho_jaccard_scores.csv.gz"
-    #make_morphology_graph_jscores_for_dsxfru(neuron_db, morpho_jscores_fname)
+    # make_morphology_graph_jscores_for_dsxfru(neuron_db, morpho_jscores_fname)
     cluster_with_morpho_jscores_for_dsxfru(neuron_db, morpho_jscores_fname)
     # compare_versions("630_before_cb_matches", "630")
     # generate_con_jaccard_similarity_table(neuron_db)

@@ -521,8 +521,8 @@ class NeuronDataTest(TestCase):
                 ],
                 nd,
             )
-            if sorted(set(nd["label"])) != sorted(set(ld)):
-                print(f'{rid}: {sorted(set(nd["label"]))} -> {sorted(set(ld))}')
+            if nd["label"] != ld:
+                print(f'{rid}: {nd["label"]} -> {ld}')
                 mismatch += 1
         self.assertEqual(mismatch, 0)
 
@@ -641,7 +641,7 @@ class NeuronDataTest(TestCase):
                                 sep = ll[len(sl)]
                                 self.assertTrue(
                                     sep in seps,
-                                    f"Separator {sep} breaks prefix: {lbl1} -> {lbl2}",
+                                    f"Separator '{sep}' breaks prefix: {lbl1} -> {lbl2}",
                                 )
 
     def test_label_cleaning(self):

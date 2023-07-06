@@ -250,21 +250,28 @@ def space_out_deliimiters(labels):
 
 
 def clean_and_reduce_labels(labels_latest_to_oldest, neuron_data):
-    labels = [make_web_safe(compact_label(lbl)) for lbl in labels_latest_to_oldest]
-    labels = [lbl.strip() for lbl in labels if not blacklisted(lbl)]
-    labels = remove_redundant_parts(labels, neuron_data)
-    labels = remove_corrected(labels)
-    labels = [remove_left_right(lbl) for lbl in labels if lbl]
+    prev_labels = labels_latest_to_oldest
+    while True:
+        labels = [make_web_safe(compact_label(lbl)) for lbl in labels_latest_to_oldest]
+        labels = [lbl.strip() for lbl in labels if not blacklisted(lbl)]
+        labels = remove_redundant_parts(labels, neuron_data)
+        labels = remove_corrected(labels)
+        labels = [remove_left_right(lbl) for lbl in labels if lbl]
 
-    labels = [remove_duplicate_tokens(lbl) for lbl in labels if lbl]
-    labels = [remove_subsumed_tokens(lbl) for lbl in labels if lbl]
-    # remove redundant once more (after the round of corrections)
-    labels = remove_redundant_parts(labels, neuron_data)
-    labels = dedupe_with_order(labels)
-    labels = dedupe_up_to_insignificant_chars(labels)
-    labels = dedupe_prefixes(labels)
-    labels = space_out_deliimiters(labels)
-    labels = strip_and_remove_trailing_deliimiters(labels)
-    labels = dedupe_with_order(labels)
+        labels = [remove_duplicate_tokens(lbl) for lbl in labels if lbl]
+        labels = [remove_subsumed_tokens(lbl) for lbl in labels if lbl]
+        # remove redundant once more (after the round of corrections)
+        labels = remove_redundant_parts(labels, neuron_data)
+        labels = dedupe_with_order(labels)
+        labels = dedupe_up_to_insignificant_chars(labels)
+        labels = dedupe_prefixes(labels)
+        labels = space_out_deliimiters(labels)
+        labels = strip_and_remove_trailing_deliimiters(labels)
+        labels = dedupe_with_order(labels)
+
+        if labels == prev_labels:
+            break
+        else:
+            prev_labels = labels
 
     return labels
