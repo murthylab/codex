@@ -609,7 +609,7 @@ class Test(TestCase):
             ),
         )
         self.assertEqual(
-            ["post correction label", "LC25, lobula columnar neuron LC25"],
+            ["post correction label", "lobula columnar neuron LC25"],
             clean_and_reduce_labels(
                 [
                     "post correction label",

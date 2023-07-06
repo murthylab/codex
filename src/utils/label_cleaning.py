@@ -251,8 +251,8 @@ def space_out_deliimiters(labels):
 
 def clean_and_reduce_labels(labels_latest_to_oldest, neuron_data):
     prev_labels = labels_latest_to_oldest
-    while True:
-        labels = [make_web_safe(compact_label(lbl)) for lbl in labels_latest_to_oldest]
+    while True:  # run all steps until stabilized
+        labels = [make_web_safe(compact_label(lbl)) for lbl in prev_labels]
         labels = [lbl.strip() for lbl in labels if not blacklisted(lbl)]
         labels = remove_redundant_parts(labels, neuron_data)
         labels = remove_corrected(labels)

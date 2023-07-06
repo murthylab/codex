@@ -510,19 +510,27 @@ class NeuronDataTest(TestCase):
         neuron_data = self.neuron_db.neuron_data
         mismatch = 0
         for rid, nd in neuron_data.items():
-            ld = clean_and_reduce_labels(
-                [
-                    label["label"]
-                    for label in sorted(
-                        label_data.get(rid, []),
-                        key=lambda x: x["date_created"],
-                        reverse=True,
-                    )
-                ],
+            raw_labels = [
+                label["label"]
+                for label in sorted(
+                    label_data.get(rid, []),
+                    key=lambda x: x["date_created"],
+                    reverse=True,
+                )
+            ]
+            ld_raw = clean_and_reduce_labels(
+                raw_labels,
                 nd,
             )
-            if nd["label"] != ld:
-                print(f'{rid}: {nd["label"]} -> {ld}')
+            if nd["label"] != ld_raw:
+                print(f'{rid}: {nd["label"]} -> {ld_raw}')
+                mismatch += 1
+            ld_n = clean_and_reduce_labels(
+                nd["label"],
+                nd,
+            )
+            if nd["label"] != ld_n:
+                print(f'{rid}: {raw_labels=} {nd["label"]=} -> {ld_n=}')
                 mismatch += 1
         self.assertEqual(mismatch, 0)
 
