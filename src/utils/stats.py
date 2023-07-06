@@ -234,7 +234,7 @@ def collect_leaderboard_data(label_data, top_n, include_lab_leaderboard):
             if lab_name:
                 lab_lb[lab_name] += 1
 
-        ldrb_data["Labs by label contributions"] = {
+        lab_ldbd = {
             k
             if len(contributors_by_lab[k]) <= 1
             else f"{k}<br><small>{len(contributors_by_lab[k])} contributors</small>": lab_lb[
@@ -246,6 +246,8 @@ def collect_leaderboard_data(label_data, top_n, include_lab_leaderboard):
                 reverse=True,
             )[:top_n]
         }
+        if lab_ldbd:
+            ldrb_data["Labs by label contributions"] = lab_ldbd
 
     def user_cred_counts(labels_list):
         res = defaultdict(int)

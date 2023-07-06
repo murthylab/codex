@@ -11,20 +11,29 @@ Leaderboard
 <nav class="navbar navbar-light bg-light">
     <form class="form-inline">
 
-        <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search"
+        <input class="form-control mr-sm-2" style="width: 30vw;" autocomplete="off" autofocus type="search"
                id="filter_string" name="filter_string" placeholder="filter by neuron attributes" aria-label="Filter"
                value="{{filter_string}}">
+        <input class="form-control mr-sm-2" style="width: 15vw;" autocomplete="off" autofocus type="search"
+               id="labeler" name="user_filter" placeholder="user filter" aria-label="Filter"
+               value="{{user_filter}}">
+        <input class="form-control mr-sm-2" style="width: 15vw;" autocomplete="off" autofocus type="search"
+               id="lab" name="lab_filter" placeholder="lab filter" aria-label="Filter"
+               value="{{lab_filter}}">
         <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading(event);"><i class="fa-solid fa-magnifying-glass"></i>
         </button>
     </form>
 </nav>
 
+{% if labeled_cells_caption %}
 <div style="margin: 25px; color:purple;">
     <p><i class="fa-solid fa-gauge"></i> Labeled cells: {{labeled_cells_caption}}</p>
 </div>
+{% endif %}
 
 <div class="card mb-3" style="margin: 5px;">
     <div class="body">
+        {% if data_stats %}
         <div class="card-columns custom-columns" id="data_container" style="padding: 5px;">
             {% for k_l2, d_l2 in data_stats.items() %}
             <div class="card">
@@ -48,6 +57,9 @@ Leaderboard
             </div>
             {% endfor %}
         </div>
+        {% else %}
+        <span style="margin: 20px; color: purple;">No matches</span>
+        {% endif %}
     </div>
 </div>
 

@@ -143,15 +143,23 @@ def stats():
 @request_wrapper
 def leaderboard():
     query = request.args.get("filter_string", "")
-    log_activity("Loading Leaderboard" + (f", query: {query}" if query else ""))
+    user_filter = request.args.get("user_filter", "")
+    lab_filter = request.args.get("lab_filter", "")
+
+    log_activity(f"Loading Leaderboard, {query=} {user_filter=} {lab_filter=}")
     labeled_cells_caption, leaderboard_data = leaderboard_cached(
-        query=query, data_version=DEFAULT_DATA_SNAPSHOT_VERSION
+        query=query,
+        user_filter=user_filter,
+        lab_filter=lab_filter,
+        data_version=DEFAULT_DATA_SNAPSHOT_VERSION,
     )
     return render_template(
         "leaderboard.html",
         labeled_cells_caption=labeled_cells_caption,
         data_stats=leaderboard_data,
         filter_string=query,
+        user_filter=user_filter,
+        lab_filter=lab_filter,
     )
 
 

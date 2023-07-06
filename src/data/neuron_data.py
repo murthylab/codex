@@ -464,8 +464,34 @@ class NeuronDB(object):
         root_id = int(root_id)
         return self.label_data.get(root_id)
 
-    def label_data_for_ids(self, ids):
-        return [self.label_data[r] for r in ids]
+    def label_data_for_ids(self, ids, user_filter=None, lab_filter=None):
+        if user_filter:
+            user_filter = user_filter.lower()
+        if lab_filter:
+            lab_filter = lab_filter.lower()
+
+        def filtered(label_list):
+            if user_filter:
+                label_list = [
+                    ld
+                    for ld in label_list
+                    if ld["user_name"] and user_filter in ld["user_name"].lower()
+                ]
+            if lab_filter:
+                label_list = [
+                    ld
+                    for ld in label_list
+                    if ld["user_affiliation"]
+                    and lab_filter in ld["user_affiliation"].lower()
+                ]
+            return label_list
+
+        res = {}
+        for r in ids:
+            flist = filtered(self.label_data[r])
+            if flist:
+                res[r] = flist
+        return res
 
     def cell_ids_with_label_data(self):
         return list(self.label_data.keys())
