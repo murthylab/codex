@@ -399,9 +399,92 @@ def cluster_by_jaccard_similarities():
         compress=True,
     )
 
+def make_rid_to_morpho_cluster_map_for_dsxfru(neuron_db):
+    rid_to_morpho_cluster = {}
+    morpho_cluster_to_rids = defaultdict(list)
+    for rid, nd in neuron_db.neuron_data.items():
+        mc = nd["morphology_cluster"] or f"c_{rid}"
+        rid_to_morpho_cluster[rid] = mc
+        morpho_cluster_to_rids[mc].append(rid)
+    print(f"Num clusters: {len(set(rid_to_morpho_cluster.values()))}")
+    return rid_to_morpho_cluster, morpho_cluster_to_rids
+
+def make_morphology_graph_jscores_for_dsxfru(neuron_db, jscores_fname):
+    rid_to_morpho_cluster, _ = make_rid_to_morpho_cluster_map_for_dsxfru(neuron_db)
+    # build projected morpho cluster graph
+    morpho_graph_ins, morpho_graph_outs = {}, {}
+    for r in neuron_db.connections_.all_rows():
+        fn, tn = rid_to_morpho_cluster[r[0]], rid_to_morpho_cluster[r[1]]
+        if tn not in morpho_graph_ins:
+            morpho_graph_ins[tn] = defaultdict(int)
+            morpho_graph_ins[tn][fn] += r[3]
+        if fn not in morpho_graph_outs:
+            morpho_graph_outs[fn] = defaultdict(int)
+            morpho_graph_outs[fn][tn] += r[3]
+
+    # calculate jaccard scores
+    jscores = {}
+    morpho_nodes = sorted(set(rid_to_morpho_cluster.values()))
+    for i1, n1 in enumerate(morpho_nodes):
+        for i2, n2 in enumerate(morpho_nodes):
+            if i2 <= i1:
+                continue
+
+            jscore = (jaccard_weighted(morpho_graph_ins.get(n1), morpho_graph_ins.get(n2)) + jaccard_weighted(
+                morpho_graph_outs.get(n1), morpho_graph_outs.get(n2))) / 2
+            if jscore:
+                jscores[(n1, n2)] = jscore
+    print(f"Num jscores: {len(jscores)}")
+    write_csv(jscores_fname, rows=[[k[0], k[1], v] for k, v in jscores.items()], compress=True)
+
+def cluster_with_morpho_jscores_for_dsxfru(neuron_db, morpho_jscores_fname):
+    _, mc_to_rids = make_rid_to_morpho_cluster_map_for_dsxfru(neuron_db)
+    morpho_jscores = read_csv(morpho_jscores_fname)
+    print("Building score graph..")
+    G = Graph()
+    for r in morpho_jscores:
+        n1, n2, score = r[0], r[1], float(r[2])
+        G.add_node(n1)
+        G.add_node(n2)
+        G.add_edge(n1, n2, weight=100 * score)
+
+    print("Running community analysis..")
+    communities_generator = community.louvain_communities(G, resolution=10)
+    clusters_dict = {}
+    component_id = 0
+    max_xluster_size = 0
+    for s in sorted(communities_generator, key=lambda x: -len(x)):
+        max_xluster_size = max(max_xluster_size, len(s))
+        component_id += 1
+        cluster_name = f"CC_{component_id}"
+        rids = []
+        for mc in s:
+            for rid in mc_to_rids[mc]:
+                clusters_dict[rid] = cluster_name
+                rids.append(rid)
+        print(f"{len(rids)}: {sorted(rids)[:10]}")
+
+    print(
+        f"Total clustered rids: {len(clusters_dict)}, {max_xluster_size=}, # clusters: {component_id}"
+    )
+    clusters_table = [["root_id", "morpho_connectivity_cluster"]]
+    for rid, cl in clusters_dict.items():
+        clusters_table.append([rid, cl])
+
+    print("Writing results to file..")
+    write_csv(
+        filename="static/experimental_data/morpho_connectivity_clusters.csv.gz",
+        rows=clusters_table,
+        compress=True,
+    )
+
 
 if __name__ == "__main__":
-    compare_versions("630_before_cb_matches", "630")
-    # generate_con_jaccard_similarity_table(NeuronDataFactory.instance().get())
-    # analyse_con_jaccard_similarities(NeuronDataFactory.instance().get())
+    neuron_db = NeuronDataFactory.instance().get()
+    morpho_jscores_fname = "static/experimental_data/morpho_jaccard_scores.csv.gz"
+    #make_morphology_graph_jscores_for_dsxfru(neuron_db, morpho_jscores_fname)
+    cluster_with_morpho_jscores_for_dsxfru(neuron_db, morpho_jscores_fname)
+    # compare_versions("630_before_cb_matches", "630")
+    # generate_con_jaccard_similarity_table(neuron_db)
+    # analyse_con_jaccard_similarities(neuron_db)
     # cluster_by_jaccard_similarities()
