@@ -179,7 +179,6 @@ def explore():
         .get(data_version)
         .categories(
             top_values=top_values,
-            exclude_internal_markers=True,
             for_attr_name=for_attr_name,
         ),
     )
@@ -214,6 +213,7 @@ def render_neuron_list(
         for nd in display_data
     }
     highlighted_terms = {}
+    links = {}
     for nd in display_data:
         # Only highlight from free-form search tokens (and not structured search attributes)
         psq = parse_search_query(filter_string)
@@ -240,11 +240,13 @@ def render_neuron_list(
                 else:
                     terms_to_annotate.add(nd[attr_name])
         highlighted_terms.update(highlight_annotations(search_terms, terms_to_annotate))
+        links[nd["root_id"]] = neuron_db.get_links(nd["root_id"])
 
     return render_template(
         template_name_or_list=template_name,
         display_data=display_data,
         highlighted_terms=highlighted_terms,
+        links=links,
         skeleton_thumbnail_urls=skeleton_thumbnail_urls,
         # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
         # Otherwise it will be available as downloadable file.

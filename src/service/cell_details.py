@@ -149,7 +149,7 @@ def cached_cell_details(
                 "app.search", filter_string=f"{OP_DOWNSTREAM} {root_id}"
             ),
         )
-        if "reciprocal" in nd["marker"]:
+        if "connectivity_label:reciprocal" in nd["marker"]:
             up, dn = neuron_db.connections_up_down(root_id)
             reciprocal_count = len(set(up).intersection(dn))
             insert_related_cell_links(

@@ -28,7 +28,7 @@ from src.utils.formatting import (
     is_proper_textual_annotation,
 )
 from src.utils.label_cleaning import significant_diff_chars
-from src.utils.parsing import tokenize
+from src.utils.parsing import tokenize, extract_links
 from src.utils.stats import jaccard_binary
 from tests import TEST_DATA_ROOT_PATH, log_dev_url_for_root_ids, get_testing_neuron_db
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
@@ -849,7 +849,11 @@ class NeuronDataTest(TestCase):
     def test_columnar_cell_tags(self):
         # check marked cells
         for rid, ndata in self.neuron_db.neuron_data.items():
-            ol_tag_markers = [mrk for mrk in ndata["marker"] if ":" in mrk]
+            ol_tag_markers = [
+                mrk
+                for mrk in ndata["marker"]
+                if mrk.startswith("columnar:") or mrk.startswith("columnar_candidate:")
+            ]
             if ol_tag_markers:
                 self.assertTrue(ndata["super_class"] in COLUMNAR_CELL_SUPER_CLASSES)
                 if all(
@@ -1242,3 +1246,22 @@ class NeuronDataTest(TestCase):
                 )
         # TODO: make this 0
         self.assertEqual(29, mismatches)
+
+    def test_links_extraction(self):
+        all_links = []
+        for rid, llist in self.neuron_db.label_data.items():
+            neuron_links = set()
+            for lbl in llist:
+                lbl = lbl["label"]
+                links = extract_links(lbl)
+                if links:
+                    neuron_links |= links
+                else:
+                    ll = lbl.lower()
+                    self.assertFalse("fbbt" in ll or "http" in ll or "doi" in ll, lbl)
+            db_links = self.neuron_db.get_links(rid)
+            self.assertEqual(len(db_links), len(set(db_links)), db_links)
+            self.assertEqual(neuron_links, set(db_links))
+            all_links.extend(list(neuron_links))
+
+        self.assertLessEqual(37934, len(all_links))

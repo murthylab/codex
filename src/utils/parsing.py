@@ -1,3 +1,5 @@
+import re
+
 DELIMS = [
     "=",
     "-",
@@ -95,3 +97,29 @@ def edit_distance(s1, s2):
                 )
         distances = distances_
     return distances[-1]
+
+
+def extract_links(label):
+    url_regex = r"(https?://[^\s]+)"
+
+    # order of rewrites is critical for correctness - from narrowest match to broadest
+    doi_base_url = " https://doi.org/"
+    flybase_base_url = " http://flybase.org/reports/FBbt:"
+    rewrites = [
+        (r"\[", " "),
+        (r"\]", " "),
+        (r"\(", " "),
+        (r"\)", " "),
+        (r"[\s,]doi:\s", doi_base_url),
+        (r"[\s,]doi:", doi_base_url),
+        (r"[\s,]doi.org/", doi_base_url),
+        (r"[\s,]doi.org", doi_base_url),
+        (r"[\s,]FBbt 0", flybase_base_url + "0"),
+        (r"[\s,]FBbt_", flybase_base_url),
+        (r"[\s,]FBbt:", flybase_base_url),
+        (r"[\s,]FBbt0", flybase_base_url + "0"),
+    ]
+    for p in rewrites:
+        label = re.sub(p[0], p[1], label, flags=re.IGNORECASE)
+
+    return set(re.findall(url_regex, label, flags=re.IGNORECASE))

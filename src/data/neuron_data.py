@@ -25,6 +25,7 @@ from src.utils.formatting import (
 from src.utils.logging import log
 
 # Keywords will be matched against these attributes
+from src.utils.parsing import extract_links
 from src.utils.stats import jaccard_weighted, jaccard_binary
 
 NEURON_SEARCH_LABEL_ATTRIBUTES = [
@@ -213,7 +214,7 @@ class NeuronDB(object):
         return sorted(vals)
 
     @lru_cache
-    def categories(self, top_values, exclude_internal_markers, for_attr_name=None):
+    def categories(self, top_values, for_attr_name=None):
         value_counts_dict = defaultdict(lambda: defaultdict(int))
         assigned_to_num_cells_dict = defaultdict(int)
         category_attr_names = {
@@ -228,15 +229,22 @@ class NeuronDB(object):
             "Nerve": "nerve",
             "Cell Body Side": "side",
             "Community Identification Label": "label",
-            "Connectivity Labels": "marker",
+            "Connectivity Labels": "marker.connectivity_label",
             "Max In/Out Neuropil": "group",
             "Morphology cluster": "morphology_cluster",
             "Connectivity cluster": "connectivity_cluster",
         }
         for nd in self.neuron_data.values():
-            for v in category_attr_names.values():
+            for cat_attr in category_attr_names.values():
+                if "." in cat_attr:
+                    prts = cat_attr.split(".")
+                    v, v_prefix = prts[0], prts[1]
+                else:
+                    v, v_prefix = cat_attr, None
+
                 if for_attr_name and v != for_attr_name:
                     continue
+
                 val = nd[v]
                 if not val:
                     continue
@@ -244,13 +252,13 @@ class NeuronDB(object):
                 if isinstance(val, list):
                     assigned = False
                     for c in val:
-                        if (
-                            v == "marker" and exclude_internal_markers and ":" in c
-                        ):  # skip temporary OL tagging markers
-                            continue
-                        else:
-                            assigned = True
-                            value_counts_dict[v][c] += 1
+                        if v_prefix:
+                            if c.startswith(f"{v_prefix}:"):
+                                c = c[len(f"{v_prefix}:") :]
+                            else:
+                                continue
+                        assigned = True
+                        value_counts_dict[v][c] += 1
                 else:
                     assigned = True
                     value_counts_dict[v][val] += 1
@@ -291,9 +299,7 @@ class NeuronDB(object):
     @lru_cache
     def dynamic_ranges(self, range_cardinality_cap=40):
         res = {}
-        for dct in self.categories(
-            top_values=range_cardinality_cap, exclude_internal_markers=False
-        ):
+        for dct in self.categories(top_values=range_cardinality_cap):
             if len(dct["counts"]) < range_cardinality_cap:
                 res[f"data_{dct['key']}_range"] = [p[0] for p in dct["counts"]]
         return res
@@ -493,6 +499,14 @@ class NeuronDB(object):
                 res[r] = flist
         return res
 
+    def get_links(self, root_id):
+        nd = self.get_neuron_data(root_id)
+        links = []
+        for mrk in nd["marker"]:
+            if mrk.startswith("link:"):
+                links.append(mrk[len("link:") :])
+        return links
+
     def cell_ids_with_label_data(self):
         return list(self.label_data.keys())
 
@@ -609,11 +623,19 @@ class NeuronDB(object):
         return non_uniform_set
 
     def _create_markers(self):
-        # Add markers for special cells (as per FlyWire flagship paper)
-        special_cells = self._identify_special_cells()
+        # Add markers for special cells (as per FlyWire network analysis paper)
+        special_cells = self._collect_connectivity_labels()
         for tp, lst in special_cells.items():
             for rid in lst:
-                self.neuron_data[rid]["marker"].append(tp)
+                self.neuron_data[rid]["marker"].append(f"connectivity_label:{tp}")
+
+        # Extract URL / links and add them as markers
+        for rid, llist in self.label_data.items():
+            links = set()
+            for lbl in llist:
+                links |= extract_links(lbl["label"])
+            for link in links:
+                self.neuron_data[rid]["marker"].append(f"link:{link}")
 
         # Add tagging candidate markers for columnar cells in the Optic Lobe
         for (
@@ -657,7 +679,7 @@ class NeuronDB(object):
             for rid in tagged_and_candidate_rids[1]:
                 self.neuron_data[rid]["marker"].append(f"columnar_candidate:{cst_type}")
 
-    def _identify_special_cells(self):
+    def _collect_connectivity_labels(self):
         ins, outs = self.input_output_partner_sets()
         rich_club = {
             rid
