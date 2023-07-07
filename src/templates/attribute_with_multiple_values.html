@@ -1,16 +1,15 @@
 {% if attr_val %}
 <div>
-    <small><span style="color: teal" title="{{tooltip}}">{{caption}}</span>
+    <small><span style="color: teal" title="{{tooltip}}"><nobr>{{caption}}</nobr></span>
         <br>
         {% for tg in attr_val %}
                 <div class="spotfilter">
+                    <nobr>
                     <small><b>&#x2022;</b> &nbsp;{{highlighted_terms.get(tg, tg)|safe}}</small>
                     {% if tg in non_uniform_values %}
                     <span class="td_filter_buttons">
-                        <nobr>
                         <button title="Exclude items with this {{attr_key}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('{{attr_key}} != {{tg}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
                         <button title="Show only items with this {{attr_key}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('{{attr_key}} == {{tg}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
-                        </nobr>
                     </span>
                     <span class="td_filter_buttons_caption">
                         <!--apply filter-->
@@ -20,6 +19,7 @@
                         all matches
                     </span>
                     {% endif %}
+                    </nobr>
                 </div>
         {% endfor %}
     </small>

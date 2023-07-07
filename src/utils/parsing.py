@@ -128,4 +128,6 @@ def extract_links(label):
         else:
             return lnk
 
-    return set([strip(link) for link in re.findall(url_regex, label, flags=re.IGNORECASE)])
+    return set(
+        [strip(link) for link in re.findall(url_regex, label, flags=re.IGNORECASE)]
+    )
