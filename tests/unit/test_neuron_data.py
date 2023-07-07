@@ -1264,4 +1264,4 @@ class NeuronDataTest(TestCase):
             self.assertEqual(neuron_links, set(db_links))
             all_links.extend(list(neuron_links))
 
-        self.assertLessEqual(37934, len(all_links))
+        self.assertLessEqual(37932, len(all_links))

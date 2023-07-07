@@ -248,9 +248,9 @@
                 </div>
                 {% endfor %}
                 {% if links.get(neuron.root_id) %}
-                <small style="color: magenta" id="links_{{neuron.root_id}}_header" onclick="elem = document.getElementById('links_{{neuron.root_id}}_body'); elem.hidden = !elem.hidden; elem = document.getElementById('links_{{neuron.root_id}}_header'); elem.hidden = !elem.hidden;"><i class="fa-solid fa-book-open-reader"></i> literature & links <i class="fa-solid fa-caret-down"></i></small>
+                <small style="color: magenta" id="links_{{neuron.root_id}}_header" onclick="elem = document.getElementById('links_{{neuron.root_id}}_body'); elem.hidden = !elem.hidden; elem = document.getElementById('links_{{neuron.root_id}}_header'); elem.hidden = !elem.hidden;"><i class="fa-solid fa-book-open-reader"></i> extracted literature links <i class="fa-solid fa-caret-down"></i></small>
                 <div id="links_{{neuron.root_id}}_body" hidden>
-                    <small style="color: teal" onclick="elem = document.getElementById('links_{{neuron.root_id}}_body'); elem.hidden = !elem.hidden; elem = document.getElementById('links_{{neuron.root_id}}_header'); elem.hidden = !elem.hidden;"><i class="fa-solid fa-book-open-reader"></i> literature & links <i class="fa-solid fa-caret-up"></i></small>
+                    <small style="color: magenta" onclick="elem = document.getElementById('links_{{neuron.root_id}}_body'); elem.hidden = !elem.hidden; elem = document.getElementById('links_{{neuron.root_id}}_header'); elem.hidden = !elem.hidden;"><i class="fa-solid fa-book-open-reader"></i> extracted literature links <i class="fa-solid fa-caret-up"></i></small>
                     <div style="font-size: 11px;">
                     {% for link in links.get(neuron.root_id) %}
                         &nbsp; &#8226; <a  target="_blank" href="{{link}}">
