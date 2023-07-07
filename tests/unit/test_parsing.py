@@ -46,6 +46,10 @@ class Test(TestCase):
         self.assertEqual(
             {"http://flybase.org/reports/FBbt:01234567"}, extract_links(" FBbt01234567")
         )
+        self.assertEqual(
+            {"http://flybase.org/reports/FBbt:01234567"},
+            extract_links(" FBbt_01234567."),
+        )
 
         self.assertEqual(
             {"http://flybase.org/reports/FBbt:00003779"},

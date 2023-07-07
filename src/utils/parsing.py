@@ -122,4 +122,10 @@ def extract_links(label):
     for p in rewrites:
         label = re.sub(p[0], p[1], label, flags=re.IGNORECASE)
 
-    return set(re.findall(url_regex, label, flags=re.IGNORECASE))
+    def strip(lnk):
+        if any([lnk.endswith(c) for c in "."]):
+            return lnk[:-1]
+        else:
+            return lnk
+
+    return set([strip(link) for link in re.findall(url_regex, label, flags=re.IGNORECASE)])
