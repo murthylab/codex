@@ -84,6 +84,7 @@ def compact_label(label):
         "; Part of comprehensive neck connective tracing, contact Connectomics Group Cambridge for more detailed "
         "information on descending/ascending neurons",
         " (total brain fart (not part of the name of the neuron))",
+        " (complete brain fart trying to lend weight to someone else`s self-correction, ended up choosing the wrong label myself too xD)",
         "Taisz ... Galili 2022 doi:10.1101/2022.05.13.491877",
         "; https://doi.org/10.1101/2021.12.20.473513",
     ]
