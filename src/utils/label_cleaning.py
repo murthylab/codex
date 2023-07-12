@@ -119,7 +119,7 @@ def remove_redundant_parts(labels, neuron_data):
     )
 
     def rewrite(lbl):
-        for rprefix in ["putative "]:
+        for rprefix in ["putative ", "putative-", "putative_"]:
             if lbl.lower().startswith(rprefix):
                 lbl = lbl[len(rprefix) :]
         return lbl
