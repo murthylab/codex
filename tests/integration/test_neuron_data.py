@@ -141,7 +141,9 @@ class NeuronDataTest(TestCase):
                             diff_keys[k] += 1
                             diff_rids.add(rid)
                     else:
-                        if val != ndp[k]:
+                        if (
+                            isinstance(val, list) and sorted(val) != sorted(ndp[k])
+                        ) or (not isinstance(val, list) and val != ndp[k]):
                             diff_keys[k] += 1
                             diff_vals[f"{k}: {val} vs {ndp[k]}"] += 1
                             diff_rids.add(rid)
@@ -151,7 +153,7 @@ class NeuronDataTest(TestCase):
                 0,
                 len(diff_keys),
                 f"Diff keys not empty: {diff_keys=}\n\n {len(diff_vals)=}\n\n {diff_vals=}"[
-                    :100
+                    :1000
                 ],
             )
             # compare optional output sets (adjacency)

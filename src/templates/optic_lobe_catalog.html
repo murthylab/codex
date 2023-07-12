@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}
+Optic Lobe Catalog
+{% endblock title %}
+
+{% block content %}
+<h4 style="color: teal; margin: 20px;">Catalog of Optic Lobe Neuron Types</h4>
+<div id="accordion">
+    {% for mega_type, types_list in types_data.items() %}
+    {% set mt_id = mega_type.replace(' ', '_') %}
+    <div class="card">
+        <div class="card-header" id="heading_{{mt_id}}">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapse_{{mt_id}}" aria-expanded="true"
+                        aria-controls="collapse_{{mt_id}}">
+                    {{mega_type|safe}}
+                </button>
+            </h5>
+        </div>
+        <div id="collapse_{{mt_id}}" class="collapse show" aria-labelledby="heading_{{mt_id}}" data-parent="#accordion">
+            <div class="card-body">
+                <ul>
+                    {% for t in types_list %}
+                    <li>{{t.name|safe}}</li>
+                    <ul>
+                        {% if t.olr_count %}
+                            <li><a href="{{t.olr_search_url}}" target="_blank">{{t.olr_count}} cells in right optic lobe</a>
+                                &nbsp;| &nbsp;
+                                <a href="{{t.olr_ngl_url}}" target="_blank">see 3D view</a>
+                            </li>
+                        {% else %}
+                            <li style="color:grey">No matches in the right optic lobe</li>
+                        {% endif %}
+                        {% if t.non_olr_count %}
+                            <li><a style="color: pink" href="{{t.non_olr_search_url}}" target="_blank">{{t.non_olr_count}} cells <b>outside right optic lobe</b></a>
+                                &nbsp;| &nbsp;
+                                <a style="color: pink" href="{{t.non_olr_ngl_url}}" target="_blank">see 3D view</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock content %}

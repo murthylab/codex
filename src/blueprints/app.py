@@ -52,6 +52,10 @@ from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
 )
+from src.data.visual_neuron_types import (
+    VISUAL_NEURON_MEGA_TYPE_TO_TYPES,
+    VISUAL_NEURON_TYPES,
+)
 from src.service.cell_details import cached_cell_details
 from src.service.network import compile_network_html
 from src.service.search import pagination_data, DEFAULT_PAGE_SIZE
@@ -77,6 +81,7 @@ from src.utils.logging import (
     log,
     log_warning,
     log_error,
+    log_user_help,
 )
 from src.utils.formatting import can_be_flywire_root_id
 from src.utils.parsing import tokenize
@@ -468,6 +473,53 @@ def search_results_flywire_url():
         f"Redirecting {len(sorted_search_result_root_ids)} results {activity_suffix(filter_string, data_version)} to FlyWire"
     )
     return ngl_redirect_with_client_check(ngl_url=url)
+
+
+@app.route("/optic_lobe_catalog")
+@request_wrapper
+@require_data_access
+def optic_lobe_catalog():
+    log_user_help("Loading optic lobe catalog")
+    neuron_db = NeuronDataFactory.instance().get()
+    olr_type_lists = {t: [] for t in VISUAL_NEURON_TYPES}
+    non_olr_type_lists = {t: [] for t in VISUAL_NEURON_TYPES}
+    for rid, nd in neuron_db.neuron_data.items():
+        for mrk in nd["marker"]:
+            if mrk.startswith("olr_type:"):
+                olt = mrk.split(":")[1]
+                olr_type_lists[olt].append(rid)
+            elif mrk.startswith("not_in_olr_type:"):
+                olt = mrk.split(":")[1]
+                non_olr_type_lists[olt].append(rid)
+
+    types_data = {}
+    for mt, tl in VISUAL_NEURON_MEGA_TYPE_TO_TYPES.items():
+        types_list = []
+        for t in tl:
+            olr_query = f"marker == olr_type:{t}"
+            non_olr_query = f"marker == not_in_olr_type:{t}"
+            types_list.append(
+                {
+                    "name": t,
+                    "olr_count": len(olr_type_lists[t]),
+                    "olr_search_url": url_for("app.search", filter_string=olr_query),
+                    "olr_ngl_url": url_for(
+                        "app.search_results_flywire_url", filter_string=olr_query
+                    ),
+                    "non_olr_count": len(non_olr_type_lists[t]),
+                    "non_olr_search_url": url_for(
+                        "app.search", filter_string=non_olr_query
+                    ),
+                    "non_olr_ngl_url": url_for(
+                        "app.search_results_flywire_url", filter_string=non_olr_query
+                    ),
+                }
+            )
+        types_data[mt] = types_list
+    return render_template(
+        "optic_lobe_catalog.html",
+        types_data=types_data,
+    )
 
 
 @app.route("/optic_lobe_tagging")

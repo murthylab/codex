@@ -18,6 +18,9 @@ from src.data.structured_search_filters import (
 )
 from src.configuration import MIN_NBLAST_SCORE_SIMILARITY
 from src.data.svd import Svd
+from src.service.optic_lobe_types_catalog import (
+    assign_types_for_right_optic_lobe_catalog,
+)
 from src.utils.formatting import (
     display,
     percentage,
@@ -636,6 +639,17 @@ class NeuronDB(object):
                 links |= extract_links(lbl["label"])
             for link in links:
                 self.neuron_data[rid]["marker"].append(f"link:{link}")
+
+        # Add optic lobe types information (for now right side only, for the catalog completion)
+        olr_type_lists, non_olr_type_lists = assign_types_for_right_optic_lobe_catalog(
+            self
+        )
+        for olt, rid_list in olr_type_lists.items():
+            for rid in rid_list:
+                self.neuron_data[rid]["marker"].append(f"olr_type:{olt}")
+        for olt, rid_list in non_olr_type_lists.items():
+            for rid in rid_list:
+                self.neuron_data[rid]["marker"].append(f"not_in_olr_type:{olt}")
 
         # Add tagging candidate markers for columnar cells in the Optic Lobe
         for (

@@ -41,8 +41,8 @@ HIGHLIGHTING_DELIMS = [
 ]
 
 
-def tokenize(s):
-    for d in DELIMS:
+def tokenize(s, delims=DELIMS):
+    for d in delims:
         s = s.replace(d, " ")
 
     def clean(tk):

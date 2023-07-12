@@ -155,6 +155,7 @@ def remove_corrected(labels_latest_to_oldest):
         " (correction)",
         " (correction due to brain fart)",
         " (correction due to brainfart)",
+        " (Tm5c is not correct)",
         " (corrected)",
         " - L1 Label Incorrect",
         " - L2 Label Incorrect",
