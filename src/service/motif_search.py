@@ -13,29 +13,6 @@ DEFAULT_LIMIT = 1000
 
 EdgeConstraints = namedtuple("EdgeConstraints", "regions min_synapse_count nt_type")
 
-example_form_query = {
-  "enabledAB": "on",
-  "enabledBA": "on",
-  "enabledBC": "on",
-  "enabledCA": "on",
-  "minSynapseCountAB": "2",
-  "minSynapseCountAC": "3",
-  "minSynapseCountBA": "1",
-  "minSynapseCountBC": "6",
-  "minSynapseCountCA": "4",
-  "minSynapseCountCB": "5",
-  "queryA": "mushroom",
-  "queryB": "body",
-  "queryC": "kenyon",
-  "regionAB": "AMMC_R",
-  "regionAC": "Any",
-  "regionBA": "LH_L",
-  "regionBC": "BU_R",
-  "regionCA": "Any",
-  "regionCB": "LH_R"
-}
-
-
 
 class MotifSearchQuery(object):
     def __init__(self, neuron_data_factory=None):
@@ -45,7 +22,6 @@ class MotifSearchQuery(object):
 
     def __repr__(self):
         return f"<MotifSearchQuery with {len(self.nodes)} nodes and {len(self.edges)} edges>"
-
 
     @classmethod
     def from_form_query(cls, form_query, neuron_data_factory=None):
@@ -95,7 +71,7 @@ class MotifSearchQuery(object):
                 node_index_to_name[from_index],
                 node_index_to_name[to_index],
             )
-            regions = None 
+            regions = None
             if properties := edge["properties"]:
                 regions = properties.get("regions")
             motif_search_query.add_edge(from_node, to_node, regions)
@@ -246,7 +222,7 @@ class MotifSearchQuery(object):
                 )
             if ec.regions:
                 regions |= set(ec.regions)
-            if ec.nt_type: # bit of a hack - we only support a single NT type for now
+            if ec.nt_type:  # bit of a hack - we only support a single NT type for now
                 nt_type = ec.nt_type
         candidate_connections = neuron_db.connections(
             ids=set.union(*candidate_sets_list),

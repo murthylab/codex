@@ -3,7 +3,6 @@ import re
 from collections import defaultdict
 from datetime import datetime
 import requests
-import os
 
 from flask import (
     render_template,
@@ -114,7 +113,13 @@ def stats():
     whole_word = request.args.get("whole_word", 0, type=int)
 
     log_activity(f"Generating stats {activity_suffix(filter_string, data_version)}")
-    (filtered_root_id_list, num_items, hint, data_stats, data_charts,) = stats_cached(
+    (
+        filtered_root_id_list,
+        num_items,
+        hint,
+        data_stats,
+        data_charts,
+    ) = stats_cached(
         filter_string=filter_string,
         data_version=data_version,
         case_sensitive=case_sensitive,
@@ -1424,36 +1429,50 @@ def my_labels():
             )
 
 
-
 @app.route("/motifs/", methods=["GET", "POST"])
 @request_wrapper
 @require_data_access
 def motifs():
-
-
-
     if request.args:
-        
         try:
-            motifs_query = MotifSearchQuery.from_form_query(request.args, NeuronDataFactory.instance())
+            motifs_query = MotifSearchQuery.from_form_query(
+                request.args, NeuronDataFactory.instance()
+            )
         except Exception as e:
             error = f"Error parsing motif query: {e=}"
             log_error(error)
 
             return {"msg": error}, 500
 
-        try: 
+        try:
             search_results = motifs_query.search()
         except Exception as e:
             error = f"Error searching for motif: {e=}"
             log_error(error)
 
-            return render_template("motif_search.html",  regions=list(REGIONS.keys()), results=[], error=error, NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES, query=request.args)
-            
-        print(search_results)
+            return render_template(
+                "motif_search.html",
+                regions=list(REGIONS.keys()),
+                results=[],
+                error=error,
+                NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES,
+                query=request.args,
+            )
 
 
-        return render_template("motif_search.html",  regions=list(REGIONS.keys()), results=search_results, query=request.args, NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES)
+        return render_template(
+            "motif_search.html",
+            regions=list(REGIONS.keys()),
+            results=search_results,
+            query=request.args,
+            NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES,
+        )
 
-
-    return render_template("motif_search.html", regions=list(REGIONS.keys()), error=None, NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES, query={}, results=[])
+    return render_template(
+        "motif_search.html",
+        regions=list(REGIONS.keys()),
+        error=None,
+        NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES,
+        query={},
+        results=[],
+    )
