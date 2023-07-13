@@ -95,7 +95,7 @@ class MotifSearchQuery(object):
                 raise ValueError(f"Unknown region {region}")
 
         min_synapse_count = int(min_synapse_count)
-        if min_synapse_count <= 0:
+        if min_synapse_count < 0:
             raise ValueError(f"Invalid min_synapse_count {min_synapse_count}")
 
         if nt_type and nt_type not in NEURO_TRANSMITTER_NAMES:
