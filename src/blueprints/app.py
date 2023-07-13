@@ -1427,18 +1427,11 @@ def my_labels():
 
 @app.route("/motifs/", methods=["GET", "POST"])
 @request_wrapper
-@require_data_access
 def motifs():
     if request.args:
-        try:
-            motifs_query = MotifSearchQuery.from_form_query(
-                request.args, NeuronDataFactory.instance()
-            )
-        except Exception as e:
-            error = f"Error parsing motif query: {e=}"
-            log_error(error)
-
-            return {"msg": error}, 500
+        motifs_query = MotifSearchQuery.from_form_query(
+            request.args, NeuronDataFactory.instance()
+        )
 
         try:
             search_results = motifs_query.search()
@@ -1463,6 +1456,7 @@ def motifs():
             query=request.args,
             NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES,
         )
+
 
     return render_template(
         "motif_search.html",
