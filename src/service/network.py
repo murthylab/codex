@@ -25,6 +25,15 @@ def compile_network_html(
     if group_by_attribute_name:
 
         def node_projection(ndata):
+            # TODO: finish this up
+            if group_by_attribute_name == "olr_type":
+                for mrk in ndata["marker"]:
+                    if mrk.startswith("olr_type:"):
+                        lbl = mrk.split(":")[1]
+                        if not lbl.lower().startswith("unknown"):
+                            return lbl
+                return "NA"
+
             if not ndata[group_by_attribute_name]:
                 return f"Unassigned {display(group_by_attribute_name)}"
             res = display(ndata[group_by_attribute_name])

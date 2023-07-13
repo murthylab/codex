@@ -28,6 +28,18 @@ def attr_list(attrs):
 
 
 FAQ_QA_KB = {
+    "data_origin": {
+        "q": "How was the FlyWire connectome generated?",
+        "a": "The FlyWire connectome was generated using a combination of automated image analysis and human "
+        "proofreading. First, a team of researchers used electron microscopy to image a complete adult fly "
+        "brain (FAFB). The resulting images were then aligned and segmented using AI and other algorithms. "
+        "This resulted in a preliminary connectome, that was then proofread by a community of scientists and "
+        "citizen scientists using the FlyWire proofreading platform. The platform allows users to view and edit "
+        "the connectome, and to provide annotations about the neurons and synapses. This process helped to "
+        "improve the accuracy of the connectome, and to identify new features that were not visible in the "
+        "original images. For additional information refer to the "
+        '<a href="https://flywire.ai">FlyWire homepage</a>.',
+    },
     "data_version": {
         "q": "What version of FlyWire data is shown?",
         "a": "<b>Codex</b> provides access to static FlyWire connectome data releases (sometimes referred to as"

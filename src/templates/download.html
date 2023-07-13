@@ -8,17 +8,18 @@
          Download FlyWire Connectome Data
     </div>
     <div class="card-body">
-        <p> Dear <b>{{user_name}}</b>, note
-            that FlyWire resources are not fully published yet.
+        <p> Dear <b>{{user_name}}</b>, if you are using FlyWire data in your publications please follow the FlyWire <a
+                    href="{{url_for('base.about_flywire')}}" target="_blank">citation guidelines</a> and <a
+                    href="https://flywire.ai/principles.html" target="_blank">principles</a>.
             <br>
-            Please do not share or forward the data below without written permission from <b>flywire@princeton.edu</b>.
+            For additional questions or clarification please email <b>flywire@princeton.edu</b>
             <div class="form-check">
               <input class="form-check-input" type="checkbox" value="" id="agree_chk" {{'checked' if agree_chk}}
                      onchange="document.getElementById('download_form').hidden=!document.getElementById('agree_chk').checked;">
               <label class="form-check-label" for="agree_chk">
-                I understand and agree to follow the publication guidelines <a
-                    href="https://docs.google.com/document/d/1bUkOB-5JnT3u__JDvAoVDHJ3zr5NXQtV_63yx2w6Tcc/" target="_blank">in this
-                doc</a>.
+                I understand and agree to follow the FlyWire <a
+                    href="{{url_for('base.about_flywire')}}" target="_blank">citation guidelines</a> and <a
+                    href="https://flywire.ai/principles.html" target="_blank">principles</a>.
               </label>
             </div>
         </p>

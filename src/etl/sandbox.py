@@ -486,12 +486,104 @@ def cluster_with_morpho_jscores_for_dsxfru(neuron_db, morpho_jscores_fname):
     )
 
 
+def generate_untyped_ol_cosine_matrix(neuron_db, fname):
+    def untyped_ol_cell(nd):
+        if nd["side"] != "right" or nd["super_class"] != "optic":
+            return False
+        for mrk in nd["marker"]:
+            if mrk.startswith("olr_type:"):
+                return mrk.split(":")[1].lower().startswith("unknown")
+        print("ERROR: OLR cell without a marker!!")
+        assert False
+
+    untyped_ol_cell_ids = [
+        rid for rid, nd in neuron_db.neuron_data.items() if untyped_ol_cell(nd)
+    ]
+    print(
+        f"Identified {len(untyped_ol_cell_ids)} untyped cells in the right OL. Calculating scores..."
+    )
+    scores_matrix = [untyped_ol_cell_ids]
+    for i1, rid1 in enumerate(untyped_ol_cell_ids):
+        row = []
+        for i2, rid2 in enumerate(untyped_ol_cell_ids):
+            if i2 > i1:
+                score = neuron_db.svd.calculate_cosine_similarity(
+                    rid1, rid2, up=True, down=True
+                )
+            elif i1 > i2:
+                score = scores_matrix[i2 + 1][i1]
+            else:
+                score = 1
+            row.append(score)
+        scores_matrix.append(row)
+    print(f"Calculated score matrix of length {len(scores_matrix)}. Writing to file...")
+    write_csv(filename=fname, rows=scores_matrix, compress=True)
+
+
+def cluster_untyped_ol_cells(scores_fname, clusters_fname):
+    scores_matrix = read_csv(scores_fname)
+    print(f"Read {len(scores_matrix)} score rows. Building score graph..")
+    rids = scores_matrix[0]
+    G = Graph()
+    for i1, rid1 in enumerate(rids):
+        G.add_node(rid1)
+        for i2, rid2 in enumerate(rids):
+            if i1 >= i2:
+                continue
+            if i1 == 0:
+                G.add_node(rid2)
+            score = scores_matrix[i1 + 1][i2]
+            if score == "":
+                score = -1
+            G.add_edge(rid1, rid2, weight=100 * (float(score) + 1))
+
+    print("Running community analysis..")
+    communities_generator = community.louvain_communities(G, resolution=2)
+    clusters_dict = {}
+    component_id = 0
+    max_xluster_size = 0
+    for s in sorted(communities_generator, key=lambda x: -len(x)):
+        max_xluster_size = max(max_xluster_size, len(s))
+        component_id += 1
+        cluster_name = f"CC_{component_id}"
+        rids = []
+        for rid in s:
+            clusters_dict[rid] = cluster_name
+            rids.append(rid)
+        print(f"{len(rids)}: {sorted(rids)[:10]}")
+
+    print(
+        f"Total clustered rids: {len(clusters_dict)}, {max_xluster_size=}, # clusters: {component_id}"
+    )
+    clusters_table = [["root_id", "morpho_connectivity_cluster"]]
+    for rid, cl in clusters_dict.items():
+        clusters_table.append([rid, cl])
+
+    print(f"Writing results to file {clusters_fname}..")
+    write_csv(
+        filename=clusters_fname,
+        rows=clusters_table,
+        compress=True,
+    )
+
+
 if __name__ == "__main__":
-    neuron_db = NeuronDataFactory.instance().get()
-    morpho_jscores_fname = "static/experimental_data/morpho_jaccard_scores.csv.gz"
-    # make_morphology_graph_jscores_for_dsxfru(neuron_db, morpho_jscores_fname)
-    cluster_with_morpho_jscores_for_dsxfru(neuron_db, morpho_jscores_fname)
+    untyped_ol_cosine_matrix_file = (
+        "static/experimental_data/untyped_ol_cosine_matrix.csv.gz"
+    )
+    untyped_ol_clusters_file = "static/experimental_data/untyped_ol_clusters.csv.gz"
+    # generate_untyped_ol_cosine_matrix(NeuronDataFactory.instance().get(), untyped_ol_cosine_matrix_file)
+    cluster_untyped_ol_cells(
+        scores_fname=untyped_ol_cosine_matrix_file,
+        clusters_fname=untyped_ol_clusters_file,
+    )
+
+    # morpho_jscores_fname = "static/experimental_data/morpho_jaccard_scores.csv.gz"
+    # make_morphology_graph_jscores_for_dsxfru(NeuronDataFactory.instance().get(), morpho_jscores_fname)
+    # cluster_with_morpho_jscores_for_dsxfru(NeuronDataFactory.instance().get(), morpho_jscores_fname)
+
     # compare_versions("630_before_cb_matches", "630")
-    # generate_con_jaccard_similarity_table(neuron_db)
-    # analyse_con_jaccard_similarities(neuron_db)
+
+    # generate_con_jaccard_similarity_table(NeuronDataFactory.instance().get())
+    # analyse_con_jaccard_similarities(NeuronDataFactory.instance().get())
     # cluster_by_jaccard_similarities()
