@@ -1,7 +1,9 @@
 from unittest import TestCase
 
 from src.service.motif_search import MotifSearchQuery, EdgeConstraints
-from tests import TEST_NEURON_DATA_FACTORY
+from tests import get_testing_neuron_db
+
+TEST_NEURON_DATA_FACTORY = get_testing_neuron_db()
 
 
 class TestMotifSearchQuery(TestCase):
