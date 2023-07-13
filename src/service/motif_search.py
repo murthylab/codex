@@ -384,7 +384,7 @@ class MotifSearchQuery(object):
                             ],
                         )
                     )
-                    if len(matches) >= limit:
+                    if limit and len(matches) >= limit:
                         break
         elif xy_edge_constraints:
             for xy, xy_edge_matches in xy_satisfied_connections.items():
@@ -398,7 +398,7 @@ class MotifSearchQuery(object):
                         ],
                     )
                 )
-                if len(matches) >= limit:
+                if limit and len(matches) >= limit:
                     break
         elif yx_edge_constraints:
             for yx, yx_edge_matches in yx_satisfied_connections.items():
@@ -412,7 +412,7 @@ class MotifSearchQuery(object):
                         ],
                     )
                 )
-                if len(matches) >= limit:
+                if limit and len(matches) >= limit:
                     break
         else:
             # no edge constraints - return all pairs
@@ -423,7 +423,7 @@ class MotifSearchQuery(object):
                             neuron_db=neuron_db, nodes=[(x, xc), (y, yc)], edges=[]
                         )
                     )
-                    if len(matches) >= limit:
+                    if limit and len(matches) >= limit:
                         break
 
         return matches
@@ -462,7 +462,7 @@ class MotifSearchQuery(object):
             y_candidates=y_candidates,
             xy_edge_constraints=xy_edge_constraints,
             yx_edge_constraints=yx_edge_constraints,
-            limit=limit,
+            limit=None,
         )
         xz_pairs = MotifSearchQuery._search_pairs(
             neuron_db,
@@ -472,7 +472,7 @@ class MotifSearchQuery(object):
             y_candidates=z_candidates,
             xy_edge_constraints=xz_edge_constraints,
             yx_edge_constraints=zx_edge_constraints,
-            limit=limit,
+            limit=None,
         )
         yz_pairs = MotifSearchQuery._search_pairs(
             neuron_db,
@@ -482,7 +482,7 @@ class MotifSearchQuery(object):
             y_candidates=z_candidates,
             xy_edge_constraints=yz_edge_constraints,
             yx_edge_constraints=zy_edge_constraints,
-            limit=limit,
+            limit=None,
         )
 
         x_ids_for_z_id = {z_id: set() for z_id in z_candidates}
