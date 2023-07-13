@@ -1,29 +1,37 @@
 from src.data.visual_neuron_types import VISUAL_NEURON_TYPES
 from src.utils.parsing import tokenize
 
+LABEL_DELIMS = [",", ";", ":", "(", ")", "/"]
+UPDATED_TYPES_LC = {f"r{i}": "R1-6" for i in range(1, 7)}
+UPDATED_TYPES_LC["mi8"] = "Mi9"
 
-def assign_types_to_neurons(rid_to_labels_data, target_type_list):
-    delims = [",", ";", ":", "(", ")", "/"]
-    unknown_labels = set()
+def remove_side(t):
+    tl = t.lower()
+    if tl.endswith("_l") or tl.endswith("_r"):
+        return t[:-2]
+    return t
 
-    def infer_ol_type(label_data):
-        if not label_data:
-            return "Unknown-not-labeled"
+def rewrite(t):
+    t = remove_side(t)
+    return UPDATED_TYPES_LC.get(t.lower(), t)
+
+
+def infer_ol_type(label_data, types_list, target_type_list, unknown_labels):
+    if label_data:
         labels_latest_to_oldest = sorted(
             label_data, key=lambda x: x["date_created"], reverse=True
         )
 
         for lbl in labels_latest_to_oldest:
-            tokens_lower = [t.lower() for t in tokenize(lbl["label"], delims)]
+            tokens = [rewrite(t) for t in tokenize(lbl["label"], LABEL_DELIMS)]
+            tokens_lower = [t.lower() for t in tokens]
             for olt in target_type_list:
                 olt_lower = olt.lower()
-                for i, t_lower in enumerate(tokens_lower):
+                for t_lower in tokens_lower:
                     if t_lower == olt_lower:
                         return olt
 
-        # try consecutive token pairs (e.g. L 5 -> L5)
-        for lbl in labels_latest_to_oldest:
-            tokens = tokenize(lbl["label"], delims)
+            # try consecutive token pairs (e.g. L 5 -> L5)
             for olt in target_type_list:
                 for i, t in enumerate(tokens):
                     if i < len(tokens) - 1 and t + tokens[i + 1] == olt:
@@ -34,10 +42,38 @@ def assign_types_to_neurons(rid_to_labels_data, target_type_list):
 
         for lbl in labels_latest_to_oldest:
             unknown_labels.add(lbl["label"])
-        return "Unknown-labeled"
 
+    if types_list:
+        # try to infer by cell / hemibrain type
+        matched_types = []
+        target_types_lc_no_spaces = {
+            t.lower().replace(" ", ""): t for t in target_type_list
+        }
+        for t in types_list:
+            matched_type = target_types_lc_no_spaces.get(t.lower().replace(" ", ""))
+            if matched_type:
+                matched_types.append(matched_type)
+        if len(set(matched_types)) == 1:
+            print(f"Inferred {matched_types[0]} from types: {types_list}")
+            return matched_types[0]
+        elif len(set(matched_types)) > 1:
+            print(f"WARNING!!! Inferred multiple: {matched_types} from types: {types_list}")
+
+    return "Unknown-labeled" if label_data else "Unknown-not-labeled"
+
+
+def assign_types_to_neurons(
+    rid_to_labels_data, rid_to_cell_types_list, target_type_list
+):
+    unknown_labels = set()
     neuron_to_type = {
-        rid: infer_ol_type(label_data) for rid, label_data in rid_to_labels_data.items()
+        rid: infer_ol_type(
+            label_data=label_data,
+            types_list=rid_to_cell_types_list[rid],
+            target_type_list=target_type_list,
+            unknown_labels=unknown_labels,
+        )
+        for rid, label_data in rid_to_labels_data.items()
     }
 
     if unknown_labels:
@@ -67,6 +103,9 @@ def assign_types_for_right_optic_lobe_catalog(neuron_db):
         rid_to_labels_data={
             rid: neuron_db.get_label_data(rid) for rid in olr_neuron_rid_list
         },
+        rid_to_cell_types_list={
+            rid: neuron_db.get_all_cell_types(rid) for rid in olr_neuron_rid_list
+        },
         target_type_list=list(VISUAL_NEURON_TYPES),
     )
 
@@ -80,6 +119,9 @@ def assign_types_for_right_optic_lobe_catalog(neuron_db):
     non_olr_type_list = assign_types_to_neurons(
         rid_to_labels_data={
             rid: neuron_db.get_label_data(rid) for rid in non_olr_neuron_rid_list
+        },
+        rid_to_cell_types_list={
+            rid: neuron_db.get_all_cell_types(rid) for rid in non_olr_neuron_rid_list
         },
         target_type_list=list(VISUAL_NEURON_TYPES),
     )

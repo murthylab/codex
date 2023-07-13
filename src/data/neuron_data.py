@@ -469,6 +469,10 @@ class NeuronDB(object):
             res[p[0]] = p[1]
         return res
 
+    def get_all_cell_types(self, root_id):
+        nd = self.get_neuron_data(root_id)
+        return nd["cell_type"] + nd["hemibrain_type"]
+
     def get_label_data(self, root_id):
         root_id = int(root_id)
         return self.label_data.get(root_id)
