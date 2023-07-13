@@ -109,13 +109,7 @@ def stats():
     whole_word = request.args.get("whole_word", 0, type=int)
 
     log_activity(f"Generating stats {activity_suffix(filter_string, data_version)}")
-    (
-        filtered_root_id_list,
-        num_items,
-        hint,
-        data_stats,
-        data_charts,
-    ) = stats_cached(
+    (filtered_root_id_list, num_items, hint, data_stats, data_charts,) = stats_cached(
         filter_string=filter_string,
         data_version=data_version,
         case_sensitive=case_sensitive,
@@ -1428,41 +1422,34 @@ def my_labels():
 @app.route("/motifs/", methods=["GET", "POST"])
 @request_wrapper
 def motifs():
+    log_activity(f"Loading motifs search with {request.args}")
+    search_results = []
+
     if request.args:
         motifs_query = MotifSearchQuery.from_form_query(
             request.args, NeuronDataFactory.instance()
         )
-
         try:
             search_results = motifs_query.search()
+            log_activity(
+                f"Motif search with {motifs_query} found {len(search_results)} matches"
+            )
         except Exception as e:
             error = f"Error searching for motif: {e=}"
             log_error(error)
-
             return render_template(
                 "motif_search.html",
                 regions=list(REGIONS.keys()),
-                results=[],
+                results=search_results,
                 error=error,
                 NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES,
                 query=request.args,
             )
 
-
-        return render_template(
-            "motif_search.html",
-            regions=list(REGIONS.keys()),
-            results=search_results,
-            query=request.args,
-            NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES,
-        )
-
-
     return render_template(
         "motif_search.html",
         regions=list(REGIONS.keys()),
-        error=None,
         NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES,
-        query={},
-        results=[],
+        query=request.args,
+        results=search_results,
     )

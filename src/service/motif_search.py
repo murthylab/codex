@@ -27,23 +27,31 @@ class MotifSearchQuery(object):
     def from_form_query(cls, form_query, neuron_data_factory=None):
         motif_search_query = cls(neuron_data_factory=neuron_data_factory)
         for node_name in ["A", "B", "C"]:
-            node_query = form_query.get(f"query{node_name}")
-            if node_query == "":
-                node_query = "*"
+            node_query = form_query.get(f"query{node_name}") or "*"
             motif_search_query.add_node(node_name, node_query)
         for edge_name in ["AB", "BA", "BC", "CB", "CA", "AC"]:
             from_node, to_node = edge_name[0], edge_name[1]
             regions = None
             if form_query.get(f"enabled{edge_name}") == "on":
                 region = form_query.get(f"region{edge_name}")
-                if region == "Any":
-                    region = None
-                min_synapse_count = form_query.get(f"minSynapseCount{edge_name}")
-                if min_synapse_count == "":
-                    min_synapse_count = MIN_SYN_THRESHOLD
+                if region != "Any":
+                    if region not in REGIONS:
+                        raise ValueError(
+                            f"Region {region} for {edge_name} not recognized."
+                        )
+                    regions = [region]
+
+                min_synapse_count = (
+                    form_query.get(f"minSynapseCount{edge_name}") or MIN_SYN_THRESHOLD
+                )
                 nt_type = form_query.get(f"ntType{edge_name}")
                 if nt_type == "Any":
                     nt_type = None
+                elif nt_type not in NEURO_TRANSMITTER_NAMES:
+                    raise ValueError(
+                        f"NT type {nt_type} for {edge_name} not recognized."
+                    )
+
                 motif_search_query.add_edge(
                     from_node,
                     to_node,
@@ -51,30 +59,6 @@ class MotifSearchQuery(object):
                     min_synapse_count=min_synapse_count,
                     nt_type=nt_type,
                 )
-        return motif_search_query
-
-    @classmethod
-    def from_sketch_query(cls, sketch_query, neuron_data_factory=None):
-        motif_search_query = cls(neuron_data_factory=neuron_data_factory)
-        node_index_to_name = {}
-        for node in sketch_query["nodes"]:
-            node_name = node["label"]
-            node_index_to_name[node["index"]] = node_name
-            if node_properties := node.get("properties"):
-                node_search_query = node_properties.get("search_query", "*")
-            else:
-                node_search_query = "*"
-            motif_search_query.add_node(node_name, node_search_query)
-        for edge in sketch_query["edges"]:
-            from_index, to_index = edge["indices"]
-            from_node, to_node = (
-                node_index_to_name[from_index],
-                node_index_to_name[to_index],
-            )
-            regions = None
-            if properties := edge["properties"]:
-                regions = properties.get("regions")
-            motif_search_query.add_edge(from_node, to_node, regions)
         return motif_search_query
 
     def add_node(self, name, query):
@@ -92,9 +76,9 @@ class MotifSearchQuery(object):
         self,
         from_node,
         to_node,
-        regions=None,
-        min_synapse_count=MIN_SYN_THRESHOLD,
-        nt_type=None,
+        regions,
+        min_synapse_count,
+        nt_type,
     ):
         if from_node not in self.nodes or to_node not in self.nodes:
             raise ValueError(
