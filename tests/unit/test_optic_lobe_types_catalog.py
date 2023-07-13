@@ -37,9 +37,7 @@ class OlCatalogTest(TestCase):
             }
 
         def make_list(types):
-            return {
-                123: types
-            }
+            return {123: types}
 
         self.assertEqual(
             {"Mi1": [123], "Unknown-labeled": [], "Unknown-not-labeled": []},

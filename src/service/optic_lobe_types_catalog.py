@@ -5,11 +5,13 @@ LABEL_DELIMS = [",", ";", ":", "(", ")", "/"]
 UPDATED_TYPES_LC = {f"r{i}": "R1-6" for i in range(1, 7)}
 UPDATED_TYPES_LC["mi8"] = "Mi9"
 
+
 def remove_side(t):
     tl = t.lower()
     if tl.endswith("_l") or tl.endswith("_r"):
         return t[:-2]
     return t
+
 
 def rewrite(t):
     t = remove_side(t)
@@ -57,7 +59,9 @@ def infer_ol_type(label_data, types_list, target_type_list, unknown_labels):
             print(f"Inferred {matched_types[0]} from types: {types_list}")
             return matched_types[0]
         elif len(set(matched_types)) > 1:
-            print(f"WARNING!!! Inferred multiple: {matched_types} from types: {types_list}")
+            print(
+                f"WARNING!!! Inferred multiple: {matched_types} from types: {types_list}"
+            )
 
     return "Unknown-labeled" if label_data else "Unknown-not-labeled"
 
