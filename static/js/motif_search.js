@@ -14,103 +14,21 @@ function MotifSearch({  results, query }) {
       ${error && html`<div className="alert alert-danger" role="alert">${error}</div>`}
     </div>
     <div className="container-fluid h-100">
-      ${results
-        ? html`<div>
-            <${Results} results=${results} />
-          </div>`
-        : ExplainerCard()}
+      <div>
+        ${query ? Results({results: results, query:query}) : ExplainerCard()}
+            
+          </div>
     </div>
   `;
 }
 
-function MotifForm({regions }) {
-  const NODES = ["A", "B", "C"];
-  const EDGES = [
-    ["AB", "BA"],
-    ["AC", "CA"],
-    ["BC", "CB"],
-  ];
-  const NEUROPILS = ["Any", ...regions];
-  const NEUROTRANSMITTERS = {
-    DA: "dopamine",
-    SER: "serotonin",
-    GABA: "gabaergic",
-    GLUT: "glutamate",
-    ACH: "acetylcholine",
-    OCT: "octopamine",
-  };
-
-  return html`
-    <form className="mw-50">
-      <div className="row">
-        ${NODES.map(
-          (n) => html`
-            <div className="form-group col">
-              <label for="node${n}">Node ${n} Query</label>
-              <input type="text" className="form-control" name="query${n}" id="node${n}" placeholder="Enter node ${n}" />
-            </div>
-          `
-        )}
-      </div>
-      ${EDGES.map(
-        (edges) => html`
-          <div className="row p-1">
-            ${edges.map(
-              (edge) => html`
-                <div className="col">
-                  <div className="card">
-                    <div className="card-header">
-                      <div className="row">
-                        <div className="col">Edge ${edge[0]} -> ${edge[1]}</div>
-                        <div className="col">
-                          <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input" id="enabled${edge}" name="enabled${edge}" />
-                            <label class="custom-control-label" for="enabled${edge}"></label>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="card-body row">
-                      <div className="form-group col">
-                        <label for="neuropiljk${edge}">Region</label>
-                        <select class="form-control" id="region${edge}" name="region${edge}">
-                          ${NEUROPILS.map((r) => html`<option value=${r}>${r}</option>`)}
-                        </select>
-                      </div>
-                      <div className="form-group col">
-                        <label for="minSynapseCount${edge}">Min Synapse Count</label>
-                        <input type="number" className="form-control" name="minSynapseCount${edge}" id="minSynapseCount${edge}" placeholder="(Default=5)" />
-                      </div>
-                      <!-- Neurotransmitter type -->
-                      <div className="form-group col">
-                        <label for="ntType${edge}">Neurotransmitter Type</label>
-                        <select class="form-control" id="ntType${edge}" name="ntType${edge}">
-                          <option value="Any">Any</option>
-                          ${Object.keys(NEUROTRANSMITTERS).map((r) => html`<option value=${r}>${NEUROTRANSMITTERS[r]}</option>`)}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              `
-            )}
-          </div>
-        `
-      )}
-      <div className="d-flex justify-content-center">
-        <button type="submit" className="btn btn-primary">Submit</button>
-      </div>
-    </form>
-  `;
-}
 
 function ExplainerCard() {
   return html`<div>
     <div class="card" style=${{ margin: "15px" }}>
       <div class="card-header" sttyle=${{ color: "purple" }}>What is this?</div>
       <div class="card-body">
-        [TODO: explanatory text]
+        [TODO: explanatory text and demo query]
         <br /><br />
         <button class="btn btn btn-outline-success my-2 my-sm-0" type="button">Try Example Query</button>
       </div>
@@ -118,13 +36,19 @@ function ExplainerCard() {
   </div>`;
 }
 
-function Results({ results }) {
-  const [selected, setSelected] = useState(0);
-  const selectedResult = results[selected];
+
+
+
+function Results({ results, query }) {
+  
 
   if (results.length === 0) {
     return html`<p>No results found. Try widening your search.</p>`;
   }
+  const [selected, setSelected] = useState(0);
+  const selectedResult = results[selected];
+
+
   return html`
     <p>${results.length} Result${results.length > 1 ? "s" : ""}:</p>
     <div className="row h-75">
@@ -277,7 +201,7 @@ function MorphologyCard({ selectedResult }) {
   return html`
     <div className="card mt-3" style=${{ height: "500px" }}>
       <div className="card-header">
-        <a href=${morphologyURLForResult(selectedResult)}>3D Re</a>
+        <a href=${morphologyURLForResult(selectedResult)}>3D Rendering</a>
       </div>
       <div className="card-body">
         <iframe className="w-100 h-100" src=${morphologyURLForResult(selectedResult)} title="neuroglancer"> </iframe>
