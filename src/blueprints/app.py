@@ -91,10 +91,6 @@ from src.data.structured_search_filters import get_advanced_search_data
 from src.data.braincircuits import neuron2line
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 from src.service.motif_search import MotifSearchQuery
-from src.configuration import APP_ENVIRONMENT
-
-DEBUG = APP_ENVIRONMENT == "DEV"
-
 
 app = Blueprint("app", __name__, url_prefix="/app")
 
