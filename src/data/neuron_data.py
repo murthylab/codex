@@ -657,11 +657,25 @@ class NeuronDB(object):
                 self.neuron_data[rid]["marker"].append(f"not_in_olr_type:{olt}")
 
         # Add predicted optic lobe types (also right side only, for the catalog completion)
+        print(f"Loading {len(olr_prediction_rows)} predictions")
+        prediction_markers_applied = 0
         for row in olr_prediction_rows:
             nd = self.neuron_data[int(row[0])]
             # predictions are generated seldom - this makes sure we only apply them on cells that were not typed already
-            if not any([mrk.startswith("olr_type:") for mrk in nd["marker"]]):
+            if not any(
+                [
+                    (
+                        mrk.startswith("olr_type:")
+                        and not mrk.split(":")[1].startswith("Unknown")
+                    )
+                    for mrk in nd["marker"]
+                ]
+            ):
                 nd["marker"].append(f"predicted_olr_type:{row[1]}")
+                prediction_markers_applied += 1
+        print(
+            f"Applied {prediction_markers_applied} predictions out of {len(olr_prediction_rows)}"
+        )
 
         # Add tagging candidate markers for columnar cells in the Optic Lobe
         for (

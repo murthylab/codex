@@ -91,6 +91,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     connectivity_cluster_rows = _read_data(CONNECTIVITY_CLUSTERS_FILE_NAME)
     svd_rows = _read_data(SVD_FILE_NAME)
     lr_matching_rows = _read_data(LR_MATCHING_FILE_NAME)
+    olr_prediction_rows = read_csv("static/experimental_data/olt_type_predictions.csv")
 
     log(
         f"App initialization loading data from {data_file_path}:\n"
@@ -113,6 +114,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         connectivity_cluster_rows=connectivity_cluster_rows,
         svd_rows=svd_rows,
         lr_matching_rows=lr_matching_rows,
+        olr_prediction_rows=olr_prediction_rows,
     )
     # free mem
     del neuron_rows

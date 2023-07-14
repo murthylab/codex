@@ -1269,5 +1269,12 @@ class NeuronDataTest(TestCase):
     def test_at_most_one_optic_lobe_type_marker_per_cell(self):
         for nd in self.neuron_db.neuron_data.values():
             self.assertGreaterEqual(
-                1, len([mrk for mrk in nd["marker"] if "olr_type:" in mrk])
+                1,
+                len(
+                    [
+                        mrk
+                        for mrk in nd["marker"]
+                        if "olr_type:" in mrk and ":Unknown" not in mrk
+                    ]
+                ),
             )

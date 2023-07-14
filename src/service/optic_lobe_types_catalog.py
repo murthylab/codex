@@ -56,7 +56,7 @@ def infer_ol_type(label_data, types_list, target_type_list, unknown_labels):
             if matched_type:
                 matched_types.append(matched_type)
         if len(set(matched_types)) == 1:
-            print(f"Inferred {matched_types[0]} from types: {types_list}")
+            # print(f"Inferred {matched_types[0]} from types: {types_list}")
             return matched_types[0]
         elif len(set(matched_types)) > 1:
             print(
