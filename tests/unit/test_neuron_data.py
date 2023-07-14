@@ -1265,3 +1265,9 @@ class NeuronDataTest(TestCase):
             all_links.extend(list(neuron_links))
 
         self.assertLessEqual(37932, len(all_links))
+
+    def test_at_most_one_optic_lobe_type_marker_per_cell(self):
+        for nd in self.neuron_db.neuron_data.values():
+            self.assertGreaterEqual(
+                1, len([mrk for mrk in nd["marker"] if "olr_type:" in mrk])
+            )

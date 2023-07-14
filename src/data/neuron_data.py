@@ -61,6 +61,7 @@ class NeuronDB(object):
         grouped_connection_counts,
         grouped_reciprocal_connection_counts,
         svd_rows,
+        olr_prediction_rows,
     ):
         self.neuron_data = neuron_attributes
         self.connections_ = Connections(neuron_connection_rows)
@@ -91,7 +92,7 @@ class NeuronDB(object):
             ]
         )
 
-        self._create_markers()
+        self._create_markers(olr_prediction_rows)
 
     def input_sets(self, min_syn_count=0):
         return self.input_output_partner_sets(min_syn_count)[0]
@@ -629,7 +630,7 @@ class NeuronDB(object):
                 break
         return non_uniform_set
 
-    def _create_markers(self):
+    def _create_markers(self, olr_prediction_rows):
         # Add markers for special cells (as per FlyWire network analysis paper)
         special_cells = self._collect_connectivity_labels()
         for tp, lst in special_cells.items():
@@ -644,7 +645,7 @@ class NeuronDB(object):
             for link in links:
                 self.neuron_data[rid]["marker"].append(f"link:{link}")
 
-        # Add optic lobe types information (for now right side only, for the catalog completion)
+        # Add optic lobe types inferred from annotations (for now right side only, for the catalog completion)
         olr_type_lists, non_olr_type_lists = assign_types_for_right_optic_lobe_catalog(
             self
         )
@@ -654,6 +655,13 @@ class NeuronDB(object):
         for olt, rid_list in non_olr_type_lists.items():
             for rid in rid_list:
                 self.neuron_data[rid]["marker"].append(f"not_in_olr_type:{olt}")
+
+        # Add predicted optic lobe types (also right side only, for the catalog completion)
+        for row in olr_prediction_rows:
+            nd = self.neuron_data[int(row[0])]
+            # predictions are generated seldom - this makes sure we only apply them on cells that were not typed already
+            if not any([mrk.startswith("olr_type:") for mrk in nd["marker"]]):
+                nd["marker"].append(f"predicted_olr_type:{row[1]}")
 
         # Add tagging candidate markers for columnar cells in the Optic Lobe
         for (

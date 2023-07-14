@@ -483,6 +483,7 @@ def optic_lobe_catalog():
     neuron_db = NeuronDataFactory.instance().get()
     olr_type_lists = {t: [] for t in VISUAL_NEURON_TYPES}
     non_olr_type_lists = {t: [] for t in VISUAL_NEURON_TYPES}
+    predicted_olr_type_lists = {t: [] for t in VISUAL_NEURON_TYPES}
     for rid, nd in neuron_db.neuron_data.items():
         for mrk in nd["marker"]:
             if mrk.startswith("olr_type:"):
@@ -491,6 +492,9 @@ def optic_lobe_catalog():
             elif mrk.startswith("not_in_olr_type:"):
                 olt = mrk.split(":")[1]
                 non_olr_type_lists[olt].append(rid)
+            elif mrk.startswith("predicted_olr_type:"):
+                olt = mrk.split(":")[1]
+                predicted_olr_type_lists[olt].append(rid)
 
     types_data = {}
     for mt, tl in VISUAL_NEURON_MEGA_TYPE_TO_TYPES.items():
@@ -498,6 +502,7 @@ def optic_lobe_catalog():
         for t in tl:
             olr_query = f"marker == olr_type:{t}"
             non_olr_query = f"marker == not_in_olr_type:{t}"
+            predicted_olr_query = f"marker == predicted_olr_type:{t}"
             types_list.append(
                 {
                     "name": t,
@@ -505,6 +510,14 @@ def optic_lobe_catalog():
                     "olr_search_url": url_for("app.search", filter_string=olr_query),
                     "olr_ngl_url": url_for(
                         "app.search_results_flywire_url", filter_string=olr_query
+                    ),
+                    "predicted_olr_count": len(predicted_olr_type_lists[t]),
+                    "predicted_olr_search_url": url_for(
+                        "app.search", filter_string=predicted_olr_query
+                    ),
+                    "predicted_olr_ngl_url": url_for(
+                        "app.search_results_flywire_url",
+                        filter_string=predicted_olr_query,
                     ),
                     "non_olr_count": len(non_olr_type_lists[t]),
                     "non_olr_search_url": url_for(

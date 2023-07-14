@@ -567,6 +567,83 @@ def cluster_untyped_ol_cells(scores_fname, clusters_fname):
     )
 
 
+def predict_ol_types(neuron_db):
+    def is_unknown_ol(nd):
+        return "olr_type:Unknown-not-labeled" in nd["marker"]
+
+    unknown_ol = [rid for rid, nd in neuron_db.neuron_data.items() if is_unknown_ol(nd)]
+    assert 4000 < len(unknown_ol)
+
+    def ol_type(rid):
+        for mrk in neuron_db.get_neuron_data(rid)["marker"]:
+            if mrk.startswith("olr_type:"):
+                olt = mrk.split(":")[1]
+                if olt.startswith("Unknown"):
+                    return None
+                else:
+                    return olt
+        return None
+
+    def argmax_keys(counts):
+        mv = max(counts.values())
+        return mv, set([k for k, v in counts.items() if v == mv])
+
+    def infer_type(counts1, counts2):
+        if counts1 and counts2:
+            _, argmax1 = argmax_keys(counts1)
+            _, argmax2 = argmax_keys(counts2)
+            agr = argmax1.intersection(argmax2)
+            if len(agr) == 1:
+                return list(agr)[0]
+        elif counts1:
+            count, types = argmax_keys(counts1)
+            if count > 1 and len(types) == 1:
+                return list(types)[0]
+        elif counts2:
+            count, types = argmax_keys(counts2)
+            if count > 1 and len(types) == 1:
+                return list(types)[0]
+        return None
+
+    predictions = {}
+    predictions_fname = "static/experimental_data/ol_type_predictions.csv"
+    for i, rid in enumerate(unknown_ol):
+        jac_olt_counts = defaultdict(int)
+        cos_olt_counts = defaultdict(int)
+        jac_sim_cells = neuron_db.get_similar_connectivity_cells(
+            rid, include_upstream=True, include_downstream=True
+        )
+        for sc in jac_sim_cells:
+            olt = ol_type(sc)
+            if olt:
+                jac_olt_counts[olt] += 1
+
+        cos_sim_cells = neuron_db.get_similar_embedding_cells(
+            rid, include_upstream=True, include_downstream=True, limit=20
+        )
+        for sc in cos_sim_cells:
+            olt = ol_type(sc)
+            if olt:
+                cos_olt_counts[olt] += 1
+
+        inf_type = infer_type(jac_olt_counts, cos_olt_counts)
+        if inf_type:
+            predictions[rid] = inf_type
+        print(
+            f"{i} / {len(predictions)}: {rid}\n"
+            f"  Jac {len(jac_sim_cells)}: {dict(jac_olt_counts)}\n"
+            f"  Cos {len(cos_sim_cells)}: {dict(cos_olt_counts)}\n"
+            f"  --> {inf_type}"
+        )
+
+        if i % 100 == 10:
+            prows = [[k, v] for k, v in predictions.items()]
+            write_csv(filename=predictions_fname, rows=prows)
+
+    prows = [[k, v] for k, v in predictions.items()]
+    write_csv(filename=predictions_fname, rows=prows)
+
+
 if __name__ == "__main__":
     untyped_ol_cosine_matrix_file = (
         "static/experimental_data/untyped_ol_cosine_matrix.csv.gz"

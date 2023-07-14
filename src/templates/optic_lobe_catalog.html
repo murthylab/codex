@@ -32,6 +32,12 @@ Optic Lobe Catalog
                         {% else %}
                             <li style="color:grey">No matches in the right optic lobe</li>
                         {% endif %}
+                        {% if t.predicted_olr_count %}
+                            <li><a style="color: teal" href="{{t.predicted_olr_search_url}}" target="_blank">{{t.predicted_olr_count}} unlabeled cells <b>with this type predicted</b></a>
+                                &nbsp;| &nbsp;
+                                <a style="color: teal" href="{{t.predicted_olr_ngl_url}}" target="_blank">see 3D view</a>
+                            </li>
+                        {% endif %}
                         {% if t.non_olr_count %}
                             <li><a style="color: pink" href="{{t.non_olr_search_url}}" target="_blank">{{t.non_olr_count}} cells <b>outside right optic lobe</b></a>
                                 &nbsp;| &nbsp;

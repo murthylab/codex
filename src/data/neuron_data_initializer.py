@@ -113,6 +113,7 @@ def initialize_neuron_data(
     connectivity_cluster_rows,
     svd_rows,
     lr_matching_rows,
+    olr_prediction_rows,
 ):
     neuron_attributes = {}
     neuron_connection_rows = []
@@ -449,4 +450,5 @@ def initialize_neuron_data(
         grouped_connection_counts=grouped_connection_counts,
         grouped_reciprocal_connection_counts=grouped_reciprocal_connection_counts,
         svd_rows=svd_rows,
+        olr_prediction_rows=olr_prediction_rows,
     )
