@@ -11,6 +11,12 @@ from src.data.neuron_data import NeuronDB
 MAX_NODES = 3
 DEFAULT_LIMIT = 10
 
+
+def dbg(msg):
+    # print(f"- DBG {msg}")
+    pass
+
+
 EdgeConstraints = namedtuple("EdgeConstraints", "regions min_synapse_count nt_type")
 
 
@@ -549,6 +555,65 @@ class MotifSearchQuery(object):
             return candidates
 
     @staticmethod
+    def filter_by_min_syn_count(
+        neuron_db,
+        from_candidates,
+        to_candidates,
+        from_to_edge_constraints,
+        to_from_edge_constraints,
+    ):
+        ins, outs = neuron_db.input_output_partners_with_synapse_counts()
+        if (
+            from_to_edge_constraints
+            and from_to_edge_constraints.min_synapse_count
+            and from_to_edge_constraints.min_synapse_count > MIN_SYN_THRESHOLD
+        ):
+            from_candidates = set(
+                [
+                    n
+                    for n in from_candidates
+                    if outs[n]
+                    and max(outs[n].values())
+                    >= from_to_edge_constraints.min_synapse_count
+                ]
+            )
+            to_candidates = set(
+                [
+                    n
+                    for n in to_candidates
+                    if ins[n]
+                    and max(ins[n].values())
+                    >= from_to_edge_constraints.min_synapse_count
+                ]
+            )
+
+        if (
+            to_from_edge_constraints
+            and to_from_edge_constraints.min_synapse_count
+            and to_from_edge_constraints.min_synapse_count > MIN_SYN_THRESHOLD
+        ):
+            to_candidates = set(
+                [
+                    n
+                    for n in to_candidates
+                    if outs[n]
+                    and max(outs[n].values())
+                    >= to_from_edge_constraints.min_synapse_count
+                ]
+            )
+            from_candidates = set(
+                [
+                    n
+                    for n in from_candidates
+                    if ins[n]
+                    and max(ins[n].values())
+                    >= to_from_edge_constraints.min_synapse_count
+                ]
+            )
+
+        return from_candidates, to_candidates
+
+    @staticmethod
     def _search_triplets(
         neuron_db,
         x,
@@ -574,6 +639,9 @@ class MotifSearchQuery(object):
         assert all(
             [isinstance(c, set) for c in [x_candidates, y_candidates, z_candidates]]
         )
+        dbg(
+            f"before filtering: {len(x_candidates)=} {len(y_candidates)=} {len(z_candidates)=}"
+        )
 
         x_query, y_query, z_query = [], [], []
         MotifSearchQuery.append_edge_queries(xy_edge_constraints, x_query, y_query)
@@ -582,7 +650,6 @@ class MotifSearchQuery(object):
         MotifSearchQuery.append_edge_queries(zx_edge_constraints, z_query, x_query)
         MotifSearchQuery.append_edge_queries(yz_edge_constraints, y_query, z_query)
         MotifSearchQuery.append_edge_queries(zy_edge_constraints, z_query, y_query)
-
         x_candidates = MotifSearchQuery.filter_by_query(
             neuron_db, x_candidates, x_query
         )
@@ -591,6 +658,34 @@ class MotifSearchQuery(object):
         )
         z_candidates = MotifSearchQuery.filter_by_query(
             neuron_db, z_candidates, z_query
+        )
+        dbg(
+            f"after query filtering: {len(x_candidates)=} {len(y_candidates)=} {len(z_candidates)=}"
+        )
+
+        x_candidates, y_candidates = MotifSearchQuery.filter_by_min_syn_count(
+            neuron_db,
+            x_candidates,
+            y_candidates,
+            xy_edge_constraints,
+            yx_edge_constraints,
+        )
+        x_candidates, z_candidates = MotifSearchQuery.filter_by_min_syn_count(
+            neuron_db,
+            x_candidates,
+            z_candidates,
+            xz_edge_constraints,
+            zx_edge_constraints,
+        )
+        y_candidates, z_candidates = MotifSearchQuery.filter_by_min_syn_count(
+            neuron_db,
+            y_candidates,
+            z_candidates,
+            yz_edge_constraints,
+            zy_edge_constraints,
+        )
+        dbg(
+            f"after syn cnt filtering: {len(x_candidates)=} {len(y_candidates)=} {len(z_candidates)=}"
         )
 
         ins, outs = neuron_db.input_output_partner_sets()

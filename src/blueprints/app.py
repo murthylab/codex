@@ -1433,11 +1433,22 @@ def motifs():
         log_activity(
             f"Motif search with {motifs_query} found {len(search_results)} matches"
         )
+        query = request.args
+    else:
+        # make a default state so that hitting search finds results (empty query will err)
+        query = dict(
+            enabledAB=True,
+            minSynapseCountAB=10,
+            enabledBC=True,
+            minSynapseCountBC=10,
+            enabledAC=True,
+            minSynapseCountAC=10,
+        )
 
     return render_template(
         "motif_search.html",
         regions=list(REGIONS.keys()),
         NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES,
-        query=request.args,
+        query=query,
         results=search_results,
     )
