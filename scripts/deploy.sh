@@ -24,7 +24,7 @@ gcloud run deploy --source . \
         --set-env-vars "BUILD_TIMESTAMP=${TIMESTAMP}" \
         --region us-east1 \
         --allow-unauthenticated \
-        --min-instances 5 \
+        --min-instances 3 \
         --cpu 2 \
         --memory 8G \
         codex && \
