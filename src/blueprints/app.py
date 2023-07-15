@@ -4,7 +4,6 @@ from collections import defaultdict
 from datetime import datetime
 import requests
 
-
 from flask import (
     render_template,
     request,
@@ -90,6 +89,8 @@ from src.utils.prm import cell_identification_url
 from src.utils.thumbnails import url_for_skeleton
 from src.data.structured_search_filters import get_advanced_search_data
 from src.data.braincircuits import neuron2line
+from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
+from src.service.motif_search import MotifSearchQuery
 
 app = Blueprint("app", __name__, url_prefix="/app")
 
@@ -1416,3 +1417,27 @@ def my_labels():
                 title=f"Cells labeled by user ID {user_id} ({fetch_user_email(session)})",
                 message=f"{rids_str}",
             )
+
+
+@app.route("/motifs/", methods=["GET", "POST"])
+@request_wrapper
+def motifs():
+    log_activity(f"Loading motifs search with {request.args}")
+    search_results = []
+
+    if request.args:
+        motifs_query = MotifSearchQuery.from_form_query(
+            request.args, NeuronDataFactory.instance()
+        )
+        search_results = motifs_query.search()
+        log_activity(
+            f"Motif search with {motifs_query} found {len(search_results)} matches"
+        )
+
+    return render_template(
+        "motif_search.html",
+        regions=list(REGIONS.keys()),
+        NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES,
+        query=request.args,
+        results=search_results,
+    )

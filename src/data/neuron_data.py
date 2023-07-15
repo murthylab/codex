@@ -135,7 +135,9 @@ class NeuronDB(object):
     def cell_connections(self, cell_id):
         return list(self.connections_.rows_for_cell(cell_id))
 
-    def connections(self, ids, induced=False, min_syn_count=0, nt_type=None):
+    def connections(
+        self, ids, induced=False, min_syn_count=0, nt_type=None, regions=None
+    ):
         if nt_type and nt_type not in NEURO_TRANSMITTER_NAMES:
             raise ValueError(
                 f"Unknown NT type: {nt_type}, must be one of {NEURO_TRANSMITTER_NAMES}"
@@ -143,13 +145,17 @@ class NeuronDB(object):
         if induced:
             return list(
                 self.connections_.rows_between_sets(
-                    ids, ids, min_syn_count=min_syn_count, nt_type=nt_type
+                    ids,
+                    ids,
+                    min_syn_count=min_syn_count,
+                    nt_type=nt_type,
+                    regions=regions,
                 )
             )
         else:
             return list(
                 self.connections_.rows_for_set(
-                    ids, min_syn_count=min_syn_count, nt_type=nt_type
+                    ids, min_syn_count=min_syn_count, nt_type=nt_type, regions=regions
                 )
             )
 
@@ -271,7 +277,6 @@ class NeuronDB(object):
                     assigned_to_num_cells_dict[v] += 1
 
         def _caption(name, assigned_to_count, values_count):
-
             caption = (
                 f"<b>{name}</b><small style='color: teal'>"
                 f"<br>- Assigned to {display(assigned_to_count)} cells / {percentage(assigned_to_count, self.num_cells())}"
