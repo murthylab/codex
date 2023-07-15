@@ -442,10 +442,9 @@ class MotifSearchQuery(object):
         return True
 
     @staticmethod
-    def _feasible_pairs(
+    def feasible_pairs(
         neuron_db, x_candidates, y_candidates, xy_constraints, yx_constraints
     ):
-        print("+++ here!")
         ins, outs = neuron_db.input_output_partners_with_synapse_counts()
 
         if not xy_constraints and not yx_constraints:
@@ -503,7 +502,7 @@ class MotifSearchQuery(object):
         else:  # both edges are specified
             for x_rid in x_candidates:
                 y_candidates_filtered = y_candidates.intersection(
-                    set(ins[x_rid].keys()).intersection(set(outs[x_rid]).keys())
+                    set(ins[x_rid].keys()).intersection(set(outs[x_rid].keys()))
                 )
                 rows = neuron_db.connections_.rows_for_cell(x_rid)
                 from_x_tuples = defaultdict(list)
@@ -575,16 +574,6 @@ class MotifSearchQuery(object):
         assert all(
             [isinstance(c, set) for c in [x_candidates, y_candidates, z_candidates]]
         )
-        print(
-            f"+++ x, y, z: {len(x_candidates)}, {len(y_candidates)}, {len(z_candidates)}"
-        )
-
-        print(f"+++ xy_ec: {xy_edge_constraints}")
-        print(f"+++ xz_ec: {xz_edge_constraints}")
-        print(f"+++ yx_ec: {yx_edge_constraints}")
-        print(f"+++ yz_ec: {yz_edge_constraints}")
-        print(f"+++ zx_ec: {zx_edge_constraints}")
-        print(f"+++ zy_ec: {zy_edge_constraints}")
 
         x_query, y_query, z_query = [], [], []
         MotifSearchQuery.append_edge_queries(xy_edge_constraints, x_query, y_query)
@@ -604,37 +593,27 @@ class MotifSearchQuery(object):
             neuron_db, z_candidates, z_query
         )
 
-        print(
-            f"+++ x, y, z after edge queries: {len(x_candidates)}, {len(y_candidates)}, {len(z_candidates)}"
-        )
-
         ins, outs = neuron_db.input_output_partner_sets()
 
         def z_satisfies_constraints(x_rid, y_rid, z_rid):
             constraints_satisfied = set()
-
-            print("+++ checking if z satisfies constraints")
             if not xz_edge_constraints:
                 if z_rid in outs[x_rid]:
-                    print("+++ xz should not be an edge")
                     return False
                 else:
                     constraints_satisfied.add("xz")
             if not zx_edge_constraints:
                 if x_rid in outs[z_rid]:
-                    print("+++ zx should not be an edge")
                     return False
                 else:
                     constraints_satisfied.add("zx")
             if not yz_edge_constraints:
                 if z_rid in outs[y_rid]:
-                    print("+++ yz should not be an edge")
                     return False
                 else:
                     constraints_satisfied.add("yz")
             if not zy_edge_constraints:
                 if y_rid in outs[z_rid]:
-                    print("+++ zy should not be an edge")
                     return False
                 else:
                     constraints_satisfied.add("zy")
@@ -643,7 +622,7 @@ class MotifSearchQuery(object):
                 return True
 
             z_rows = neuron_db.connections_.rows_for_cell(z_rid)
-            print("+++ checking if z satisfies rows")
+
             for r in z_rows:
                 if (
                     r[0] == x_rid
@@ -659,7 +638,7 @@ class MotifSearchQuery(object):
                 if (
                     r[0] == y_rid
                     and r[1] == z_rid
-                    and not MotifSearchQuery.row_satisfies_constraints(
+                    and MotifSearchQuery.row_satisfies_constraints(
                         r, yz_edge_constraints
                     )
                 ):
@@ -670,7 +649,7 @@ class MotifSearchQuery(object):
                 if (
                     r[0] == z_rid
                     and r[1] == x_rid
-                    and not MotifSearchQuery.row_satisfies_constraints(
+                    and MotifSearchQuery.row_satisfies_constraints(
                         r, zx_edge_constraints
                     )
                 ):
@@ -681,7 +660,7 @@ class MotifSearchQuery(object):
                 if (
                     r[0] == z_rid
                     and r[1] == y_rid
-                    and not MotifSearchQuery.row_satisfies_constraints(
+                    and MotifSearchQuery.row_satisfies_constraints(
                         r, zy_edge_constraints
                     )
                 ):
@@ -705,24 +684,19 @@ class MotifSearchQuery(object):
             return res
 
         matches = []
-        print("+++ starting the loop")
-        for _x_rid, _y_rid in MotifSearchQuery._feasible_pairs(
+        for _x_rid, _y_rid in MotifSearchQuery.feasible_pairs(
             neuron_db=neuron_db,
             x_candidates=x_candidates,
             y_candidates=y_candidates,
             xy_constraints=xy_edge_constraints,
             yx_constraints=yx_edge_constraints,
         ):
-            print(f"+++ examining {_x_rid}, {_y_rid}")
-
             z_candidates_filtered = filtered_z_candidates(_x_rid, _y_rid)
 
             for _z_rid in z_candidates_filtered:
                 if _z_rid == _x_rid or _z_rid == _y_rid:
-                    print("+++ z is equal to y or x")
                     continue
                 if z_satisfies_constraints(x_rid=_x_rid, y_rid=_y_rid, z_rid=_z_rid):
-                    print(f"+++ appending result, have {len(matches)} need {limit}")
                     matches.append(
                         MotifSearchQuery.make_match_dict(
                             neuron_db=neuron_db,

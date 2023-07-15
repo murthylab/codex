@@ -306,6 +306,7 @@ class TestMotifSearchQuery(TestCase):
         msq.add_node("b", "id == 720575940620181077")
         msq.add_node("c", "id == 720575940626634789")
         msq.add_edge("a", "b", regions=None, min_synapse_count=0, nt_type=None)
+        msq.add_edge("b", "a", regions=None, min_synapse_count=0, nt_type=None)
         msq.add_edge("b", "c", regions=None, min_synapse_count=0, nt_type=None)
         msq.add_edge("a", "c", regions=None, min_synapse_count=0, nt_type=None)
         res = msq.search(limit=limit)

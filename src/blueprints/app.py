@@ -1429,22 +1429,10 @@ def motifs():
         motifs_query = MotifSearchQuery.from_form_query(
             request.args, NeuronDataFactory.instance()
         )
-        try:
-            search_results = motifs_query.search()
-            log_activity(
-                f"Motif search with {motifs_query} found {len(search_results)} matches"
-            )
-        except Exception as e:
-            error = f"Error searching for motif: {e=}"
-            log_error(error)
-            return render_template(
-                "motif_search.html",
-                regions=list(REGIONS.keys()),
-                results=search_results,
-                error=error,
-                NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES,
-                query=request.args,
-            )
+        search_results = motifs_query.search()
+        log_activity(
+            f"Motif search with {motifs_query} found {len(search_results)} matches"
+        )
 
     return render_template(
         "motif_search.html",

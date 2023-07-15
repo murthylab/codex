@@ -28,9 +28,16 @@ function ExplainerCard() {
     <div class="card" style=${{ margin: "15px" }}>
       <div class="card-header" sttyle=${{ color: "purple" }}>What is this?</div>
       <div class="card-body">
-        [TODO: explanatory text and demo query]
+        With this tool you can search for specific motifs (sub-graphs) of size 3 in the connectome network. With A, B, C
+        denoting the motif node names, you can specify a filter for each node (same query language as in search) as well
+        as connectivity of each pair of nodes (not connected, connected one way,
+        connected both ways). Additionally you can apply neurotransmitter / brain region / min synapse count constraints
+        for every pair of connected nodes. Matching
+        motifs (if found) will be presented as a network along with 3D rendering of the corresponding cells.
         <br /><br />
-        <button class="btn btn btn-outline-success my-2 my-sm-0" type="button">Try Example Query</button>
+        <a class="btn btn btn-outline-success my-2 my-sm-0" href="/app/motifs/?queryA=720575940613052200&queryB=DL1_dorsal&queryC=DL1_dorsal&enabledAB=on&regionAB=Any&minSynapseCountAB=20&ntTypeAB=GLUT&enabledBA=on&regionBA=Any&minSynapseCountBA=20&ntTypeBA=GLUT&enabledAC=on&regionAC=Any&minSynapseCountAC=15&ntTypeAC=GLUT&enabledCA=on&regionCA=Any&minSynapseCountCA=15&ntTypeCA=GLUT&enabledBC=on&regionBC=Any&minSynapseCountBC=&ntTypeBC=GLUT&enabledCB=on&regionCB=Any&minSynapseCountCB=&ntTypeCB=GLUT">
+            Try Example Query
+        </a>
       </div>
     </div>
   </div>`;
