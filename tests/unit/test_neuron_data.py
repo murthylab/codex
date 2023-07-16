@@ -1278,3 +1278,68 @@ class NeuronDataTest(TestCase):
                     ]
                 ),
             )
+
+    def test_connectivity_labels(self):
+        ins, outs = self.neuron_db.input_output_partner_sets()
+        rids = list(self.neuron_db.neuron_data.keys())
+
+        feed_forward_nodes = set()
+        feedback_loop_nodes = set()
+        highly_reciprocal_nodes = set()
+        nsrns = set()
+
+        def is_regional_rich_club(rid):
+            if len(ins[rid]) + len(outs[rid]) < 37:
+                return False  # not rich club
+            con_rows = self.neuron_db.cell_connections(rid)
+            in_total_syn_count = 0
+            out_total_syn_count = 0
+            in_pil_syn_counts = defaultdict(int)
+            out_pil_syn_counts = defaultdict(int)
+            for row in con_rows:
+                if row[0] == a:
+                    in_pil_syn_counts[row[2]] += row[3]
+                    in_total_syn_count += row[3]
+                else:
+                    out_pil_syn_counts[row[2]] += row[3]
+                    out_total_syn_count += row[3]
+            return (2 * max(in_pil_syn_counts.values()) > in_total_syn_count) and (
+                2 * max(out_pil_syn_counts.values()) > out_total_syn_count
+            )
+
+        for a in rids:
+            reciprocal_partners = outs[a].intersection(ins[a])
+            if len(reciprocal_partners) > (
+                len(outs[a]) + len(ins[a]) - 2 * len(reciprocal_partners)
+            ):
+                highly_reciprocal_nodes.add(a)
+
+                nd = self.neuron_db.get_neuron_data(a)
+                if nd["flow"] == "intrinsic" and is_regional_rich_club(a):
+                    nsrns.add(a)
+
+            for b in outs[a]:
+                if a >= b:
+                    continue
+                if a in outs[b]:
+                    continue
+                for c in outs[b].intersection(ins[a]):
+                    if b in outs[c] or c in outs[a]:
+                        continue
+                    else:
+                        self.assertEqual(3, len({a, b, c}))
+                        feedback_loop_nodes |= {a, b, c}
+                for c in outs[b].intersection(outs[a]):
+                    if b in outs[c] or c in ins[a]:
+                        continue
+                    else:
+                        self.assertEqual(3, len({a, b, c}))
+                        feed_forward_nodes |= {a, b, c}
+
+        print(
+            f"{len(feed_forward_nodes)=} {len(feedback_loop_nodes)=} {len(highly_reciprocal_nodes)=} {len(nsrns)=}"
+        )
+        self.assertEqual(106645, len(feed_forward_nodes))
+        self.assertEqual(66835, len(feedback_loop_nodes))
+        self.assertEqual(569, len(highly_reciprocal_nodes))
+        self.assertEqual(205, len(nsrns))
