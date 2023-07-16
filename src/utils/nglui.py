@@ -14,7 +14,9 @@ from src.utils.logging import log_error
 NGL_FLAT_BASE_URL = "https://ngl.cave-explorer.org"
 
 
-def url_for_root_ids(root_ids, version, point_to="ngl", position=None):
+def url_for_root_ids(
+    root_ids, version, point_to="ngl", position=None, show_side_panel=None
+):
     if version not in DATA_SNAPSHOT_VERSION_DESCRIPTIONS:
         log_error(
             f"Invalid version '{version}' passed to 'url_for_root_ids'. Falling back to default."
@@ -68,7 +70,9 @@ def url_for_root_ids(root_ids, version, point_to="ngl", position=None):
 
         return f"https://ngl.flywire.ai/#!{urllib.parse.quote(json.dumps(config))}"
     else:
-        return url_for_cells(segment_ids=root_ids, data_version=version)
+        return url_for_cells(
+            segment_ids=root_ids, data_version=version, show_side_panel=show_side_panel
+        )
 
 
 def url_for_random_sample(root_ids, version, sample_size=50):
@@ -83,7 +87,12 @@ def url_for_random_sample(root_ids, version, sample_size=50):
     return url_for_root_ids(root_ids, version=version)
 
 
-def url_for_cells(segment_ids, data_version):
+def url_for_cells(segment_ids, data_version, show_side_panel=None):
+    if show_side_panel is None:
+        show_side_panel = len(segment_ids) > 1
+    else:
+        show_side_panel = bool(show_side_panel)
+
     if data_version not in DATA_SNAPSHOT_VERSION_DESCRIPTIONS:
         log_error(
             f"Invalid version '{data_version}' passed to 'url_for_cells'. Falling back to default."
@@ -124,7 +133,7 @@ def url_for_cells(segment_ids, data_version):
         "perspectiveViewBackgroundColor": "#ffffff",
         "showDefaultAnnotations": False,
         "selectedLayer": {
-            "visible": len(segment_ids) > 1,
+            "visible": show_side_panel,
             "layer": f"flywire_v141_m{data_version}",
         },
         "layout": "3d",

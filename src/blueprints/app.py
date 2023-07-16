@@ -780,10 +780,13 @@ def flywire_url():
     data_version = request.args.get("data_version", "")
     log_request = request.args.get("log_request", default=1, type=int)
     point_to = request.args.get("point_to")
+    show_side_panel = request.args.get("show_side_panel", type=int, default=None)
+
     url = nglui.url_for_root_ids(
         root_ids,
         version=data_version or DEFAULT_DATA_SNAPSHOT_VERSION,
         point_to=point_to,
+        show_side_panel=show_side_panel,
     )
     if log_request:
         log_activity(
@@ -1115,6 +1118,9 @@ def connectivity():
     include_partners = request.args.get("include_partners", default=0, type=int)
     hide_weights = request.args.get("hide_weights", default=0, type=int)
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
+    # This flag labels the list of cells with "A, B, C, .." in the order they're specified. Used for mapping motif node
+    # names to cell names.
+    label_abc = request.args.get("label_abc", type=bool)
     download = request.args.get("download")
     # headless network view (no search box / nav bar etc.)
     headless = request.args.get("headless", default=0, type=int)
@@ -1161,6 +1167,7 @@ def connectivity():
         )
     else:
         neuron_db = NeuronDataFactory.instance().get(data_version)
+        node_labels = None
         if cell_names_or_ids == "__sample_cells__":
             root_ids = [
                 720575940623725972,
@@ -1175,6 +1182,15 @@ def connectivity():
             log_activity("Generating connectivity network for sample cells")
         else:
             root_ids = neuron_db.search(search_query=cell_names_or_ids)
+            if label_abc:
+                if not len(root_ids) == 3:
+                    raise ValueError(
+                        f"Unexpected flag {label_abc=} for {len(root_ids)} matching root IDs"
+                    )
+                node_labels = {
+                    root_ids[i]: ltr for i, ltr in enumerate(["A", "B", "C"])
+                }
+
             if log_request:
                 log_activity(
                     ("Downloading " if download else "Generating ")
@@ -1246,6 +1262,7 @@ def connectivity():
 
         network_html = compile_network_html(
             center_ids=root_ids,
+            node_labels=node_labels,
             contable=contable,
             neuron_db=neuron_db,
             show_regions=show_regions,
@@ -1434,6 +1451,7 @@ def motifs():
             f"Motif search with {motifs_query} found {len(search_results)} matches"
         )
         query = request.args
+        show_explainer = False
     else:
         # make a default state so that hitting search finds results (empty query will err)
         query = dict(
@@ -1444,6 +1462,7 @@ def motifs():
             enabledAC=True,
             minSynapseCountAC=10,
         )
+        show_explainer = True
 
     return render_template(
         "motif_search.html",
@@ -1451,4 +1470,5 @@ def motifs():
         NEURO_TRANSMITTER_NAMES=NEURO_TRANSMITTER_NAMES,
         query=query,
         results=search_results,
+        show_explainer=show_explainer,
     )

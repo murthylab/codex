@@ -13,6 +13,7 @@ def compile_network_html(
     connections_cap,
     hide_weights,
     log_request,
+    node_labels=None,
     group_by_attribute_name=None,
     split_groups_by_side=False,
     layers=None,
@@ -88,7 +89,11 @@ def compile_network_html(
             return neuron_db.get_neuron_data(x)["name"]
 
         def caption_getter(x):
-            return neuron_db.get_neuron_data(x)["name"]
+            name = neuron_db.get_neuron_data(x)["name"]
+            if node_labels and x in node_labels:
+                return f"({node_labels[x]}) {name}"
+            else:
+                return name
 
         def label_getter(x):
             return neuron_db.get_neuron_data(x)["label"]

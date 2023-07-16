@@ -96,7 +96,8 @@
   import MotifSearch  from "/js/motif_search.js";
   const results = {{ results | tojson }} 
   const query = {% if query %} {{ query | tojson }} {% else %} null {% endif %}
-  render(createElement(() => MotifSearch({results: results, query: query})), document.getElementById("root"));
+  const show_explainer = {% if show_explainer %} true {% else %} false {% endif %}
+  render(createElement(() => MotifSearch({results: results, query: query, show_explainer: show_explainer })), document.getElementById("root"));
 </script>
 
 {% endblock content %}

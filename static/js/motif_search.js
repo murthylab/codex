@@ -1,7 +1,7 @@
 import { html } from "https://esm.sh/htm/react/index.module.js";
 import { useState } from "https://esm.sh/react";
 
-function MotifSearch({  results, query }) {
+function MotifSearch({ results, query, show_explainer }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const [warning, setWarning] = useState();
@@ -15,7 +15,7 @@ function MotifSearch({  results, query }) {
     </div>
     <div className="container-fluid h-100">
       <div>
-        ${query ? Results({results: results, query:query}) : ExplainerCard()}
+        ${show_explainer ? ExplainerCard() : Results({results: results, query:query})}
             
           </div>
     </div>
@@ -47,7 +47,6 @@ function ExplainerCard() {
 
 
 function Results({ results, query }) {
-  
 
   if (results.length === 0) {
     return html`<p>No results found. Try widening your search.</p>`;
@@ -57,7 +56,7 @@ function Results({ results, query }) {
 
 
   return html`
-    <p>${results.length} Result${results.length > 1 ? "s" : ""}:</p>
+    <p>Matching motif${results.length > 1 ? "s (might not be exhaustive)" : ""}:</p>
     <div className="row h-75">
       <div className="col">
         <${ResultsTable} results=${results} selected=${selected} setSelected=${setSelected} onRowClick=${setSelected} />
@@ -100,8 +99,9 @@ function ResultsTable({ results, selected, setSelected }) {
         ${results.slice(startIndex, endIndex).map((r, i) => html`<${TableRow} key=${i} result=${r} index=${i} selected=${selected} onRowClick=${setSelected} />`)}
       </tbody>
     </table>
-    <${PaginationControls} totalPages=${totalPages} currentPage=${page} onPageChange=${handlePageChange} maxVisiblePages=${maxVisiblePages} />
   `;
+   // TODO: show pagination controls only when >1 pages:
+   // <${PaginationControls} totalPages=${totalPages} currentPage=${page} onPageChange=${handlePageChange} maxVisiblePages=${maxVisiblePages} />
 }
 
 function TableRow({ result, index, selected, onRowClick }) {
@@ -197,11 +197,11 @@ function rootIdsFromResult(result) {
 }
 
 function morphologyURLForResult(result) {
-  return `/app/flywire_url?root_ids=${rootIdsFromResult(result).join("&root_ids=")}`;
+  return `/app/flywire_url?root_ids=${rootIdsFromResult(result).join("&root_ids=")}&show_side_panel=0`;
 }
 
 function connectivityURLForResult(result, headless = 1) {
-  return `/app/connectivity?cell_names_or_ids=${rootIdsFromResult(result).join(",")}&headless=${headless}`;
+  return `/app/connectivity?cell_names_or_ids=${rootIdsFromResult(result).join(",")}&headless=${headless}&label_abc=1`;
 }
 
 function MorphologyCard({ selectedResult }) {
