@@ -664,20 +664,23 @@ class NeuronDB(object):
         # Add predicted optic lobe types (also right side only, for the catalog completion)
         print(f"Loading {len(olr_prediction_rows)} predictions")
         prediction_markers_applied = 0
+        prediction_accuracy = defaultdict(int)
         for row in olr_prediction_rows:
             nd = self.neuron_data[int(row[0])]
             # predictions are generated seldom - this makes sure we only apply them on cells that were not typed already
-            if not any(
-                [
-                    (
-                        mrk.startswith("olr_type:")
-                        and not mrk.split(":")[1].startswith("Unknown")
-                    )
-                    for mrk in nd["marker"]
-                ]
-            ):
-                nd["marker"].append(f"predicted_olr_type:{row[1]}")
-                prediction_markers_applied += 1
+            olr_markers = [mrk for mrk in nd["marker"] if mrk.startswith("olr_type:")]
+            if olr_markers:
+                assert len(olr_markers) == 1
+                marker = olr_markers[0].split(":")[1]
+                if not marker.startswith("Unknown"):
+                    prediction_accuracy[f"predicted {row[1]} labeled {marker}"] += 1
+                    continue
+            nd["marker"].append(f"predicted_olr_type:{row[1]}")
+            prediction_markers_applied += 1
+
+        for k, v in sorted(prediction_accuracy.items(), key=lambda p: -p[1]):
+            print(f"{k}: {v}")
+
         print(
             f"Applied {prediction_markers_applied} predictions out of {len(olr_prediction_rows)}"
         )
