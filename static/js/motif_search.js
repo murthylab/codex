@@ -25,7 +25,7 @@ function MotifSearch({ results, query, show_explainer }) {
 
 function ExplainerCard() {
   return html`<div>
-    <div class="card" style=${{ margin: "15px" }}>
+    <div class="card" style=${{ margin: "5px" }}>
       <div class="card-header" sttyle=${{ color: "purple" }}>What is this?</div>
       <div class="card-body">
         With this tool you can search for specific motifs (sub-graphs) of size 3 in the connectome network. With A, B, C
@@ -35,7 +35,8 @@ function ExplainerCard() {
         for every pair of connected nodes. Matching
         motifs (if found) will be presented as a network along with 3D rendering of the corresponding cells.
         <br /><br />
-        <a class="btn btn btn-outline-success my-2 my-sm-0" href="/app/motifs/?queryA=720575940613052200&queryB=DL1_dorsal&queryC=DL1_dorsal&enabledAB=on&regionAB=Any&minSynapseCountAB=20&ntTypeAB=GLUT&enabledBA=on&regionBA=Any&minSynapseCountBA=20&ntTypeBA=GLUT&enabledAC=on&regionAC=Any&minSynapseCountAC=15&ntTypeAC=GLUT&enabledCA=on&regionCA=Any&minSynapseCountCA=15&ntTypeCA=GLUT&enabledBC=on&regionBC=Any&minSynapseCountBC=&ntTypeBC=GLUT&enabledCB=on&regionCB=Any&minSynapseCountCB=&ntTypeCB=GLUT">
+        <a class="btn btn btn-outline-success my-2 my-sm-0" onClick=${() => onRowClick(index)}
+            href="/app/motifs/?queryA=720575940613052200&queryB=DL1_dorsal&queryC=DL1_dorsal&enabledAB=on&regionAB=Any&minSynapseCountAB=20&ntTypeAB=GLUT&enabledBA=on&regionBA=Any&minSynapseCountBA=20&ntTypeBA=GLUT&enabledAC=on&regionAC=Any&minSynapseCountAC=15&ntTypeAC=GLUT&enabledCA=on&regionCA=Any&minSynapseCountCA=15&ntTypeCA=GLUT&enabledBC=on&regionBC=Any&minSynapseCountBC=&ntTypeBC=GLUT&enabledCB=on&regionCB=Any&minSynapseCountCB=&ntTypeCB=GLUT">
             Try Example Query
         </a>
       </div>
@@ -56,7 +57,7 @@ function Results({ results, query }) {
 
 
   return html`
-    <p>Matching motif${results.length > 1 ? "s (might not be exhaustive)" : ""}:</p>
+    <h4 style=${{ color: "purple", margin: "15px;" }} >Matching motif${results.length > 1 ? "s" : ""}</h4>
     <div className="row h-75">
       <div className="col">
         <${ResultsTable} results=${results} selected=${selected} setSelected=${setSelected} onRowClick=${setSelected} />

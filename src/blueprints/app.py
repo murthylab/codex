@@ -1456,11 +1456,17 @@ def motifs():
         # make a default state so that hitting search finds results (empty query will err)
         query = dict(
             enabledAB=True,
-            minSynapseCountAB=10,
-            enabledBC=True,
-            minSynapseCountBC=10,
+            minSynapseCountAB=1,
+            enabledBA=True,
+            minSynapseCountBA=1,
             enabledAC=True,
-            minSynapseCountAC=10,
+            minSynapseCountAC=1,
+            enabledCA=True,
+            minSynapseCountCA=1,
+            enabledBC=True,
+            minSynapseCountBC=1,
+            enabledCB=True,
+            minSynapseCountCB=1,
         )
         show_explainer = True
 
