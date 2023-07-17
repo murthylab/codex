@@ -26,7 +26,7 @@ function MotifSearch({ results, query, show_explainer }) {
 function ExplainerCard() {
   return html`<div>
     <div class="card" style=${{ margin: "5px" }}>
-      <div class="card-header" sttyle=${{ color: "purple" }}>What is this?</div>
+      <div class="card-header" style=${{ color: "purple" }}>What is this?</div>
       <div class="card-body">
         With this tool you can search for specific motifs (sub-graphs) of size 3 in the connectome network. With A, B, C
         denoting the motif node names, you can specify a filter for each node (same query language as in search) as well

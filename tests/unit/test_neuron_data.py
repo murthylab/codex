@@ -1309,7 +1309,7 @@ class NeuronDataTest(TestCase):
 
         for a in rids:
             reciprocal_partners = outs[a].intersection(ins[a])
-            if len(reciprocal_partners) > (
+            if 2 * len(reciprocal_partners) > (
                 len(outs[a]) + len(ins[a]) - 2 * len(reciprocal_partners)
             ):
                 highly_reciprocal_nodes.add(a)
@@ -1319,16 +1319,8 @@ class NeuronDataTest(TestCase):
                     nsrns.add(a)
 
             for b in outs[a]:
-                if a >= b:
-                    continue
                 if a in outs[b]:
                     continue
-                for c in outs[b].intersection(ins[a]):
-                    if b in outs[c] or c in outs[a]:
-                        continue
-                    else:
-                        self.assertEqual(3, len({a, b, c}))
-                        feedback_loop_nodes |= {a, b, c}
                 for c in outs[b].intersection(outs[a]):
                     if b in outs[c] or c in ins[a]:
                         continue
@@ -1336,10 +1328,23 @@ class NeuronDataTest(TestCase):
                         self.assertEqual(3, len({a, b, c}))
                         feed_forward_nodes |= {a, b, c}
 
-        print(
-            f"{len(feed_forward_nodes)=} {len(feedback_loop_nodes)=} {len(highly_reciprocal_nodes)=} {len(nsrns)=}"
-        )
-        self.assertEqual(106645, len(feed_forward_nodes))
+                if a >= b:  # loops are symmetric
+                    continue
+                for c in outs[b].intersection(ins[a]):
+                    if b in outs[c] or c in outs[a]:
+                        continue
+                    else:
+                        self.assertEqual(3, len({a, b, c}))
+                        feedback_loop_nodes |= {a, b, c}
+
+        con_labels = self.neuron_db._collect_connectivity_labels()
+        con_labels["feed_forward"] = feed_forward_nodes
+        con_labels["feedback_loop"] = feedback_loop_nodes
+        con_labels["highly_reciprocal"] = highly_reciprocal_nodes
+        con_labels["nsrn"] = nsrns
+        print({k: len(v) for k, v in con_labels.items()})
+
+        self.assertEqual(113978, len(feed_forward_nodes))
         self.assertEqual(66835, len(feedback_loop_nodes))
-        self.assertEqual(569, len(highly_reciprocal_nodes))
-        self.assertEqual(205, len(nsrns))
+        self.assertEqual(2183, len(highly_reciprocal_nodes))
+        self.assertEqual(704, len(nsrns))
