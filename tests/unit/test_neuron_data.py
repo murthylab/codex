@@ -23,6 +23,7 @@ from src.data.structured_search_filters import STRUCTURED_SEARCH_ATTRIBUTES
 from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
 )
+from src.data.visual_neuron_types import VISUAL_NEURON_TYPES
 from src.utils.formatting import (
     make_web_safe,
     is_proper_textual_annotation,
@@ -1278,6 +1279,42 @@ class NeuronDataTest(TestCase):
                     ]
                 ),
             )
+
+    def test_markers_content(self):
+        markers_tree = defaultdict(set)
+        for nd in self.neuron_db.neuron_data.values():
+            for mrk in nd["marker"]:
+                parts = mrk.split(":")
+                self.assertLessEqual(2, len(parts), mrk)
+                marker_type, marker_label = parts[0], ":".join(parts[1:])
+                markers_tree[marker_type].add(marker_label)
+
+        expected_marker_types = [
+            "columnar",
+            "columnar_candidate",
+            "connectivity_label",
+            "link",
+            "not_in_olr_type",
+            "olr_type",
+            "predicted_olr_type",
+        ]
+        self.assertEqual(sorted(expected_marker_types), sorted(markers_tree.keys()))
+
+        for k in ["columnar", "columnar_candidate"]:
+            for v in markers_tree[k]:
+                self.assertTrue(v in COLUMNAR_CELL_TYPE_GROUPS, f"{k}: {v}")
+
+        for k in ["not_in_olr_type", "olr_type", "predicted_olr_type"]:
+            for v in markers_tree[k]:
+                self.assertTrue(v in VISUAL_NEURON_TYPES, f"{k}: {v}")
+
+        self.assertEqual(
+            ["broadcaster", "integrator", "reciprocal", "rich_club"],
+            sorted(markers_tree["connectivity_label"]),
+        )
+
+        for lnk in markers_tree["link"]:
+            self.assertTrue(lnk.startswith("http"))
 
     def test_connectivity_labels(self):
         ins, outs = self.neuron_db.input_output_partner_sets()
