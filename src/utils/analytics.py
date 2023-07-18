@@ -1,5 +1,6 @@
 import json
 from multiprocessing.context import Process
+import os
 
 from google.cloud import bigquery
 
