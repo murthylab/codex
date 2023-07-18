@@ -1,5 +1,6 @@
 import json
 from multiprocessing.context import Process
+import os
 
 from google.cloud import bigquery
 
@@ -66,6 +67,8 @@ def _report_request(row):
 
 
 def report_request(request_ctx):
+    if APP_ENVIRONMENT == "DEV" and os.getenv("GOOGLE_APPLICATION_CREDENTIALS") is None:
+        return
     try:
 
         def _convert(val, datatype):
