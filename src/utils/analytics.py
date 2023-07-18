@@ -67,7 +67,7 @@ def _report_request(row):
 
 
 def report_request(request_ctx):
-    if os.getenv("GOOGLE_APPLICATION_CREDENTIALS") is None and APP_ENVIRONMENT == "DEV":
+    if APP_ENVIRONMENT == "DEV" and os.getenv("GOOGLE_APPLICATION_CREDENTIALS") is None:
         return
     try:
 
