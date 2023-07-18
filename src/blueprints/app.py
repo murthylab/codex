@@ -80,7 +80,6 @@ from src.utils.logging import (
     log,
     log_warning,
     log_error,
-    log_user_help,
 )
 from src.utils.formatting import can_be_flywire_root_id
 from src.utils.parsing import tokenize
@@ -480,7 +479,7 @@ def search_results_flywire_url():
 @request_wrapper
 @require_data_access
 def optic_lobe_catalog():
-    log_user_help("Loading optic lobe catalog")
+    log_activity("Loading optic lobe catalog")
     neuron_db = NeuronDataFactory.instance().get()
     olr_type_lists = {t: [] for t in VISUAL_NEURON_TYPES}
     non_olr_type_lists = {t: [] for t in VISUAL_NEURON_TYPES}
@@ -685,49 +684,50 @@ def find_similar_cells():
             except Exception as e:
                 print(f"Exception: {e}")
                 invalid_cell_ids.append(cell_id)
-        if invalid_cell_ids:
-            raise ValueError(
-                f"Invalid Cell IDs (not found in v{DEFAULT_DATA_SNAPSHOT_VERSION}): {','.join(invalid_cell_ids)}"
-            )
 
         max_input_size = 150
-        if len(cell_ids) > max_input_size:
-            raise ValueError(
-                f"Too many Cell IDs ({len(cell_ids)}), reduce to {max_input_size} or less"
+        if invalid_cell_ids:
+            msg = (
+                f'<i style="color:red" class="fa-solid fa-triangle-exclamation"></i> Invalid Cell IDs (not found in v{DEFAULT_DATA_SNAPSHOT_VERSION}): '
+                + ", ".join(invalid_cell_ids)
             )
-
-        cell_ids = set([int(cid) for cid in cell_ids])
-        similar_cell_scores = {}
-        for cell_id in cell_ids:
-            dct = neuron_db.get_similar_connectivity_cells(
-                cell_id, with_same_attributes="side,super_class"
-            )
-            for k, v in dct.items():
-                if k in cell_ids:
-                    continue
-                if k not in similar_cell_scores or v > similar_cell_scores[k]:
-                    similar_cell_scores[k] = v
-
-        if similar_cell_scores:
-            top_k = 600
-            top_matches = sorted(similar_cell_scores.items(), key=lambda p: -p[1])[
-                :top_k
-            ]
-            flat_list_of_ids = ",".join([str(m[0]) for m in top_matches])
-            msg = f"<a href='search?filter_string={flat_list_of_ids}'>Show matches in Codex -></a>"
-            msg += f"<br><br>Flat list of matched cell IDs:<br>{flat_list_of_ids}"
-            msg += "<br><br>Individual cell IDs with match scores:<br>" + "<br>".join(
-                [
-                    f"<a href='search?filter_string={m[0]}'>{m[0]}</a>: {str(m[1])[:5]}"
-                    for m in top_matches
-                ]
-            )
-            log_activity(
-                f"Found {len(similar_cell_scores)} similar cells, showing up to top {top_k}"
-            )
+            log_activity(msg)
+        elif len(cell_ids) > max_input_size:
+            msg = f'<i style="color:red" class="fa-solid fa-triangle-exclamation"></i> Too many Cell IDs ({len(cell_ids)}), reduce to {max_input_size} or less'
+            log_activity(msg)
         else:
-            msg = "No similar cells found"
-            log_activity(f"No similar cells found for {cell_ids}")
+            cell_ids = set([int(cid) for cid in cell_ids])
+            similar_cell_scores = {}
+            for cell_id in cell_ids:
+                dct = neuron_db.get_similar_connectivity_cells(
+                    cell_id, with_same_attributes="side,super_class"
+                )
+                for k, v in dct.items():
+                    if k in cell_ids:
+                        continue
+                    if k not in similar_cell_scores or v > similar_cell_scores[k]:
+                        similar_cell_scores[k] = v
+
+            if similar_cell_scores:
+                top_k = 600
+                top_matches = sorted(similar_cell_scores.items(), key=lambda p: -p[1])[
+                    :top_k
+                ]
+                flat_list_of_ids = ",".join([str(m[0]) for m in top_matches])
+                msg = f"<a href='search?filter_string={flat_list_of_ids}'>Show matches in Codex -></a>"
+                msg += f"<br><br>Flat list of matched cell IDs:<br>{flat_list_of_ids}"
+                msg += "<br><br>Individual cell IDs with match scores:<br>" + "<br>".join(
+                    [
+                        f"<a href='search?filter_string={m[0]}'>{m[0]}</a>: {str(m[1])[:5]}"
+                        for m in top_matches
+                    ]
+                )
+                log_activity(
+                    f"Found {len(similar_cell_scores)} similar cells, showing up to top {top_k}"
+                )
+            else:
+                msg = "No similar cells found"
+                log_activity(f"No similar cells found for {cell_ids}")
     return render_template(
         "many_cells_form.html",
         title="Find Similar Cells",

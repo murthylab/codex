@@ -1,6 +1,7 @@
 import os
 import time
 import traceback
+from collections import defaultdict
 from functools import wraps
 from random import randint
 
@@ -75,8 +76,8 @@ from src.utils.thumbnails import url_for_skeleton
 base = Blueprint("base", __name__)
 
 num_requests_processed = 0
-num_requests_rate_limited = 0
 num_request_errors = 0
+rate_limited_ips = defaultdict(int)
 total_request_serving_time_millis = 0.0
 
 
@@ -237,12 +238,14 @@ def warning_with_redirect(title, message, redirect_url, redirect_button_text):
 
 
 def limit_exceeded_responder(request_limit: RequestLimit):
-    global num_requests_rate_limited
-    num_requests_rate_limited += 1
+    rl_key = f"{ip_addr()}:{request.endpoint}"
+    rate_limited_ips[rl_key] += 1
+    rate_limited_total = sum(rate_limited_ips.values())
+    if rate_limited_total % 10 == 1:
+        log_error(
+            f"Rate limited for {ip_addr()}: {request.endpoint} ({request_limit.limit}). Rate limits so far: {dict(rate_limited_ips)}"
+        )
     time.sleep(3)
-    log_error(
-        f"Rate limited for {ip_addr()}: {request.endpoint} ({request_limit.limit})"
-    )
     return make_response(
         render_template(
             "error.html",
@@ -280,7 +283,9 @@ def about_codex():
         instance_uptime=uptime(millis=False),
         instance_num_requests=num_requests_processed,
         instance_error_rate=f'{float(f"{num_request_errors / max(1, num_requests_processed):.1g}"):g}',
-        instance_rate_limited_requests=num_requests_rate_limited,
+        instance_rate_limited_requests=sum(rate_limited_ips.values())
+        if rate_limited_ips
+        else 0,
         instance_mean_response_time=round(
             total_request_serving_time_millis / max(1, num_requests_processed)
         )

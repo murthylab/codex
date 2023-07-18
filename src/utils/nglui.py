@@ -161,7 +161,7 @@ def url_for_neuropils(segment_ids=None):
             {
                 "type": "segmentation",
                 "mesh": "precomputed://gs://flywire_neuropil_meshes/neuropils/neuropil_mesh_v141_v3",
-                "objectAlpha": 1.0, # workaround for broken transparency on iOS: https://github.com/google/neuroglancer/issues/471
+                "objectAlpha": 1.0,  # workaround for broken transparency on iOS: https://github.com/google/neuroglancer/issues/471
                 "tab": "source",
                 "segments": segment_ids,
                 "segmentColors": {
