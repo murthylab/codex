@@ -1,0 +1,39 @@
+<div class="modal fade" id="connectivityTagsModal" tabindex="-1" role="dialog" aria-labelledby="connectivityTagsModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color:blue;" id="connectivityTagsModalLabel">Connectivity Tags</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <small>
+            <div class="modal-body">
+                <b style="color: purple">Rich Club</b> A highly connected neuron which are disproportionately connected to other rich club neurons
+                <br>
+                <b style="color: purple">Broadcaster</b> An intrinsic rich club neuron which has at least 5 times as many outgoing connections as incoming connections
+                <br>
+                <b style="color: purple">Integrator</b> An intrinsic rich club neuron which has at least 5 times as many incoming connections as outgoing connections
+                <br>
+                <b style="color: purple">Attractor</b> The top 3% visited neurons when a random walk biased by synapse strengths is conducted through the wiring diagram
+                <br>
+                <b style="color: purple">Repeller</b> The top 3% visited neurons when a reverse random walk biased by synapse strengths is conducted through the wiring diagram
+                <br>
+                <b style="color: purple">Reciprocal</b> A neuron which participates in at least one reciprocal connection (A->B and B->A)
+                <br>
+                <b style="color: purple">Feedforward Loop Participant</b> A neuron which participates in at least one feedforward loop (A->B, A-> C, B->C)
+                <br>
+                <b style="color: purple">3-cycle Participant</b> A neuron which participates in at least one 3-unicycle (A->B, B->C, C->A)
+                <br>
+                <b style="color: purple">Highly Reciprocal Neuron</b> A neuron for which at least half of its connections participate in reciprocal motifs
+                <br>
+                <b style="color: purple">NSRN (Neuropil-Specific Reciprocal Neuron)</b> A highly reciprocal neuron which also belongs to the rich club and has at least half of its incoming synapses and half of its outgoing synapses within a single neuropil
+                <br>
+                <hr>
+                Connectivity Tags provided by Lin et al. (Seung & Murthy Labs). See <a href="{{url_for('base.about_flywire')}}">data credits page</a> for details.
+            </div>
+            </small>
+        </div>
+    </div>
+</div>

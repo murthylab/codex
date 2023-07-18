@@ -28,6 +28,7 @@ from src.utils.formatting import (
     display,
 )
 from src.utils.graph_algos import reachable_node_counts
+from src.utils.markers import extract_markers
 
 
 @lru_cache
@@ -97,6 +98,11 @@ def cached_cell_details(
                 ]
                 if nd[cl]
             ]
+        ),
+        "Connectivity Tags<br><small>"
+        '<a href="" data-toggle="modal" data-target="#connectivityTagsModal">'
+        'info & credits <i class="fa-solid fa-up-right-from-square"></i></a></small>': concat_labels(
+            extract_markers(neuron_data=nd, markers_type="connectivity_label")
         ),
         "Community Labels<br><small>"
         f'<a href="{url_for("app.labeling_log", root_id=root_id)}" target="_blank">'

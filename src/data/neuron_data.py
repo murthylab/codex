@@ -239,7 +239,7 @@ class NeuronDB(object):
             "Nerve": "nerve",
             "Cell Body Side": "side",
             "Community Identification Label": "label",
-            "Connectivity Labels": "marker.connectivity_label",
+            "Connectivity Tag": "marker.connectivity_label",
             "Max In/Out Neuropil": "group",
             "Morphology cluster": "morphology_cluster",
             "Connectivity cluster": "connectivity_cluster",
