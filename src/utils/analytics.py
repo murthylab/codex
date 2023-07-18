@@ -66,6 +66,8 @@ def _report_request(row):
 
 
 def report_request(request_ctx):
+    if os.getenv("GOOGLE_APPLICATION_CREDENTIALS") is None and APP_ENVIRONMENT == "DEV":
+        return
     try:
 
         def _convert(val, datatype):
