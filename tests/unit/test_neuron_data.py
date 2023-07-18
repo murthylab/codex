@@ -98,6 +98,7 @@ class NeuronDataTest(TestCase):
             "marker": 102000,
             "mirror_twin_root_id": 75000,
             "length_nm": 7,
+            "connectivity_tag": 11000,
         }
 
         for k in NEURON_DATA_ATTRIBUTE_TYPES.keys():
@@ -486,6 +487,12 @@ class NeuronDataTest(TestCase):
             expected_list_length, len(self.neuron_db.unique_values("hemilineage"))
         )
 
+    def test_connectivity_tag(self):
+        expected_list_length = 10
+        self.assertEqual(
+            expected_list_length, len(self.neuron_db.unique_values("connectivity_tag"))
+        )
+
     def test_sizes(self):
         for nd in self.neuron_db.neuron_data.values():
             ln = nd["length_nm"]
@@ -554,7 +561,7 @@ class NeuronDataTest(TestCase):
                     "part of comprehensive neck connective tracing",
                 ]:
                     self.assertFalse(
-                        garbage.lower() in lbl.lower(), f"{lbl} contains {garbage}"
+                        garbage.lower() in lbl.lower(), f"{lbl} contains {garbage}, all labels: {labels}"
                     )
 
     def test_thumbnails(self):
@@ -581,6 +588,7 @@ class NeuronDataTest(TestCase):
             "cell_type",
             "hemibrain_type",
             "hemilineage",
+            "connectivity_tag",
             "morphology_cluster",
             "connectivity_cluster",
             "marker",
@@ -972,6 +980,18 @@ class NeuronDataTest(TestCase):
                     "motor",
                     "endocrine",
                 ],
+                "data_connectivity_tag_range": [
+                    "feedforward_loop_participant",
+                    "reciprocal",
+                    "3_cycle_participant",
+                    "rich_club",
+                    "repeller",
+                    "attractor",
+                    "highly_reciprocal_neuron",
+                    "nsrn",
+                    "broadcaster",
+                    "integrator",
+                ],
             },
             self.neuron_db.dynamic_ranges(),
         )
@@ -985,7 +1005,7 @@ class NeuronDataTest(TestCase):
                 data_range_key = f"data_{attr.name}_range"
                 if not attr.value_range:
                     self.assertTrue(
-                        data_range_key not in self.neuron_db.dynamic_ranges()
+                        data_range_key not in self.neuron_db.dynamic_ranges(), attr.name
                     )
                 else:
                     self.assertEqual(
@@ -1292,7 +1312,6 @@ class NeuronDataTest(TestCase):
         expected_marker_types = [
             "columnar",
             "columnar_candidate",
-            "connectivity_label",
             "link",
             "not_in_olr_type",
             "olr_type",
@@ -1308,80 +1327,26 @@ class NeuronDataTest(TestCase):
             for v in markers_tree[k]:
                 self.assertTrue(v in VISUAL_NEURON_TYPES, f"{k}: {v}")
 
-        self.assertEqual(
-            ["broadcaster", "integrator", "reciprocal", "rich_club"],
-            sorted(markers_tree["connectivity_label"]),
-        )
-
         for lnk in markers_tree["link"]:
             self.assertTrue(lnk.startswith("http"))
 
-    def test_connectivity_labels(self):
-        ins, outs = self.neuron_db.input_output_partner_sets()
-        rids = list(self.neuron_db.neuron_data.keys())
-
-        feed_forward_nodes = set()
-        feedback_loop_nodes = set()
-        highly_reciprocal_nodes = set()
-        nsrns = set()
-
-        def is_regional_rich_club(rid):
-            if len(ins[rid]) + len(outs[rid]) < 37:
-                return False  # not rich club
-            con_rows = self.neuron_db.cell_connections(rid)
-            in_total_syn_count = 0
-            out_total_syn_count = 0
-            in_pil_syn_counts = defaultdict(int)
-            out_pil_syn_counts = defaultdict(int)
-            for row in con_rows:
-                if row[0] == a:
-                    in_pil_syn_counts[row[2]] += row[3]
-                    in_total_syn_count += row[3]
-                else:
-                    out_pil_syn_counts[row[2]] += row[3]
-                    out_total_syn_count += row[3]
-            return (2 * max(in_pil_syn_counts.values()) > in_total_syn_count) and (
-                2 * max(out_pil_syn_counts.values()) > out_total_syn_count
-            )
-
-        for a in rids:
-            reciprocal_partners = outs[a].intersection(ins[a])
-            if 2 * len(reciprocal_partners) > (
-                len(outs[a]) + len(ins[a]) - 2 * len(reciprocal_partners)
-            ):
-                highly_reciprocal_nodes.add(a)
-
-                nd = self.neuron_db.get_neuron_data(a)
-                if nd["flow"] == "intrinsic" and is_regional_rich_club(a):
-                    nsrns.add(a)
-
-            for b in outs[a]:
-                if a in outs[b]:
-                    continue
-                for c in outs[b].intersection(outs[a]):
-                    if b in outs[c] or c in ins[a]:
-                        continue
-                    else:
-                        self.assertEqual(3, len({a, b, c}))
-                        feed_forward_nodes |= {a, b, c}
-
-                if a >= b:  # loops are symmetric
-                    continue
-                for c in outs[b].intersection(ins[a]):
-                    if b in outs[c] or c in outs[a]:
-                        continue
-                    else:
-                        self.assertEqual(3, len({a, b, c}))
-                        feedback_loop_nodes |= {a, b, c}
-
-        con_labels = self.neuron_db._collect_connectivity_labels()
-        con_labels["feed_forward"] = feed_forward_nodes
-        con_labels["feedback_loop"] = feedback_loop_nodes
-        con_labels["highly_reciprocal"] = highly_reciprocal_nodes
-        con_labels["nsrn"] = nsrns
-        print({k: len(v) for k, v in con_labels.items()})
-
-        self.assertEqual(113978, len(feed_forward_nodes))
-        self.assertEqual(66835, len(feedback_loop_nodes))
-        self.assertEqual(2183, len(highly_reciprocal_nodes))
-        self.assertEqual(704, len(nsrns))
+    def test_connectivity_tags(self):
+        ct_counts = defaultdict(int)
+        for nd in self.neuron_db.neuron_data.values():
+            for ct in nd["connectivity_tag"]:
+                ct_counts[ct] += 1
+        self.assertEqual(
+            {
+                "3_cycle_participant": 66835,
+                "attractor": 3469,
+                "broadcaster": 676,
+                "feedforward_loop_participant": 113978,
+                "highly_reciprocal_neuron": 2183,
+                "integrator": 638,
+                "nsrn": 704,
+                "reciprocal": 77607,
+                "repeller": 3469,
+                "rich_club": 40218,
+            },
+            ct_counts,
+        )

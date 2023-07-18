@@ -217,6 +217,23 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         name="group",
     ),
     SearchAttribute(
+        description="Connectivity tag, describes the type of connections the neuron participates in",
+        name="connectivity_tag",
+        alternative_names=["connectivity_label", "connectivity_tags"],
+        value_range=[
+            "3_cycle_participant",
+            "attractor",
+            "broadcaster",
+            "feedforward_loop_participant",
+            "highly_reciprocal_neuron",
+            "integrator",
+            "nsrn",
+            "reciprocal",
+            "repeller",
+            "rich_club",
+        ],
+    ),
+    SearchAttribute(
         description="ID of the mirror-twin cell, optional",
         name="mirror_twin_root_id",
         value_convertor=lambda x: int(x),

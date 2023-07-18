@@ -238,6 +238,7 @@ def render_neuron_list(
             "hemilineage",
             "nt_type",
             "nerve",
+            "connectivity_tag",
         ]:
             if nd[attr_name]:
                 if isinstance(nd[attr_name], list):
@@ -408,6 +409,7 @@ def download_search_results():
         "hemibrain_type",
         "hemilineage",
         "nerve",
+        "connectivity_tag",
         "side",
         "input_synapses",
         "output_synapses",

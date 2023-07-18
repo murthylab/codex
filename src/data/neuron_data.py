@@ -45,6 +45,7 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "hemilineage",
     "nerve",
     "side",
+    "connectivity_tag",
     "morphology_cluster",
     "connectivity_cluster",
 ]
@@ -239,7 +240,7 @@ class NeuronDB(object):
             "Nerve": "nerve",
             "Cell Body Side": "side",
             "Community Identification Label": "label",
-            "Connectivity Tag": "marker.connectivity_label",
+            "Connectivity Tag": "connectivity_tag",
             "Max In/Out Neuropil": "group",
             "Morphology cluster": "morphology_cluster",
             "Connectivity cluster": "connectivity_cluster",
@@ -636,12 +637,6 @@ class NeuronDB(object):
         return non_uniform_set
 
     def _create_markers(self, olr_prediction_rows):
-        # Add markers for special cells (as per FlyWire network analysis paper)
-        special_cells = self._collect_connectivity_labels()
-        for tp, lst in special_cells.items():
-            for rid in lst:
-                self.neuron_data[rid]["marker"].append(f"connectivity_label:{tp}")
-
         # Extract URL / links and add them as markers
         for rid, llist in self.label_data.items():
             links = set()
@@ -665,15 +660,23 @@ class NeuronDB(object):
         print(f"Loading {len(olr_prediction_rows)} predictions")
         prediction_markers_applied = 0
         prediction_accuracy = defaultdict(int)
+        missing_root_ids = 0
         for row in olr_prediction_rows:
-            nd = self.neuron_data[int(row[0])]
+            rid = int(row[0])
+            nd = self.neuron_data.get(rid)
+            if nd is None:
+                missing_root_ids += 1
+                continue
             # predictions are generated seldom - this makes sure we only apply them on cells that were not typed already
             olr_markers = [mrk for mrk in nd["marker"] if mrk.startswith("olr_type:")]
             if olr_markers:
                 assert len(olr_markers) == 1
                 marker = olr_markers[0].split(":")[1]
                 if not marker.startswith("Unknown"):
-                    prediction_accuracy[f"predicted {row[1]} labeled {marker}"] += 1
+                    sign = "vv" if row[1] == marker else "xx"
+                    prediction_accuracy[
+                        f"{sign} predicted {row[1]} labeled {marker}"
+                    ] += 1
                     continue
             nd["marker"].append(f"predicted_olr_type:{row[1]}")
             prediction_markers_applied += 1
@@ -682,7 +685,8 @@ class NeuronDB(object):
             print(f"{k}: {v}")
 
         print(
-            f"Applied {prediction_markers_applied} predictions out of {len(olr_prediction_rows)}"
+            f"Applied {prediction_markers_applied} predictions out of {len(olr_prediction_rows)}. "
+            f"Missing root ids: {missing_root_ids}."
         )
 
         # Add tagging candidate markers for columnar cells in the Optic Lobe
@@ -726,35 +730,6 @@ class NeuronDB(object):
                 self.neuron_data[rid]["marker"].append(f"columnar:{cst_type}")
             for rid in tagged_and_candidate_rids[1]:
                 self.neuron_data[rid]["marker"].append(f"columnar_candidate:{cst_type}")
-
-    def _collect_connectivity_labels(self):
-        ins, outs = self.input_output_partner_sets()
-        rich_club = {
-            rid
-            for rid in self.neuron_data.keys()
-            if len(ins[rid]) + len(outs[rid]) >= 37
-        }
-        broadcasters = {
-            rid
-            for rid in rich_club
-            if self.neuron_data[rid]["flow"] == "intrinsic"
-            and len(outs[rid]) >= 5 * len(ins[rid])
-        }
-        integrators = {
-            rid
-            for rid in rich_club
-            if self.neuron_data[rid]["flow"] == "intrinsic"
-            and len(ins[rid]) >= 5 * len(outs[rid])
-        }
-        reciprocals = {
-            rid for rid in self.neuron_data.keys() if not ins[rid].isdisjoint(outs[rid])
-        }
-        return {
-            "rich_club": rich_club,
-            "broadcaster": broadcasters,
-            "integrator": integrators,
-            "reciprocal": reciprocals,
-        }
 
     def _collect_columnar_cell_tagging_candidates(self):
         # identify optic lobe columnar cell tagging candidates

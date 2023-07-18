@@ -255,5 +255,5 @@ class Test(TestCase):
     def test_attributes_lookup(self):
         for a in STRUCTURED_SEARCH_ATTRIBUTES:
             for n in a.alternative_names + [a.name]:
-                self.assertEqual(a, _search_attribute_by_name(n))
-                self.assertEqual(a, _search_attribute_by_name(n.upper()))
+                self.assertEqual(a, _search_attribute_by_name(n), n)
+                self.assertEqual(a, _search_attribute_by_name(n.upper()), n)

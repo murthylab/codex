@@ -112,6 +112,7 @@ def _make_data_charts(data_list):
                 "nerve",
                 "hemibrain_type",
                 "hemilineage",
+                "connectivity_tag",
             ]
         }
     )

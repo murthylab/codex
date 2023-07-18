@@ -176,7 +176,7 @@ def remove_corrected(labels_latest_to_oldest):
 
 # labels we want to exclude (non-informative wrt all other corrections)
 def blacklisted(lbl):
-    blacklisted_labels = {"not a neuron", "correction - not optic lobe"}
+    blacklisted_labels = {"not a neuron", "not a neuron; glia", "correction - not optic lobe"}
     return lbl.lower() in blacklisted_labels or can_be_flywire_root_id(lbl)
 
 

@@ -57,6 +57,11 @@ _CODEX_DATA_SCHEMA = {
         "syn_count",
         "nt_type",
     ],
+    # one row per id
+    "connectivity_tags": [
+        "root_id",
+        "connectivity_tag",
+    ],
     # multiple rows per id
     "coordinates": [
         "root_id",
@@ -105,6 +110,10 @@ def get_coordinates_file_columns():
 
 def get_nblast_file_columns():
     return list(_CODEX_DATA_SCHEMA["nblast"])
+
+
+def get_connectivity_tags_file_columns():
+    return list(_CODEX_DATA_SCHEMA["connectivity_tags"])
 
 
 def get_morphology_clusters_columns():

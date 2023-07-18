@@ -21,10 +21,12 @@ CONNECTIONS_FILE_NAME = "connections.csv.gz"
 LABELS_FILE_NAME = "labels.csv.gz"
 COORDINATES_FILE_NAME = "coordinates.csv.gz"
 NBLAST_FILE_NAME = "nblast.csv.gz"
+CONNECTIVITY_TAGS_FILE_NAME = "connectivity_tags.csv.gz"
 MORPHOLOGY_CLUSTERS_FILE_NAME = "morphology_clusters.csv.gz"
 CONNECTIVITY_CLUSTERS_FILE_NAME = "connectivity_clusters.csv.gz"
 SVD_FILE_NAME = "svd.csv.gz"
 LR_MATCHING_FILE_NAME = "lr_matching.csv.gz"
+OLR_TYPE_PREDICTIONS_FILE_NAME = "olt_type_predictions.csv"
 
 
 NEURON_DB_PICKLE_FILE_NAME = "neuron_db.pickle.gz"
@@ -87,11 +89,12 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     )
     coordinate_rows = _read_data(COORDINATES_FILE_NAME)
     nblast_rows = _read_data(NBLAST_FILE_NAME)
+    connectivity_tag_rows = _read_data(CONNECTIVITY_TAGS_FILE_NAME)
     morphology_cluster_rows = _read_data(MORPHOLOGY_CLUSTERS_FILE_NAME)
     connectivity_cluster_rows = _read_data(CONNECTIVITY_CLUSTERS_FILE_NAME)
     svd_rows = _read_data(SVD_FILE_NAME)
     lr_matching_rows = _read_data(LR_MATCHING_FILE_NAME)
-    olr_prediction_rows = read_csv("static/experimental_data/olt_type_predictions.csv")
+    olr_prediction_rows = _read_data(OLR_TYPE_PREDICTIONS_FILE_NAME)
 
     log(
         f"App initialization loading data from {data_file_path}:\n"
@@ -110,6 +113,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         labels_file_timestamp=labels_file_timestamp,
         coordinate_rows=coordinate_rows,
         nblast_rows=nblast_rows,
+        connectivity_tag_rows=connectivity_tag_rows,
         morphology_cluster_rows=morphology_cluster_rows,
         connectivity_cluster_rows=connectivity_cluster_rows,
         svd_rows=svd_rows,

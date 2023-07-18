@@ -13,6 +13,7 @@ from src.data.catalog import (
     get_morphology_clusters_columns,
     get_connectivity_clusters_columns,
     get_lr_matching_file_columns,
+    get_connectivity_tags_file_columns,
 )
 from src.data.neuron_data import NeuronDB
 from src.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
@@ -61,13 +62,14 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     "hemilineage": str,
     "nerve": str,
     "side": str,
-    # I/O counts + regions
+    # I/O counts + regions and network properties
     "input_cells": int,
     "input_synapses": int,
     "input_neuropils": list,
     "output_cells": int,
     "output_synapses": int,
     "output_neuropils": list,
+    "connectivity_tag": list,
     # Marked coordinates by FlyWire community
     "position": list,
     # Cell size measurements
@@ -109,6 +111,7 @@ def initialize_neuron_data(
     labels_file_timestamp,
     coordinate_rows,
     nblast_rows,
+    connectivity_tag_rows,
     morphology_cluster_rows,
     connectivity_cluster_rows,
     svd_rows,
@@ -175,6 +178,26 @@ def initialize_neuron_data(
         )
     log(
         f"App initialization: {not_found_classified_root_ids} classified ids not found in set of neurons"
+    )
+
+    log(
+        f"App initialization processing connectivity tags data with {len(connectivity_tag_rows)} rows.."
+    )
+    not_found_connectivity_tagged_root_ids = 0
+    assert connectivity_tag_rows[0] == get_connectivity_tags_file_columns()
+    connectivity_tag_column_index = {
+        c: i for i, c in enumerate(connectivity_tag_rows[0])
+    }
+    for i, r in enumerate(connectivity_tag_rows[1:]):
+        root_id = _get_value(r, connectivity_tag_column_index, "root_id")
+        if root_id not in neuron_attributes:
+            not_found_connectivity_tagged_root_ids += 1
+            continue
+        neuron_attributes[root_id]["connectivity_tag"] = _get_value(
+            r, connectivity_tag_column_index, "connectivity_tag"
+        )
+    log(
+        f"App initialization: {not_found_connectivity_tagged_root_ids} connectivity tag ids not found in set of neurons"
     )
 
     if cell_stats_rows:
