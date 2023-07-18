@@ -561,7 +561,8 @@ class NeuronDataTest(TestCase):
                     "part of comprehensive neck connective tracing",
                 ]:
                     self.assertFalse(
-                        garbage.lower() in lbl.lower(), f"{lbl} contains {garbage}, all labels: {labels}"
+                        garbage.lower() in lbl.lower(),
+                        f"{lbl} contains {garbage}, all labels: {labels}",
                     )
 
     def test_thumbnails(self):

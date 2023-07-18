@@ -48,7 +48,10 @@ DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS = {
     "coordinates": "Marked neuron coordinates. "
     "FlyWire Supervoxel IDs and position coordinates for cells in the dataset. One cell might have zero or more "
     "marked coordinates and supervoxel IDs.",
-    "neuropil_synapse_table": "In-out synapse & partner counts by neuropil. "
+    "connectivity_tags": "Descriptors for neurons connectivity characteristics, derived from network analysis. Each "
+    "neuron can have 0 or more tags, separated by commas in the second column. "
+    'See <a href="" data-toggle="modal" data-target="#connectivityTagsModal">details</a>.',
+    "neuropil_synapse_table": "In-out synapse & partner counts by neuropil."
     "For every cell and neuropil (region), contains the number of input and output synapses, as well as the "
     "number of input and output partners the cell has in that neuropil. One row for each cell with the first "
     "column containing the FlyWire Root ID of the cell, followed by a column for every combination of neuropil X "

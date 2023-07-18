@@ -28,7 +28,6 @@ from src.utils.formatting import (
     display,
 )
 from src.utils.graph_algos import reachable_node_counts
-from src.utils.markers import extract_markers
 
 
 @lru_cache
@@ -102,7 +101,7 @@ def cached_cell_details(
         "Connectivity Tags<br><small>"
         '<a href="" data-toggle="modal" data-target="#connectivityTagsModal">'
         'info & credits <i class="fa-solid fa-up-right-from-square"></i></a></small>': concat_labels(
-            extract_markers(neuron_data=nd, markers_type="connectivity_label")
+            nd["connectivity_tag"]
         ),
         "Community Labels<br><small>"
         f'<a href="{url_for("app.labeling_log", root_id=root_id)}" target="_blank">'
@@ -155,7 +154,7 @@ def cached_cell_details(
                 "app.search", filter_string=f"{OP_DOWNSTREAM} {root_id}"
             ),
         )
-        if "connectivity_label:reciprocal" in nd["marker"]:
+        if "reciprocal" in nd["connectivity_tag"]:
             up, dn = neuron_db.connections_up_down(root_id)
             reciprocal_count = len(set(up).intersection(dn))
             insert_related_cell_links(
