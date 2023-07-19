@@ -30,6 +30,33 @@ from src.utils.formatting import (
 from src.utils.graph_algos import reachable_node_counts
 
 
+def connectivity_tag_links(root_id, connectivity_tag):
+    if connectivity_tag == "3_cycle_participant":
+        return url_for(
+            "app.motifs",
+            queryA=root_id,
+            enabledAB="on",
+            regionAB="Any",
+            ntTypeAB="Any",
+            minSynapseCountAB=1,
+            enabledBC="on",
+            regionBC="Any",
+            ntTypeBC="Any",
+            minSynapseCountBC=1,
+            enabledCA="on",
+            regionCA="Any",
+            ntTypeCA="Any",
+            minSynapseCountCA=1,
+        )
+    elif connectivity_tag == "reciprocal":
+        return url_for(
+            "app.connectivity",
+            cell_names_or_ids=str(root_id) + " {or} {reciprocal} " + str(root_id),
+        )
+    else:
+        return None
+
+
 @lru_cache
 def cached_cell_details(
     cell_names_or_id, root_id, neuron_db, data_version, reachability_stats
@@ -101,7 +128,8 @@ def cached_cell_details(
         "Connectivity Tags<br><small>"
         '<a href="" data-toggle="modal" data-target="#connectivityTagsModal">'
         'info & credits <i class="fa-solid fa-up-right-from-square"></i></a></small>': concat_labels(
-            nd["connectivity_tag"]
+            nd["connectivity_tag"],
+            linker=lambda con_tag: connectivity_tag_links(root_id, con_tag),
         ),
         "Community Labels<br><small>"
         f'<a href="{url_for("app.labeling_log", root_id=root_id)}" target="_blank">'

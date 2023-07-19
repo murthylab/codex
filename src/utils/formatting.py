@@ -146,10 +146,15 @@ def trim_long_tokens(text, limit=50):
     return text
 
 
-def concat_labels(labels):
-    return "<br>".join(
-        ["&nbsp; <b>&#x2022;</b> &nbsp; " + trim_long_tokens(t) for t in labels]
-    )
+def concat_labels(labels, linker=None):
+    res = []
+    for lbl in labels:
+        url = linker(lbl) if linker else None
+        if url:
+            res.append(f'<a href="{url}" target="_blank">{trim_long_tokens(lbl)}</a>')
+        else:
+            res.append(trim_long_tokens(lbl))
+    return "<br>".join(["&nbsp; <b>&#x2022;</b> &nbsp; " + t for t in res])
 
 
 def shorten_and_concat_labels(labels):
