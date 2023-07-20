@@ -69,7 +69,9 @@ def is_flywire_lab_member(storage):
     affiliation = fetch_flywire_user_affiliation(storage)
     if not affiliation:
         return False
-    return any([pi in affiliation for pi in ["Mala Murthy", "Sebastian Seung"]])
+    return any(
+        [pi in affiliation for pi in ["Eyewire", "Mala Murthy", "Sebastian Seung"]]
+    )
 
 
 """

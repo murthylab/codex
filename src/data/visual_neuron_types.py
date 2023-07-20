@@ -1,4 +1,8 @@
 VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
+    "Unknown": [
+        "Unknown-labeled",
+        "Unknown-not-labeled",
+    ],
     "Centrifugal": [
         "C2",
         "C3",
@@ -379,10 +383,6 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Am",
         "Lai",
         "Lat",
-    ],
-    "Unknown": [
-        "Unknown-labeled",
-        "Unknown-not-labeled",
     ],
 }
 

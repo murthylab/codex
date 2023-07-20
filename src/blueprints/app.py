@@ -530,9 +530,82 @@ def optic_lobe_catalog():
                     ),
                 }
             )
+
+        if mt == "Unknown":
+            all_predicted = set()
+            for v in predicted_olr_type_lists.values():
+                all_predicted |= set(v)
+            unpredicted_count = len(
+                [
+                    rid
+                    for rid in olr_type_lists["Unknown-labeled"]
+                    + olr_type_lists["Unknown-not-labeled"]
+                    if rid not in all_predicted
+                ]
+            )
+            unpredicted_query = (
+                "marker {contains} olr_type:unknown && marker {not_contains} predicted"
+            )
+            types_list.append(
+                {
+                    "name": "Unknown and have no predictions (new type candidates)",
+                    "olr_count": unpredicted_count,
+                    "olr_search_url": url_for(
+                        "app.search", filter_string=unpredicted_query
+                    ),
+                    "olr_ngl_url": url_for(
+                        "app.search_results_flywire_url",
+                        filter_string=unpredicted_query,
+                    ),
+                }
+            )
+
+            for t, lst in sorted(
+                predicted_olr_type_lists.items(), key=lambda x: -len(x[1])
+            ):
+                if not predicted_olr_type_lists[t]:
+                    continue
+                predicted_olr_query = f"marker == predicted_olr_type:{t}"
+                types_list.append(
+                    {
+                        "name": f"Unknown predicted to be {t}",
+                        "olr_count": len(predicted_olr_type_lists[t]),
+                        "olr_search_url": url_for(
+                            "app.search", filter_string=predicted_olr_query
+                        ),
+                        "olr_ngl_url": url_for(
+                            "app.search_results_flywire_url",
+                            filter_string=predicted_olr_query,
+                        ),
+                    }
+                )
+
         types_data[mt] = types_list
+
+    def total_length(dct, with_percentage=False, exclude_unknown=False):
+        totlen = 0
+        for k, v in dct.items():
+            if exclude_unknown and k.startswith("Unknown"):
+                continue
+            totlen += len(v)
+
+        if with_percentage:
+            return f"{display(totlen)} ({percentage(totlen, sum([len(v) for v in olr_type_lists.values()]))})"
+        else:
+            return display(totlen)
+
+    meta_data = [
+        f"{total_length(olr_type_lists, True, True)} neurons in the right optic lobe have been typed (per catalog)",
+        f"{display(len(olr_type_lists['Unknown-not-labeled']))} of the untyped neurons in the right optic lobe have no labels",
+        f"{total_length(predicted_olr_type_lists)} of the untyped neurons in the right optic lobe have predictions",
+        f"{len(olr_type_lists['Unknown-labeled'])} of the untyped neurons in the right optic lobe have unidentified labels",
+        f"{total_length(non_olr_type_lists)} neurons <b>outside</b> the right optic lobe have types from the catalog",
+        f"{len([k for k, v in olr_type_lists.items() if v and 'Unknown' not in k])} types from the catalog have matches in the right optic lobe",
+        f"{len([k for k, v in olr_type_lists.items() if not v and 'Unknown' not in k])} types from the catalog have <b>no</b> matches in the right optic lobe",
+    ]
     return render_template(
         "optic_lobe_catalog.html",
+        meta_data=meta_data,
         types_data=types_data,
     )
 

@@ -6,7 +6,14 @@ Optic Lobe Catalog
 
 {% block content %}
 <h4 style="color: teal; margin: 20px;">Catalog of Optic Lobe Neuron Types</h4>
+
 <div id="accordion">
+    <div class="card" style="padding: 20px;">
+        <h5 style="color: teal">Stats</h5>
+        {% for md in meta_data %}
+        <li>{{md|safe}}</li>
+        {% endfor %}
+    </div>
     {% for mega_type, types_list in types_data.items() %}
     {% set mt_id = mega_type.replace(' ', '_') %}
     <div class="card">
@@ -33,7 +40,7 @@ Optic Lobe Catalog
                             <li style="color:grey">No matches in the right optic lobe</li>
                         {% endif %}
                         {% if t.predicted_olr_count %}
-                            <li><a style="color: teal" href="{{t.predicted_olr_search_url}}" target="_blank">{{t.predicted_olr_count}} unlabeled cells <b>with this type predicted</b></a>
+                            <li><a style="color: teal" href="{{t.predicted_olr_search_url}}" target="_blank">{{t.predicted_olr_count}} unknown cells <b>with this type predicted</b></a>
                                 &nbsp;| &nbsp;
                                 <a style="color: teal" href="{{t.predicted_olr_ngl_url}}" target="_blank">see 3D view</a>
                             </li>
