@@ -9,7 +9,6 @@ from src.data.brain_regions import (
 )
 from src.data.neurotransmitters import lookup_nt_type, NEURO_TRANSMITTER_NAMES
 from src.utils.graph_algos import pathways
-from src.utils.logging import log_error
 from src.utils.parsing import tokenize, edit_distance
 
 
@@ -628,8 +627,7 @@ def _make_comparison_predicate(lhs, rhs, op, case_sensitive):
         conversion_func = search_attr.value_convertor
         if conversion_func:
             rhs = conversion_func(rhs)
-    except Exception as e:
-        log_error(f"Conversion failed: {rhs=}, {e}")
+    except Exception:
         _raise_invalid_value_for_structured_search(
             attr_name=search_attr.name, value=rhs, valid_values=search_attr.value_range
         )
@@ -923,8 +921,9 @@ def _parse_search_terms(terms):
                     if not parts[0] and parts[1]:
                         structured.append({"op": op.name, "rhs": parts[1]})
                         continue
-        log_error(f"Too many search operators in : {term}")
-        raise_malformed_structured_search_query()
+        raise_malformed_structured_search_query(
+            f"Too many search operators in : {term}"
+        )
 
     return free_form, structured
 

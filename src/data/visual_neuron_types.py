@@ -44,6 +44,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Mi13",
         "Mi14",
         "Mi15",
+        "Mi104_1468",
     ],
     "Medulla Columnar": [
         "MC61",
@@ -55,6 +56,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Tlp3",
         "Tlp4",
         "Tlp5",
+        "Tlp6",
     ],
     "Retinula Axon": [
         "R1-6",
@@ -74,6 +76,13 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Lt51",
         "Lt52",
         "Lt87",
+    ],
+    "LM": [
+        "LM100_L234-M89",
+        "LM101_L234-M89",
+        "LM102a_L234-M89",
+        "LM102b_L3-M8",
+        "LM103_L12-M910",
     ],
     "Distal Medulla": [
         "Dm1",
@@ -96,6 +105,10 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Dm18",
         "Dm19",
         "Dm20",
+        "Dm100_125",
+        "Dm101_6",
+        "Dm102a_6",
+        "Dm102b_6",
     ],
     "Proximal Medulla": [
         "Pm1",
@@ -103,6 +116,11 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Pm2",
         "Pm3",
         "Pm4",
+        "Pm100_8",
+        "Pm101_8",
+        "Pm102_8",
+        "Pm103_89",
+        "Pm104_89",
     ],
     "Lobula Columnar": [
         "LC1",
@@ -157,6 +175,31 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Mt13",
         "Mt14",
     ],
+    "Medulla Tangential Intrinsic": [
+        "Mti100_347",
+        "Mti102_76",
+        "Mti103_7",
+        "Mt103_67",
+        "Mti104_78",
+        "Mti105_67",
+        "Mti106_7",
+        "Mti107_67",
+        "Mti108_7",
+        "Mti110_678",
+        "Mti111_7",
+        "Mti112_67",
+        "Mti114_678",
+        "Mti115_367",
+        "Mti116_346",
+        "Mti117_7",
+        "Mti118_7",
+        "Mti119_7",
+        "Mti120_7",
+        "Mti121_7",
+        "Mti122_78",
+        "Mti123_37",
+        "Mti124_67",
+    ],
     "Transmedullary": [
         "Tm1",
         "Tm1a",
@@ -196,6 +239,10 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Tm26",
         "Tm27",
         "Tm28",
+        "Tm100_M68-L5",
+        "Tm101a_M78-L5",
+        "Tm101b_M78-L5",
+        "Tm102_M2378-L6",
     ],
     "Lobulla Plate Intrisic": [
         "LPi1-2",
@@ -204,6 +251,13 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "LPi4-3",
         "LPi34-12",
         "LPi2b",
+        "LPi100_4-14",
+        "Lpi101_34-34",
+        "Lpi102_12",
+        "Lpi104_1-2",
+        "Lpi105_4-34",
+        "Lpi106_2",
+        "Lpi107_34",
     ],
     "Y": [
         "Y1",
@@ -267,12 +321,44 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "LPLC4",
         "LLPC1",
         "LPC1",
+        "Lpc101-34",
+    ],
+    "LpM": [
+        "LpM100a_Lp34-M567",
+        "LpM100b_Lp34-M67-Lp4",
+    ],
+    "LLP": ["LLP100_L5a6-LP1234"],
+    "LLpt": [
+        "LLpt101_L56-Lp2",
+        "Lpt104_12",
     ],
     "Lobula Intrinsic": [
         "Li1",
         "Li2",
         "Li3",
         "Li4",
+        "Li100_5",
+        "Li101_23",
+        "Li102_23",
+        "Li103_23",
+        "Li103_24",
+        "Li105_235",
+        "Li107_56",
+        "Li108a_345a6",
+        "Li108b_345a6",
+        "Li109_456",
+        "Li110_56",
+        "Li111_2",
+        "Li113_15",
+        "Li114_15",
+        "Li115_3",
+        "Li116_234",
+        "Li118_6",
+        "Li119_2",
+        "Li120_5-5",
+        "Li121_56",
+        "Li122_56",
+        "Li123_56",
     ],
     "Optic Lobe Tangential": [
         "Olt",
@@ -280,6 +366,14 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
     "Visual Projection Neurons": [
         "ML-VPN1",
         "H1",
+    ],
+    "ML": [
+        "ML100_M47-L6",
+        "ML101_M89-L235",
+        "ML102_M24-L45",
+        "ML103_M89-L6",
+        "ML104_M47-L6",
+        "ML105_M6-L5",
     ],
     "Other": [
         "Am",
@@ -292,10 +386,13 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
     ],
 }
 
+
 VISUAL_NEURON_TYPE_TO_MEGA_TYPE = {}
 for mt, tl in VISUAL_NEURON_MEGA_TYPE_TO_TYPES.items():
     for t in tl:
-        assert t not in VISUAL_NEURON_TYPE_TO_MEGA_TYPE
+        if t in VISUAL_NEURON_TYPE_TO_MEGA_TYPE:
+            print(f"ERROR: Type {t} appears more than once.")
+            exit(1)
         VISUAL_NEURON_TYPE_TO_MEGA_TYPE[t] = mt
 
 VISUAL_NEURON_TYPES = list(VISUAL_NEURON_TYPE_TO_MEGA_TYPE.keys())

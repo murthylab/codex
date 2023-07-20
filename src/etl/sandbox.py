@@ -572,7 +572,7 @@ def predict_ol_types(neuron_db):
         return "olr_type:Unknown-not-labeled" in nd["marker"]
 
     unknown_ol = [rid for rid, nd in neuron_db.neuron_data.items() if is_unknown_ol(nd)]
-    assert 4000 < len(unknown_ol)
+    assert 1000 < len(unknown_ol)
 
     def ol_type(rid):
         for mrk in neuron_db.get_neuron_data(rid)["marker"]:
@@ -590,23 +590,23 @@ def predict_ol_types(neuron_db):
 
     def infer_type(counts1, counts2):
         if counts1 and counts2:
-            _, argmax1 = argmax_keys(counts1)
-            _, argmax2 = argmax_keys(counts2)
+            c1, argmax1 = argmax_keys(counts1)
+            c2, argmax2 = argmax_keys(counts2)
             agr = argmax1.intersection(argmax2)
-            if len(agr) == 1:
+            if min(c1, c2) > 1 and len(agr) == 1:
                 return list(agr)[0]
         elif counts1:
             count, types = argmax_keys(counts1)
-            if count > 1 and len(types) == 1:
+            if count > 2 and len(types) == 1:
                 return list(types)[0]
         elif counts2:
             count, types = argmax_keys(counts2)
-            if count > 1 and len(types) == 1:
+            if count > 2 and len(types) == 1:
                 return list(types)[0]
         return None
 
     predictions = {}
-    predictions_fname = "static/experimental_data/ol_type_predictions.csv"
+    predictions_fname = "static/experimental_data/olt_type_predictions.csv"
     for i, rid in enumerate(unknown_ol):
         jac_olt_counts = defaultdict(int)
         cos_olt_counts = defaultdict(int)
@@ -645,15 +645,17 @@ def predict_ol_types(neuron_db):
 
 
 if __name__ == "__main__":
-    untyped_ol_cosine_matrix_file = (
-        "static/experimental_data/untyped_ol_cosine_matrix.csv.gz"
-    )
-    untyped_ol_clusters_file = "static/experimental_data/untyped_ol_clusters.csv.gz"
+    predict_ol_types(NeuronDataFactory.instance().get())
+
+    # untyped_ol_cosine_matrix_file = (
+    #    "static/experimental_data/untyped_ol_cosine_matrix.csv.gz"
+    # )
+    # untyped_ol_clusters_file = "static/experimental_data/untyped_ol_clusters.csv.gz"
     # generate_untyped_ol_cosine_matrix(NeuronDataFactory.instance().get(), untyped_ol_cosine_matrix_file)
-    cluster_untyped_ol_cells(
-        scores_fname=untyped_ol_cosine_matrix_file,
-        clusters_fname=untyped_ol_clusters_file,
-    )
+    # cluster_untyped_ol_cells(
+    #    scores_fname=untyped_ol_cosine_matrix_file,
+    #    clusters_fname=untyped_ol_clusters_file,
+    # )
 
     # morpho_jscores_fname = "static/experimental_data/morpho_jaccard_scores.csv.gz"
     # make_morphology_graph_jscores_for_dsxfru(NeuronDataFactory.instance().get(), morpho_jscores_fname)

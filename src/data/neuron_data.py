@@ -28,6 +28,7 @@ from src.utils.formatting import (
 from src.utils.logging import log
 
 # Keywords will be matched against these attributes
+from src.utils.markers import extract_markers
 from src.utils.parsing import extract_links
 from src.utils.stats import jaccard_weighted, jaccard_binary
 
@@ -660,6 +661,7 @@ class NeuronDB(object):
         print(f"Loading {len(olr_prediction_rows)} predictions")
         prediction_markers_applied = 0
         prediction_accuracy = defaultdict(int)
+        prediction_match, prediction_mismatch = 0, 0
         missing_root_ids = 0
         for row in olr_prediction_rows:
             rid = int(row[0])
@@ -668,12 +670,17 @@ class NeuronDB(object):
                 missing_root_ids += 1
                 continue
             # predictions are generated seldom - this makes sure we only apply them on cells that were not typed already
-            olr_markers = [mrk for mrk in nd["marker"] if mrk.startswith("olr_type:")]
+            olr_markers = extract_markers(nd, "olr_type")
             if olr_markers:
                 assert len(olr_markers) == 1
-                marker = olr_markers[0].split(":")[1]
+                marker = olr_markers[0]
                 if not marker.startswith("Unknown"):
-                    sign = "vv" if row[1] == marker else "xx"
+                    if row[1] == marker:
+                        prediction_match += 1
+                        sign = "vv"
+                    else:
+                        prediction_mismatch += 1
+                        sign = "xx"
                     prediction_accuracy[
                         f"{sign} predicted {row[1]} labeled {marker}"
                     ] += 1
@@ -686,7 +693,7 @@ class NeuronDB(object):
 
         print(
             f"Applied {prediction_markers_applied} predictions out of {len(olr_prediction_rows)}. "
-            f"Missing root ids: {missing_root_ids}."
+            f"Missing root ids: {missing_root_ids}.\n{prediction_match=} {prediction_mismatch=}"
         )
 
         # Add tagging candidate markers for columnar cells in the Optic Lobe

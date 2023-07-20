@@ -1,4 +1,5 @@
 import string
+from collections import defaultdict
 from unittest import TestCase
 
 from src.data.visual_neuron_types import (
@@ -6,9 +7,16 @@ from src.data.visual_neuron_types import (
     VISUAL_NEURON_MEGA_TYPE_TO_TYPES,
 )
 from src.service.optic_lobe_types_catalog import assign_types_to_neurons, rewrite
+from src.utils.formatting import format_dict_by_largest_value, format_dict_by_key
+from src.utils.markers import extract_markers
+from tests import get_testing_neuron_db
 
 
 class OlCatalogTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.neuron_db = get_testing_neuron_db()
+
     def test_types_list(self):
         types_list = []
         for mt, tl in VISUAL_NEURON_MEGA_TYPE_TO_TYPES.items():
@@ -17,7 +25,7 @@ class OlCatalogTest(TestCase):
         self.assertEqual(sorted(types_list), sorted(VISUAL_NEURON_TYPES))
         self.assertEqual(len(types_list), len(set(types_list)))
 
-        allowed_chars = string.ascii_letters + string.digits + "-"
+        allowed_chars = string.ascii_letters + string.digits + "_-"
         for t in VISUAL_NEURON_TYPES:
             for c in t:
                 self.assertTrue(c in allowed_chars, c)
@@ -92,3 +100,25 @@ class OlCatalogTest(TestCase):
                 target_type_list=["R1-6", "Unknown-labeled", "Unknown-not-labeled"],
             ),
         )
+
+    def test_ol_unknown_types(self):
+        tag_counts = defaultdict(int)
+        for nd in self.neuron_db.neuron_data.values():
+            if "Unknown-labeled" in extract_markers(nd, "olr_type"):
+                if any(["#temp" in lbl for lbl in nd["label"]]):
+                    for lbl in nd["label"]:
+                        tag_counts[lbl.split("; ")[1]] += 1
+        if tag_counts:
+            print(format_dict_by_largest_value(tag_counts))
+            print("\n")
+            print(format_dict_by_key(tag_counts))
+            print("\n Missing from catalog:")
+            print(
+                '"'
+                + '",\n"'.join(
+                    sorted(
+                        [t for t in tag_counts.keys() if t not in VISUAL_NEURON_TYPES]
+                    )
+                )
+            )
+            self.fail(f"Found {len(tag_counts)} OL tags not assigned to catalog types")
