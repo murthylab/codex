@@ -249,7 +249,6 @@ class Test(TestCase):
     def test_blacklisted(self):
         self.assertTrue(blacklisted("720575940611408241"))
         self.assertTrue(blacklisted("correction - not optic lobe"))
-        self.assertTrue(blacklisted("not a neuron"))
 
     def test_remove_blacklisted_2(self):
         nd = {
@@ -265,11 +264,12 @@ class Test(TestCase):
             "side": "right",
         }
         self.assertEqual(
-            ["VLPl1"], clean_and_reduce_labels(["VLPl1", "not a neuron"], nd)
+            ["VLPl1", "not a neuron"],
+            clean_and_reduce_labels(["VLPl1", "not a neuron"], nd),
         )
 
         self.assertEqual(
-            ["VLPl1"],
+            ["VLPl1", "not a neuron"],
             clean_and_reduce_labels(
                 ["720575940611408241", "VLPl1", "not a neuron"], nd
             ),

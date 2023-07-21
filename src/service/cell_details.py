@@ -1,7 +1,7 @@
 from collections import defaultdict
 from functools import lru_cache
 
-from flask import url_for
+from flask import url_for, session
 
 from src.configuration import MIN_SYN_THRESHOLD
 from src.data.brain_regions import neuropil_hemisphere, NEUROPIL_DESCRIPTIONS
@@ -21,6 +21,7 @@ from src.data.structured_search_filters import (
 from src.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 from src.utils import nglui
 from src.utils import stats as stats_utils
+from src.utils.cookies import is_flywire_lab_member
 from src.utils.formatting import (
     concat_labels,
     nanometer_to_flywire_coordinates,
@@ -28,6 +29,7 @@ from src.utils.formatting import (
     display,
 )
 from src.utils.graph_algos import reachable_node_counts
+from src.utils.markers import extract_markers
 
 
 def connectivity_tag_links(root_id, connectivity_tag):
@@ -342,6 +344,20 @@ def cached_cell_details(
     cell_annotations = {k: v for k, v in cell_annotations.items() if v}
 
     cell_extra_data = {}
+
+    if is_flywire_lab_member(session):
+        prediction_data = extract_markers(nd, "predicted_olr_type")
+        if prediction_data:
+            pd = prediction_data[0].split(":")
+            olr_type = pd[0]
+            evidence_rids = pd[1].split(",")[:50]
+            evidence_link = url_for(
+                "app.search", filter_string=f"{root_id},{','.join(evidence_rids)}"
+            )
+            cell_extra_data["Prediction details"] = {
+                olr_type: f'<a href="{evidence_link}">prediction source cells</a>'
+            }
+
     if reachability_stats:
         ins, outs = neuron_db.input_output_partner_sets()
 

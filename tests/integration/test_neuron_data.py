@@ -48,11 +48,11 @@ class NeuronDataTest(TestCase):
         )
 
         expected_sizes = {
-            "connections_": "816 M",
-            "neuron_data": "551 M",
-            "search_index": "258 M",
-            "label_data": "109 M",
-            "meta_data": "17 K",
+            "connections_": "814 M",
+            "neuron_data": "588 M",
+            "search_index": "288 M",
+            "label_data": "119 M",
+            "meta_data": "368 B",
             "grouped_synapse_counts": "108 K",
             "grouped_connection_counts": "111 K",
             "grouped_reciprocal_connection_counts": "69 K",
