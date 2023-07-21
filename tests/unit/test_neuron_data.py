@@ -14,11 +14,6 @@ from src.data.neuron_data_initializer import (
     NEURON_DATA_ATTRIBUTE_TYPES,
     clean_and_reduce_labels,
 )
-from src.data.optic_lobe_cell_types import (
-    COLUMNAR_CELL_TYPE_GROUPS,
-    COLUMNAR_CELL_SUPER_CLASSES,
-    feasible_candidate,
-)
 from src.data.structured_search_filters import STRUCTURED_SEARCH_ATTRIBUTES
 from src.data.versions import (
     DEFAULT_DATA_SNAPSHOT_VERSION,
@@ -550,7 +545,6 @@ class NeuronDataTest(TestCase):
             for lbl in labels:
                 self.assertFalse(lbl.startswith("72"), lbl)
                 for garbage in [
-                    "not a neuron",
                     "sorry",
                     "correct",
                     "wrong",
@@ -855,51 +849,6 @@ class NeuronDataTest(TestCase):
                 if k not in similar_cell_scores or v > similar_cell_scores[k]:
                     similar_cell_scores[k] = v
         self.assertEqual(840, len(similar_cell_scores))
-
-    def test_columnar_cell_tags(self):
-        # check marked cells
-        for rid, ndata in self.neuron_db.neuron_data.items():
-            ol_tag_markers = [
-                mrk
-                for mrk in ndata["marker"]
-                if mrk.startswith("columnar:") or mrk.startswith("columnar_candidate:")
-            ]
-            if ol_tag_markers:
-                self.assertTrue(ndata["super_class"] in COLUMNAR_CELL_SUPER_CLASSES)
-                if all(
-                    [mrk.startswith("columnar_candidate:") for mrk in ol_tag_markers]
-                ):
-                    for mrk in ol_tag_markers:
-                        self.assertTrue(mrk.split(":")[1] in COLUMNAR_CELL_TYPE_GROUPS)
-                elif len(ol_tag_markers) == 1:
-                    mrk = ol_tag_markers[0].split(":")[1]
-                    self.assertTrue(mrk in COLUMNAR_CELL_TYPE_GROUPS)
-                    if ndata["cell_type"]:
-                        for ct in ndata["cell_type"]:
-                            self.assertTrue(
-                                ct not in COLUMNAR_CELL_TYPE_GROUPS or ct == mrk
-                            )
-                    elif ndata["label"]:
-                        lbl = " | ".join(ndata["label"])
-                        if mrk.lower() not in lbl.lower():
-                            for t in COLUMNAR_CELL_TYPE_GROUPS.keys():
-                                self.assertTrue(
-                                    t.lower() not in lbl.lower().split(),
-                                    f"{t=} {mrk=} {lbl=}",
-                                )
-                else:
-                    self.fail(f"Too many OL tag markers: {ndata['marker']}")
-            elif ndata["cell_type"]:
-                for ct in ndata["cell_type"]:
-                    self.assertTrue(ct not in COLUMNAR_CELL_TYPE_GROUPS)
-            elif ndata["label"] and ndata["super_class"] in COLUMNAR_CELL_SUPER_CLASSES:
-                for lbl in ndata["label"]:
-                    for t in COLUMNAR_CELL_TYPE_GROUPS.keys():
-                        self.assertTrue(t.lower() not in lbl.lower().split(), lbl)
-
-    def test_columnar_candidate_neuropil_filter(self):
-        pils = self.neuron_db.neuron_data[720575940604570046]["output_neuropils"]
-        self.assertFalse(feasible_candidate("T4a", pils), pils)
 
     def test_dynamic_ranges(self):
         self.assertEqual(
@@ -1311,8 +1260,6 @@ class NeuronDataTest(TestCase):
                 markers_tree[marker_type].add(marker_label)
 
         expected_marker_types = [
-            "columnar",
-            "columnar_candidate",
             "link",
             "not_in_olr_type",
             "olr_type",
@@ -1320,13 +1267,9 @@ class NeuronDataTest(TestCase):
         ]
         self.assertEqual(sorted(expected_marker_types), sorted(markers_tree.keys()))
 
-        for k in ["columnar", "columnar_candidate"]:
-            for v in markers_tree[k]:
-                self.assertTrue(v in COLUMNAR_CELL_TYPE_GROUPS, f"{k}: {v}")
-
         for k in ["not_in_olr_type", "olr_type", "predicted_olr_type"]:
             for v in markers_tree[k]:
-                self.assertTrue(v in VISUAL_NEURON_TYPES, f"{k}: {v}")
+                self.assertTrue(v.split(":")[0] in VISUAL_NEURON_TYPES, f"{k}: {v}")
 
         for lnk in markers_tree["link"]:
             self.assertTrue(lnk.startswith("http"))

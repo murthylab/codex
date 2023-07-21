@@ -586,37 +586,42 @@ def predict_ol_types(neuron_db):
 
     def argmax_keys(counts):
         mv = max(counts.values())
-        return mv, set([k for k, v in counts.items() if v == mv])
+        return mv, [k for k, v in counts.items() if v == mv]
 
-    def infer_type(counts1, counts2):
-        if counts1 and counts2:
-            c1, argmax1 = argmax_keys(counts1)
-            c2, argmax2 = argmax_keys(counts2)
-            agr = argmax1.intersection(argmax2)
-            if min(c1, c2) > 1 and len(agr) == 1:
-                return list(agr)[0]
-        elif counts1:
-            count, types = argmax_keys(counts1)
+    def infer_type(primary_type_lists, secondary_type_lists):
+        primary_counts = {k: len(v) for k, v in primary_type_lists.items()}
+        secondary_counts = {k: len(v) for k, v in secondary_type_lists.items()}
+
+        if primary_counts and secondary_counts:
+            c1, argmax1 = argmax_keys(primary_counts)
+            c2, argmax2 = argmax_keys(secondary_counts)
+            if (
+                len(argmax1) == 1
+                and len(argmax2) == 1
+                and min(c1, c2) > 1
+                and argmax1[0] == argmax2[0]
+            ):
+                olt_type = argmax1[0]
+                evidence_list = primary_type_lists[olt_type]
+                return olt_type, evidence_list
+        elif primary_counts:
+            count, types = argmax_keys(primary_counts)
             if count > 2 and len(types) == 1:
-                return list(types)[0]
-        elif counts2:
-            count, types = argmax_keys(counts2)
-            if count > 2 and len(types) == 1:
-                return list(types)[0]
-        return None
+                return types[0], primary_type_lists[types[0]]
+        return None, None
 
     predictions = {}
     predictions_fname = "static/experimental_data/olt_type_predictions.csv"
     for i, rid in enumerate(unknown_ol):
-        jac_olt_counts = defaultdict(int)
-        cos_olt_counts = defaultdict(int)
+        jac_olt_to_cells = defaultdict(set)
+        cos_olt_to_cells = defaultdict(set)
         jac_sim_cells = neuron_db.get_similar_connectivity_cells(
             rid, include_upstream=True, include_downstream=True
         )
         for sc in jac_sim_cells:
             olt = ol_type(sc)
             if olt:
-                jac_olt_counts[olt] += 1
+                jac_olt_to_cells[olt].add(sc)
 
         cos_sim_cells = neuron_db.get_similar_embedding_cells(
             rid, include_upstream=True, include_downstream=True, limit=20
@@ -624,24 +629,25 @@ def predict_ol_types(neuron_db):
         for sc in cos_sim_cells:
             olt = ol_type(sc)
             if olt:
-                cos_olt_counts[olt] += 1
+                cos_olt_to_cells[olt].add(sc)
 
-        inf_type = infer_type(jac_olt_counts, cos_olt_counts)
+        inf_type, evidence_cells = infer_type(jac_olt_to_cells, cos_olt_to_cells)
         if inf_type:
-            predictions[rid] = inf_type
+            predictions[rid] = (inf_type, evidence_cells)
+            print("======= prediction below =======")
         print(
-            f"{i} / {len(predictions)}: {rid}\n"
-            f"  Jac {len(jac_sim_cells)}: {dict(jac_olt_counts)}\n"
-            f"  Cos {len(cos_sim_cells)}: {dict(cos_olt_counts)}\n"
-            f"  --> {inf_type}"
+            f"{i} of {len(unknown_ol)} / {len(predictions)}: {rid}\n"
+            f"  Jac {len(jac_sim_cells)}: {dict(jac_olt_to_cells)}\n"
+            f"  Cos {len(cos_sim_cells)}: {dict(cos_olt_to_cells)}\n"
+            f"  --> {rid}, {inf_type}, {evidence_cells}"
         )
 
-        if i % 100 == 10:
-            prows = [[k, v] for k, v in predictions.items()]
+        if i % 100 == 10 or i >= len(unknown_ol) - 1:
+            prows = [
+                [k, v[0], ",".join([str(rid) for rid in v[1]])]
+                for k, v in predictions.items()
+            ]
             write_csv(filename=predictions_fname, rows=prows)
-
-    prows = [[k, v] for k, v in predictions.items()]
-    write_csv(filename=predictions_fname, rows=prows)
 
 
 if __name__ == "__main__":

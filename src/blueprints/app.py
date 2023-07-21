@@ -36,15 +36,9 @@ from src.data.brain_regions import (
 from src.data.faq_qa_kb import FAQ_QA_KB
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.data.neuron_data_initializer import NETWORK_GROUP_BY_ATTRIBUTES
-from src.data.optic_lobe_cell_types import (
-    COLUMNAR_CELL_TYPE_GROUPS,
-    COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR,
-    COLUMNAR_CELL_SUPER_CLASSES,
-)
 from src.data.structured_search_filters import (
     OP_PATHWAYS,
     parse_search_query,
-    OP_IN,
 )
 from src.data.sorting import sort_search_results, SORT_BY_OPTIONS
 from src.data.versions import (
@@ -82,6 +76,7 @@ from src.utils.logging import (
     log_error,
 )
 from src.utils.formatting import can_be_flywire_root_id
+from src.utils.markers import extract_markers
 from src.utils.parsing import tokenize
 from src.utils.pathway_vis import pathway_chart_data_rows
 from src.utils.prm import cell_identification_url
@@ -504,7 +499,7 @@ def optic_lobe_catalog():
         for t in tl:
             olr_query = f"marker == olr_type:{t}"
             non_olr_query = f"marker == not_in_olr_type:{t}"
-            predicted_olr_query = f"marker == predicted_olr_type:{t}"
+            predicted_olr_query = "marker {starts_with} predicted_olr_type:" + f"{t}:"
             types_list.append(
                 {
                     "name": t,
@@ -565,7 +560,9 @@ def optic_lobe_catalog():
             ):
                 if not predicted_olr_type_lists[t]:
                     continue
-                predicted_olr_query = f"marker == predicted_olr_type:{t}"
+                predicted_olr_query = (
+                    "marker {starts_with} predicted_olr_type:" + f"{t}:"
+                )
                 types_list.append(
                     {
                         "name": f"Unknown predicted to be {t}",
@@ -610,102 +607,12 @@ def optic_lobe_catalog():
     )
 
 
-@app.route("/optic_lobe_tagging")
+@app.route("/count_visual_cell_types", methods=["GET", "POST"])
 @request_wrapper
 @require_data_access
-def optic_lobe_tagging():
-    log_activity("Loading optic lobe tags page")
-    examples_for = request.args.get("examples_for")
-    candidates_for = request.args.get("candidates_for")
-    side = request.args.get("side")
-
-    def check_known_type(tp):
-        if tp not in COLUMNAR_CELL_TYPE_GROUPS:
-            raise ValueError(
-                f"Type '{tp} is not a valid optic lobe type. Pick one of {COLUMNAR_CELL_TYPE_GROUPS}"
-            )
-
-    if examples_for:
-        check_known_type(examples_for)
-        query = f"marker == columnar:{examples_for}"
-        if side:
-            query += f" && side == {side}"
-        return redirect(url_for("app.search", filter_string=query, whole_word=1))
-    elif candidates_for:
-        check_known_type(candidates_for)
-        query = f"marker == columnar_candidate:{candidates_for}"
-        if side:
-            query += f" && side == {side}"
-        return redirect(url_for("app.search", filter_string=query, sort_by="random"))
-    else:
-        neuron_db = NeuronDataFactory.instance().get()
-
-        def make_data(t):
-            def with_percentage(c, tot):
-                return f"{c} ({percentage(int(c), int(tot))})"
-
-            return {
-                "type_name": t,
-                "image_url": url_for("base.asset", filename=f"columnar_cells/{t}.jpg"),
-                "goal_count_left": COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["left"],
-                "goal_count_right": COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["right"],
-                "tagged_count_left": with_percentage(
-                    neuron_db.meta_data[f"{t}_tagged_count_left"],
-                    COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["left"],
-                ),
-                "tagged_count_right": with_percentage(
-                    neuron_db.meta_data[f"{t}_tagged_count_right"],
-                    COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR[t]["right"],
-                ),
-                "candidate_count_left": neuron_db.meta_data[
-                    f"{t}_candidate_count_left"
-                ],
-                "candidate_count_right": neuron_db.meta_data[
-                    f"{t}_candidate_count_right"
-                ],
-                "examples_url_left": url_for(
-                    "app.optic_lobe_tagging", examples_for=t, side="left"
-                ),
-                "examples_url_right": url_for(
-                    "app.optic_lobe_tagging", examples_for=t, side="right"
-                ),
-                "candidates_url_left": url_for(
-                    "app.optic_lobe_tagging", candidates_for=t, side="left"
-                ),
-                "candidates_url_right": url_for(
-                    "app.optic_lobe_tagging", candidates_for=t, side="right"
-                ),
-            }
-
-        ol_type_data = [make_data(t) for t in COLUMNAR_CELL_TYPE_GROUPS]
-        total_goal_count, total_tagged_count = 0, 0
-        for t, q in COLUMNAR_CELL_TYPE_TARGET_QUANTITIES_LR.items():
-            total_goal_count += q["left"] + q["right"]
-            total_tagged_count += (
-                neuron_db.meta_data[f"{t}_tagged_count_left"]
-                + neuron_db.meta_data[f"{t}_tagged_count_right"]
-            )
-        total_tagged_percent = percentage(total_tagged_count, total_goal_count)
-
-        return render_template(
-            "optic_lobe_tagging.html",
-            ol_type_data=ol_type_data,
-            total_goal_count=display(total_goal_count),
-            total_tagged_count=display(total_tagged_count),
-            total_tagged_percent=total_tagged_percent,
-            leaderboard_url=url_for(
-                "app.leaderboard",
-                filter_string=f"super_class {OP_IN} {','.join(COLUMNAR_CELL_SUPER_CLASSES)}",
-            ),
-        )
-
-
-@app.route("/count_columnar_cells", methods=["GET", "POST"])
-@request_wrapper
-@require_data_access
-def count_columnar_cells():
-    log_activity("Counting columnar cells")
-    msg = "This tool summarizes columnar types for sets of cells"
+def count_visual_cell_types():
+    log_activity("Counting visual cell types")
+    msg = "This tool summarizes visual types for sets of cells"
 
     if request.method == "POST":
         neuron_db = NeuronDataFactory.instance().get()
@@ -715,15 +622,17 @@ def count_columnar_cells():
         for cell_id in cell_ids:
             try:
                 cell = neuron_db.neuron_data[int(cell_id)]
-                mrks = cell["marker"] or []
-                marked = False
-                for mrk in mrks:
-                    if mrk.startswith("columnar:"):
-                        counts[mrk.split(":")[1]] += 1
-                        marked = True
-                        break
-                if not marked:
-                    counts["Not marked as columnar"] += 1
+                mrks = extract_markers(cell, "olr_type") + extract_markers(
+                    cell, "not_in_olr_type"
+                )
+                if mrks:
+                    if not len(mrks) == 1:
+                        raise ValueError(
+                            f"Multiple types assigned to {cell_id}: {mrks}"
+                        )
+                    counts[mrks[0]] += 1
+                else:
+                    counts["Has no visual type assigned"] += 1
             except Exception:
                 counts["Invalid Cell ID"] += 1
         if counts:
@@ -733,10 +642,10 @@ def count_columnar_cells():
                     for p in sorted(counts.items(), key=lambda x: -x[1])
                 ]
             )
-            log_activity(f"Counting columnar types for {len(cell_ids)} cells: {msg}")
+            log_activity(f"Counting visual cell types for {len(cell_ids)} cells: {msg}")
     return render_template(
         "many_cells_form.html",
-        title="Count Columnar Cells",
+        title="Count Visual Cell Types",
         message=msg,
     )
 

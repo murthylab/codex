@@ -6,6 +6,7 @@ from unittest import TestCase
 from src.data.brain_regions import REGIONS
 from src.data.local_data_loader import read_csv, write_csv
 from src.utils.graph_algos import reachable_nodes
+from src.utils.markers import extract_markers
 from src.utils.stats import jaccard_binary
 
 from tests import get_testing_neuron_db
@@ -1817,10 +1818,8 @@ class OlTaggingTest(TestCase):
         for rid, nd in self.neuron_db.neuron_data.items():
             if nd["side"] != "right":
                 continue
-            for mrk in nd["marker"]:
-                if mrk.startswith("columnar"):
-                    ol_types[rid] = mrk.split(":")[1]
-                    break
+            for mrk in extract_markers(nd, "olr_type"):
+                ol_types[rid] = mrk
 
         ol_rids = list(ol_types.keys())
         random.shuffle(ol_rids)
