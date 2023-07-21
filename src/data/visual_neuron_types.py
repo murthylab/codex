@@ -266,6 +266,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Lpi105_4-34",
         "Lpi106_2",
         "Lpi107_34",
+        "Lpi108_43",
     ],
     "Y": [
         "Y1",
@@ -382,6 +383,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "ML103_M89-L6",
         "ML104_M47-L6",
         "ML105_M6-L5",
+        "ML106_M67-L6",
     ],
     "Other": [
         "Am",

@@ -179,6 +179,7 @@ def blacklisted(lbl):
     blacklisted_labels = {
         "not a neuron",
         "not a neuron; glia",
+        "most likely not a neuron",
         "correction - not optic lobe",
     }
     return lbl.lower() in blacklisted_labels or can_be_flywire_root_id(lbl)
