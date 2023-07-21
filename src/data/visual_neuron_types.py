@@ -113,6 +113,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Dm101_6",
         "Dm102a_6",
         "Dm102b_6",
+        "Dm104_12",
     ],
     "Proximal Medulla": [
         "Pm1",
@@ -203,6 +204,9 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Mti122_78",
         "Mti123_37",
         "Mti124_67",
+    ],
+    "Serpentine Distal Medulla": [
+        "SDm100_67",
     ],
     "Transmedullary": [
         "Tm1",

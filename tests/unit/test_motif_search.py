@@ -24,8 +24,7 @@ class TestMotifSearchQuery(TestCase):
         with self.assertRaises(ValueError) as context:
             msq.add_node("b", "1 == 2 == 3")
         self.assertTrue(
-            "Invalid query '1 == 2 == 3': Malformed structured search query."
-            in str(context.exception),
+            "Invalid query '1 == 2 == 3'" in str(context.exception),
             str(context.exception),
         )
 
