@@ -207,6 +207,8 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
     ],
     "Serpentine Distal Medulla": [
         "SDm100_67",
+        "SDm101_67",
+        "SDm102_67",
     ],
     "Transmedullary": [
         "Tm1",
