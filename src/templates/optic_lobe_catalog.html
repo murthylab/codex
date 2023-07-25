@@ -51,6 +51,19 @@ Optic Lobe Catalog
                                 <a style="color: pink" href="{{t.non_olr_ngl_url}}" target="_blank">see 3D view</a>
                             </li>
                         {% endif %}
+                        {% if t.predicate %}
+                        <li style="color: magenta">
+                            Connectivity predicate: input types {{t.predicate_input_types}} |
+                                output types {{t.predicate_output_types}} |
+                                precision {{t.predicate_precision}} |
+                                recall {{t.predicate_recall}} |
+                                f_score {{t.predicate_f_score}}
+                             | <a href="{{url_for('app.custom_cell_lists', filter_string='type_predicate_true_positives:' + t.name)}}" target="_blank">True pos.</a>
+                             | <a href="{{url_for('app.custom_cell_lists', filter_string='type_predicate_false_positives:' + t.name)}}" target="_blank">False pos.</a>
+                             | <a href="{{url_for('app.custom_cell_lists', filter_string='type_predicate_false_negatives:' + t.name)}}" target="_blank">False neg.</a>
+                        </li>
+                        {% endif %}
+
                     </ul>
                     {% endfor %}
                 </ul>

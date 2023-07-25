@@ -27,6 +27,7 @@ from src.configuration import (
     MAX_NEURONS_FOR_DOWNLOAD,
     MIN_SYN_THRESHOLD,
     MAX_NODES_FOR_PATHWAY_ANALYSIS,
+    TYPE_PREDICATES_METADATA,
 )
 from src.data.brain_regions import (
     REGIONS,
@@ -500,31 +501,52 @@ def optic_lobe_catalog():
             olr_query = f"marker == olr_type:{t}"
             non_olr_query = f"marker == not_in_olr_type:{t}"
             predicted_olr_query = "marker {starts_with} predicted_olr_type:" + f"{t}:"
-            types_list.append(
-                {
-                    "name": t,
-                    "olr_count": len(olr_type_lists[t]),
-                    "olr_search_url": url_for("app.search", filter_string=olr_query),
-                    "olr_ngl_url": url_for(
-                        "app.search_results_flywire_url", filter_string=olr_query
-                    ),
-                    "predicted_olr_count": len(predicted_olr_type_lists[t]),
-                    "predicted_olr_search_url": url_for(
-                        "app.search", filter_string=predicted_olr_query
-                    ),
-                    "predicted_olr_ngl_url": url_for(
-                        "app.search_results_flywire_url",
-                        filter_string=predicted_olr_query,
-                    ),
-                    "non_olr_count": len(non_olr_type_lists[t]),
-                    "non_olr_search_url": url_for(
-                        "app.search", filter_string=non_olr_query
-                    ),
-                    "non_olr_ngl_url": url_for(
-                        "app.search_results_flywire_url", filter_string=non_olr_query
-                    ),
-                }
-            )
+            dct = {
+                "name": t,
+                "olr_count": len(olr_type_lists[t]),
+                "olr_search_url": url_for("app.search", filter_string=olr_query),
+                "olr_ngl_url": url_for(
+                    "app.search_results_flywire_url", filter_string=olr_query
+                ),
+                "predicted_olr_count": len(predicted_olr_type_lists[t]),
+                "predicted_olr_search_url": url_for(
+                    "app.search", filter_string=predicted_olr_query
+                ),
+                "predicted_olr_ngl_url": url_for(
+                    "app.search_results_flywire_url",
+                    filter_string=predicted_olr_query,
+                ),
+                "non_olr_count": len(non_olr_type_lists[t]),
+                "non_olr_search_url": url_for(
+                    "app.search", filter_string=non_olr_query
+                ),
+                "non_olr_ngl_url": url_for(
+                    "app.search_results_flywire_url", filter_string=non_olr_query
+                ),
+            }
+            if (
+                t in TYPE_PREDICATES_METADATA
+                and float(TYPE_PREDICATES_METADATA[t]["f_score"]) >= 0.6
+            ):
+                dct.update(
+                    {
+                        "predicate": True,
+                        "predicate_input_types": TYPE_PREDICATES_METADATA[t][
+                            "predicate_input_types"
+                        ],
+                        "predicate_output_types": TYPE_PREDICATES_METADATA[t][
+                            "predicate_output_types"
+                        ],
+                        "predicate_precision": TYPE_PREDICATES_METADATA[t]["precision"][
+                            :4
+                        ],
+                        "predicate_recall": TYPE_PREDICATES_METADATA[t]["recall"][:4],
+                        "predicate_f_score": TYPE_PREDICATES_METADATA[t]["f_score"][:4],
+                    }
+                )
+            else:
+                dct["predicate"] = False
+            types_list.append(dct)
 
         if mt == "Unknown":
             all_predicted = set()
@@ -604,6 +626,122 @@ def optic_lobe_catalog():
         "optic_lobe_catalog.html",
         meta_data=meta_data,
         types_data=types_data,
+    )
+
+
+@app.route("/custom_cell_lists")
+@request_wrapper
+@require_data_access
+def custom_cell_lists():
+    filter_string = request.args.get("filter_string", default="")
+    page_size = request.args.get("page_size", type=int, default=100)
+    page_number = request.args.get("page_number", type=int, default=1)
+    log_activity(f"Loading custom_cell_lists with {filter_string=} {page_number=}")
+    supported_filters = [
+        "olr_false_positives",
+        "olr_false_negatives",
+        "type_predicate_true_positives",
+        "type_predicate_false_positives",
+        "type_predicate_false_negatives",
+    ]
+    if filter_string.split(":")[0] not in supported_filters:
+        return render_error(
+            message=f"filter_string arg should be one of: {supported_filters}"
+        )
+
+    neuron_db = NeuronDataFactory.instance().get()
+
+    if filter_string in ["olr_false_positives", "olr_false_negatives"]:
+        right_ol_neuropils = set("AME_R,LA_R,LO_R,LOP_R,ME_R,UNASGD".split(","))
+        olr_neurons_by_super_class, olr_neurons_by_regions = set(), set()
+        for rid, nd in neuron_db.neuron_data.items():
+            if nd["side"] == "right" and nd["super_class"] == "optic":
+                olr_neurons_by_super_class.add(rid)
+            if all(
+                [pil in right_ol_neuropils for pil in nd["input_neuropils"]]
+            ) and all([pil in right_ol_neuropils for pil in nd["output_neuropils"]]):
+                olr_neurons_by_regions.add(rid)
+
+        if filter_string == "olr_false_positives":
+            rid_list = olr_neurons_by_super_class - olr_neurons_by_regions
+        else:
+            rid_list = olr_neurons_by_regions - olr_neurons_by_super_class
+        rid_list = sorted(
+            rid_list,
+            key=lambda cid: neuron_db.get_neuron_data(cid)["input_cells"]
+            + neuron_db.get_neuron_data(cid)["output_cells"],
+            reverse=True,
+        )
+    else:
+        fs_parts = filter_string.split(":")
+        what = fs_parts[0]
+        target_type = fs_parts[1]
+        predicate_input_types = set(
+            TYPE_PREDICATES_METADATA[target_type]["predicate_input_types"].split(",")
+        )
+        predicate_output_types = set(
+            TYPE_PREDICATES_METADATA[target_type]["predicate_output_types"].split(",")
+        )
+
+        rid_to_olr_type = {}
+        olr_type_to_rid_lists = defaultdict(list)
+        for rid, nd in neuron_db.neuron_data.items():
+            for mrk in extract_markers(nd, "olr_type"):
+                if not mrk.lower().startswith("unknown"):
+                    assert rid not in rid_to_olr_type
+                    rid_to_olr_type[rid] = mrk
+                    olr_type_to_rid_lists[mrk].append(rid)
+        ins, outs = neuron_db.input_output_partner_sets()
+        in_type_projections = {}
+        out_type_projections = {}
+        for root_id in rid_to_olr_type.keys():
+            in_type_projections[root_id] = set(
+                [rid_to_olr_type[rid] for rid in ins[root_id] if rid in rid_to_olr_type]
+            )
+            out_type_projections[root_id] = set(
+                [
+                    rid_to_olr_type[rid]
+                    for rid in outs[root_id]
+                    if rid in rid_to_olr_type
+                ]
+            )
+
+        target_type_rids = olr_type_to_rid_lists[target_type]
+        matching_type_rid_lists = defaultdict(list)
+        for rid, tp in rid_to_olr_type.items():
+            if predicate_output_types.issubset(
+                out_type_projections[rid]
+            ) and predicate_input_types.issubset(in_type_projections[rid]):
+                matching_type_rid_lists[tp].append(rid)
+
+        print({k: len(v) for k, v in matching_type_rid_lists.items()})
+
+        if what == "type_predicate_true_positives":
+            rid_list = matching_type_rid_lists[target_type]
+        elif what == "type_predicate_false_positives":
+            rid_list = []
+            for k, v in matching_type_rid_lists.items():
+                if k != target_type:
+                    rid_list.extend(v)
+        elif what == "type_predicate_false_negatives":
+            rid_list = list(
+                set(target_type_rids) - set(matching_type_rid_lists[target_type])
+            )
+        else:
+            return render_error(f"Unknown operation: {what}")
+
+    return render_neuron_list(
+        DEFAULT_DATA_SNAPSHOT_VERSION,
+        "search.html",
+        rid_list,
+        filter_string=filter_string,
+        page_size=page_size,
+        case_sensitive=0,
+        whole_word=0,
+        sort_by=None,
+        extra_data=None,
+        page_number=page_number,
+        hint=None,
     )
 
 

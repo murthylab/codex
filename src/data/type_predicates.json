@@ -1,0 +1,2082 @@
+{
+  "T5c": {
+    "cells": "754",
+    "all_input_types": "LPi34-12,LPi4-3,Lpi105_4-34,Lpi108_43,ML101_M89-L235,Mi1,Mi9,T3,T4c,T4d,T5a,T5c,T5d,Tlp1,Tlp4,Tlp6,Tm1,Tm1a,Tm2,Tm23,Tm3,Tm4,Tm4a,Tm9,TmY11,TmY15,Y1,Y11",
+    "all_output_types": "LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Lpc101-34,Lpi101_34-34,Lpi105_4-34,Lpi107_34,Lpi108_43,T2,T4c,T5c,T5d,Tlp1,Tlp4,Tlp6,TmY14,TmY15,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "Tm9",
+    "predicate_output_types": "LPi3-4",
+    "precision": "0.9842180774748924",
+    "recall": "0.9098143236074271",
+    "f_score": "0.9455547898001379"
+  },
+  "Tm16": {
+    "cells": "182",
+    "all_input_types": "C3,Dm101_6,Dm102b_6,Dm12,Dm2,Dm20,Dm8,Dm9,L2,L3,LM102a_L234-M89,Li100_5,Li107_56,Li108a_345a6,Li108b_345a6,Li110_56,Li122_56,Li123_56,ML102_M24-L45,ML103_M89-L6,Mi1,Mi10,Mi15,Mi4,Mi9,Mti100_347,Mti103_7,Mti104_78,Mti111_7,Mti114_678,Mti116_346,Pm101_8,Pm2,Pm3,SDm100_67,SDm102_67,T2a,Tm1,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm1a,Tm2,Tm20,Tm3,Tm4,Tm5,Tm5b,Tm5c,Tm8,TmY10,TmY11,TmY14,TmY15,TmY17,TmY20,TmY3,TmY5a,TmY9,Y11,Y3",
+    "all_output_types": "Dm10,Dm101_6,Dm102b_6,Dm12,Dm19,Dm2,Dm20,Dm3,L3,LC14,LC14b,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102a_L234-M89,LM102b_L3-M8,LPi3-4,LPi34-12,Lawf1,Lawf2,Li100_5,Li101_23,Li102_23,Li103_23,Li103_24,Li107_56,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li116_234,Li119_2,Li121_56,Li122_56,Li123_56,MC61,ML100_M47-L6,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,ML105_M6-L5,Mi1,Mi4,Mi9,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti116_346,Pm101_8,Pm102_8,Pm103_89,Pm1a,Pm2,Pm4,SDm101_67,T2,T2a,T3,T4a,Tlp4,Tlp6,Tm1,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm11,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm24,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5c,Tm8,Tm9,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y3",
+    "predicate_input_types": "Mi4",
+    "predicate_output_types": "Li108b_345a6,Tm1",
+    "precision": "0.9745222929936306",
+    "recall": "0.8406593406593407",
+    "f_score": "0.9026548672566371"
+  },
+  "Tm7": {
+    "cells": "175",
+    "all_input_types": "Dm101_6,Dm102b_6,Dm19,Dm2,Dm20,Dm4,Dm8,LLP100_L5a6-LP1234,Li100_5,Li107_56,Li108a_345a6,Li118_6,Li120_5-5,Li121_56,Li122_56,Li123_56,ML100_M47-L6,ML105_M6-L5,ML106_M67-L6,Mi1,Mi10,Mi15,Mi4,Mi9,Mti100_347,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti116_346,Mti123_37,Mti126_67,SDm100_67,SDm101_67,SDm102_67,T2a,T4a,Tlp4,Tm100_M68-L5,Tm101b_M78-L5,Tm11,Tm20,Tm25,Tm3,Tm5,Tm5b,Tm5c,Tm7,Tm9,TmY12,TmY17,TmY20,TmY4,TmY5a,TmY9,Y3",
+    "all_output_types": "Dm102a_6,Dm11,Dm12,Dm2,Dm4,Dm8,LC14,Li100_5,Li102_23,Li107_56,Li108a_345a6,Li108b_345a6,Li109_456,Li120_5-5,Li121_56,Li122_56,Li123_56,ML105_M6-L5,ML106_M67-L6,Mi10,Mi104_1468,Mi15,Mi4,Mti100_347,Mti104_78,Mti105_67,Mti106_7,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Pm101_8,Pm103_89,Pm2,Pm4,SDm100_67,SDm101_67,T2a,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm11,Tm20,Tm24,Tm25,Tm4,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY15,TmY17,TmY20,TmY4,TmY5a,TmY9,Y3",
+    "predicate_input_types": "Li121_56,Mi9",
+    "predicate_output_types": "",
+    "precision": "0.8205128205128205",
+    "recall": "0.5485714285714286",
+    "f_score": "0.6575342465753424"
+  },
+  "TmY15": {
+    "cells": "151",
+    "all_input_types": "C2,Dm10,Dm12,Dm13,Dm19,Dm20,L3,LM100_L234-M89,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,LM103_L12-M910,LPi2b,LPi34-12,LPi4-3,Li101_23,Li102_23,Li103_23,Li103_24,Li105_235,Li108b_345a6,Li111_2,Li116_234,Li119_2,Li122_56,Li2,Lpc101-34,Lpi101_34-34,Lpi102_12,Lpi105_4-34,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi104_1468,Mi4,Mi9,Mt5,Mti104_78,Mti123_37,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp5,Tlp6,Tm1,Tm16,Tm1a,Tm2,Tm21,Tm23,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5b,Tm5c,Tm7,Tm8,Tm9,TmY1,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY3,TmY4,TmY5,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "C2,Dm12,Dm20,LC14,LC14b,LM100_L234-M89,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,LPi2-1,LPi3-4,LPi4-3,Li101_23,Li102_23,Li103_23,Li108_345a6,Li108a_345a6,Li115_3,Li116_234,Lpc101-34,Lpi105_4-34,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi1,Mi10,Mi4,Mi9,Mti104_78,Olt,Pm1,Pm101_8,Pm102_8,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp5,Tlp6,Tm1,Tm16,Tm1a,Tm2,Tm21,Tm23,Tm24,Tm3,Tm4,Tm4a,Tm5c,Tm8,Tm9,TmY1,TmY11,TmY12,TmY14,TmY15,TmY16,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y3,Y4",
+    "predicate_input_types": "Tm3,Tm4",
+    "predicate_output_types": "T4b",
+    "precision": "0.9264705882352942",
+    "recall": "0.8344370860927153",
+    "f_score": "0.8780487804878049"
+  },
+  "Tm1": {
+    "cells": "715",
+    "all_input_types": "C2,C3,Dm1,Dm10,Dm12,Dm14,Dm15,Dm17,Dm19,Dm2,Dm20,Dm3,Dm4,Dm6,Dm9,L1,L2,L3,L4,L5,LM102a_L234-M89,Lawf2,ML101_M89-L235,ML102_M24-L45,Mi1,Mi13,Mi14,Mi2,Mi4,Mi9,Pm1,Pm102_8,Pm103_89,Pm1a,Pm2,Pm3,Pm4,R1-6,T1,T2,T4a,Tm1,Tm102_M2378-L6,Tm16,Tm2,Tm21,Tm23,Tm25,Tm3,Tm4,Tm9,TmY12,TmY14,TmY15,TmY20,TmY4,Y3",
+    "all_output_types": "C2,C3,Dm1,Dm10,Dm12,Dm15,Dm16,Dm17,Dm19,Dm2,Dm20,Dm3,Dm6,Dm8,L1,L2,L3,L5,LM101_L234-M89,LM102a_L234-M89,LPi3-4,Lai,Lawf2,Li102_23,Li111_2,Li116_234,Li119_2,ML101_M89-L235,ML102_M24-L45,Mi1,Mi10,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mt5,Pm1,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,R1-6,SDm100_67,T1,T2,T2a,T3,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tm1,Tm16,Tm19,Tm2,Tm20,Tm21,Tm23,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm6,Tm9,TmY1,TmY10,TmY12,TmY14,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "L2",
+    "predicate_output_types": "Pm1a,Pm2,Y3",
+    "precision": "0.889795918367347",
+    "recall": "0.9146853146853147",
+    "f_score": "0.9020689655172414"
+  },
+  "T4b": {
+    "cells": "744",
+    "all_input_types": "C3,LM100_L234-M89,LPi1-2,LPi2b,Lpi102_12,Lpi105_4-34,Lpi106_2,ML101_M89-L235,Mi1,Mi10,Mi4,Mi9,Pm1,Pm1a,Pm2,Pm3,T1,T4a,T4b,T4d,T5b,Tlp1,Tlp4,Tm1,Tm2,Tm3,Tm4,Tm9,TmY15,TmY20,TmY4,TmY9,Y1,Y11",
+    "all_output_types": "C3,H1,LPi1-2,LPi2-1,LPi2b,LPi3-4,LPi34-12,Lpi102_12,Lpi104_1-2,Lpi106_2,Lpi108_43,Lpt104_12,ML101_M89-L235,Mi9,Pm1,Pm1a,T2,T4a,T4b,T4c,T4d,T5b,Tlp1,Tlp4,Tlp5,Tlp6,TmY11,TmY12,TmY14,TmY15,TmY16,TmY20,TmY4,TmY9,Y1,Y11,Y12",
+    "predicate_input_types": "Mi1",
+    "predicate_output_types": "LPi2b",
+    "precision": "0.9339378238341969",
+    "recall": "0.9690860215053764",
+    "f_score": "0.9511873350923483"
+  },
+  "T5b": {
+    "cells": "749",
+    "all_input_types": "LPi1-2,LPi2b,LPi34-12,Li103_24,Lpi102_12,Lpi106_2,ML101_M89-L235,T2,T2a,T3,T4a,T4b,T5a,T5b,T5d,Tlp1,Tlp4,Tm1,Tm1a,Tm2,Tm23,Tm3,Tm4,Tm4a,Tm9,TmY15,Y1,Y11",
+    "all_output_types": "H1,LPi1-2,LPi2-1,LPi2b,LPi3-4,LPi34-12,Li119_2,Lpi102_12,Lpi104_1-2,Lpi106_2,Lpi108_43,Lpt104_12,ML101_M89-L235,T2,T4b,T4c,T5a,T5b,Tlp1,Tlp4,Tlp5,Tlp6,Tm23,TmY14,TmY15,TmY16,TmY20,TmY4,TmY5a,TmY9,Y1,Y11,Y12",
+    "predicate_input_types": "Tm2",
+    "predicate_output_types": "LPi2b",
+    "precision": "0.9527027027027027",
+    "recall": "0.9412550066755674",
+    "f_score": "0.9469442578912022"
+  },
+  "T5a": {
+    "cells": "747",
+    "all_input_types": "Dm3,LPi2b,LPi34-12,Lpi101_34-34,Lpi106_2,ML101_M89-L235,Mi1,Mi10,Mi4,Mi9,T3,T4a,T5a,T5b,Tlp1,Tlp4,Tm1,Tm1a,Tm2,Tm23,Tm3,Tm4,Tm4a,Tm9,TmY15,TmY17,TmY20,TmY9,Y1,Y11,Y12,Y3",
+    "all_output_types": "LM101_L234-M89,LM102a_L234-M89,LPi1-2,LPi2-1,LPi2b,LPi3-4,LPi34-12,Li108a_345a6,Li121_56,LpM100a_Lp34-M567,LpM100b_Lp34-M67-Lp4,Lpi101_34-34,Lpi102_12,Lpi104_1-2,Lpi106_2,Lpi108_43,Lpt104_12,T2,T4a,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp5,Tlp6,Tm19,Tm2,Tm23,TmY12,TmY14,TmY15,TmY16,TmY20,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "Tm2",
+    "predicate_output_types": "LPi1-2",
+    "precision": "0.9802867383512545",
+    "recall": "0.7322623828647925",
+    "f_score": "0.8383141762452108"
+  },
+  "T4a": {
+    "cells": "734",
+    "all_input_types": "C3,Dm12,L3,LPi2b,LPi34-12,Lpi101_34-34,Lpi102_12,Lpi105_4-34,Lpi106_2,ML101_M89-L235,Mi1,Mi10,Mi4,Mi9,Pm1,Pm1a,Pm2,T1,T4a,T4b,T4d,T5a,Tlp4,Tm1,Tm16,Tm1a,Tm2,Tm3,Tm4,Tm5c,Tm9,TmY15,TmY16,TmY9,Y1,Y11,Y12",
+    "all_output_types": "C2,C3,Dm12,Dm4,Dm7,LM102a_L234-M89,LPi1-2,LPi2-1,LPi2b,LPi34-12,LpM100a_Lp34-M567,LpM100b_Lp34-M67-Lp4,Lpi101_34-34,Lpi102_12,Lpi104_1-2,Lpi106_2,ML101_M89-L235,Mi10,Mi13,Mi4,Mi9,Pm1,Pm102_8,Pm1a,Pm4,T2,T4a,T4b,T4c,T4d,T5a,T5b,Tlp1,Tlp4,Tlp5,Tm1,Tm2,Tm23,Tm5c,Tm7,TmY11,TmY12,TmY14,TmY15,TmY16,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "Mi1",
+    "predicate_output_types": "LPi1-2",
+    "precision": "0.9794871794871794",
+    "recall": "0.7806539509536785",
+    "f_score": "0.8688400303260045"
+  },
+  "Tm9": {
+    "cells": "695",
+    "all_input_types": "C2,C3,Dm10,Dm101_6,Dm102b_6,Dm12,Dm8,L1,L2,L3,L4,L5,LM102a_L234-M89,Lawf2,Li120_5-5,ML101_M89-L235,Mi1,Mi10,Mi13,Mi2,Mi4,Mi9,Pm102_8,Pm2,Pm4,SDm100_67,SDm101_67,T2,Tm1,Tm16,Tm1a,Tm2,Tm20,Tm4,Tm5,Tm9,TmY10,TmY15,TmY17,TmY4",
+    "all_output_types": "Dm102b_6,Dm3,Dm8,L3,L5,Lawf1,Li102_23,Li111_2,Li119_2,Li123_56,MC61,Mi9,Mti108_7,Mti112_67,T2,T2a,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tm1,Tm100_M68-L5,Tm2,Tm20,Tm21,Tm23,Tm24,Tm25,Tm4,Tm5,Tm7,Tm9,TmY14,TmY15,TmY16,TmY3,TmY4,TmY9",
+    "predicate_input_types": "Mi4",
+    "predicate_output_types": "T5c",
+    "precision": "0.8567293777134588",
+    "recall": "0.8517985611510791",
+    "f_score": "0.8542568542568543"
+  },
+  "Dm2": {
+    "cells": "739",
+    "all_input_types": "C2,Dm10,Dm11,Dm12,Dm13,Dm19,Dm2,Dm20,Dm4,Dm8,Dm9,L1,L3,L4,L5,LM102a_L234-M89,Lai,LpM100a_Lp34-M567,ML104_M47-L6,ML105_M6-L5,Mi1,Mi10,Mi104_1468,Mi15,Mi4,Mi9,Mti100_347,Mti103_7,Mti104_78,Mti105_67,Mti106_7,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti115_367,Mti119_7,Mti121_7,R8,SDm100_67,SDm102_67,T1,T2a,Tm1,Tm16,Tm1a,Tm2,Tm20,Tm25,Tm3,Tm5,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY17,TmY20,Y3",
+    "all_output_types": "Dm1,Dm10,Dm101_6,Dm102a_6,Dm102b_6,Dm11,Dm12,Dm13,Dm19,Dm2,Dm20,Dm3,Dm8,L2,L3,L4,L5,Lawf1,Li122_56,Li123_56,ML100_M47-L6,ML104_M47-L6,ML105_M6-L5,ML106_M67-L6,Mi1,Mi10,Mi13,Mi15,Mi2,Mi4,Mi9,Mti100_347,Mti102_76,Mti103_7,Mti104_78,Mti105_67,Mti106_7,Mti107_67,Mti108_7,Mti110_678,Mti111_7,Mti112_67,Mti115_367,Mti116_346,Mti123_37,Mti124_67,Mti126_67,Mti128_7,Pm101_8,Pm4,SDm100_67,SDm101_67,SDm102_67,T1,T2a,Tm1,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm2,Tm21,Tm25,Tm4,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY11,TmY12,TmY17,TmY20,TmY3,TmY5a,Y3",
+    "predicate_input_types": "Dm11,Dm4",
+    "predicate_output_types": "",
+    "precision": "0.9562624254473161",
+    "recall": "0.6508795669824087",
+    "f_score": "0.7745571658615137"
+  },
+  "Dm3": {
+    "cells": "1236",
+    "all_input_types": "C2,C3,Dm104_12,Dm13,Dm2,Dm3,Dm4,L1,L2,L3,Mi1,Mi10,Mi4,Mi9,T2,T2a,Tm1,Tm102_M2378-L6,Tm16,Tm1a,Tm2,Tm20,Tm25,Tm4,Tm5,Tm5c,Tm9,TmY10,TmY11,TmY17,TmY4,TmY9",
+    "all_output_types": "Dm1,Dm13,Dm19,Dm20,Dm3,L1,L2,L3,Mi4,Mi9,Mti115_367,T2a,T5a,Tm1,Tm19,Tm2,Tm20,Tm25,Tm5,Tm5c,TmY17,TmY4,TmY9",
+    "predicate_input_types": "Tm1",
+    "predicate_output_types": "TmY9",
+    "precision": "0.5315315315315315",
+    "recall": "0.5250809061488673",
+    "f_score": "0.5282865282865283"
+  },
+  "Mi9": {
+    "cells": "730",
+    "all_input_types": "C2,C3,Dm1,Dm10,Dm101_6,Dm12,Dm14,Dm15,Dm16,Dm17,Dm19,Dm2,Dm20,Dm3,Dm4,Dm6,Dm8,L1,L2,L3,L4,L5,Mi1,Mi10,Mi104_1468,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mti115_367,Pm1,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T1,T2,T2a,T4a,T4b,T4c,Tm1,Tm16,Tm1a,Tm2,Tm20,Tm3,Tm4,Tm5,Tm5b,Tm5c,Tm9,TmY10,TmY11,TmY12,TmY15,TmY16,TmY3,TmY4,TmY5a,Y12,Y3,Y4",
+    "all_output_types": "C2,C3,Dm10,Dm12,Dm13,Dm16,Dm18,Dm19,Dm2,Dm20,Dm3,Dm4,Dm5,Dm7,Dm8,Dm9,L1,L3,L4,LM101_L234-M89,LM102b_L3-M8,Lawf1,Lawf2,Lpi101_34-34,ML100_M47-L6,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,ML104_M47-L6,Mi1,Mi10,Mi104_1468,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mti104_78,Mti122_78,Mti123_37,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,T4a,T4b,T4c,T4d,T5a,T5c,Tm1,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5b,Tm5c,Tm6,Tm7,Tm8,Tm9,TmY1,TmY10,TmY11,TmY12,TmY15,TmY16,TmY17,TmY3,TmY4,TmY5,TmY5a,TmY9,Y1,Y3",
+    "predicate_input_types": "Mi4",
+    "predicate_output_types": "Mi4,TmY3",
+    "precision": "0.9585253456221198",
+    "recall": "0.8547945205479452",
+    "f_score": "0.9036929761042722"
+  },
+  "T4c": {
+    "cells": "830",
+    "all_input_types": "C3,LM102a_L234-M89,LPi2b,LPi34-12,LPi4-3,Lpi102_12,Lpi105_4-34,Lpi106_2,ML101_M89-L235,Mi1,Mi10,Mi4,Mi9,Pm1,Pm1a,Pm2,T1,T2,T4a,T4b,T4c,T4d,T5b,T5c,Tlp1,Tlp4,Tlp6,Tm1,Tm2,Tm3,Tm4,Tm9,TmY15,TmY3,TmY4,TmY9,Y1,Y11,Y12,Y4",
+    "all_output_types": "C3,LLP100_L5a6-LP1234,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Lpc101-34,Lpi101_34-34,Lpi102_12,Lpi105_4-34,Lpi106_2,Lpi107_34,Lpi108_43,Mi9,Pm2,Pm3,T2,T4c,T4d,T5c,Tlp1,Tlp4,Tlp6,Tm24,TmY14,TmY15,TmY16,TmY17,TmY20,TmY4,TmY5a,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "Mi1",
+    "predicate_output_types": "LPi3-4",
+    "precision": "0.9483793517406963",
+    "recall": "0.9518072289156626",
+    "f_score": "0.9500901984365604"
+  },
+  "T5d": {
+    "cells": "724",
+    "all_input_types": "LPi3-4,LPi34-12,Lpi105_4-34,ML101_M89-L235,T3,T4d,T5a,T5c,T5d,Tlp1,Tm1,Tm1a,Tm2,Tm23,Tm3,Tm4,Tm4a,Tm9,TmY15,TmY5a,Y1,Y12",
+    "all_output_types": "LPi100_4-14,LPi3-4,LPi34-12,LPi4-3,Lpi105_4-34,Lpi107_34,Lpi108_43,T2,T4d,T5b,T5c,T5d,Tlp1,Tlp4,Tlp6,TmY14,TmY15,TmY20,TmY4,TmY5a,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "Tm2",
+    "predicate_output_types": "LPi4-3",
+    "precision": "0.9662058371735791",
+    "recall": "0.8687845303867403",
+    "f_score": "0.9149090909090909"
+  },
+  "T4d": {
+    "cells": "786",
+    "all_input_types": "C3,LPi3-4,LPi34-12,Lpi105_4-34,Lpi106_2,ML101_M89-L235,Mi1,Mi10,Mi4,Mi9,Pm1,Pm1a,Pm2,T1,T4a,T4b,T4c,T4d,T5d,Tlp1,Tlp4,Tm1,Tm2,Tm3,Tm4,Tm9,TmY15,TmY4,TmY5a,TmY9,Y1,Y11,Y12",
+    "all_output_types": "LPi1-2,LPi100_4-14,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Lpi105_4-34,Lpi108_43,T4a,T4b,T4c,T4d,T5c,T5d,Tlp1,Tlp4,Tlp6,Tm3,TmY14,TmY15,TmY20,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "Mi1",
+    "predicate_output_types": "LPi4-3",
+    "precision": "0.970108695652174",
+    "recall": "0.9083969465648855",
+    "f_score": "0.938239159001314"
+  },
+  "Mi15": {
+    "cells": "473",
+    "all_input_types": "C2,Dm10,Dm11,Dm19,Dm2,Dm4,Dm8,L1,L3,L5,Mi1,Mi10,Mi15,Mi9,Mti104_78,Mti106_7,Pm2,Pm4,R8,SDm100_67,Tm1,Tm2,Tm25,Tm5,Tm5c,Tm7,TmY10",
+    "all_output_types": "C3,Dm10,Dm101_6,Dm102a_6,Dm11,Dm16,Dm19,Dm2,Dm20,Dm6,L1,L2,L5,Lawf1,ML106_M67-L6,Mi1,Mi10,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mti100_347,Mti105_67,Mti106_7,Mti108_7,Mti116_346,Mti123_37,Pm2,SDm100_67,SDm102_67,T1,T2,T3,Tm101a_M78-L5,Tm16,Tm20,Tm21,Tm25,Tm4,Tm5c,Tm7,Tm8,TmY10,TmY12,TmY5a",
+    "predicate_input_types": "Mti106_7",
+    "predicate_output_types": "",
+    "precision": "0.7955465587044535",
+    "recall": "0.8308668076109936",
+    "f_score": "0.81282316442606"
+  },
+  "TmY3": {
+    "cells": "346",
+    "all_input_types": "Dm1,Dm12,Dm13,Dm14,Dm17,Dm18,Dm19,Dm2,Dm20,Dm5,Dm8,Dm9,L1,L2,L3,L4,L5,LPi4-3,Lai,Li108b_345a6,Lpi105_4-34,ML101_M89-L235,Mi1,Mi10,Mi14,Mi2,Mi4,Mi9,Mti100_347,Mti104_78,Mti123_37,Pm1,Pm101_8,Pm1a,Pm2,Pm4,R1-6,SDm101_67,T1,T2a,T4a,T5c,Tlp1,Tlp4,Tlp5,Tlp6,Tm1,Tm102_M2378-L6,Tm16,Tm2,Tm20,Tm3,Tm4,Tm4a,Tm5b,Tm5c,Tm9,TmY11,TmY12,TmY15,TmY3,TmY5a,TmY9,Y1,Y11,Y12,Y4",
+    "all_output_types": "Dm10,Dm12,Dm9,L1,L3,L5,LC14,LC14b,LM102a_L234-M89,LM102b_L3-M8,LPi100_4-14,LPi3-4,LPi4-3,Lawf2,Li101_23,Li103_23,Li103_24,Li108a_345a6,Li109_456,Lpc101-34,Lpi101_34-34,ML101_M89-L235,ML103_M89-L6,Mi13,Mi14,Mi4,Mi9,Olt,Pm1,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,T2,T2a,T4c,Tlp5,Tm16,Tm2,Tm25,Tm4,Tm5a,TmY11,TmY12,TmY14,TmY15,TmY16,TmY20,TmY3,TmY5a,Y1,Y11,Y3",
+    "predicate_input_types": "L4,L5,Mi4,Mi9",
+    "predicate_output_types": "",
+    "precision": "0.978978978978979",
+    "recall": "0.9421965317919075",
+    "f_score": "0.9602356406480118"
+  },
+  "TmY20": {
+    "cells": "141",
+    "all_input_types": "Dm2,LLP100_L5a6-LP1234,LPi100_4-14,LPi2-1,LPi2b,LPi3-4,LPi34-12,Li100_5,Li105_235,Li107_56,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li121_56,Li122_56,Lpi101_34-34,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi107_34,Lpi108_43,ML100_M47-L6,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp5,Tm1,Tm1a,Tm2,Tm3,Tm5,Tm5a,Tm7,TmY16,TmY17,TmY20,TmY3,TmY5a,TmY9,Y1,Y11,Y3,Y4",
+    "all_output_types": "Dm2,LC14,LC14b,LLP100_L5a6-LP1234,LM102b_L3-M8,LPi100_4-14,Li100_5,Li102_23,Li103_24,Li105_235,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Lpi102_12,Lpi104_1-2,ML101_M89-L235,Mi104_1468,Mti104_78,Mti105_67,Pm102_8,SDm100_67,SDm102_67,T4b,T5a,Tlp4,Tm1,Tm100_M68-L5,Tm16,Tm1a,Tm24,Tm3,Tm4,Tm5,Tm5a,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY12,TmY14,TmY16,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y11,Y3,Y4",
+    "predicate_input_types": "LPi2b,Li100_5,T5a",
+    "predicate_output_types": "",
+    "precision": "0.9921259842519685",
+    "recall": "0.8936170212765957",
+    "f_score": "0.9402985074626866"
+  },
+  "TmY17": {
+    "cells": "155",
+    "all_input_types": "Dm2,Dm3,Dm8,LLP100_L5a6-LP1234,LM102a_L234-M89,LPi2-1,LPi2b,LPi3-4,LPi34-12,Li100_5,Li105_235,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li118_6,Li121_56,LpM100a_Lp34-M567,Lpc101-34,Lpi101_34-34,Lpi105_4-34,Lpi107_34,Lpi108_43,Lpt104_12,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,ML105_M6-L5,ML106_M67-L6,Mi10,Mi104_1468,Mi4,Mi9,Mti104_78,Mti105_67,Pm4,SDm101_67,SDm102_67,T2,T2a,T4c,Tlp1,Tlp4,Tlp5,Tm1,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm11,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm3,Tm4,Tm5,Tm5a,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY12,TmY16,TmY17,TmY20,TmY4,TmY5a,TmY9,Y11,Y3",
+    "all_output_types": "Dm19,Dm2,Dm3,Dm8,LC14,LC14b,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102a_L234-M89,LPi1-2,LPi2-1,LPi2b,LPi3-4,Lawf1,Lawf2,Li100_5,Li102_23,Li103_23,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li116_234,Li121_56,Li122_56,Li123_56,Lpi102_12,Lpi104_1-2,Lpt104_12,ML101_M89-L235,ML105_M6-L5,ML106_M67-L6,Mi10,Mi104_1468,Mi13,Mi14,Mti104_78,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti123_37,Pm101_8,Pm103_89,Pm2,Pm4,SDm100_67,SDm101_67,SDm102_67,T2,T5a,Tlp1,Tlp4,Tlp5,Tm100_M68-L5,Tm101a_M78-L5,Tm102_M2378-L6,Tm11,Tm16,Tm1a,Tm20,Tm24,Tm25,Tm4,Tm5,Tm5a,Tm5b,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY12,TmY14,TmY15,TmY16,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "Li100_5,Li110_56",
+    "predicate_output_types": "Li108b_345a6,TmY5a",
+    "precision": "0.9733333333333334",
+    "recall": "0.9419354838709677",
+    "f_score": "0.9573770491803278"
+  },
+  "Dm8": {
+    "cells": "364",
+    "all_input_types": "C3,Dm1,Dm101_6,Dm102a_6,Dm102b_6,Dm11,Dm13,Dm18,Dm2,Dm4,Dm8,Dm9,L1,L3,L5,ML100_M47-L6,ML104_M47-L6,ML105_M6-L5,Mi1,Mi10,Mi13,Mi9,Mt103_67,Mti100_347,Mti112_67,Mti116_346,Mti126_67,Pm101_8,R7,SDm100_67,SDm101_67,SDm102_67,Tm1,Tm2,Tm5,Tm5c,Tm7,Tm9,TmY17,Y3",
+    "all_output_types": "C3,Dm1,Dm10,Dm101_6,Dm102a_6,Dm102b_6,Dm11,Dm13,Dm18,Dm2,Dm20,Dm8,Dm9,L1,L3,MC61,ML100_M47-L6,ML105_M6-L5,ML106_M67-L6,Mi1,Mi15,Mi4,Mi9,Mti102_76,Mti105_67,Mti107_67,Mti110_678,Mti112_67,Mti114_678,Mti116_346,Pm4,R7,SDm100_67,SDm101_67,SDm102_67,T2,Tm101a_M78-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm11,Tm16,Tm2,Tm20,Tm21,Tm25,Tm3,Tm5,Tm5b,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY11,TmY12,TmY14,TmY17,TmY3,TmY5a",
+    "predicate_input_types": "Dm102b_6",
+    "predicate_output_types": "",
+    "precision": "0.8429951690821256",
+    "recall": "0.9587912087912088",
+    "f_score": "0.897172236503856"
+  },
+  "Li2": {
+    "cells": "7",
+    "all_input_types": "LM101_L234-M89,LM102a_L234-M89,Li111_2,Li116_234,Li2,T2,Tm1a,Tm2,Tm3,Tm4,Tm4a,TmY14,TmY9",
+    "all_output_types": "LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li101_23,Li103_23,Li111_2,Li2,Tm2,Tm23,TmY15",
+    "predicate_input_types": "LM101_L234-M89",
+    "predicate_output_types": "LM102b_L3-M8,Li101_23",
+    "precision": "0.7777777777777778",
+    "recall": "1.0",
+    "f_score": "0.875"
+  },
+  "Dm10": {
+    "cells": "238",
+    "all_input_types": "C2,Dm12,Dm2,Dm20,Dm4,Dm8,L1,L3,L4,L5,Lai,Lawf1,ML101_M89-L235,Mi1,Mi10,Mi104_1468,Mi15,Mi2,Mi4,Mi9,Mti104_78,Pm4,T1,Tm1,Tm16,Tm3,Tm5c,TmY3",
+    "all_output_types": "Dm100_125,Dm18,Dm2,Dm20,L3,L4,LM101_L234-M89,Lawf1,ML100_M47-L6,ML102_M24-L45,Mi1,Mi10,Mi13,Mi15,Mi2,Mi4,Mi9,Pm1,Pm2,Tm1,Tm2,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm5b,Tm5c,Tm9,TmY15",
+    "predicate_input_types": "Dm4,L5,Mi10",
+    "predicate_output_types": "Mi4",
+    "precision": "0.9620253164556962",
+    "recall": "0.957983193277311",
+    "f_score": "0.96"
+  },
+  "Tm5": {
+    "cells": "503",
+    "all_input_types": "Dm101_6,Dm102b_6,Dm12,Dm13,Dm14,Dm2,Dm20,Dm3,Dm4,Dm8,L2,L3,L4,L5,LC14,Li100_5,Li102_23,Li108a_345a6,Li110_56,Li118_6,Li120_5-5,Li121_56,Li122_56,Li123_56,MC61,ML100_M47-L6,ML105_M6-L5,Mi1,Mi10,Mi104_1468,Mi4,Mi9,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti116_346,Mti119_7,Pm1,Pm4,R7,SDm100_67,SDm101_67,SDm102_67,T2,T2a,T3,Tlp1,Tlp4,Tm1,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm1a,Tm2,Tm20,Tm24,Tm25,Tm3,Tm4,Tm5,Tm5a,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY11,TmY17,TmY20,TmY5a,TmY9,Y1,Y12,Y3",
+    "all_output_types": "Dm102a_6,Dm102b_6,Dm11,Dm12,Dm2,Dm20,Dm3,Dm8,LC14,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Lawf1,Lawf2,Li102_23,Li103_23,Li105_235,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li115_3,Li120_5-5,Li121_56,Li122_56,Li123_56,MC61,ML101_M89-L235,ML105_M6-L5,ML106_M67-L6,Mi10,Mi104_1468,Mi13,Mi15,Mi4,Mi9,Mti104_78,Mti105_67,Mti106_7,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti119_7,Pm101_8,Pm103_89,Pm2,Pm3,Pm4,SDm100_67,SDm101_67,SDm102_67,T2,T3,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm20,Tm21,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5b,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY20,TmY4,TmY5a,Y11,Y3,Y4",
+    "predicate_input_types": "Li120_5-5",
+    "predicate_output_types": "",
+    "precision": "0.8894348894348895",
+    "recall": "0.7196819085487077",
+    "f_score": "0.7956043956043956"
+  },
+  "Tm3": {
+    "cells": "843",
+    "all_input_types": "C2,C3,Dm1,Dm10,Dm12,Dm13,Dm15,Dm20,Dm4,Dm6,Dm8,L1,L2,L3,L4,L5,Lai,Lawf1,Li108b_345a6,Li111_2,Li116_234,Li119_2,Li121_56,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi1,Mi10,Mi13,Mi14,Mi2,Mi4,Mi9,Mt5,Mti105_67,Pm1,Pm102_8,Pm103_89,Pm1a,Pm2,Pm3,R1-6,SDm100_67,T1,T2,T2a,T3,T4d,Tlp5,Tm1,Tm16,Tm2,Tm20,Tm25,Tm3,Tm4,Tm5,Tm5c,TmY15,TmY20,TmY9,Y1,Y11,Y12,Y3",
+    "all_output_types": "C2,C3,Dm10,Dm14,Dm17,Dm19,Dm2,Dm6,L1,L2,L3,L5,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM100_L234-M89,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,LM103_L12-M910,Lawf1,Lawf2,Li101_23,Li102_23,Li103_23,Li103_24,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li111_2,Li115_3,Li116_234,Li119_2,Li121_56,Li122_56,Li123_56,Li2,ML100_M47-L6,ML101_M89-L235,ML102_M24-L45,Mi1,Mi10,Mi13,Mi14,Mi2,Mi4,Mi9,Mt5,Mti105_67,Mti112_67,Mti122_78,Mti123_37,Mti128_7,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tm1,Tm100_M68-L5,Tm102_M2378-L6,Tm16,Tm2,Tm21,Tm23,Tm24,Tm25,Tm3,Tm4,Tm5,Tm5a,Tm5c,Tm7,Tm8,TmY1,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY5,TmY5a,TmY9,Y1,Y11,Y3,Y4",
+    "predicate_input_types": "L1,L5",
+    "predicate_output_types": "Li116_234",
+    "precision": "0.9947780678851175",
+    "recall": "0.9039145907473309",
+    "f_score": "0.947172156619018"
+  },
+  "T3": {
+    "cells": "830",
+    "all_input_types": "C2,C3,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li101_23,Li102_23,Li103_23,Li103_24,Li108b_345a6,Li116_234,Li119_2,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi1,Mi10,Mi14,Mi15,Mi2,Mi4,Mi9,Pm1,Pm102_8,Pm103_89,Pm1a,Pm2,Pm3,Pm4,T1,T2,T2a,T3,Tm1,Tm16,Tm1a,Tm2,Tm21,Tm24,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5c,TmY14,TmY15,TmY16,TmY5a,TmY9,Y1,Y11,Y3,Y4",
+    "all_output_types": "C2,C3,Dm19,LC14,LLpt101_L56-Lp2,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Lawf2,Li101_23,Li102_23,Li103_23,Li103_24,Li105_235,Li108a_345a6,Li108b_345a6,Li111_2,Li119_2,ML101_M89-L235,Mi1,Mi10,Mi13,Mi2,Mi4,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,T5a,T5b,T5c,T5d,Tm2,Tm21,Tm24,Tm25,Tm3,Tm4,Tm5,Tm6,TmY10,TmY12,TmY14,TmY15,TmY16,TmY4,TmY5a,TmY9,Y3,Y4",
+    "predicate_input_types": "Pm1a,Tm1,Tm3",
+    "predicate_output_types": "Li102_23",
+    "precision": "0.9153005464480874",
+    "recall": "0.8072289156626506",
+    "f_score": "0.8578745198463509"
+  },
+  "T2a": {
+    "cells": "854",
+    "all_input_types": "C2,C3,Dm14,Dm18,Dm19,Dm2,Dm20,Dm3,L1,L2,L3,L4,L5,LM102a_L234-M89,LM102b_L3-M8,Lawf2,Li101_23,Li102_23,Li103_23,Li103_24,Li105_235,Li108b_345a6,Li116_234,Lpi106_2,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi13,Mi14,Mi2,Mi4,Mi9,Mti104_78,Mti107_67,Mti119_7,Mti122_78,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,SDm101_67,T1,T2a,T3,Tm1,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm3,Tm4,Tm4a,Tm5c,Tm7,Tm9,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY3,TmY5a,Y3,Y4",
+    "all_output_types": "C2,C3,Dm2,Dm3,LC14,LC14b,LLpt101_L56-Lp2,LM100_L234-M89,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,LPi2-1,LPi2b,Lawf1,Li101_23,Li102_23,Li103_23,Li103_24,Li105_235,Li108_345a6,Li108a_345a6,Li108b_345a6,Li115_3,Li116_234,Li119_2,ML101_M89-L235,Mi1,Mi10,Mi13,Mi9,Mti104_78,Pm101_8,Pm103_89,Pm1a,Pm2,Pm3,Pm4,T1,T2,T2a,T3,T5b,Tm100_M68-L5,Tm16,Tm2,Tm20,Tm21,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5c,Tm7,TmY1,TmY12,TmY15,TmY16,TmY17,TmY3,TmY4,TmY5a,TmY9,Y1,Y12,Y4",
+    "predicate_input_types": "Mi1,Tm1",
+    "predicate_output_types": "LM102b_L3-M8",
+    "precision": "0.8543956043956044",
+    "recall": "0.7283372365339579",
+    "f_score": "0.786346396965866"
+  },
+  "Tm8": {
+    "cells": "187",
+    "all_input_types": "Dm12,Dm2,Dm4,Dm8,L3,L5,LLP100_L5a6-LP1234,LM102a_L234-M89,Li100_5,Li108b_345a6,Li110_56,Li118_6,Li121_56,Li122_56,Li123_56,ML100_M47-L6,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,ML105_M6-L5,ML106_M67-L6,Mi1,Mi10,Mi15,Mi2,Mi4,Mi9,Mti100_347,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti123_37,Mti126_67,Pm4,SDm100_67,SDm101_67,SDm102_67,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm21,Tm24,Tm25,Tm3,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY12,TmY15,TmY17,TmY20,TmY4,TmY5a,TmY9,Y3",
+    "all_output_types": "Dm12,Dm19,Dm2,Dm20,LC14,LC14b,LLP100_L5a6-LP1234,LM101_L234-M89,LM102a_L234-M89,Lawf1,Lawf2,Li105_235,Li107_56,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li115_3,Li116_234,Li121_56,Li122_56,Li123_56,ML101_M89-L235,ML105_M6-L5,Mi10,Mi104_1468,Mi13,Mi2,Mi4,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti126_67,Olt,Pm101_8,Pm102_8,Pm103_89,Pm4,SDm100_67,SDm101_67,SDm102_67,Tlp1,Tlp6,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm11,Tm16,Tm1a,Tm20,Tm24,Tm25,Tm4,Tm5,Tm5c,Tm8,TmY10,TmY11,TmY12,TmY15,TmY16,TmY17,TmY4,TmY5a,TmY9,Y1,Y3,Y4",
+    "predicate_input_types": "",
+    "predicate_output_types": "Li108b_345a6,Li110_56,Mti112_67",
+    "precision": "0.96875",
+    "recall": "0.49732620320855614",
+    "f_score": "0.657243816254417"
+  },
+  "L1": {
+    "cells": "753",
+    "all_input_types": "C2,C3,Dm1,Dm11,Dm12,Dm15,Dm17,Dm19,Dm3,Dm4,Dm6,Dm8,Dm9,L1,L2,L3,L4,L5,Lai,Lawf1,Mi1,Mi10,Mi15,Mi4,Mi9,R1-6,R7,T1,T2,Tm1,Tm1a,Tm2,Tm3,Tm4,TmY12,TmY3,TmY9",
+    "all_output_types": "C2,C3,Dm1,Dm10,Dm12,Dm13,Dm15,Dm17,Dm18,Dm19,Dm2,Dm20,Dm3,Dm4,Dm6,Dm8,Dm9,L1,L2,L3,L4,L5,Lai,Lawf2,Mi1,Mi10,Mi13,Mi15,Mi2,Mi4,Mi9,Pm4,R7,T1,T2,T2a,Tm1,Tm1a,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm5c,Tm9,TmY11,TmY3,TmY9",
+    "predicate_input_types": "L5,Mi1",
+    "predicate_output_types": "L5,Mi1,Tm3",
+    "precision": "0.9674418604651163",
+    "recall": "0.8286852589641435",
+    "f_score": "0.8927038626609443"
+  },
+  "T2": {
+    "cells": "718",
+    "all_input_types": "C2,C3,Dm1,Dm100_125,Dm12,Dm13,Dm14,Dm15,Dm16,Dm17,Dm18,Dm19,Dm20,Dm4,Dm6,Dm8,L1,L2,L3,L4,L5,LM102a_L234-M89,LM102b_L3-M8,Lai,Lawf2,Li101_23,Li102_23,Li103_23,Li103_24,Li111_2,Li116_234,Lpi101_34-34,Lpi105_4-34,ML101_M89-L235,Mi1,Mi10,Mi104_1468,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mt5,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,SDm101_67,T1,T2,T2a,T3,T4a,T4b,T4c,T5a,T5b,T5c,T5d,Tlp4,Tm1,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm5,Tm5a,Tm5c,Tm9,TmY11,TmY12,TmY15,TmY17,TmY3,TmY5,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "C2,C3,Dm1,Dm104_12,Dm18,Dm19,Dm3,L1,L2,L3,L5,LC14,LC14b,LM100_L234-M89,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Lawf2,Li101_23,Li102_23,Li103_23,Li103_24,Li105_235,Li108b_345a6,Li111_2,Li115_3,Li2,ML101_M89-L235,Mi1,Mi10,Mi104_1468,Mi13,Mi14,Mi4,Mi9,Pm1,Pm1a,Pm2,Pm3,Pm4,T1,T2,T3,T4c,T5b,Tm1,Tm2,Tm20,Tm21,Tm24,Tm25,Tm3,Tm4,Tm5,Tm5a,Tm5c,Tm6,Tm9,TmY15,TmY16,TmY17,TmY4,TmY5a,TmY9,Y1,Y4",
+    "predicate_input_types": "L5",
+    "predicate_output_types": "Li101_23",
+    "precision": "0.9884105960264901",
+    "recall": "0.8314763231197771",
+    "f_score": "0.903177004538578"
+  },
+  "Mi4": {
+    "cells": "749",
+    "all_input_types": "C2,C3,Dm1,Dm10,Dm101_6,Dm11,Dm12,Dm15,Dm17,Dm19,Dm2,Dm20,Dm3,Dm4,Dm5,Dm6,Dm8,Dm9,L1,L2,L3,L4,L5,LM101_L234-M89,Lai,ML100_M47-L6,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi1,Mi10,Mi104_1468,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mti104_78,Mti112_67,Pm1,Pm102_8,Pm103_89,Pm1a,Pm2,Pm3,Pm4,R8,SDm100_67,SDm102_67,T1,T2,T3,T4a,Tm1,Tm101b_M78-L5,Tm102_M2378-L6,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm3,Tm4,Tm4a,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY12,TmY15,TmY16,TmY3,TmY4,TmY5,TmY5a,TmY9,Y1,Y3",
+    "all_output_types": "C2,C3,Dm1,Dm10,Dm12,Dm17,Dm18,Dm19,Dm2,Dm20,Dm3,Dm4,Dm6,Dm9,L1,L2,L3,L5,Lawf1,Lawf2,Li116_234,Lpi101_34-34,ML100_M47-L6,ML101_M89-L235,ML104_M47-L6,Mi1,Mi10,Mi104_1468,Mi13,Mi14,Mi2,Mi4,Mi9,Mt5,Mti104_78,Mti123_37,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,SDm100_67,SDm102_67,T1,T2,T2a,T3,T4a,T4b,T4c,T4d,T5a,Tm1,Tm102_M2378-L6,Tm11,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm5,Tm5a,Tm5b,Tm5c,Tm7,Tm8,Tm9,TmY1,TmY10,TmY11,TmY12,TmY14,TmY15,TmY17,TmY3,TmY4,TmY5,TmY5a,TmY9,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "Dm4",
+    "predicate_output_types": "TmY3",
+    "precision": "0.973568281938326",
+    "recall": "0.8851802403204272",
+    "f_score": "0.9272727272727272"
+  },
+  "Mi1": {
+    "cells": "771",
+    "all_input_types": "C2,C3,Dm1,Dm10,Dm12,Dm13,Dm14,Dm15,Dm17,Dm18,Dm19,Dm2,Dm4,Dm6,Dm8,L1,L2,L3,L4,L5,LM102a_L234-M89,Lai,Lawf1,Lawf2,ML101_M89-L235,Mi1,Mi10,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mti106_7,Mti110_678,Pm1,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,R8,T1,T2,T2a,T3,Tm1,Tm101b_M78-L5,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm5c,TmY10,TmY14,TmY15,TmY16,Y3",
+    "all_output_types": "C2,C3,Dm1,Dm10,Dm17,Dm18,Dm19,Dm2,Dm20,Dm3,Dm5,Dm8,L1,L2,L3,L5,LM101_L234-M89,LM102a_L234-M89,Lai,Lawf1,Lawf2,Li103_24,Li108b_345a6,Li115_3,Li122_56,Lpi101_34-34,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi104_1468,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mt5,Mti112_67,Mti122_78,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,SDm100_67,T1,T2,T2a,T3,T4a,T4b,T4c,T4d,T5a,T5c,Tm1,Tm101b_M78-L5,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5c,Tm6,Tm7,Tm8,Tm9,TmY1,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY3,TmY4,TmY5,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "",
+    "predicate_output_types": "Pm1a,Pm2,T3,T4a,Y3",
+    "precision": "0.9774236387782205",
+    "recall": "0.9546044098573282",
+    "f_score": "0.9658792650918635"
+  },
+  "TmY5a": {
+    "cells": "560",
+    "all_input_types": "C3,Dm16,Dm2,Dm20,Dm8,L2,L3,L5,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102a_L234-M89,LM102b_L3-M8,LPi3-4,Li100_5,Li108a_345a6,Li110_56,Li123_56,LpM100a_Lp34-M567,LpM100b_Lp34-M67-Lp4,Lpi101_34-34,Lpi105_4-34,ML101_M89-L235,ML103_M89-L6,ML104_M47-L6,Mi1,Mi10,Mi15,Mi2,Mi4,Mi9,Mt5,Mti104_78,Mti105_67,Mti112_67,Pm1,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,SDm100_67,SDm101_67,SDm102_67,T2,T2a,T3,T4a,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp5,Tlp6,Tm1,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm19,Tm2,Tm20,Tm21,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5b,Tm5c,Tm6,Tm7,Tm8,TmY1,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY5,TmY5a,TmY9,Y1,Y3,Y4",
+    "all_output_types": "C3,Dm100_125,Dm13,Dm18,Dm19,Dm20,LC14,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,LPi3-4,LPi4-3,Lawf2,Li100_5,Li102_23,Li107_56,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li111_2,Li116_234,Li120_5-5,Li121_56,Li122_56,Li123_56,LpM100a_Lp34-M567,LpM100b_Lp34-M67-Lp4,Lpi101_34-34,Lpi105_4-34,Lpi106_2,Lpt104_12,ML100_M47-L6,ML101_M89-L235,ML102_M24-L45,Mi10,Mi104_1468,Mi14,Mi2,Mi4,Mi9,Mti104_78,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti122_78,Mti126_67,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,SDm101_67,T2,T2a,T3,T4d,T5d,Tlp1,Tlp4,Tlp6,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm2,Tm21,Tm24,Tm4,Tm5,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y3,Y4",
+    "predicate_input_types": "Tm3,TmY17",
+    "predicate_output_types": "Y3",
+    "precision": "0.9416342412451362",
+    "recall": "0.8642857142857143",
+    "f_score": "0.9013035381750466"
+  },
+  "Tm2": {
+    "cells": "767",
+    "all_input_types": "C2,C3,Dm1,Dm10,Dm12,Dm13,Dm14,Dm15,Dm16,Dm17,Dm18,Dm19,Dm2,Dm20,Dm3,Dm4,Dm6,Dm8,L1,L2,L3,L4,L5,LLP100_L5a6-LP1234,LM103_L12-M910,LPi2-1,LPi2b,Lawf2,Li100_5,Li102_23,Li111_2,Li119_2,Li121_56,Li2,ML100_M47-L6,ML101_M89-L235,ML102_M24-L45,Mi1,Mi10,Mi13,Mi14,Mi2,Mi4,Mi9,Mt5,Mti105_67,Pm1,Pm104_89,Pm1a,Pm2,Pm3,Pm4,R1-6,T1,T2,T2a,T3,T4a,T5a,Tlp6,Tm1,Tm101b_M78-L5,Tm16,Tm1a,Tm2,Tm20,Tm25,Tm3,Tm4,Tm9,TmY15,TmY3,TmY4,TmY5a,Y1,Y11,Y3,Y4",
+    "all_output_types": "C2,C3,Dm1,Dm12,Dm13,Dm14,Dm16,Dm17,Dm18,Dm19,Dm2,Dm20,Dm3,Dm6,Dm8,L1,L2,L4,L5,LLP100_L5a6-LP1234,LM100_L234-M89,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,LM103_L12-M910,LPi1-2,Lai,Lawf1,Lawf2,Li100_5,Li101_23,Li102_23,Li103_24,Li108a_345a6,Li108b_345a6,Li110_56,Li111_2,Li116_234,Li122_56,Li2,Lpi101_34-34,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi104_1468,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mt5,Mti100_347,Mti107_67,Mti112_67,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,R1-6,SDm101_67,T1,T2,T2a,T3,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tm1,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm23,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm6,Tm9,TmY1,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "",
+    "predicate_output_types": "Pm104_89,T5a",
+    "precision": "0.9915492957746479",
+    "recall": "0.9178617992177314",
+    "f_score": "0.953283683141503"
+  },
+  "Y4": {
+    "cells": "74",
+    "all_input_types": "LLP100_L5a6-LP1234,LM102a_L234-M89,LM102b_L3-M8,Li108_345a6,Li108a_345a6,Li108b_345a6,ML101_M89-L235,Mi1,Mti110_678,Pm1,Pm101_8,Pm1a,Pm2,SDm100_67,T2,T2a,T3,T5a,Tlp5,Tm1,Tm24,Tm3,Tm4,Tm5,Tm5c,Tm8,TmY10,TmY15,TmY16,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y3",
+    "all_output_types": "C2,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102a_L234-M89,LM102b_L3-M8,Li100_5,Li103_23,Li103_24,Li105_235,Li108b_345a6,Li110_56,Li111_2,ML101_M89-L235,ML103_M89-L6,Mi10,Mi14,Mi2,Mi9,Mti104_78,Olt,Pm1,Pm101_8,Pm102_8,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,T4c,Tm1a,Tm2,Tm21,Tm24,TmY11,TmY14,TmY15,TmY16,TmY20,TmY3,TmY5a",
+    "predicate_input_types": "LM102a_L234-M89,Li108a_345a6",
+    "predicate_output_types": "Pm3",
+    "precision": "0.9066666666666666",
+    "recall": "0.918918918918919",
+    "f_score": "0.912751677852349"
+  },
+  "Tm4": {
+    "cells": "665",
+    "all_input_types": "C2,C3,Dm1,Dm10,Dm100_125,Dm13,Dm14,Dm15,Dm17,Dm18,Dm19,Dm2,Dm20,Dm4,Dm6,Dm9,L1,L2,L3,L4,L5,LM102a_L234-M89,Lawf2,Li100_5,Li102_23,Li108b_345a6,Li110_56,Li116_234,Li119_2,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi1,Mi10,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mt5,Pm1,Pm102_8,Pm103_89,Pm1a,Pm2,Pm3,Pm4,R1-6,T1,T2,T2a,T3,Tm1,Tm16,Tm1a,Tm2,Tm20,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5b,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY5a,Y1,Y3",
+    "all_output_types": "C2,C3,Dm1,Dm20,Dm3,Dm6,L1,L2,L5,LC14,LC14b,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Lawf1,Lawf2,Li103_23,Li103_24,Li105_235,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li111_2,Li115_3,Li116_234,Li119_2,Li121_56,Li123_56,Li2,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,ML105_M6-L5,Mi1,Mi10,Mi13,Mi14,Mi2,Mi4,Mi9,Mt5,Mti104_78,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,SDm101_67,T1,T2,T2a,T3,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tm1,Tm102_M2378-L6,Tm16,Tm2,Tm20,Tm21,Tm23,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm6,Tm9,TmY1,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY3,TmY4,TmY5a,TmY9,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "L2",
+    "predicate_output_types": "Pm4,TmY5a",
+    "precision": "0.9007518796992481",
+    "recall": "0.9007518796992481",
+    "f_score": "0.9007518796992481"
+  },
+  "C2": {
+    "cells": "600",
+    "all_input_types": "C2,Dm19,L1,L2,L3,L5,Lai,Lawf2,ML102_M24-L45,ML103_M89-L6,Mi1,Mi10,Mi14,Mi4,Mi9,Mti104_78,Olt,Pm101_8,Pm1a,Pm2,Pm4,R1-6,T1,T2,T2a,T3,T4a,Tm1,Tm2,Tm20,Tm3,Tm4,TmY15,Y1,Y11,Y3,Y4",
+    "all_output_types": "C2,C3,Dm1,Dm10,Dm11,Dm12,Dm15,Dm2,Dm20,Dm3,Dm9,L1,L2,L3,L4,L5,Lai,Mi1,Mi10,Mi13,Mi15,Mi2,Mi4,Mi9,Pm1,Pm2,Pm3,Pm4,R1-6,T1,T2,T2a,T3,Tm1,Tm1a,Tm2,Tm20,Tm25,Tm3,Tm4,Tm4a,Tm5c,Tm9,TmY15,Y3",
+    "predicate_input_types": "L1",
+    "predicate_output_types": "L1,L2,L5",
+    "precision": "0.8842676311030742",
+    "recall": "0.815",
+    "f_score": "0.8482220294882914"
+  },
+  "Mi13": {
+    "cells": "339",
+    "all_input_types": "C2,C3,Dm10,Dm15,Dm16,Dm17,Dm19,Dm2,Dm4,L1,L2,L3,L4,L5,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Lawf2,ML100_M47-L6,ML101_M89-L235,Mi1,Mi10,Mi104_1468,Mi15,Mi4,Mi9,Mti104_78,Olt,Pm1,Pm101_8,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,T4a,Tm1,Tm1a,Tm2,Tm3,Tm4,Tm4a,Tm5,Tm8,TmY1,TmY10,TmY11,TmY14,TmY17,TmY3,TmY4,TmY9,Y11,Y12,Y3",
+    "all_output_types": "Dm19,Dm8,L2,L4,L5,Lai,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi1,Mi10,Mi4,Mi9,Pm102_8,Pm2,Pm3,Pm4,T2,T2a,Tm1,Tm101a_M78-L5,Tm1a,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm9,TmY16,Y3",
+    "predicate_input_types": "Pm101_8",
+    "predicate_output_types": "Mi1,Tm2",
+    "precision": "0.9477911646586346",
+    "recall": "0.696165191740413",
+    "f_score": "0.8027210884353742"
+  },
+  "C3": {
+    "cells": "704",
+    "all_input_types": "C2,Dm13,Dm15,Dm8,L1,L2,L3,L4,L5,Lai,Lawf2,ML102_M24-L45,Mi1,Mi15,Mi4,Mi9,Pm101_8,Pm103_89,Pm1a,Pm2,Pm4,T1,T2,T2a,T3,T4a,T4b,T4c,Tm1,Tm1a,Tm2,Tm20,Tm3,Tm4,Tm4a,Tm5c,TmY14,TmY5a",
+    "all_output_types": "Dm1,Dm13,Dm15,Dm18,Dm19,Dm20,Dm3,Dm6,Dm8,L1,L2,L3,L4,L5,Lai,ML102_M24-L45,ML103_M89-L6,Mi1,Mi13,Mi2,Mi4,Mi9,Pm1,Pm104_89,Pm1a,Pm2,Pm3,Pm4,R1-6,T1,T2,T2a,T3,T4a,T4b,T4c,T4d,Tm1,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm9,TmY5a",
+    "predicate_input_types": "L1",
+    "predicate_output_types": "L2,Tm4",
+    "precision": "0.9286846275752774",
+    "recall": "0.8323863636363636",
+    "f_score": "0.8779026217228464"
+  },
+  "Mti123_37": {
+    "cells": "63",
+    "all_input_types": "Dm11,Dm2,Dm4,L3,ML100_M47-L6,ML104_M47-L6,ML106_M67-L6,Mi10,Mi15,Mi4,Mi9,Mti100_347,Mti103_7,Mti104_78,Mti106_7,Mti111_7,Mti119_7,Mti120_7,Mti121_7,Pm101_8,SDm100_67,SDm102_67,Tm3,Tm5c,TmY10,TmY17",
+    "all_output_types": "Dm12,Dm19,ML102_M24-L45,ML106_M67-L6,Mti104_78,Mti105_67,Mti106_7,Mti108_7,Mti124_67,Mti128_7,SDm100_67,SDm101_67,SDm102_67,Tm7,Tm8,TmY10,TmY11,TmY15,TmY3",
+    "predicate_input_types": "Mi10",
+    "predicate_output_types": "SDm100_67",
+    "precision": "0.65",
+    "recall": "0.6190476190476191",
+    "f_score": "0.6341463414634146"
+  },
+  "T1": {
+    "cells": "628",
+    "all_input_types": "Am,C2,C3,Dm1,Dm12,Dm14,Dm15,Dm17,Dm19,Dm2,Dm20,Dm4,Dm6,L1,L2,L3,L5,Lai,Lawf1,Lawf2,ML102_M24-L45,Mi1,Mi10,Mi104_1468,Mi15,Mi4,Pm101_8,Pm1a,Pm2,Pm3,R1-6,T1,T2,T2a,Tm1,Tm1a,Tm2,Tm20,Tm4",
+    "all_output_types": "C2,C3,Dm10,Dm13,Dm15,Dm17,Dm18,Dm19,Dm2,Dm20,Dm6,L1,L2,L5,Lai,ML102_M24-L45,Mi1,Mi14,Mi2,Mi4,Mi9,Pm1a,Pm2,Pm4,T1,T2,T2a,T3,T4a,T4b,T4c,T4d,Tm1,Tm1a,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm5c,TmY12,TmY3,Y3",
+    "predicate_input_types": "C3,Dm6,L2",
+    "predicate_output_types": "",
+    "precision": "0.9030927835051547",
+    "recall": "0.697452229299363",
+    "f_score": "0.7870619946091644"
+  },
+  "TmY9": {
+    "cells": "339",
+    "all_input_types": "Dm1,Dm13,Dm14,Dm3,L1,L2,L3,L4,L5,LM102a_L234-M89,LM102b_L3-M8,LPi1-2,LPi2-1,LPi2b,LPi34-12,Li100_5,Li108_345a6,Li108a_345a6,Li108b_345a6,Li110_56,Li111_2,Li118_6,Li121_56,Lpi104_1-2,Lpi105_4-34,Lpt104_12,ML100_M47-L6,ML101_M89-L235,Mi1,Mi2,Mi4,Mi9,Mti104_78,Pm1,Pm102_8,Pm1a,Pm3,Pm4,SDm100_67,T2,T2a,T3,T4a,T4b,T4d,T5a,T5b,T5c,Tlp1,Tm1,Tm102_M2378-L6,Tm16,Tm19,Tm1a,Tm2,Tm25,Tm3,Tm4,Tm4a,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY11,TmY15,TmY16,TmY17,TmY20,TmY4,TmY5a,TmY9,Y11,Y3",
+    "all_output_types": "Dm12,Dm17,Dm3,L1,LC14,LC14b,LLP100_L5a6-LP1234,LM102a_L234-M89,LPi1-2,LPi2-1,LPi34-12,Lawf2,Li100_5,Li103_23,Li103_24,Li107_56,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li111_2,Li116_234,Li118_6,Li121_56,Li123_56,Li2,Lpi102_12,Lpi105_4-34,ML101_M89-L235,Mi13,Mi14,Mi2,Mi4,Mt5,Mti104_78,Mti107_67,Mti114_678,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm1a,Pm2,Pm3,Pm4,T2,T3,T4a,T4b,T4c,T4d,T5a,Tlp1,Tlp4,Tlp5,Tm100_M68-L5,Tm11,Tm16,Tm19,Tm23,Tm24,Tm25,Tm3,Tm5,Tm5a,Tm7,Tm8,TmY14,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "Dm3,TmY9",
+    "predicate_output_types": "",
+    "precision": "0.8181818181818182",
+    "recall": "0.584070796460177",
+    "f_score": "0.6815834767641996"
+  },
+  "TmY4": {
+    "cells": "224",
+    "all_input_types": "Dm12,Dm19,Dm20,Dm3,L3,LLP100_L5a6-LP1234,LPi1-2,LPi2-1,LPi2b,LPi3-4,LPi34-12,Li100_5,Li105_235,Li107_56,Li108a_345a6,Li108b_345a6,Li110_56,Li115_3,Li121_56,Li122_56,Lpc101-34,Lpi102_12,Lpi105_4-34,Lpi106_2,Lpi108_43,Lpt104_12,ML101_M89-L235,ML103_M89-L6,ML105_M6-L5,Mi1,Mi10,Mi4,Mi9,Mti100_347,Mti104_78,Pm101_8,Pm102_8,Pm103_89,Pm4,SDm101_67,SDm102_67,T2,T2a,T3,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tm1,Tm100_M68-L5,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm3,Tm4,Tm5,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY11,TmY12,TmY14,TmY15,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3",
+    "all_output_types": "Dm12,Dm19,Dm3,LC14,LC14b,LLP100_L5a6-LP1234,LM101_L234-M89,LM102a_L234-M89,LPi1-2,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Lawf1,Lawf2,Li100_5,Li101_23,Li102_23,Li103_23,Li103_24,Li105_235,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li116_234,Li118_6,Li121_56,Li122_56,Li123_56,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi106_2,Lpi107_34,Lpi108_43,ML100_M47-L6,ML101_M89-L235,ML105_M6-L5,Mi13,Mi4,Mi9,Mti104_78,Mti105_67,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm2,T4b,T4c,T4d,Tlp1,Tlp4,Tlp6,Tm1,Tm100_M68-L5,Tm101b_M78-L5,Tm2,Tm20,Tm24,Tm4,Tm4a,Tm5a,Tm5c,Tm7,Tm8,Tm9,TmY11,TmY14,TmY15,TmY16,TmY17,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "Dm3,LPi1-2",
+    "predicate_output_types": "",
+    "precision": "0.9928057553956835",
+    "recall": "0.6160714285714286",
+    "f_score": "0.7603305785123967"
+  },
+  "L4": {
+    "cells": "681",
+    "all_input_types": "C2,C3,Dm10,Dm101_6,Dm102b_6,Dm14,Dm15,Dm17,Dm19,Dm2,L1,L2,L3,Mi13,Mi9,Mti116_346,Pm101_8,Tm2",
+    "all_output_types": "C3,Dm10,Dm13,Dm14,Dm17,Dm2,Dm6,L1,L2,L3,L5,Lawf1,Lawf2,Lpi101_34-34,ML102_M24-L45,Mi1,Mi13,Mi4,Mi9,Olt,T2,T2a,Tm1,Tm2,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm9,TmY1,TmY11,TmY3,TmY9",
+    "predicate_input_types": "",
+    "predicate_output_types": "Dm14,Tm2",
+    "precision": "0.953307392996109",
+    "recall": "0.7195301027900147",
+    "f_score": "0.8200836820083682"
+  },
+  "Tlp5": {
+    "cells": "27",
+    "all_input_types": "LLP100_L5a6-LP1234,LM102a_L234-M89,LPi2-1,LPi2b,LPi34-12,Li108a_345a6,Lpi102_12,Lpi105_4-34,Lpi106_2,Pm101_8,T4a,T4b,T5a,T5b,Tlp1,Tlp4,Tlp6,TmY11,TmY15,TmY16,TmY17,TmY3,TmY9,Y1,Y3",
+    "all_output_types": "LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102a_L234-M89,LPi1-2,LPi2-1,Li100_5,Li103_24,Li108b_345a6,Li110_56,Li116_234,Lpi104_1-2,ML101_M89-L235,Pm101_8,Tlp1,Tm3,TmY11,TmY14,TmY15,TmY16,TmY17,TmY20,TmY3,TmY5a,Y11,Y3,Y4",
+    "predicate_input_types": "Lpi106_2,TmY16",
+    "predicate_output_types": "TmY5a",
+    "precision": "1.0",
+    "recall": "0.5555555555555556",
+    "f_score": "0.7142857142857143"
+  },
+  "Y12": {
+    "cells": "93",
+    "all_input_types": "L3,LM102a_L234-M89,LPi2-1,LPi2b,LPi3-4,LPi34-12,Li108_345a6,Li108a_345a6,Li108b_345a6,Lpi101_34-34,Lpi105_4-34,Lpi106_2,Mi1,Mi4,Olt,Pm101_8,Pm2,R8,T2a,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp6,Tm1,Tm2,Tm4,TmY16,TmY17,TmY4,TmY9,Y1,Y3",
+    "all_output_types": "LC14,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102b_L3-M8,LPi1-2,LPi100_4-14,LPi2-1,LPi3-4,LPi34-12,LPi4-3,Li100_5,Li103_24,Li105_235,Li123_56,Lpi104_1-2,Lpi105_4-34,ML101_M89-L235,ML102_M24-L45,Mi13,Mi9,Olt,Pm1,Pm1a,Pm2,Pm3,Pm4,T2,T4a,T4c,T4d,T5a,T5d,Tlp1,Tm3,Tm5,TmY14,TmY15,TmY3,TmY4,Y11",
+    "predicate_input_types": "LPi2b,TmY17",
+    "predicate_output_types": "T4d",
+    "precision": "0.9",
+    "recall": "0.8709677419354839",
+    "f_score": "0.8852459016393442"
+  },
+  "Tm20": {
+    "cells": "597",
+    "all_input_types": "C2,C3,Dm11,Dm19,Dm3,Dm4,Dm8,Dm9,L1,L2,L3,L5,Li120_5-5,Li123_56,Mi1,Mi10,Mi13,Mi15,Mi2,Mi4,Mi9,Mti108_7,Mti110_678,Mti114_678,Mti122_78,R1-6,R8,T1,T2,T2a,Tm1,Tm101b_M78-L5,Tm16,Tm1a,Tm2,Tm20,Tm4,Tm5,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY17,TmY4,Y1,Y3",
+    "all_output_types": "C2,C3,Dm19,Dm2,Dm3,Dm4,L5,LC14,LM102a_L234-M89,Lawf1,Li102_23,Li103_23,Li103_24,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li120_5-5,Li122_56,Li123_56,MC61,ML101_M89-L235,Mi1,Mi10,Mi14,Mi2,Mi4,Mi9,Mti108_7,Mti110_678,Mti114_678,Mti122_78,Pm101_8,Pm102_8,Pm103_89,Pm2,Pm4,SDm101_67,T1,T2,T2a,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm2,Tm20,Tm24,Tm25,Tm3,Tm4,Tm5,Tm5c,Tm7,Tm9,TmY10,TmY12,TmY16,TmY17,TmY3,TmY4,TmY5a",
+    "predicate_input_types": "L3",
+    "predicate_output_types": "Tm101b_M78-L5",
+    "precision": "0.9383886255924171",
+    "recall": "0.6633165829145728",
+    "f_score": "0.7772325809617272"
+  },
+  "L5": {
+    "cells": "723",
+    "all_input_types": "C2,C3,Dm1,Dm100_125,Dm13,Dm14,Dm15,Dm18,Dm19,Dm2,Dm9,L1,L2,L3,L4,L5,Lai,Lawf2,Mi1,Mi13,Mi15,Mi4,R1-6,T1,T2,Tm1,Tm1a,Tm2,Tm20,Tm25,Tm3,Tm4,Tm5c,Tm9,TmY3",
+    "all_output_types": "C2,C3,Dm1,Dm10,Dm100_125,Dm12,Dm13,Dm18,Dm2,Dm20,Dm4,Dm5,Dm6,Dm8,Dm9,L1,L2,L3,L5,Lai,Lawf2,Lpi101_34-34,ML102_M24-L45,Mi1,Mi10,Mi104_1468,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Olt,R1-6,SDm100_67,SDm101_67,T1,T2,T2a,Tm1,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5c,Tm6,Tm8,Tm9,TmY1,TmY10,TmY11,TmY12,TmY14,TmY3,TmY5,TmY5a,TmY9,Y11",
+    "predicate_input_types": "",
+    "predicate_output_types": "Dm13,Tm3",
+    "precision": "0.9801980198019802",
+    "recall": "0.9585062240663901",
+    "f_score": "0.9692307692307692"
+  },
+  "TmY11": {
+    "cells": "159",
+    "all_input_types": "Dm13,Dm2,Dm20,Dm8,L1,L2,L3,L4,L5,LLP100_L5a6-LP1234,LPi2-1,Lawf1,Li100_5,Li110_56,Li121_56,Lpi105_4-34,Lpt104_12,ML100_M47-L6,ML102_M24-L45,ML103_M89-L6,Mi1,Mi10,Mi4,Mi9,Mti123_37,Pm101_8,Pm102_8,Pm2,Pm4,T4a,T4b,Tlp5,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm2,Tm3,Tm4,Tm4a,Tm5,Tm7,Tm8,TmY10,TmY11,TmY12,TmY14,TmY15,TmY20,TmY3,TmY4,TmY5a,Y1,Y11,Y3,Y4",
+    "all_output_types": "Dm19,Dm2,Dm3,LC14,LC14b,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102b_L3-M8,Li100_5,Li102_23,Li103_23,Li103_24,Li107_56,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li119_2,Li121_56,Li122_56,Li123_56,ML100_M47-L6,ML101_M89-L235,ML106_M67-L6,Mi10,Mi104_1468,Mi13,Mi14,Mi4,Mi9,Mti104_78,Mti112_67,Pm101_8,Pm103_89,Pm2,Pm3,Pm4,SDm101_67,T2,T2a,T5c,Tlp5,Tm100_M68-L5,Tm101b_M78-L5,Tm16,Tm19,Tm1a,Tm24,Tm4,Tm5,Tm5c,Tm8,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY3,TmY4,TmY5a,TmY9,Y1,Y3",
+    "predicate_input_types": "Mi4,Mi9",
+    "predicate_output_types": "Li100_5,TmY15",
+    "precision": "0.8782051282051282",
+    "recall": "0.8616352201257862",
+    "f_score": "0.8698412698412699"
+  },
+  "Dm11": {
+    "cells": "76",
+    "all_input_types": "C2,Dm101_6,Dm102a_6,Dm102b_6,Dm2,Dm20,Dm8,L3,ML100_M47-L6,ML105_M6-L5,Mi10,Mi15,Mti112_67,Mti116_346,Mti117_7,R7,SDm100_67,Tm5,Tm7",
+    "all_output_types": "Dm102b_6,Dm12,Dm15,Dm2,Dm4,Dm8,Dm9,L1,ML104_M47-L6,ML105_M6-L5,Mi104_1468,Mi15,Mi2,Mi4,Mti100_347,Mti106_7,Mti107_67,Mti116_346,Mti123_37,SDm100_67,SDm102_67,Tm20,Tm25,Tm5c,Y3",
+    "predicate_input_types": "Dm102a_6",
+    "predicate_output_types": "Dm2",
+    "precision": "0.32673267326732675",
+    "recall": "0.868421052631579",
+    "f_score": "0.4748201438848921"
+  },
+  "Li108b_345a6": {
+    "cells": "93",
+    "all_input_types": "LC14,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM101_L234-M89,LM102a_L234-M89,Li100_5,Li103_23,Li105_235,Li107_56,Li108_345a6,Li108a_345a6,Li108b_345a6,Li110_56,Li121_56,Li122_56,Li123_56,ML100_M47-L6,ML101_M89-L235,ML104_M47-L6,Mi1,T2,T2a,T3,Tlp5,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm11,Tm16,Tm2,Tm20,Tm21,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y3,Y4",
+    "all_output_types": "LC14b,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li100_5,Li102_23,Li103_23,Li103_24,Li108a_345a6,Li108b_345a6,Li110_56,Li111_2,Li121_56,Li122_56,Li123_56,ML100_M47-L6,ML101_M89-L235,T2a,T3,Tlp1,Tlp4,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm21,Tm24,Tm3,Tm4,Tm5c,Tm8,TmY10,TmY15,TmY17,TmY20,TmY3,TmY4,TmY9,Y1,Y12,Y3,Y4",
+    "predicate_input_types": "Tm16,Tm8,TmY17",
+    "predicate_output_types": "Li110_56",
+    "precision": "0.9764705882352941",
+    "recall": "0.8924731182795699",
+    "f_score": "0.9325842696629213"
+  },
+  "Dm15": {
+    "cells": "190",
+    "all_input_types": "C2,C3,Dm104_12,Dm11,Dm14,Dm15,Dm16,Dm17,Dm19,Dm6,L1,L2,L3,Mi104_1468,R1-6,T1,Tm1",
+    "all_output_types": "C3,Dm15,Dm17,Dm19,Dm20,Dm6,L1,L2,L3,L4,L5,Lai,ML102_M24-L45,Mi1,Mi13,Mi14,Mi4,Mi9,R1-6,T1,T2,Tm1,Tm101a_M78-L5,Tm1a,Tm2,Tm25,Tm3,Tm4,Tm4a,Tm5c",
+    "predicate_input_types": "",
+    "predicate_output_types": "L2,Mi4,Tm1,Tm2",
+    "precision": "0.9135802469135802",
+    "recall": "0.7789473684210526",
+    "f_score": "0.8409090909090909"
+  },
+  "Tm5c": {
+    "cells": "448",
+    "all_input_types": "C2,Dm1,Dm10,Dm101_6,Dm11,Dm12,Dm15,Dm2,Dm3,Dm8,Dm9,L1,L2,L3,L5,LLP100_L5a6-LP1234,Lai,Li107_56,Li108b_345a6,Li120_5-5,Li121_56,Li122_56,Li123_56,ML100_M47-L6,ML104_M47-L6,ML105_M6-L5,Mi1,Mi10,Mi15,Mi2,Mi4,Mi9,Mti104_78,Mti106_7,Mti108_7,Mti110_678,Mti112_67,Pm101_8,SDm100_67,SDm101_67,SDm102_67,T1,T2,T2a,T4a,Tlp4,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm16,Tm20,Tm21,Tm24,Tm25,Tm3,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY12,TmY15,TmY17,TmY20,TmY4,TmY5a,Y3",
+    "all_output_types": "C3,Dm10,Dm101_6,Dm12,Dm13,Dm16,Dm2,Dm20,Dm3,Dm8,L3,L5,LC14,LLP100_L5a6-LP1234,LM102a_L234-M89,LM102b_L3-M8,Lawf1,Lawf2,Li102_23,Li103_23,Li107_56,Li108a_345a6,Li108b_345a6,Li109_456,Li115_3,Li116_234,Li120_5-5,Li121_56,Li122_56,Li123_56,ML101_M89-L235,ML102_M24-L45,ML105_M6-L5,ML106_M67-L6,Mi1,Mi10,Mi104_1468,Mi15,Mi2,Mi4,Mi9,Mt5,Mti103_7,Mti105_67,Mti108_7,Mti110_678,Mti112_67,Mti123_37,Pm1,Pm101_8,Pm1a,Pm2,Pm3,Pm4,SDm100_67,SDm101_67,SDm102_67,T2,T2a,T3,T4a,Tlp4,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm11,Tm16,Tm20,Tm21,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5b,Tm5c,Tm6,Tm7,Tm8,TmY10,TmY12,TmY15,TmY16,TmY17,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y3,Y4",
+    "predicate_input_types": "L3",
+    "predicate_output_types": "Dm2,Mi15",
+    "precision": "0.45893719806763283",
+    "recall": "0.42410714285714285",
+    "f_score": "0.4408352668213457"
+  },
+  "Dm18": {
+    "cells": "22",
+    "all_input_types": "C3,Dm1,Dm10,Dm16,Dm18,Dm20,Dm8,L1,L5,Lai,Lawf1,Mi1,Mi2,Mi4,Mi9,T1,T2,Tm2,Tm21,Tm25,Tm5a,TmY5a",
+    "all_output_types": "Dm1,Dm14,Dm16,Dm18,Dm19,Dm20,Dm6,Dm8,L2,L5,Lai,ML102_M24-L45,Mi1,T2,T2a,Tm2,Tm21,Tm4,Tm6,TmY10,TmY3",
+    "predicate_input_types": "TmY5a",
+    "predicate_output_types": "Dm16",
+    "precision": "1.0",
+    "recall": "0.9090909090909091",
+    "f_score": "0.9523809523809523"
+  },
+  "TmY12": {
+    "cells": "431",
+    "all_input_types": "Dm101_6,Dm102b_6,Dm2,Dm8,L3,L5,LM102a_L234-M89,LM102b_L3-M8,LPi2b,Li102_23,Li103_24,ML101_M89-L235,Mi1,Mi10,Mi14,Mi15,Mi2,Mi4,Mi9,Mti107_67,Mti112_67,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,SDm100_67,SDm102_67,T1,T2a,T3,T4a,T4b,T5a,Tm1,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm24,Tm25,Tm3,Tm4,Tm5,Tm5c,Tm8,TmY11,TmY12,TmY15,TmY17,TmY20,TmY3,TmY5a,Y1",
+    "all_output_types": "L1,LC14,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li102_23,Li103_23,Li105_235,Li108_345a6,Li108a_345a6,Li109_456,Li116_234,Lpi105_4-34,ML100_M47-L6,ML101_M89-L235,ML103_M89-L6,Mi10,Mi4,Mi9,Pm101_8,Pm102_8,Pm1a,Pm2,Pm3,Pm4,T2,T2a,Tm1,Tm21,Tm24,Tm25,Tm4,Tm5c,Tm7,Tm8,TmY11,TmY12,TmY15,TmY17,TmY3,TmY4,TmY5a,Y1,Y3",
+    "predicate_input_types": "Mi1,Mi4,Pm4",
+    "predicate_output_types": "",
+    "precision": "0.459866220735786",
+    "recall": "0.6380510440835266",
+    "f_score": "0.5344995140913509"
+  },
+  "Tlp1": {
+    "cells": "76",
+    "all_input_types": "LLP100_L5a6-LP1234,LM102a_L234-M89,LPi1-2,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Li100_5,Li108_345a6,Li108a_345a6,Li108b_345a6,Lpc101-34,Lpi101_34-34,Lpi102_12,Lpi105_4-34,Lpi106_2,Lpi108_43,Lpt104_12,Pm101_8,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp5,Tlp6,Tm3,Tm4,Tm8,TmY15,TmY16,TmY17,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3",
+    "all_output_types": "H1,LC14,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102a_L234-M89,LPi1-2,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Li100_5,Li103_23,Li103_24,Li108a_345a6,Li111_2,Li116_234,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi108_43,ML101_M89-L235,ML102_M24-L45,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp5,Tlp6,Tm4a,Tm5,TmY14,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "LPi2-1,LPi3-4,T5d",
+    "predicate_output_types": "",
+    "precision": "0.9846153846153847",
+    "recall": "0.8421052631578947",
+    "f_score": "0.9078014184397163"
+  },
+  "LPi100_4-14": {
+    "cells": "17",
+    "all_input_types": "LPi3-4,LPi4-3,Lpi101_34-34,Lpi105_4-34,Lpt104_12,T4d,T5d,Tlp6,TmY20,TmY3,Y12,Y3",
+    "all_output_types": "H1,Lpi102_12,Lpi106_2,Lpt104_12,ML101_M89-L235,Tlp4,Tm23,TmY14,TmY20,Y11,Y3",
+    "predicate_input_types": "LPi3-4,T5d",
+    "predicate_output_types": "TmY20",
+    "precision": "0.8333333333333334",
+    "recall": "0.8823529411764706",
+    "f_score": "0.8571428571428571"
+  },
+  "Y1": {
+    "cells": "84",
+    "all_input_types": "LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102a_L234-M89,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Lawf2,Li100_5,Li105_235,Li108_345a6,Li108a_345a6,Li108b_345a6,Lpi101_34-34,Lpi105_4-34,Lpi106_2,Lpi107_34,Lpi108_43,Mi1,Mi4,Mi9,Mti104_78,Pm1,Pm101_8,Pm103_89,Pm1a,Pm2,Pm3,Pm4,SDm100_67,T2,T2a,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp6,Tm1,Tm16,Tm2,Tm3,Tm4a,Tm5c,Tm8,TmY11,TmY12,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y11",
+    "all_output_types": "C2,LC14,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102a_L234-M89,LM102b_L3-M8,LPi1-2,LPi2b,LPi3-4,LPi34-12,LPi4-3,Li100_5,Li102_23,Li108a_345a6,Li108b_345a6,Li110_56,Li111_2,Lpi104_1-2,ML101_M89-L235,ML102_M24-L45,Mi4,Mti104_78,Mti128_7,Olt,Pm1,Pm101_8,Pm1a,Pm2,Pm3,Pm4,T2,T3,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp5,Tm101b_M78-L5,Tm2,Tm20,Tm21,Tm24,Tm3,Tm4,Tm5,TmY10,TmY11,TmY12,TmY14,TmY15,TmY20,TmY3,TmY4,TmY5a,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "LPi34-12,TmY16",
+    "predicate_output_types": "Pm2,T4a,T5a",
+    "precision": "0.95",
+    "recall": "0.9047619047619048",
+    "f_score": "0.926829268292683"
+  },
+  "Mti126_67": {
+    "cells": "3",
+    "all_input_types": "Dm2,ML106_M67-L6,Mi10,Mti102_76,Mti104_78,Mti105_67,Mti107_67,SDm102_67,Tm8,TmY5a",
+    "all_output_types": "Dm8,ML105_M6-L5,Mti108_7,Mti112_67,Tm7,Tm8",
+    "predicate_input_types": "ML106_M67-L6,Mti102_76,Mti104_78,TmY5a",
+    "predicate_output_types": "Tm7",
+    "precision": "1.0",
+    "recall": "0.6666666666666666",
+    "f_score": "0.8"
+  },
+  "Pm2": {
+    "cells": "185",
+    "all_input_types": "C2,C3,Dm10,Dm19,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Lawf2,Li103_23,Li103_24,Li105_235,Li115_3,Li116_234,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi1,Mi10,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mt5,Mti104_78,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T1,T2,T2a,T3,T4c,Tm1,Tm100_M68-L5,Tm102_M2378-L6,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5c,Tm7,TmY1,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "C2,C3,Dm19,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Lawf1,Lawf2,Li101_23,Li102_23,Li103_23,Li116_234,ML100_M47-L6,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mt5,Mti104_78,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T1,T2,T2a,T3,T4a,T4b,T4c,T4d,Tm1,Tm102_M2378-L6,Tm16,Tm1a,Tm2,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm5a,Tm9,TmY11,TmY12,TmY14,TmY15,TmY16,TmY3,TmY5,TmY5a,Y1,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "Mi1,Pm2,Pm4,Tm1",
+    "predicate_output_types": "Pm1,Pm2",
+    "precision": "0.9081081081081082",
+    "recall": "0.9081081081081082",
+    "f_score": "0.9081081081081082"
+  },
+  "Tm100_M68-L5": {
+    "cells": "83",
+    "all_input_types": "LLpt101_L56-Lp2,LM101_L234-M89,Li107_56,Li120_5-5,Li122_56,ML101_M89-L235,ML105_M6-L5,Mti112_67,Mti115_367,Pm101_8,Pm4,T2a,Tm100_M68-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm16,Tm19,Tm20,Tm24,Tm25,Tm3,Tm5,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY11,TmY17,TmY20,TmY4,TmY5a,TmY9,Y3",
+    "all_output_types": "LC14,LC14b,LM102a_L234-M89,LM102b_L3-M8,Li102_23,Li103_23,Li103_24,Li105_235,Li108b_345a6,Li110_56,Li120_5-5,Li121_56,ML101_M89-L235,Mi104_1468,Pm101_8,Pm2,Tm100_M68-L5,Tm102_M2378-L6,Tm24,Tm5,Tm5c,Tm7,Tm8,TmY10,TmY17,TmY4,TmY5a,Y3",
+    "predicate_input_types": "TmY11",
+    "predicate_output_types": "Tm24,TmY5a",
+    "precision": "0.5131578947368421",
+    "recall": "0.46987951807228917",
+    "f_score": "0.49056603773584906"
+  },
+  "Mi2": {
+    "cells": "375",
+    "all_input_types": "C2,C3,Dm10,Dm11,Dm12,Dm19,Dm2,Dm4,Dm6,L1,L2,L3,L5,LM101_L234-M89,LM102a_L234-M89,ML101_M89-L235,ML104_M47-L6,Mi1,Mi10,Mi15,Mi2,Mi4,Mi9,Mti104_78,Mti106_7,Pm1,Pm103_89,Pm1a,Pm2,Pm4,T1,T3,Tm1,Tm1a,Tm2,Tm20,Tm25,Tm3,Tm4,Tm4a,Tm5c,Tm8,TmY1,TmY10,TmY5a,TmY9,Y3,Y4",
+    "all_output_types": "Dm10,Dm18,Dm19,Lawf1,ML100_M47-L6,Mi1,Mi10,Mi104_1468,Mi14,Mi2,Mi4,Mi9,Pm101_8,Pm102_8,Pm1a,Pm2,Pm3,Pm4,SDm100_67,SDm102_67,T2,T2a,T3,Tm1,Tm1a,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm5c,Tm6,Tm8,Tm9,TmY10,TmY12,TmY3,TmY5,TmY5a,TmY9",
+    "predicate_input_types": "Mi1,Pm4",
+    "predicate_output_types": "Pm2,Tm21",
+    "precision": "0.5873925501432665",
+    "recall": "0.5466666666666666",
+    "f_score": "0.5662983425414365"
+  },
+  "Tm21": {
+    "cells": "574",
+    "all_input_types": "C3,Dm1,Dm10,Dm100_125,Dm12,Dm16,Dm18,Dm19,Dm2,Dm6,Dm8,Dm9,L1,L2,L5,LM102a_L234-M89,LM102b_L3-M8,Lai,Lawf2,Li102_23,Li103_23,Li105_235,Li107_56,Li108b_345a6,Li115_3,Li116_234,Li119_2,ML101_M89-L235,ML102_M24-L45,Mi1,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mt5,Pm1,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T1,T2,T2a,T3,Tlp4,Tm1,Tm16,Tm1a,Tm2,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5c,Tm9,TmY10,TmY12,TmY15,TmY5a,Y1,Y3,Y4",
+    "all_output_types": "Dm18,LC14,LM102a_L234-M89,LM102b_L3-M8,Li102_23,Li105_235,Li108b_345a6,Li115_3,Li120_5-5,ML101_M89-L235,Mi1,Mi4,Pm101_8,Pm102_8,Pm103_89,Pm2,Pm3,Pm4,T2,T2a,T3,Tm1,Tm101a_M78-L5,Tm101b_M78-L5,Tm21,Tm24,Tm5a,Tm5c,Tm6,Tm8,TmY10,TmY12,TmY15,TmY16,TmY17,TmY4,TmY5a,Y3",
+    "predicate_input_types": "Tm1",
+    "predicate_output_types": "Li115_3",
+    "precision": "0.8882575757575758",
+    "recall": "0.8170731707317073",
+    "f_score": "0.8511796733212341"
+  },
+  "Dm16": {
+    "cells": "40",
+    "all_input_types": "Dm14,Dm18,Dm20,L2,Mi15,Mi9,Tm1,Tm1a,Tm2,Tm5c,TmY10",
+    "all_output_types": "Dm1,Dm15,Dm18,L2,Mi104_1468,Mi13,Mi9,T2,Tm2,Tm21,Tm25,TmY5a",
+    "predicate_input_types": "Dm18,Tm2",
+    "predicate_output_types": "Mi9,T2",
+    "precision": "0.6458333333333334",
+    "recall": "0.775",
+    "f_score": "0.7045454545454546"
+  },
+  "Y3": {
+    "cells": "304",
+    "all_input_types": "C2,Dm11,Dm2,Dm9,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102a_L234-M89,LPi100_4-14,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Li100_5,Li108a_345a6,Li108b_345a6,Li110_56,Li121_56,Lpc101-34,Lpi101_34-34,Lpi104_1-2,Lpi105_4-34,Lpi107_34,Lpi108_43,Lpt104_12,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi13,Mi14,Mi4,Mi9,Olt,Pm1,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T1,T3,T4a,T4c,T4d,T5a,T5c,T5d,Tlp1,Tlp4,Tlp5,Tlp6,Tm1,Tm100_M68-L5,Tm102_M2378-L6,Tm16,Tm1a,Tm2,Tm21,Tm25,Tm3,Tm4,Tm5,Tm5a,Tm5c,Tm7,Tm8,TmY1,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y3",
+    "all_output_types": "C2,Dm19,Dm2,Dm5,Dm8,LC14,LC14b,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102a_L234-M89,LM102b_L3-M8,LPi100_4-14,LPi3-4,LPi34-12,Lawf2,Li100_5,Li102_23,Li103_23,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li111_2,Li115_3,Li116_234,Li120_5-5,Li121_56,Li122_56,Lpi101_34-34,MC61,ML101_M89-L235,ML102_M24-L45,ML105_M6-L5,Mi1,Mi10,Mi13,Mi14,Mi2,Mi4,Mi9,Mti104_78,Mti122_78,Pm1,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,SDm101_67,SDm102_67,T2,T2a,T3,T5a,Tlp1,Tlp4,Tlp5,Tm1,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm11,Tm16,Tm19,Tm1a,Tm2,Tm20,Tm21,Tm24,Tm25,Tm3,Tm4,Tm5,Tm5a,Tm5b,Tm5c,Tm7,Tm8,TmY1,TmY10,TmY11,TmY14,TmY15,TmY16,TmY17,TmY20,TmY4,TmY5a,TmY9,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "Tm1,TmY5a",
+    "predicate_output_types": "Li110_56",
+    "precision": "0.9863481228668942",
+    "recall": "0.9506578947368421",
+    "f_score": "0.9681742043551089"
+  },
+  "L2": {
+    "cells": "747",
+    "all_input_types": "C2,C3,Dm1,Dm12,Dm14,Dm15,Dm16,Dm17,Dm18,Dm19,Dm2,Dm3,Dm6,L1,L2,L3,L4,L5,Lai,Lawf1,Lawf2,Mi1,Mi104_1468,Mi13,Mi14,Mi15,Mi4,R1-6,T1,T2,Tm1,Tm1a,Tm2,Tm25,Tm3,Tm4,Tm4a",
+    "all_output_types": "C2,C3,Dm1,Dm12,Dm14,Dm15,Dm16,Dm17,Dm19,Dm20,Dm3,Dm4,Dm6,L1,L2,L3,L4,L5,Lai,ML102_M24-L45,Mi1,Mi104_1468,Mi13,Mi14,Mi2,Mi4,Mi9,R1-6,T1,T2,T2a,Tm1,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5c,Tm9,TmY10,TmY11,TmY16,TmY3,TmY5a,TmY9",
+    "predicate_input_types": "Dm1",
+    "predicate_output_types": "Dm19,Tm2",
+    "precision": "0.971976401179941",
+    "recall": "0.8821954484605087",
+    "f_score": "0.9249122807017544"
+  },
+  "Tlp6": {
+    "cells": "29",
+    "all_input_types": "LM102a_L234-M89,LPi3-4,LPi4-3,Lpi105_4-34,Lpi108_43,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp6,Tm16,Tm5a,Tm8,TmY15,TmY4,TmY5a,Y11",
+    "all_output_types": "LLP100_L5a6-LP1234,LM102a_L234-M89,LPi100_4-14,LPi2b,LPi3-4,LPi34-12,LPi4-3,Li102_23,Li103_24,Li108a_345a6,Lpc101-34,Lpi102_12,Lpi105_4-34,Lpi107_34,Lpi108_43,Lpt104_12,ML102_M24-L45,T4c,T5c,Tlp1,Tlp4,Tlp5,Tlp6,Tm2,TmY14,TmY15,TmY3,TmY5a,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "T5c,TmY5a",
+    "predicate_output_types": "T4c",
+    "precision": "0.90625",
+    "recall": "1.0",
+    "f_score": "0.9508196721311475"
+  },
+  "Tlp4": {
+    "cells": "47",
+    "all_input_types": "LLP100_L5a6-LP1234,LM102a_L234-M89,LM102b_L3-M8,LPi1-2,LPi100_4-14,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Li100_5,Li108_345a6,Li108a_345a6,Li108b_345a6,Li121_56,Lpc101-34,Lpi101_34-34,Lpi102_12,Lpi105_4-34,Lpi106_2,Lpi107_34,Lpi108_43,Lpt104_12,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp6,Tm16,Tm19,Tm24,Tm4,Tm5c,TmY15,TmY16,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y11,Y3",
+    "all_output_types": "H1,LC14,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LPi1-2,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Li100_5,Li103_24,Li105_235,Li110_56,Li120_5-5,Lpi101_34-34,Lpi102_12,Lpi104_1-2,Lpi108_43,Lpt104_12,ML101_M89-L235,ML102_M24-L45,T2,T4a,T4b,T4c,T4d,T5a,T5b,T5c,Tlp1,Tlp4,Tlp5,Tlp6,Tm21,Tm24,Tm4a,Tm5,Tm5c,Tm7,TmY14,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,Y11,Y3",
+    "predicate_input_types": "LPi1-2,LPi2-1,LPi4-3,T5c",
+    "predicate_output_types": "",
+    "precision": "0.8297872340425532",
+    "recall": "0.8297872340425532",
+    "f_score": "0.8297872340425532"
+  },
+  "Tm4a": {
+    "cells": "49",
+    "all_input_types": "C2,C3,Dm1,Dm10,Dm13,Dm14,Dm15,Dm17,Dm19,Dm6,L1,L2,L4,L5,Li116_234,ML102_M24-L45,Mi1,Mi13,Mi14,Mi2,Mi9,Pm102_8,Pm103_89,Pm1a,Pm2,T2a,Tlp1,Tlp4,Tm1,Tm16,Tm1a,Tm2,Tm4,Tm5,Tm5c,TmY15,TmY4",
+    "all_output_types": "C3,Dm19,L2,LC14b,LM100_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li101_23,Li103_23,Li103_24,Li105_235,Li108a_345a6,Li108b_345a6,Li111_2,Li116_234,Li119_2,Li123_56,Li2,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi10,Mi13,Mi14,Mi2,Mi4,Olt,Pm102_8,Pm103_89,Pm1a,Pm2,Pm4,T2a,T3,T5a,T5b,T5c,T5d,Tm101b_M78-L5,Tm21,Tm23,Tm24,Tm4,Tm5a,TmY11,TmY14,TmY15,TmY16,TmY3,TmY5a,TmY9,Y1",
+    "predicate_input_types": "L2",
+    "predicate_output_types": "Pm102_8,TmY15,TmY5a",
+    "precision": "0.06996587030716724",
+    "recall": "0.8367346938775511",
+    "f_score": "0.12913385826771653"
+  },
+  "L3": {
+    "cells": "676",
+    "all_input_types": "Am,C2,C3,Dm10,Dm12,Dm15,Dm2,Dm20,Dm3,Dm4,Dm8,Dm9,L1,L2,L3,L4,L5,Lai,Lawf1,Lawf2,Mi1,Mi10,Mi104_1468,Mi14,Mi4,Mi9,R1-6,R7,SDm100_67,T2,Tm1,Tm16,Tm3,Tm5c,Tm9,TmY3",
+    "all_output_types": "C2,C3,Dm10,Dm102a_6,Dm11,Dm12,Dm15,Dm2,Dm20,Dm3,Dm4,Dm8,Dm9,L1,L2,L3,L4,L5,Lawf1,Lawf2,ML100_M47-L6,ML104_M47-L6,Mi1,Mi10,Mi104_1468,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mti115_367,Mti116_346,Mti123_37,Pm1a,R8,SDm100_67,SDm102_67,T1,T2,T2a,T4a,Tm1,Tm102_M2378-L6,Tm16,Tm2,Tm20,Tm25,Tm3,Tm4,Tm5,Tm5b,Tm5c,Tm8,Tm9,TmY10,TmY11,TmY12,TmY15,TmY3,TmY4,TmY5a,TmY9,Y12",
+    "predicate_input_types": "Dm12",
+    "predicate_output_types": "Mi1",
+    "precision": "0.964110929853181",
+    "recall": "0.8742603550295858",
+    "f_score": "0.9169899146625291"
+  },
+  "SDm102_67": {
+    "cells": "82",
+    "all_input_types": "Dm11,Dm19,Dm2,Dm8,L3,ML101_M89-L235,Mi10,Mi15,Mi2,Mi4,Mti100_347,Mti103_7,Mti104_78,Mti105_67,Mti106_7,Mti112_67,Mti118_7,Mti121_7,Mti123_37,SDm100_67,SDm101_67,SDm102_67,Tm101b_M78-L5,Tm5,Tm5c,Tm8,TmY10,TmY17,TmY20,Y3",
+    "all_output_types": "Dm19,Dm2,Dm8,Mi4,Mt103_67,Mti104_78,Mti110_678,Mti112_67,Mti121_7,Mti122_78,Mti123_37,Mti126_67,Pm102_8,Pm103_89,Pm4,SDm100_67,SDm101_67,SDm102_67,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm1a,Tm5,Tm5c,Tm7,Tm8,TmY12,TmY17,TmY4,TmY5a",
+    "predicate_input_types": "Dm2",
+    "predicate_output_types": "Mti104_78,Tm8",
+    "precision": "0.9066666666666666",
+    "recall": "0.8292682926829268",
+    "f_score": "0.8662420382165605"
+  },
+  "TmY10": {
+    "cells": "177",
+    "all_input_types": "Dm100_125,Dm101_6,Dm102b_6,Dm12,Dm18,Dm8,L2,L3,L5,Li108_345a6,Li108a_345a6,Li108b_345a6,Li110_56,Li116_234,Li118_6,Li121_56,Lpt104_12,ML102_M24-L45,Mi1,Mi104_1468,Mi15,Mi2,Mi4,Mi9,Mti105_67,Mti116_346,Mti123_37,Pm102_8,Pm4,SDm100_67,SDm101_67,T3,Tm1,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm2,Tm20,Tm21,Tm4,Tm5,Tm5c,Tm7,Tm8,TmY10,TmY17,TmY20,TmY5a,Y1,Y3",
+    "all_output_types": "Dm12,Dm16,Dm17,Dm19,Dm2,Dm20,Dm3,Dm4,Dm6,Dm9,LC14,LC14b,LM101_L234-M89,Lawf1,Lawf2,Li100_5,Li108_345a6,Li108a_345a6,Li108b_345a6,Li110_56,Li116_234,Li121_56,Li122_56,Li123_56,ML101_M89-L235,ML105_M6-L5,Mi1,Mi10,Mi104_1468,Mi13,Mi15,Mi2,Mi4,Mi9,Mti100_347,Mti104_78,Mti105_67,Mti106_7,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti123_37,Pm101_8,Pm2,Pm3,Pm4,SDm100_67,SDm101_67,SDm102_67,T2a,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm11,Tm16,Tm19,Tm20,Tm21,Tm24,Tm25,Tm4,Tm5,Tm5c,Tm8,Tm9,TmY10,TmY11,TmY16,TmY17,TmY4,TmY5a,TmY9,Y3,Y4",
+    "predicate_input_types": "Mi4,Y3",
+    "predicate_output_types": "Mi4",
+    "precision": "0.5796178343949044",
+    "recall": "0.5141242937853108",
+    "f_score": "0.5449101796407185"
+  },
+  "Pm1a": {
+    "cells": "218",
+    "all_input_types": "C3,L3,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Lawf2,ML101_M89-L235,Mi1,Mi10,Mi14,Mi2,Mi4,Mi9,Mt5,Pm1,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T1,T2,T2a,T3,T4a,T4b,Tm1,Tm16,Tm1a,Tm2,Tm25,Tm3,Tm4,Tm4a,Tm5c,TmY12,TmY14,TmY15,TmY16,TmY3,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "C2,C3,Dm19,Lawf2,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi13,Mi2,Mi4,Mi9,Mt5,Mti104_78,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T1,T2,T2a,T3,T4a,T4b,T4c,T4d,Tm1,Tm101b_M78-L5,Tm1a,Tm2,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm5a,TmY12,TmY14,TmY15,TmY3,TmY5a,TmY9,Y1,Y3,Y4",
+    "predicate_input_types": "",
+    "predicate_output_types": "Pm3,T3,Tm25,TmY5a",
+    "precision": "0.9607843137254902",
+    "recall": "0.8990825688073395",
+    "f_score": "0.9289099526066351"
+  },
+  "Mi10": {
+    "cells": "202",
+    "all_input_types": "C2,Dm1,Dm10,Dm12,Dm17,Dm19,Dm2,Dm20,Dm4,L1,L3,L5,LM102a_L234-M89,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi104_1468,Mi13,Mi15,Mi2,Mi4,Mi9,Mti106_7,Olt,Pm101_8,Pm102_8,Pm103_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,T4a,Tm1,Tm2,Tm20,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY12,TmY15,TmY17,TmY5,TmY5a,Y3,Y4",
+    "all_output_types": "C2,Dm10,Dm101_6,Dm11,Dm12,Dm14,Dm17,Dm19,Dm2,Dm20,Dm3,Dm6,Dm7,Dm8,L1,L3,Lawf1,ML100_M47-L6,ML101_M89-L235,ML102_M24-L45,ML106_M67-L6,Mi1,Mi10,Mi104_1468,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mti100_347,Mti104_78,Mti105_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti122_78,Mti123_37,Mti126_67,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm1a,Pm2,Pm4,SDm102_67,T1,T2,T2a,T3,T4a,T4b,T4c,T4d,T5a,Tm102_M2378-L6,Tm16,Tm2,Tm20,Tm3,Tm4,Tm5,Tm5a,Tm5b,Tm5c,Tm7,Tm8,Tm9,TmY11,TmY12,TmY15,TmY17,TmY3,TmY4,TmY5a,Y3",
+    "predicate_input_types": "Dm4,Mi9",
+    "predicate_output_types": "Dm10,Lawf1",
+    "precision": "0.98989898989899",
+    "recall": "0.9702970297029703",
+    "f_score": "0.98"
+  },
+  "Li102_23": {
+    "cells": "44",
+    "all_input_types": "LM101_L234-M89,LM102a_L234-M89,Li102_23,Li103_23,Li103_24,Li105_235,Li107_56,Li108b_345a6,Li111_2,Li115_3,Li116_234,Li119_2,Li121_56,ML101_M89-L235,Pm2,T2,T2a,T3,Tlp6,Tm1,Tm100_M68-L5,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm24,Tm25,Tm3,Tm5,Tm5c,Tm7,Tm9,TmY11,TmY12,TmY14,TmY15,TmY17,TmY20,TmY4,TmY5a,Y1,Y3",
+    "all_output_types": "LC14,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li101_23,Li102_23,Li103_23,Li103_24,Li105_235,Li111_2,Li119_2,ML101_M89-L235,T2,T2a,T3,Tm2,Tm21,Tm24,Tm25,Tm4,Tm5,TmY12,TmY14,TmY15",
+    "predicate_input_types": "LM101_L234-M89,Pm2,T2a,T3",
+    "predicate_output_types": "T2a,Tm21",
+    "precision": "1.0",
+    "recall": "0.8863636363636364",
+    "f_score": "0.9397590361445783"
+  },
+  "Li101_23": {
+    "cells": "14",
+    "all_input_types": "LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,LM103_L12-M910,Li102_23,Li111_2,Li119_2,Li2,ML101_M89-L235,ML103_M89-L6,Pm2,T2,T2a,T3,Tm16,Tm2,Tm25,Tm3,Tm4a,TmY15,TmY3,TmY4",
+    "all_output_types": "LM102a_L234-M89,Li116_234,Li119_2,T2,T2a,T3,TmY15",
+    "predicate_input_types": "LM101_L234-M89,Li2,T2",
+    "predicate_output_types": "",
+    "precision": "0.875",
+    "recall": "1.0",
+    "f_score": "0.9333333333333333"
+  },
+  "Y11": {
+    "cells": "65",
+    "all_input_types": "L5,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102a_L234-M89,LM102b_L3-M8,LPi1-2,LPi100_4-14,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Li108a_345a6,Lpc101-34,Lpi101_34-34,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi106_2,Lpi107_34,Lpi108_43,Lpt104_12,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi1,Mi4,Pm1,Pm101_8,Pm102_8,Pm104_89,Pm2,Pm4,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp5,Tlp6,Tm1,Tm16,Tm2,Tm3,Tm4,Tm5,Tm5c,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY9,Y1,Y11,Y12,Y3",
+    "all_output_types": "C2,H1,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102b_L3-M8,LPi1-2,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Li100_5,Li103_24,Li105_235,Li108a_345a6,Li110_56,Li111_2,Lpi101_34-34,Lpi104_1-2,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi13,Mi14,Mt5,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm1a,Pm2,Pm3,Pm4,T2,T3,T4a,T4b,T4c,T4d,T5a,T5b,T5c,Tlp1,Tlp4,Tlp6,Tm16,Tm2,Tm24,Tm3,TmY11,TmY14,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY9,Y1,Y11,Y3",
+    "predicate_input_types": "Lpi105_4-34,T5c,TmY17",
+    "predicate_output_types": "LPi3-4",
+    "precision": "0.6333333333333333",
+    "recall": "0.8769230769230769",
+    "f_score": "0.7354838709677419"
+  },
+  "Li108a_345a6": {
+    "cells": "117",
+    "all_input_types": "LLP100_L5a6-LP1234,LM102a_L234-M89,LM102b_L3-M8,Li100_5,Li103_24,Li105_235,Li108a_345a6,Li108b_345a6,Li110_56,Li121_56,Li122_56,ML101_M89-L235,ML106_M67-L6,T2a,T3,T5a,Tlp1,Tlp6,Tm101b_M78-L5,Tm102_M2378-L6,Tm11,Tm16,Tm2,Tm20,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY1,TmY10,TmY11,TmY12,TmY15,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y3",
+    "all_output_types": "LC14,LC14b,LLP100_L5a6-LP1234,LM102a_L234-M89,LM102b_L3-M8,Li100_5,Li103_23,Li103_24,Li105_235,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li121_56,Li122_56,Li123_56,ML101_M89-L235,Tlp1,Tlp4,Tlp5,Tm102_M2378-L6,Tm11,Tm16,Tm24,Tm5,Tm7,TmY10,TmY16,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "LLP100_L5a6-LP1234,TmY11,Y3",
+    "predicate_output_types": "",
+    "precision": "0.6984126984126984",
+    "recall": "0.7521367521367521",
+    "f_score": "0.7242798353909465"
+  },
+  "Mti122_78": {
+    "cells": "22",
+    "all_input_types": "ML101_M89-L235,Mi1,Mi10,Mi9,Mti104_78,Mti106_7,Mti108_7,Mti110_678,Mti114_678,Pm4,SDm102_67,Tm101b_M78-L5,Tm20,Tm3,TmY5a,Y3",
+    "all_output_types": "Mti104_78,Pm101_8,Pm4,T2a,Tm101b_M78-L5,Tm20",
+    "predicate_input_types": "Tm20",
+    "predicate_output_types": "Pm4,Tm20",
+    "precision": "0.5384615384615384",
+    "recall": "0.9545454545454546",
+    "f_score": "0.6885245901639344"
+  },
+  "ML105_M6-L5": {
+    "cells": "46",
+    "all_input_types": "Dm11,Dm2,Dm8,LM101_L234-M89,Li105_235,MC61,ML101_M89-L235,ML106_M67-L6,Mti104_78,Mti107_67,Mti108_7,Mti110_678,Mti126_67,SDm100_67,Tm101b_M78-L5,Tm16,Tm25,Tm4,Tm5,Tm5c,Tm7,Tm8,TmY10,TmY17,TmY4,Y3",
+    "all_output_types": "Dm11,Dm2,Dm4,Dm8,LM101_L234-M89,Li105_235,Li120_5-5,Li123_56,ML101_M89-L235,Mi104_1468,Mt103_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Tm100_M68-L5,Tm101b_M78-L5,Tm24,Tm5,Tm5c,Tm7,Tm8,TmY17,TmY4",
+    "predicate_input_types": "Tm5c",
+    "predicate_output_types": "Li120_5-5",
+    "precision": "0.24242424242424243",
+    "recall": "0.5217391304347826",
+    "f_score": "0.3310344827586207"
+  },
+  "Tm1a": {
+    "cells": "44",
+    "all_input_types": "C2,C3,Dm1,Dm15,Dm17,Dm19,Dm20,Dm6,L1,L2,Lawf2,Li119_2,Li120_5-5,Li121_56,ML101_M89-L235,Mi1,Mi13,Mi14,Mi2,Mi4,Mi9,Mti112_67,Pm1,Pm1a,Pm2,Pm3,Pm4,SDm102_67,T1,Tm16,Tm2,Tm25,Tm5b,Tm8,TmY11,TmY15,TmY17,TmY20,Y3,Y4",
+    "all_output_types": "C3,Dm12,Dm16,Dm2,Dm20,Dm3,L1,L2,L5,Lawf2,Li102_23,Li119_2,Li120_5-5,Li2,ML100_M47-L6,ML101_M89-L235,ML102_M24-L45,Mi1,Mi13,Mi2,Mi4,Mi9,Mti105_67,Pm1,Pm101_8,Pm104_89,Pm1a,Pm2,Pm4,SDm100_67,T1,T2,T2a,T3,T4a,T5a,T5b,T5c,T5d,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm2,Tm20,Tm21,Tm23,Tm24,Tm25,Tm4,Tm4a,Tm5,Tm9,TmY12,TmY15,TmY16,TmY17,TmY20,TmY4,TmY9,Y3",
+    "predicate_input_types": "L2,Pm2",
+    "predicate_output_types": "Pm1,Pm1a,Pm2,T3",
+    "precision": "0.05710102489019034",
+    "recall": "0.8863636363636364",
+    "f_score": "0.10729023383768914"
+  },
+  "Tm101a_M78-L5": {
+    "cells": "66",
+    "all_input_types": "Dm15,Dm19,Dm2,Dm8,Li107_56,Li108b_345a6,ML100_M47-L6,ML106_M67-L6,Mi13,Mi15,Mti103_7,Mti104_78,Mti106_7,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti120_7,Pm101_8,Pm102_8,Pm4,SDm100_67,SDm101_67,SDm102_67,Tm101a_M78-L5,Tm101b_M78-L5,Tm11,Tm16,Tm1a,Tm20,Tm21,Tm25,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY17,TmY5a,Y3",
+    "all_output_types": "Dm19,LM102b_L3-M8,Li107_56,Li108b_345a6,Li109_456,Li110_56,Li115_3,Li118_6,Li120_5-5,Li121_56,Li122_56,ML100_M47-L6,ML106_M67-L6,Mti104_78,Mti108_7,Mti128_7,SDm100_67,SDm101_67,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm25,Tm5,Tm5c,Tm8,TmY10,TmY11,TmY17,TmY5a",
+    "predicate_input_types": "Mti104_78",
+    "predicate_output_types": "Li108b_345a6,Tm8",
+    "precision": "0.49333333333333335",
+    "recall": "0.5606060606060606",
+    "f_score": "0.524822695035461"
+  },
+  "Tm24": {
+    "cells": "90",
+    "all_input_types": "LC14,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,LPi1-2,LPi2-1,Li100_5,Li102_23,Li103_23,Li103_24,Li105_235,Li107_56,Li108a_345a6,Li108b_345a6,Li110_56,Li115_3,Li120_5-5,Li121_56,Li122_56,Li123_56,MC61,ML101_M89-L235,ML105_M6-L5,Mti105_67,T2,T2a,T3,T4c,Tlp4,Tm100_M68-L5,Tm101b_M78-L5,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm24,Tm3,Tm4,Tm4a,Tm5,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY11,TmY12,TmY15,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y11,Y3,Y4",
+    "all_output_types": "LC14,LLP100_L5a6-LP1234,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li102_23,Li103_23,Li105_235,Li108a_345a6,Li108b_345a6,Li122_56,Li123_56,ML101_M89-L235,Pm2,T3,Tlp4,Tm100_M68-L5,Tm24,Tm25,Tm5,Tm5c,Tm8,TmY12,TmY15,TmY5a,Y4",
+    "predicate_input_types": "Li121_56,Tm5",
+    "predicate_output_types": "Li105_235",
+    "precision": "0.9358974358974359",
+    "recall": "0.8111111111111111",
+    "f_score": "0.8690476190476191"
+  },
+  "Mi14": {
+    "cells": "122",
+    "all_input_types": "Dm13,Dm14,Dm15,Dm17,Dm19,Dm20,Dm6,L2,L3,L5,ML102_M24-L45,Mi1,Mi10,Mi104_1468,Mi15,Mi2,Mi4,Mi9,Mti104_78,Mti121_7,Pm101_8,Pm102_8,Pm103_89,Pm2,Pm3,Pm4,T1,T2,Tm1,Tm2,Tm20,Tm3,Tm4,Tm4a,TmY11,TmY17,TmY3,TmY5a,TmY9,Y11,Y3,Y4",
+    "all_output_types": "C2,Dm1,Dm104_12,Dm20,L2,L3,ML101_M89-L235,ML103_M89-L6,Mi1,Mi104_1468,Mi4,Mi9,Pm101_8,Pm102_8,Pm103_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,Tm1,Tm1a,Tm2,Tm21,Tm25,Tm3,Tm4,Tm4a,TmY12,TmY3,Y3",
+    "predicate_input_types": "Tm3,Tm4",
+    "predicate_output_types": "Mi104_1468",
+    "precision": "0.9574468085106383",
+    "recall": "0.7377049180327869",
+    "f_score": "0.8333333333333334"
+  },
+  "Lawf2": {
+    "cells": "162",
+    "all_input_types": "Dm1,Dm13,Dm19,L1,L3,L4,L5,LM101_L234-M89,LM102b_L3-M8,Lawf2,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi1,Mi4,Mi9,Mt5,Mti100_347,Mti115_367,Pm1,Pm101_8,Pm1a,Pm2,Pm3,Pm4,T2,T3,Tm1,Tm16,Tm1a,Tm2,Tm3,Tm4,Tm5,Tm5c,Tm8,TmY1,TmY10,TmY14,TmY17,TmY3,TmY4,TmY5a,TmY9,Y3",
+    "all_output_types": "Am,C2,C3,Dm19,L2,L3,L5,Lai,Lawf1,Lawf2,Mi1,Mi13,Pm1a,Pm2,Pm3,T1,T2,T2a,Tm1,Tm1a,Tm2,Tm21,Tm4,Tm9,TmY14,TmY16,Y1",
+    "predicate_input_types": "TmY17",
+    "predicate_output_types": "L5",
+    "precision": "1.0",
+    "recall": "0.7160493827160493",
+    "f_score": "0.8345323741007195"
+  },
+  "LM102a_L234-M89": {
+    "cells": "47",
+    "all_input_types": "Dm19,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,LPi2b,Li101_23,Li102_23,Li103_23,Li103_24,Li105_235,Li108_345a6,Li108a_345a6,Li108b_345a6,Li111_2,Li116_234,Li2,ML101_M89-L235,ML102_M24-L45,Mi1,Mt5,Pm101_8,Pm102_8,Pm103_89,Pm2,T2,T2a,T3,T4a,T5a,Tlp1,Tlp5,Tlp6,Tm1,Tm100_M68-L5,Tm16,Tm2,Tm20,Tm21,Tm24,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5c,Tm8,TmY12,TmY15,TmY17,TmY3,TmY4,TmY5a,TmY9,Y1,Y3,Y4",
+    "all_output_types": "Dm19,Dm2,LC14,LC14b,LLpt101_L56-Lp2,LM102a_L234-M89,LM102b_L3-M8,LM103_L12-M910,Li100_5,Li101_23,Li102_23,Li103_23,Li103_24,Li105_235,Li107_56,Li108_345a6,Li108a_345a6,Li108b_345a6,Li116_234,Li2,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi13,Mi2,Mt5,Mti104_78,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,T4c,Tlp1,Tlp4,Tlp5,Tlp6,Tm1,Tm16,Tm21,Tm24,Tm4,Tm5a,Tm8,Tm9,TmY12,TmY14,TmY15,TmY16,TmY17,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "ML101_M89-L235,T2,TmY15",
+    "predicate_output_types": "ML101_M89-L235",
+    "precision": "0.1935483870967742",
+    "recall": "0.2553191489361702",
+    "f_score": "0.22018348623853212"
+  },
+  "Tm25": {
+    "cells": "321",
+    "all_input_types": "C2,C3,Dm1,Dm10,Dm11,Dm14,Dm15,Dm16,Dm2,Dm3,Dm8,L1,L2,L3,L4,L5,Lai,Li102_23,Li121_56,Mi1,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mt5,Mti115_367,Pm1,Pm101_8,Pm1a,Pm2,Pm3,SDm101_67,T1,T2,T2a,T3,Tm1,Tm101a_M78-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm1a,Tm2,Tm20,Tm24,Tm25,Tm3,Tm4,Tm5,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY12,TmY17,TmY3,TmY9,Y3",
+    "all_output_types": "Dm1,Dm18,Dm2,Dm3,L2,L5,LC14,LM101_L234-M89,Li100_5,Li101_23,Li102_23,Li103_23,Li103_24,Li107_56,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li120_5-5,Li123_56,ML101_M89-L235,ML105_M6-L5,Mi1,Mi10,Mi15,Mi2,Mti102_76,Pm1,Pm102_8,Pm103_89,Pm1a,Pm2,T2,Tm1,Tm100_M68-L5,Tm101a_M78-L5,Tm1a,Tm2,Tm21,Tm25,Tm3,Tm4,Tm5,Tm5c,Tm7,Tm8,TmY12,TmY15,TmY5a,TmY9,Y3",
+    "predicate_input_types": "L5,Mi1,Pm1a,Y3",
+    "predicate_output_types": "",
+    "precision": "0.9639175257731959",
+    "recall": "0.5825545171339563",
+    "f_score": "0.7262135922330097"
+  },
+  "ML103_M89-L6": {
+    "cells": "39",
+    "all_input_types": "C3,LM102a_L234-M89,ML101_M89-L235,Mi1,Mi13,Mi14,Mi9,Olt,Pm1,Pm102_8,Pm103_89,Pm1a,Pm2,Tm101b_M78-L5,Tm16,Tm2,Tm4,Tm4a,TmY12,TmY15,TmY3,Y11,Y4",
+    "all_output_types": "C2,Dm19,LLP100_L5a6-LP1234,Lawf2,Li101_23,Li103_23,Li110_56,ML101_M89-L235,Mi10,Mi4,Mti104_78,Olt,Pm101_8,Pm102_8,Pm103_89,Pm2,Pm4,SDm101_67,T2a,T3,Tm16,Tm3,Tm4,Tm8,TmY1,TmY11,TmY15,TmY17,TmY4,TmY5a,Y11,Y3",
+    "predicate_input_types": "ML101_M89-L235",
+    "predicate_output_types": "Pm101_8,Pm102_8,Tm16",
+    "precision": "0.9473684210526315",
+    "recall": "0.9230769230769231",
+    "f_score": "0.935064935064935"
+  },
+  "ML100_M47-L6": {
+    "cells": "47",
+    "all_input_types": "Dm10,Dm2,Dm20,Dm4,Dm8,L3,Li100_5,Li108b_345a6,Mi10,Mi2,Mi4,Mi9,Mti102_76,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti115_367,Pm102_8,Pm103_89,Pm2,SDm101_67,Tm101a_M78-L5,Tm16,Tm1a,Tm3,TmY11,TmY12,TmY4,TmY5a",
+    "all_output_types": "Dm11,Dm4,Dm8,LLP100_L5a6-LP1234,Li108b_345a6,Li121_56,Li122_56,Mi13,Mi4,Mti110_678,Mti123_37,Mti124_67,Pm101_8,Tm101a_M78-L5,Tm101b_M78-L5,Tm2,Tm5,Tm5c,Tm7,Tm8,TmY11,TmY20,TmY9",
+    "predicate_input_types": "Mi9,Mti104_78",
+    "predicate_output_types": "Li122_56",
+    "precision": "0.96",
+    "recall": "0.5106382978723404",
+    "f_score": "0.6666666666666666"
+  },
+  "Tm101b_M78-L5": {
+    "cells": "114",
+    "all_input_types": "Dm19,Dm2,Dm7,Dm8,LLP100_L5a6-LP1234,Li100_5,Li105_235,Li107_56,Li108b_345a6,ML100_M47-L6,ML101_M89-L235,ML105_M6-L5,Mi1,Mti104_78,Mti105_67,Mti108_7,Mti110_678,Mti114_678,Mti119_7,Mti122_78,Pm102_8,Pm103_89,Pm1a,Pm4,SDm100_67,SDm101_67,SDm102_67,Tm101a_M78-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm16,Tm1a,Tm20,Tm21,Tm4a,Tm5,Tm5a,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY4,TmY5a,Y1,Y3",
+    "all_output_types": "Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li115_3,Li121_56,Li122_56,ML103_M89-L6,ML105_M6-L5,Mi1,Mi104_1468,Mi4,Mti104_78,Mti108_7,Mti110_678,Mti114_678,Mti122_78,Pm101_8,Pm4,SDm100_67,SDm102_67,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm11,Tm16,Tm2,Tm20,Tm24,Tm25,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY17,TmY5a",
+    "predicate_input_types": "Mti104_78",
+    "predicate_output_types": "",
+    "precision": "0.09077598828696926",
+    "recall": "0.543859649122807",
+    "f_score": "0.15558343789209536"
+  },
+  "Li122_56": {
+    "cells": "60",
+    "all_input_types": "Dm2,LLP100_L5a6-LP1234,Li100_5,Li105_235,Li107_56,Li108a_345a6,Li108b_345a6,Li120_5-5,Li121_56,Li122_56,Li123_56,MC61,ML100_M47-L6,ML101_M89-L235,ML106_M67-L6,Mi1,Mi104_1468,Tm101a_M78-L5,Tm101b_M78-L5,Tm11,Tm16,Tm2,Tm20,Tm24,Tm3,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY17,TmY4,TmY5a,Y3",
+    "all_output_types": "LC14,LLP100_L5a6-LP1234,LM101_L234-M89,Li105_235,Li107_56,Li108a_345a6,Li108b_345a6,Li109_456,Li120_5-5,Li121_56,Li122_56,Li123_56,ML101_M89-L235,Tm100_M68-L5,Tm16,Tm24,Tm5,Tm5c,Tm7,Tm8,TmY15,TmY20,TmY4",
+    "predicate_input_types": "Tm8,TmY17",
+    "predicate_output_types": "Tm24",
+    "precision": "0.532258064516129",
+    "recall": "0.55",
+    "f_score": "0.5409836065573771"
+  },
+  "Dm20": {
+    "cells": "45",
+    "all_input_types": "C2,C3,Dm10,Dm12,Dm15,Dm18,Dm19,Dm2,Dm20,Dm3,Dm4,Dm8,L1,L2,L3,L5,Mi1,Mi10,Mi104_1468,Mi14,Mi15,Mi4,Mi9,Mti100_347,Mti115_367,Mti120_7,T1,Tm1,Tm102_M2378-L6,Tm16,Tm1a,Tm2,Tm4,Tm5,Tm5c,Tm8,TmY10,TmY15,TmY5a",
+    "all_output_types": "Dm1,Dm10,Dm11,Dm12,Dm16,Dm17,Dm18,Dm19,Dm2,Dm20,Dm6,L3,Lawf1,ML100_M47-L6,ML102_M24-L45,Mi10,Mi14,Mi4,Mi9,T1,T2,T2a,Tm1,Tm16,Tm1a,Tm2,Tm3,Tm4,Tm5,Tm5b,Tm7,TmY11,TmY15,TmY3,TmY4,TmY5a",
+    "predicate_input_types": "Mi4,Tm1",
+    "predicate_output_types": "Dm10,Lawf1",
+    "precision": "0.9166666666666666",
+    "recall": "0.7333333333333333",
+    "f_score": "0.8148148148148148"
+  },
+  "Dm14": {
+    "cells": "13",
+    "all_input_types": "Dm104_12,Dm14,Dm17,Dm18,Dm19,Dm6,L2,L4,Mi10,Mi104_1468,Tm2,Tm3",
+    "all_output_types": "Dm14,Dm15,Dm16,Dm17,Dm19,L2,L4,L5,Lawf1,Lpi101_34-34,ML102_M24-L45,Mi1,Mi14,Mi9,T1,T2,T2a,Tm1,Tm2,Tm25,Tm4,Tm4a,Tm5,TmY1,TmY3,TmY9",
+    "predicate_input_types": "Dm17,L4,Mi10",
+    "predicate_output_types": "Tm2,TmY3",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Lawf1": {
+    "cells": "143",
+    "all_input_types": "Dm10,Dm12,Dm13,Dm14,Dm2,Dm20,Dm4,L3,L4,Lawf1,Lawf2,ML102_M24-L45,ML104_M47-L6,Mi1,Mi10,Mi104_1468,Mi15,Mi2,Mi4,Mi9,Mti116_346,Pm2,T2a,Tm16,Tm2,Tm20,Tm3,Tm4,Tm5,Tm5a,Tm5b,Tm5c,Tm8,Tm9,TmY10,TmY17,TmY4",
+    "all_output_types": "Dm10,Dm12,Dm18,L1,L2,L3,Lawf1,Mi1,R1-6,T1,Tm3,TmY11",
+    "predicate_input_types": "Dm20,Dm4,Mi10,Tm16",
+    "predicate_output_types": "",
+    "precision": "0.992",
+    "recall": "0.8671328671328671",
+    "f_score": "0.9253731343283582"
+  },
+  "Lpi101_34-34": {
+    "cells": "40",
+    "all_input_types": "Dm13,Dm14,Dm17,L4,L5,LLP100_L5a6-LP1234,LPi2b,LPi3-4,LPi34-12,LPi4-3,Lpi102_12,Lpi105_4-34,Lpi107_34,Lpi108_43,Mi1,Mi4,Mi9,Pm1,T4a,T4c,T5a,T5c,Tlp4,Tm2,TmY16,TmY3,TmY5a,Y11,Y3",
+    "all_output_types": "LLP100_L5a6-LP1234,LPi1-2,LPi100_4-14,Lpi105_4-34,Lpi108_43,Pm3,T2,T4a,T5a,Tlp1,Tlp4,TmY15,TmY17,TmY20,TmY5a,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "LPi4-3,Lpi105_4-34",
+    "predicate_output_types": "",
+    "precision": "0.12574850299401197",
+    "recall": "0.525",
+    "f_score": "0.2028985507246377"
+  },
+  "LPi1-2": {
+    "cells": "3",
+    "all_input_types": "LPi1-2,LPi2-1,LPi2b,LPi34-12,Lpi101_34-34,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi106_2,Lpi107_34,Lpt104_12,T4a,T4b,T4d,T5a,T5b,Tlp1,Tlp4,Tlp5,Tm2,TmY17,TmY4,TmY9,Y1,Y11,Y12",
+    "all_output_types": "H1,LPi1-2,LPi2-1,LPi2b,LPi3-4,LPi34-12,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi106_2,Lpi108_43,Lpt104_12,T4b,T5b,Tlp1,Tlp4,Tm24,TmY14,TmY4,TmY9,Y11",
+    "predicate_input_types": "LPi2b,Lpt104_12,T5a,Y11",
+    "predicate_output_types": "H1",
+    "precision": "1.0",
+    "recall": "0.6666666666666666",
+    "f_score": "0.8"
+  },
+  "Li116_234": {
+    "cells": "11",
+    "all_input_types": "LM101_L234-M89,LM102a_L234-M89,Li101_23,Li107_56,Li111_2,Li115_3,Li116_234,Li119_2,ML102_M24-L45,Mi4,Pm2,T2a,Tlp1,Tlp5,Tm1,Tm16,Tm2,Tm3,Tm4,Tm4a,Tm5c,Tm8,TmY10,TmY12,TmY14,TmY15,TmY17,TmY4,TmY5a,TmY9,Y3",
+    "all_output_types": "LC14b,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li102_23,Li103_23,Li103_24,Li105_235,Li111_2,Li115_3,Li116_234,Li119_2,Li2,ML101_M89-L235,ML102_M24-L45,Pm2,T2,T2a,T3,Tm21,Tm23,Tm3,Tm4,Tm4a,Tm6,TmY10,TmY14,TmY15",
+    "predicate_input_types": "Tm4a",
+    "predicate_output_types": "ML102_M24-L45,Tm21",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "LPi3-4": {
+    "cells": "62",
+    "all_input_types": "LLP100_L5a6-LP1234,LPi1-2,LPi3-4,LPi34-12,LPi4-3,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi108_43,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp6,Tm1,Tm16,TmY15,TmY17,TmY3,TmY4,TmY5a,Y1,Y11,Y12,Y3",
+    "all_output_types": "LPi100_4-14,LPi3-4,LPi34-12,LPi4-3,Lpc101-34,Lpi101_34-34,Lpi102_12,Lpi105_4-34,Lpi108_43,T4d,T5d,Tlp1,Tlp4,Tlp6,TmY14,TmY16,TmY17,TmY20,TmY4,TmY5a,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "LPi4-3",
+    "predicate_output_types": "Lpi105_4-34,Tlp1",
+    "precision": "0.9821428571428571",
+    "recall": "0.8870967741935484",
+    "f_score": "0.9322033898305084"
+  },
+  "LM102b_L3-M8": {
+    "cells": "37",
+    "all_input_types": "Dm19,LM102a_L234-M89,LM102b_L3-M8,LM103_L12-M910,Li100_5,Li102_23,Li103_23,Li103_24,Li105_235,Li107_56,Li108_345a6,Li108a_345a6,Li108b_345a6,Li111_2,Li115_3,Li116_234,Li121_56,Li2,ML101_M89-L235,Mi9,Pm102_8,Pm2,T2,T2a,T3,Tm100_M68-L5,Tm101a_M78-L5,Tm16,Tm2,Tm21,Tm24,Tm3,Tm4,Tm4a,Tm5,Tm5a,Tm5c,TmY11,TmY12,TmY15,TmY16,TmY20,TmY3,TmY5a,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "Dm13,Dm19,LC14,LC14b,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Lawf2,Li101_23,Li103_23,Li103_24,Li105_235,Li108a_345a6,Li115_3,ML101_M89-L235,Mi13,Mt5,Mti104_78,Pm1,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,Tlp4,Tm21,Tm24,TmY12,TmY15,TmY5a,TmY9,Y11,Y4",
+    "predicate_input_types": "Li105_235",
+    "predicate_output_types": "LM102b_L3-M8,Li101_23",
+    "precision": "0.8181818181818182",
+    "recall": "0.4864864864864865",
+    "f_score": "0.6101694915254238"
+  },
+  "Lpi104_1-2": {
+    "cells": "46",
+    "all_input_types": "LPi1-2,LPi2-1,LPi2b,LPi34-12,Lpi102_12,Lpi104_1-2,Lpt104_12,T4a,T4b,T5a,T5b,Tlp1,Tlp4,Tlp5,TmY17,TmY20,TmY4,Y1,Y11,Y12",
+    "all_output_types": "H1,LPi1-2,LPi2-1,LPi2b,LPi3-4,Lpi102_12,Lpi104_1-2,Lpt104_12,TmY20,TmY9,Y11,Y3",
+    "predicate_input_types": "LPi2b",
+    "predicate_output_types": "H1",
+    "precision": "0.6222222222222222",
+    "recall": "0.6086956521739131",
+    "f_score": "0.6153846153846154"
+  },
+  "Mti124_67": {
+    "cells": "15",
+    "all_input_types": "Dm2,ML100_M47-L6,ML104_M47-L6,Mti123_37",
+    "all_output_types": "Mti100_347,Mti106_7,Mti121_7,SDm100_67",
+    "predicate_input_types": "",
+    "predicate_output_types": "",
+    "precision": "0",
+    "recall": "0",
+    "f_score": "0"
+  },
+  "TmY14": {
+    "cells": "101",
+    "all_input_types": "Dm8,L5,LLP100_L5a6-LP1234,LM102a_L234-M89,LPi1-2,LPi100_4-14,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Lawf2,Li102_23,Li105_235,Li116_234,Lpc101-34,Lpi102_12,Lpi105_4-34,Lpi106_2,Lpt104_12,ML101_M89-L235,Mi1,Mi4,Mt5,Pm1,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T3,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp5,Tlp6,Tm1,Tm16,Tm2,Tm23,Tm3,Tm4,Tm4a,Tm5,Tm9,TmY11,TmY15,TmY16,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "C3,Lawf2,Li102_23,Li103_23,Li103_24,Li111_2,Li116_234,Li2,Mi1,Mi13,Mt5,Pm1,Pm102_8,Pm103_89,Pm1a,Pm2,Pm4,T2a,T3,Tm1,Tm16,Tm23,Tm4,TmY11,TmY15,TmY4,TmY5a,Y3",
+    "predicate_input_types": "Lpi105_4-34,Pm102_8",
+    "predicate_output_types": "Pm1a",
+    "precision": "0.9900990099009901",
+    "recall": "0.9900990099009901",
+    "f_score": "0.9900990099009901"
+  },
+  "SDm101_67": {
+    "cells": "68",
+    "all_input_types": "Dm101_6,Dm19,Dm2,Dm8,L5,MC61,ML103_M89-L6,ML106_M67-L6,Mi104_1468,Mti100_347,Mti102_76,Mti104_78,Mti106_7,Mti123_37,Pm4,SDm100_67,SDm102_67,Tm101a_M78-L5,Tm102_M2378-L6,Tm16,Tm2,Tm20,Tm4,Tm5,Tm5a,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY17,TmY5a,Y3",
+    "all_output_types": "Dm102a_6,Dm8,ML100_M47-L6,ML104_M47-L6,ML106_M67-L6,Mti104_78,Mti112_67,Mti114_678,Mti121_7,Pm101_8,SDm100_67,SDm102_67,T2,T2a,Tm101a_M78-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm25,Tm5,Tm5b,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY17,TmY3,TmY4,TmY5a",
+    "predicate_input_types": "Tm8",
+    "predicate_output_types": "Dm8",
+    "precision": "0.9014084507042254",
+    "recall": "0.9411764705882353",
+    "f_score": "0.920863309352518"
+  },
+  "Dm13": {
+    "cells": "25",
+    "all_input_types": "C3,Dm13,Dm2,Dm3,Dm8,L1,L4,L5,LM102b_L3-M8,Lai,Mi9,Mti102_76,T1,Tm2,Tm5a,Tm5c,TmY5a",
+    "all_output_types": "C3,Dm13,Dm2,Dm3,Dm8,L5,Lawf1,Lawf2,Lpi101_34-34,ML102_M24-L45,Mi1,Mi14,T2,Tm2,Tm3,Tm4,Tm4a,Tm5,TmY1,TmY11,TmY15,TmY3,TmY9",
+    "predicate_input_types": "L5,Tm2,TmY5a",
+    "predicate_output_types": "Tm2",
+    "precision": "1.0",
+    "recall": "0.96",
+    "f_score": "0.9795918367346939"
+  },
+  "ML102_M24-L45": {
+    "cells": "52",
+    "all_input_types": "C3,Dm1,Dm10,Dm100_125,Dm12,Dm13,Dm14,Dm15,Dm18,Dm20,Dm4,Dm9,L2,L4,L5,LLpt101_L56-Lp2,Li116_234,ML102_M24-L45,Mi10,Mi104_1468,Mi13,Mi9,Mti100_347,Mti123_37,T1,Tlp1,Tlp4,Tlp6,Tm1,Tm16,Tm1a,Tm3,Tm4,Tm4a,Tm5c,TmY15,TmY5a,Y1,Y11,Y12,Y3",
+    "all_output_types": "C2,C3,Dm19,Dm6,LC14,LM101_L234-M89,LM102a_L234-M89,Lawf1,Lawf2,Li115_3,Li116_234,ML102_M24-L45,Mi14,Mi4,Olt,Pm2,T1,T3,Tm1,Tm102_M2378-L6,Tm16,Tm2,Tm21,Tm3,Tm4,Tm4a,Tm8,TmY10,TmY11,TmY17,Y11",
+    "predicate_input_types": "Dm10,Tm4",
+    "predicate_output_types": "Li116_234",
+    "precision": "0.7083333333333334",
+    "recall": "0.6538461538461539",
+    "f_score": "0.68"
+  },
+  "Pm3": {
+    "cells": "38",
+    "all_input_types": "C2,C3,Dm9,LM102a_L234-M89,LM102b_L3-M8,Lawf2,Lpi101_34-34,ML101_M89-L235,Mi1,Mi13,Mi14,Mi2,Mi4,Mi9,Mt5,Pm1,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm4,T2,T2a,T3,T4c,Tm1,Tm102_M2378-L6,Tm2,Tm21,Tm3,Tm4,Tm5,Tm5a,Tm5c,TmY1,TmY10,TmY11,TmY12,TmY15,TmY16,TmY3,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "Dm9,LM101_L234-M89,Lawf2,ML101_M89-L235,Mi1,Mi10,Mi13,Mi14,Mi4,Mi9,Mt5,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm4,T1,T2,T2a,T3,T4b,Tm1,Tm16,Tm1a,Tm2,Tm21,Tm25,Tm3,Tm4,Tm5a,TmY12,TmY14,TmY15,TmY5a,TmY9,Y1,Y3",
+    "predicate_input_types": "Pm104_89,Pm4",
+    "predicate_output_types": "Tm2,TmY5a",
+    "precision": "0.9743589743589743",
+    "recall": "1.0",
+    "f_score": "0.987012987012987"
+  },
+  "Lpi108_43": {
+    "cells": "32",
+    "all_input_types": "LLP100_L5a6-LP1234,LPi1-2,LPi3-4,LPi34-12,LPi4-3,Lpi101_34-34,Lpi102_12,Lpi105_4-34,Lpi108_43,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp6,TmY4",
+    "all_output_types": "LPi3-4,LPi4-3,Lpc101-34,Lpi101_34-34,Lpi102_12,Lpi108_43,T5c,Tlp1,Tlp4,Tlp6,TmY16,TmY17,TmY20,TmY4,Y1,Y11,Y3",
+    "predicate_input_types": "LPi4-3,T5c",
+    "predicate_output_types": "Tlp4,Y11",
+    "precision": "0.5178571428571429",
+    "recall": "0.90625",
+    "f_score": "0.6590909090909091"
+  },
+  "Pm4": {
+    "cells": "69",
+    "all_input_types": "C2,C3,Dm19,Dm2,Dm8,L1,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi13,Mi14,Mi2,Mi4,Mi9,Mti104_78,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti119_7,Mti122_78,Mti128_7,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,SDm100_67,SDm102_67,T1,T2,T2a,T3,T4a,Tm1,Tm101b_M78-L5,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm3,Tm4,Tm4a,Tm5,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "C2,C3,Dm10,Dm19,Lawf2,ML101_M89-L235,ML104_M47-L6,Mi1,Mi10,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti112_67,Mti114_678,Mti122_78,Olt,Pm1,Pm101_8,Pm102_8,Pm1a,Pm2,Pm3,Pm4,SDm100_67,SDm101_67,T2,T2a,T3,Tm1,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm1a,Tm2,Tm21,Tm4,Tm5,Tm5a,Tm6,Tm8,Tm9,TmY1,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY3,TmY4,TmY5,TmY5a,TmY9,Y1,Y11,Y3",
+    "predicate_input_types": "ML101_M89-L235,Pm102_8",
+    "predicate_output_types": "Pm3,Tm21,Y3",
+    "precision": "0.9857142857142858",
+    "recall": "1.0",
+    "f_score": "0.9928057553956835"
+  },
+  "Li109_456": {
+    "cells": "55",
+    "all_input_types": "LLP100_L5a6-LP1234,Li107_56,Li108a_345a6,Li110_56,Li122_56,Li123_56,ML106_M67-L6,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm20,Tm25,Tm3,Tm4,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY11,TmY12,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y3",
+    "all_output_types": "TmY17,TmY20",
+    "predicate_input_types": "Li108a_345a6,Tm20,TmY17",
+    "predicate_output_types": "",
+    "precision": "0.7575757575757576",
+    "recall": "0.45454545454545453",
+    "f_score": "0.5681818181818182"
+  },
+  "Li121_56": {
+    "cells": "31",
+    "all_input_types": "LLP100_L5a6-LP1234,LLpt101_L56-Lp2,Li100_5,Li107_56,Li108_345a6,Li108a_345a6,Li108b_345a6,Li110_56,Li121_56,Li122_56,Li123_56,ML100_M47-L6,T5a,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm19,Tm3,Tm4,Tm5,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY17,TmY4,TmY5a,TmY9,Y3",
+    "all_output_types": "LC14,LC14b,LLpt101_L56-Lp2,LM101_L234-M89,LM102b_L3-M8,Li100_5,Li102_23,Li103_24,Li105_235,Li107_56,Li108a_345a6,Li108b_345a6,Li110_56,Li118_6,Li119_2,Li120_5-5,Li121_56,Li122_56,Li123_56,ML101_M89-L235,ML106_M67-L6,Tlp4,Tm11,Tm1a,Tm2,Tm24,Tm25,Tm3,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY17,TmY20,TmY4,TmY9,Y3",
+    "predicate_input_types": "Li108a_345a6",
+    "predicate_output_types": "Li121_56,Tm24,Tm5",
+    "precision": "0.9375",
+    "recall": "0.967741935483871",
+    "f_score": "0.9523809523809523"
+  },
+  "TmY16": {
+    "cells": "75",
+    "all_input_types": "Dm19,L2,LM102a_L234-M89,LPi2-1,LPi2b,LPi3-4,LPi34-12,Lawf2,Li105_235,Li108a_345a6,LpM100a_Lp34-M567,Lpi106_2,Lpi108_43,Lpt104_12,ML101_M89-L235,Mi1,Mi104_1468,Mi13,Mi9,Mti104_78,Mti105_67,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm2,Pm4,T2,T2a,T3,T4a,T4b,T4c,T5a,T5b,Tlp1,Tlp4,Tlp5,Tm1,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm3,Tm4,Tm4a,Tm5,Tm5c,Tm8,Tm9,TmY1,TmY10,TmY11,TmY15,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y11,Y3,Y4",
+    "all_output_types": "Dm19,LM102b_L3-M8,LPi2-1,LPi2b,LPi34-12,Li103_23,Lpi101_34-34,Lpi102_12,Mi1,Mi4,Mi9,Olt,Pm1,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T2a,T3,T4a,Tlp1,Tlp4,Tlp5,Tm4,TmY14,TmY15,TmY17,TmY20,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "predicate_input_types": "Dm19",
+    "predicate_output_types": "Mi4,Mi9,Y1",
+    "precision": "1.0",
+    "recall": "0.96",
+    "f_score": "0.9795918367346939"
+  },
+  "ML101_M89-L235": {
+    "cells": "46",
+    "all_input_types": "LLP100_L5a6-LP1234,LM100_L234-M89,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,LPi100_4-14,Li100_5,Li102_23,Li103_23,Li103_24,Li105_235,Li107_56,Li108a_345a6,Li108b_345a6,Li110_56,Li111_2,Li115_3,Li116_234,Li119_2,Li121_56,Li122_56,Li123_56,ML101_M89-L235,ML103_M89-L6,ML104_M47-L6,ML105_M6-L5,Mi1,Mi10,Mi13,Mi14,Mi4,Mi9,Mt5,Mti107_67,Mti108_7,Mti112_67,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,T4a,T4b,T5b,Tlp1,Tlp4,Tlp5,Tm1,Tm100_M68-L5,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5c,Tm8,TmY10,TmY11,TmY12,TmY15,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "Dm10,Dm19,LC14,LC14b,LLP100_L5a6-LP1234,LM100_L234-M89,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Lawf2,Li100_5,Li101_23,Li102_23,Li103_23,Li103_24,Li105_235,Li108_345a6,Li108a_345a6,Li108b_345a6,Li110_56,Li111_2,Li115_3,Li119_2,Li122_56,Li123_56,ML101_M89-L235,ML103_M89-L6,ML104_M47-L6,ML105_M6-L5,Mi1,Mi10,Mi13,Mi2,Mi4,Mti104_78,Mti105_67,Mti112_67,Mti122_78,Mti128_7,Olt,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm1a,Pm2,Pm3,Pm4,SDm102_67,T2,T2a,T3,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tm1,Tm100_M68-L5,Tm101b_M78-L5,Tm1a,Tm2,Tm21,Tm23,Tm24,Tm3,Tm4,Tm6,Tm8,Tm9,TmY1,TmY12,TmY14,TmY15,TmY16,TmY17,TmY3,TmY4,TmY5a,TmY9,Y11,Y3,Y4",
+    "predicate_input_types": "LM102a_L234-M89,T2,T3",
+    "predicate_output_types": "LM102b_L3-M8,Pm2,T2a",
+    "precision": "0.8297872340425532",
+    "recall": "0.8478260869565217",
+    "f_score": "0.8387096774193549"
+  },
+  "Dm9": {
+    "cells": "43",
+    "all_input_types": "C2,Dm102a_6,Dm11,Dm19,Dm8,L1,L3,L5,Mi4,Mi9,Mti104_78,Mti112_67,Pm3,R7,SDm100_67,TmY10,TmY3",
+    "all_output_types": "Dm2,Dm8,L1,L3,L5,Li123_56,ML102_M24-L45,Mi4,Pm3,Tm1,Tm16,Tm20,Tm21,Tm4,Tm5c,TmY3,Y3",
+    "predicate_input_types": "Dm8,L3",
+    "predicate_output_types": "",
+    "precision": "0.2446043165467626",
+    "recall": "0.7906976744186046",
+    "f_score": "0.37362637362637363"
+  },
+  "Dm6": {
+    "cells": "30",
+    "all_input_types": "C3,Dm1,Dm104_12,Dm15,Dm17,Dm18,Dm19,Dm20,Dm6,L1,L2,L4,L5,ML102_M24-L45,Mi10,Mi104_1468,Mi15,Mi4,R1-6,T1,Tm1,Tm2,Tm3,Tm4,TmY10",
+    "all_output_types": "Dm1,Dm14,Dm15,Dm17,Dm19,Dm6,L1,L2,Mi1,Mi14,Mi2,Mi4,Mi9,R1-6,T1,T2,Tm1,Tm102_M2378-L6,Tm1a,Tm2,Tm21,Tm3,Tm4,Tm4a",
+    "predicate_input_types": "Dm19",
+    "predicate_output_types": "Dm1,L2,T1,Tm2",
+    "precision": "0.9285714285714286",
+    "recall": "0.8666666666666667",
+    "f_score": "0.896551724137931"
+  },
+  "Pm1": {
+    "cells": "55",
+    "all_input_types": "C2,C3,Dm10,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,ML101_M89-L235,Mi1,Mi10,Mi4,Mi9,Mt5,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T2,T3,T4a,T4b,Tm1,Tm1a,Tm2,Tm25,Tm3,Tm4,Tm5c,TmY1,TmY14,TmY15,TmY16,TmY3,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "Dm19,LM101_L234-M89,Lawf2,Lpi101_34-34,ML101_M89-L235,ML103_M89-L6,Mi1,Mi13,Mi2,Mi4,Mi9,Mt5,Olt,Pm1,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,T4a,T4b,T4c,T4d,Tm1,Tm1a,Tm2,Tm21,Tm25,Tm3,Tm4,Tm5,Tm5a,TmY1,TmY12,TmY14,TmY15,TmY16,TmY3,TmY5,TmY5a,TmY9,Y1,Y11,Y3,Y4",
+    "predicate_input_types": "Pm2,Tm2,Y1",
+    "predicate_output_types": "Pm1a,Pm3,T2",
+    "precision": "0.5909090909090909",
+    "recall": "0.4727272727272727",
+    "f_score": "0.5252525252525253"
+  },
+  "Dm1": {
+    "cells": "37",
+    "all_input_types": "C2,C3,Dm16,Dm18,Dm19,Dm2,Dm20,Dm3,Dm6,Dm8,L1,L2,L5,Lai,Mi1,Mi14,Mi4,T2,Tm1,Tm102_M2378-L6,Tm2,Tm25,Tm4",
+    "all_output_types": "Dm100_125,Dm18,Dm19,Dm6,Dm8,L1,L2,L5,Lai,Lawf2,ML102_M24-L45,Mi1,Mi10,Mi104_1468,Mi4,Mi9,R1-6,T1,T2,Tm1,Tm1a,Tm2,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm5c,TmY3,TmY9",
+    "predicate_input_types": "C3,L5,Tm2",
+    "predicate_output_types": "L2,L5,Tm3",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "SDm100_67": {
+    "cells": "198",
+    "all_input_types": "Dm11,Dm19,Dm2,Dm8,L3,L5,MC61,ML104_M47-L6,ML106_M67-L6,Mi1,Mi104_1468,Mi15,Mi2,Mi4,Mti100_347,Mti103_7,Mti104_78,Mti106_7,Mti107_67,Mti108_7,Mti111_7,Mti114_678,Mti115_367,Mti119_7,Mti121_7,Mti123_37,Mti124_67,Olt,Pm101_8,Pm4,SDm100_67,SDm101_67,SDm102_67,Tm1,Tm101a_M78-L5,Tm101b_M78-L5,Tm1a,Tm5,Tm5c,Tm7,Tm8,TmY10,TmY17,TmY20",
+    "all_output_types": "Dm11,Dm19,Dm2,Dm8,Dm9,L3,MC61,ML105_M6-L5,ML106_M67-L6,Mi104_1468,Mi15,Mi4,Mt103_67,Mti104_78,Mti105_67,Mti107_67,Mti110_678,Mti112_67,Mti115_367,Mti116_346,Mti123_37,Pm101_8,Pm102_8,Pm4,SDm100_67,SDm101_67,SDm102_67,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm3,Tm5,Tm5b,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY12,TmY5a,TmY9,Y1,Y4",
+    "predicate_input_types": "Dm2,Mti104_78",
+    "predicate_output_types": "Dm2,Mti105_67",
+    "precision": "0.944954128440367",
+    "recall": "0.5202020202020202",
+    "f_score": "0.6710097719869706"
+  },
+  "Dm102a_6": {
+    "cells": "20",
+    "all_input_types": "Dm2,Dm8,L3,Mi15,Mt103_67,Mti102_76,Mti104_78,Mti112_67,Mti120_7,SDm101_67,Tm5,Tm5b,Tm7",
+    "all_output_types": "Dm11,Dm4,Dm8,Dm9,Mti106_7,Mti120_7",
+    "predicate_input_types": "",
+    "predicate_output_types": "Dm11,Dm4,Dm8",
+    "precision": "0.4473684210526316",
+    "recall": "0.85",
+    "f_score": "0.5862068965517241"
+  },
+  "Li115_3": {
+    "cells": "3",
+    "all_input_types": "LM102b_L3-M8,Li100_5,Li105_235,Li115_3,Li116_234,ML101_M89-L235,ML102_M24-L45,Mi1,T2,T2a,Tm101a_M78-L5,Tm101b_M78-L5,Tm21,Tm3,Tm4,Tm5,Tm5c,Tm6,Tm8,TmY15,Y3",
+    "all_output_types": "LC14,LM101_L234-M89,LM102b_L3-M8,Li102_23,Li103_23,Li115_3,Li116_234,ML101_M89-L235,Pm2,Tm21,Tm24,TmY4",
+    "predicate_input_types": "Li115_3",
+    "predicate_output_types": "Li115_3,Tm24",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Mti116_346": {
+    "cells": "11",
+    "all_input_types": "Dm11,Dm2,Dm8,L3,Mi15,Mt103_67,Mti102_76,Mti120_7,SDm100_67,Tm16",
+    "all_output_types": "Dm11,Dm4,Dm8,L4,Lawf1,Mti106_7,Tm16,Tm5,Tm5b,Tm7,TmY10",
+    "predicate_input_types": "L3,Mt103_67",
+    "predicate_output_types": "",
+    "precision": "1.0",
+    "recall": "0.6363636363636364",
+    "f_score": "0.7777777777777778"
+  },
+  "Lai": {
+    "cells": "43",
+    "all_input_types": "C2,C3,Dm1,Dm15,Dm18,L1,L2,L5,Lai,Lawf2,Mi1,Mi13,R1-6,T1,Tm1,Tm2",
+    "all_output_types": "C2,C3,Dm1,Dm10,Dm13,Dm18,Dm2,L1,L2,L3,L5,Lai,Mi1,Mi4,R1-6,T1,T2,Tm21,Tm25,Tm3,Tm5c,TmY3",
+    "predicate_input_types": "C3,Lawf2",
+    "predicate_output_types": "",
+    "precision": "0.08179419525065963",
+    "recall": "0.7209302325581395",
+    "f_score": "0.14691943127962084"
+  },
+  "Mti106_7": {
+    "cells": "43",
+    "all_input_types": "Dm102a_6,Dm11,Dm19,Dm2,Mi15,Mti102_76,Mti103_7,Mti104_78,Mti105_67,Mti106_7,Mti111_7,Mti112_67,Mti116_346,Mti117_7,Mti118_7,Mti119_7,Mti121_7,Mti123_37,Mti124_67,Pm101_8,Tm5,Tm7,TmY10",
+    "all_output_types": "Dm19,Dm2,Dm4,ML106_M67-L6,Mi1,Mi10,Mi104_1468,Mi15,Mi2,Mti103_7,Mti104_78,Mti105_67,Mti106_7,Mti118_7,Mti120_7,Mti122_78,Mti123_37,SDm100_67,SDm101_67,SDm102_67,Tm101a_M78-L5,Tm5c",
+    "predicate_input_types": "",
+    "predicate_output_types": "Mti103_7",
+    "precision": "0.323943661971831",
+    "recall": "0.5348837209302325",
+    "f_score": "0.40350877192982454"
+  },
+  "Dm102b_6": {
+    "cells": "25",
+    "all_input_types": "Dm11,Dm2,Dm8,Mt103_67,Mti102_76,Mti120_7,Tm16,Tm5,Tm9",
+    "all_output_types": "Dm11,Dm4,Dm8,L4,Tm16,Tm5,Tm7,Tm9,TmY10,TmY12",
+    "predicate_input_types": "Dm8,Mt103_67,Mti102_76",
+    "predicate_output_types": "Dm8",
+    "precision": "0.5",
+    "recall": "0.4",
+    "f_score": "0.4444444444444444"
+  },
+  "Dm4": {
+    "cells": "39",
+    "all_input_types": "Dm101_6,Dm102a_6,Dm102b_6,Dm11,Dm12,L1,L2,L3,L5,ML100_M47-L6,ML105_M6-L5,Mi104_1468,Mi4,Mi9,Mti106_7,Mti116_346,T4a,Tm20,Tm7,TmY10",
+    "all_output_types": "Dm10,Dm12,Dm2,Dm20,Dm3,Dm8,L1,L3,Lawf1,ML100_M47-L6,ML102_M24-L45,Mi1,Mi10,Mi104_1468,Mi13,Mi15,Mi2,Mi4,Mi9,Mti112_67,Mti123_37,T1,T2,Tm1,Tm2,Tm20,Tm3,Tm4,Tm5,Tm7,Tm8",
+    "predicate_input_types": "Dm102a_6",
+    "predicate_output_types": "Mi10",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Mi104_1468": {
+    "cells": "29",
+    "all_input_types": "Dm1,Dm101_6,Dm11,Dm16,Dm4,L2,L3,L5,LpM100a_Lp34-M567,LpM100b_Lp34-M67-Lp4,ML105_M6-L5,Mi1,Mi10,Mi104_1468,Mi14,Mi2,Mi4,Mi9,Mti104_78,Mti105_67,Mti106_7,Mti108_7,Mti115_367,Mti120_7,SDm100_67,T2,Tm100_M68-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm2,Tm5,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY17,TmY20,TmY5a",
+    "all_output_types": "Dm10,Dm12,Dm14,Dm15,Dm17,Dm19,Dm2,Dm20,Dm4,Dm6,L2,L3,Lawf1,Li122_56,ML102_M24-L45,Mi10,Mi104_1468,Mi13,Mi14,Mi4,Mi9,Mti104_78,Pm101_8,Pm102_8,SDm100_67,SDm101_67,T1,T2,Tm5,Tm5b,TmY10,TmY15,TmY16,TmY17",
+    "predicate_input_types": "",
+    "predicate_output_types": "Dm10,Dm12,Dm6",
+    "precision": "0.9629629629629629",
+    "recall": "0.896551724137931",
+    "f_score": "0.9285714285714286"
+  },
+  "LPi34-12": {
+    "cells": "52",
+    "all_input_types": "LLP100_L5a6-LP1234,LPi1-2,LPi2b,LPi3-4,LPi4-3,Lpi102_12,Lpi105_4-34,Lpi106_2,T4a,T4b,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp6,Tm16,TmY16,TmY4,TmY9,Y1,Y11,Y12,Y3",
+    "all_output_types": "LPi1-2,LPi2b,LPi3-4,LPi4-3,Lpi101_34-34,Lpi102_12,Lpi104_1-2,Lpi106_2,Lpi108_43,Lpt104_12,T4a,T4c,T4d,T5a,T5b,T5c,T5d,Tlp1,Tlp4,Tlp5,Tm19,TmY14,TmY15,TmY16,TmY17,TmY20,TmY4,TmY9,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "T5d",
+    "predicate_output_types": "Lpi102_12,Lpi106_2",
+    "precision": "1.0",
+    "recall": "0.9807692307692307",
+    "f_score": "0.9902912621359223"
+  },
+  "Lpi102_12": {
+    "cells": "21",
+    "all_input_types": "LPi1-2,LPi100_4-14,LPi2-1,LPi2b,LPi3-4,LPi34-12,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi106_2,Lpi107_34,Lpi108_43,Lpt104_12,T4a,T4b,T4c,T5a,T5b,Tlp1,Tlp4,Tlp6,TmY16,TmY17,TmY20,TmY4,TmY9",
+    "all_output_types": "H1,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LPi1-2,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Li111_2,Lpi101_34-34,Lpi102_12,Lpi104_1-2,Lpi106_2,Lpi107_34,Lpi108_43,Lpt104_12,T4a,T4b,T4c,T5b,Tlp1,Tlp4,Tlp5,TmY14,TmY15,TmY20,TmY4,Y11",
+    "predicate_input_types": "LPi1-2,LPi34-12,T5b",
+    "predicate_output_types": "TmY15",
+    "precision": "0.9545454545454546",
+    "recall": "1.0",
+    "f_score": "0.9767441860465116"
+  },
+  "Mti115_367": {
+    "cells": "3",
+    "all_input_types": "Dm2,Dm3,L3,Mti100_347,Mti102_76,Mti103_7,Mti104_78,Mti105_67,Mti107_67,Mti112_67,Mti115_367,SDm100_67",
+    "all_output_types": "Dm2,Dm20,Lawf2,ML100_M47-L6,Mi104_1468,Mi9,Mti103_7,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti115_367,SDm100_67,Tm100_M68-L5,Tm25",
+    "predicate_input_types": "Mti102_76",
+    "predicate_output_types": "Mti107_67,SDm100_67",
+    "precision": "0.75",
+    "recall": "1.0",
+    "f_score": "0.8571428571428571"
+  },
+  "Pm102_8": {
+    "cells": "24",
+    "all_input_types": "Dm19,LM102a_L234-M89,LM102b_L3-M8,LpM100a_Lp34-M567,LpM100b_Lp34-M67-Lp4,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi104_1468,Mi13,Mi14,Mi2,Mi4,Mi9,Mti104_78,Mti105_67,Mti128_7,Olt,Pm101_8,Pm1a,Pm2,Pm3,Pm4,SDm100_67,SDm102_67,T3,T4a,Tm1,Tm102_M2378-L6,Tm16,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm8,TmY12,TmY14,TmY15,TmY16,TmY20,TmY3,TmY4,TmY5a,TmY9,Y11,Y4",
+    "all_output_types": "Dm12,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,ML100_M47-L6,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi14,Mi4,Mti104_78,Olt,Pm1,Pm101_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,Tm1,Tm101a_M78-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm21,Tm3,Tm4,Tm4a,Tm9,TmY10,TmY11,TmY12,TmY14,TmY15,TmY16,TmY4,TmY5a,TmY9,Y11",
+    "predicate_input_types": "Olt",
+    "predicate_output_types": "Pm2,Tm3,TmY14",
+    "precision": "0.9583333333333334",
+    "recall": "0.9583333333333334",
+    "f_score": "0.9583333333333334"
+  },
+  "Lat": {
+    "cells": "5",
+    "all_input_types": "",
+    "all_output_types": "",
+    "predicate_input_types": "",
+    "predicate_output_types": "",
+    "precision": "0",
+    "recall": "0",
+    "f_score": "0"
+  },
+  "Dm101_6": {
+    "cells": "26",
+    "all_input_types": "Dm2,Dm8,Mi10,Mi15,Mt103_67,Mti102_76,Mti104_78,Mti119_7,Mti128_7,Tm16,Tm5c",
+    "all_output_types": "Dm11,Dm4,Dm8,L4,ML106_M67-L6,Mi104_1468,Mi4,Mi9,Mti105_67,Mti108_7,Mti112_67,Mti114_678,SDm101_67,Tm16,Tm5,Tm5c,Tm7,Tm9,TmY10,TmY12",
+    "predicate_input_types": "Dm8,Mi10",
+    "predicate_output_types": "Dm11",
+    "precision": "0.92",
+    "recall": "0.8846153846153846",
+    "f_score": "0.9019607843137255"
+  },
+  "Dm12": {
+    "cells": "109",
+    "all_input_types": "C2,Dm11,Dm12,Dm2,Dm20,Dm4,L1,L2,L3,L5,Lawf1,Mi10,Mi104_1468,Mi4,Mi9,Mti100_347,Mti123_37,Pm102_8,T4a,Tm1,Tm16,Tm1a,Tm2,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY15,TmY3,TmY4,TmY9",
+    "all_output_types": "Dm10,Dm12,Dm2,Dm20,Dm4,L1,L2,L3,Lawf1,ML102_M24-L45,Mi1,Mi10,Mi2,Mi4,Mi9,T1,T2,T4a,Tm1,Tm16,Tm2,Tm21,Tm3,Tm5,Tm5c,Tm8,Tm9,TmY10,TmY15,TmY3,TmY4",
+    "predicate_input_types": "Mi104_1468",
+    "predicate_output_types": "L3,Mi9",
+    "precision": "0.9629629629629629",
+    "recall": "0.9541284403669725",
+    "f_score": "0.9585253456221198"
+  },
+  "LPi2-1": {
+    "cells": "40",
+    "all_input_types": "LLP100_L5a6-LP1234,LPi1-2,LPi2-1,LPi2b,LPi4-3,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi106_2,Lpt104_12,T2a,T4a,T4b,T4c,T4d,T5a,T5b,T5c,Tlp1,Tlp4,Tlp5,TmY15,TmY16,TmY17,TmY4,TmY9,Y11,Y12",
+    "all_output_types": "LPi1-2,LPi2-1,LPi2b,Lpi102_12,Lpi104_1-2,Lpt104_12,Tlp1,Tlp4,Tlp5,Tm2,Tm24,TmY11,TmY14,TmY16,TmY17,TmY20,TmY4,TmY9,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "T4b,Tlp1",
+    "predicate_output_types": "TmY17,TmY20",
+    "precision": "0.9302325581395349",
+    "recall": "1.0",
+    "f_score": "0.963855421686747"
+  },
+  "ML104_M47-L6": {
+    "cells": "29",
+    "all_input_types": "Dm11,Dm2,L3,ML101_M89-L235,Mi4,Mi9,Mti104_78,Mti119_7,Mti121_7,Pm103_89,Pm4,SDm101_67",
+    "all_output_types": "Dm2,Dm8,LLP100_L5a6-LP1234,Lawf1,Li108b_345a6,ML101_M89-L235,Mi2,Mti102_76,Mti121_7,Mti123_37,Mti124_67,SDm100_67,Tm5c,TmY5a",
+    "predicate_input_types": "Mi9,Mti104_78",
+    "predicate_output_types": "Mti123_37",
+    "precision": "0.8636363636363636",
+    "recall": "0.6551724137931034",
+    "f_score": "0.7450980392156863"
+  },
+  "LPi4-3": {
+    "cells": "27",
+    "all_input_types": "LLP100_L5a6-LP1234,LPi3-4,LPi34-12,LPi4-3,Lpc101-34,Lpi102_12,Lpi105_4-34,Lpi106_2,Lpi108_43,T4c,T4d,T5c,T5d,Tlp1,Tlp4,Tlp6,TmY15,TmY3,TmY4,TmY5a,Y1,Y11,Y12",
+    "all_output_types": "LLP100_L5a6-LP1234,LPi100_4-14,LPi2-1,LPi3-4,LPi34-12,LPi4-3,LpM100a_Lp34-M567,Lpc101-34,Lpi101_34-34,Lpi105_4-34,Lpi107_34,Lpi108_43,T4c,T5c,Tlp1,Tlp4,Tlp6,TmY14,TmY15,TmY3,Y1,Y11,Y3",
+    "predicate_input_types": "Lpi105_4-34,T5d,Tlp1",
+    "predicate_output_types": "Y11",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Mti100_347": {
+    "cells": "42",
+    "all_input_types": "Dm11,Dm2,Mi10,Mi15,Mti104_78,Mti111_7,Mti124_67,Tm2,Tm7,TmY10",
+    "all_output_types": "Dm12,Dm2,Dm20,Dm8,Lawf2,ML102_M24-L45,ML106_M67-L6,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti114_678,Mti115_367,Mti123_37,SDm100_67,SDm101_67,SDm102_67,Tm16,Tm5b,Tm7,Tm8,TmY3,TmY4",
+    "predicate_input_types": "Mi15",
+    "predicate_output_types": "Mti123_37",
+    "precision": "0.23684210526315788",
+    "recall": "0.42857142857142855",
+    "f_score": "0.3050847457627119"
+  },
+  "R1-6": {
+    "cells": "6",
+    "all_input_types": "C2,C3,Dm1,Dm15,Dm17,Dm19,Dm6,L2,L5,Lai,Lawf1,Tm1,Tm2",
+    "all_output_types": "C2,Dm15,Dm17,Dm19,Dm6,L1,L2,L3,L5,Lai,T1,Tm1,Tm2,Tm20,Tm3,Tm4,TmY3",
+    "predicate_input_types": "",
+    "predicate_output_types": "",
+    "precision": "0",
+    "recall": "0",
+    "f_score": "0"
+  },
+  "Li107_56": {
+    "cells": "32",
+    "all_input_types": "LM102a_L234-M89,Li100_5,Li118_6,Li121_56,Li122_56,Li123_56,Tm101a_M78-L5,Tm16,Tm25,Tm5c,Tm7,Tm8,TmY11,TmY5a,TmY9",
+    "all_output_types": "LC14b,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102b_L3-M8,Li100_5,Li102_23,Li105_235,Li108_345a6,Li108b_345a6,Li109_456,Li116_234,Li120_5-5,Li121_56,Li122_56,ML101_M89-L235,ML106_M67-L6,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm21,Tm24,Tm5c,Tm7,TmY20,TmY4",
+    "predicate_input_types": "TmY9",
+    "predicate_output_types": "Li100_5,Li102_23",
+    "precision": "0.8571428571428571",
+    "recall": "0.5625",
+    "f_score": "0.6792452830188679"
+  },
+  "Mti102_76": {
+    "cells": "10",
+    "all_input_types": "Dm2,Dm8,ML104_M47-L6,Mti104_78,Tm25",
+    "all_output_types": "Dm101_6,Dm102a_6,Dm102b_6,Dm13,ML100_M47-L6,Mti103_7,Mti104_78,Mti105_67,Mti106_7,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti115_367,Mti116_346,Mti117_7,Mti126_67,SDm101_67",
+    "predicate_input_types": "Mti104_78",
+    "predicate_output_types": "Dm101_6",
+    "precision": "0.9",
+    "recall": "0.9",
+    "f_score": "0.9"
+  },
+  "Mti107_67": {
+    "cells": "2",
+    "all_input_types": "Dm11,Dm2,Dm8,ML106_M67-L6,Mt103_67,Mti100_347,Mti102_76,Mti104_78,Mti105_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti115_367,Pm4,SDm100_67,Tm16,Tm2,Tm8,TmY10,TmY5a,TmY9",
+    "all_output_types": "Dm2,MC61,ML100_M47-L6,ML101_M89-L235,ML105_M6-L5,Mti105_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti115_367,Mti126_67,Pm4,SDm100_67,T2a,Tm11,Tm5,Tm7,Tm8,TmY12",
+    "predicate_input_types": "",
+    "predicate_output_types": "ML105_M6-L5,Mti108_7,Tm5,Tm8",
+    "precision": "0.6666666666666666",
+    "recall": "1.0",
+    "f_score": "0.8"
+  },
+  "Li108_345a6": {
+    "cells": "7",
+    "all_input_types": "LLP100_L5a6-LP1234,LM102a_L234-M89,Li100_5,Li103_23,Li105_235,Li107_56,Li108a_345a6,Li110_56,ML101_M89-L235,T2a,Tm20,Tm25,Tm3,Tm4,Tm8,TmY10,TmY11,TmY12,TmY15,TmY17,TmY20,TmY4,TmY5a,TmY9,Y3",
+    "all_output_types": "LC14b,LM102a_L234-M89,LM102b_L3-M8,Li100_5,Li103_23,Li108b_345a6,Li110_56,Li121_56,Tlp1,Tlp4,TmY10,TmY17,TmY9,Y1,Y12,Y4",
+    "predicate_input_types": "LLP100_L5a6-LP1234,T2a",
+    "predicate_output_types": "Li121_56,Y1,Y4",
+    "precision": "0.3333333333333333",
+    "recall": "0.2857142857142857",
+    "f_score": "0.3076923076923077"
+  },
+  "Li119_2": {
+    "cells": "3",
+    "all_input_types": "LM101_L234-M89,Li101_23,Li102_23,Li103_23,Li103_24,Li116_234,Li121_56,ML101_M89-L235,T2a,T3,T5b,Tm1,Tm16,Tm1a,Tm3,Tm4,Tm4a,Tm9,TmY11",
+    "all_output_types": "LC14,Li101_23,Li102_23,Li103_23,Li103_24,Li105_235,Li116_234,ML101_M89-L235,T3,Tm1a,Tm2,Tm21,Tm3,Tm4,TmY15",
+    "predicate_input_types": "LM101_L234-M89",
+    "predicate_output_types": "LC14,Tm4",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Li103_23": {
+    "cells": "16",
+    "all_input_types": "LM100_L234-M89,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li102_23,Li103_23,Li105_235,Li108_345a6,Li108a_345a6,Li108b_345a6,Li115_3,Li116_234,Li119_2,Li2,ML101_M89-L235,ML103_M89-L6,Pm2,T2,T2a,T3,Tlp1,Tm100_M68-L5,Tm16,Tm20,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5c,TmY11,TmY12,TmY14,TmY15,TmY16,TmY17,TmY3,TmY4,TmY9,Y3,Y4",
+    "all_output_types": "LC14,LM100_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li100_5,Li102_23,Li103_23,Li103_24,Li105_235,Li108_345a6,Li108b_345a6,Li119_2,ML101_M89-L235,Pm2,T2,T2a,T3,Tm21,Tm24,TmY15",
+    "predicate_input_types": "Li108b_345a6,Tm16",
+    "predicate_output_types": "Li119_2",
+    "precision": "0.8125",
+    "recall": "0.8125",
+    "f_score": "0.8125"
+  },
+  "Li111_2": {
+    "cells": "4",
+    "all_input_types": "Li102_23,Li103_24,Li105_235,Li108b_345a6,Li111_2,Li116_234,Li2,Lpi102_12,ML101_M89-L235,T2,T3,Tlp1,Tm1,Tm2,Tm3,Tm4,Tm4a,Tm5a,Tm9,TmY14,TmY5a,TmY9,Y1,Y11,Y3,Y4",
+    "all_output_types": "LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li101_23,Li102_23,Li103_24,Li105_235,Li111_2,Li116_234,Li2,ML101_M89-L235,T2,Tm2,Tm23,Tm3,TmY15,TmY9",
+    "predicate_input_types": "",
+    "predicate_output_types": "Li105_235,Li111_2,Tm23",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Mt5": {
+    "cells": "14",
+    "all_input_types": "LM102a_L234-M89,LM102b_L3-M8,Mi1,Mi4,Olt,Pm1,Pm104_89,Pm1a,Pm2,Pm3,Tm1,Tm2,Tm3,Tm4,Tm5c,TmY14,TmY9,Y11",
+    "all_output_types": "LM101_L234-M89,LM102a_L234-M89,Lawf2,ML101_M89-L235,Pm1,Pm104_89,Pm1a,Pm2,Pm3,T2,Tm2,Tm21,Tm25,Tm3,Tm4,Tm5a,TmY14,TmY15,TmY5a",
+    "predicate_input_types": "Pm3,TmY14",
+    "predicate_output_types": "LM101_L234-M89,T2,Tm2",
+    "precision": "0.9285714285714286",
+    "recall": "0.9285714285714286",
+    "f_score": "0.9285714285714286"
+  },
+  "Dm100_125": {
+    "cells": "1",
+    "all_input_types": "Dm1,Dm10,L5,TmY5a",
+    "all_output_types": "Dm19,L5,ML102_M24-L45,T2,Tm21,Tm4,TmY10",
+    "predicate_input_types": "TmY5a",
+    "predicate_output_types": "Dm19,ML102_M24-L45,Tm4",
+    "precision": "0.25",
+    "recall": "1.0",
+    "f_score": "0.4"
+  },
+  "R7": {
+    "cells": "6",
+    "all_input_types": "Dm8,L1",
+    "all_output_types": "Dm11,Dm8,Dm9,L1,L3,Mti118_7,Tm5",
+    "predicate_input_types": "",
+    "predicate_output_types": "",
+    "precision": "0",
+    "recall": "0",
+    "f_score": "0"
+  },
+  "Li120_5-5": {
+    "cells": "15",
+    "all_input_types": "Li107_56,Li110_56,Li120_5-5,Li121_56,Li122_56,ML105_M6-L5,Tlp4,Tm100_M68-L5,Tm101a_M78-L5,Tm1a,Tm20,Tm21,Tm25,Tm5,Tm5b,Tm5c,Tm7,TmY5a,Y3",
+    "all_output_types": "Li120_5-5,Li122_56,MC61,Tm100_M68-L5,Tm1a,Tm20,Tm24,Tm5,Tm5c,Tm7,Tm9",
+    "predicate_input_types": "Li107_56,ML105_M6-L5",
+    "predicate_output_types": "Tm5",
+    "precision": "1.0",
+    "recall": "0.7333333333333333",
+    "f_score": "0.8461538461538461"
+  },
+  "Tm23": {
+    "cells": "13",
+    "all_input_types": "LM101_L234-M89,LPi100_4-14,Li105_235,Li111_2,Li116_234,Li2,ML101_M89-L235,T4a,T5a,T5b,Tm1,Tm1a,Tm2,Tm23,Tm3,Tm4,Tm4a,Tm9,TmY14,TmY15,TmY9",
+    "all_output_types": "T5a,T5b,T5c,T5d,Tm1,Tm23,TmY14,TmY15",
+    "predicate_input_types": "Li111_2,T5a,Tm3",
+    "predicate_output_types": "T5c",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "ML106_M67-L6": {
+    "cells": "14",
+    "all_input_types": "Dm101_6,Dm2,Dm8,Li107_56,Li121_56,Li123_56,ML106_M67-L6,Mi10,Mi15,Mti100_347,Mti104_78,Mti105_67,Mti106_7,Mti112_67,Mti123_37,SDm100_67,SDm101_67,Tm101a_M78-L5,Tm5,Tm5b,Tm5c,Tm7,TmY11,TmY17",
+    "all_output_types": "Li108a_345a6,Li109_456,Li110_56,Li122_56,ML105_M6-L5,ML106_M67-L6,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti123_37,Mti126_67,SDm100_67,SDm101_67,Tm101a_M78-L5,Tm7,Tm8,TmY17",
+    "predicate_input_types": "SDm100_67",
+    "predicate_output_types": "Li122_56,Tm101a_M78-L5",
+    "precision": "1.0",
+    "recall": "0.9285714285714286",
+    "f_score": "0.9629629629629629"
+  },
+  "Li123_56": {
+    "cells": "20",
+    "all_input_types": "Dm2,Dm9,LLP100_L5a6-LP1234,Li105_235,Li108a_345a6,Li108b_345a6,Li121_56,Li122_56,Li123_56,ML101_M89-L235,ML105_M6-L5,Tm11,Tm16,Tm20,Tm24,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm5b,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY11,TmY17,TmY4,TmY5a,TmY9,Y12",
+    "all_output_types": "LC14,LLpt101_L56-Lp2,Li105_235,Li107_56,Li108b_345a6,Li109_456,Li110_56,Li121_56,Li122_56,Li123_56,ML101_M89-L235,ML106_M67-L6,Tm16,Tm20,Tm24,Tm5,Tm5c,Tm7,Tm8,TmY5a",
+    "predicate_input_types": "Li105_235,Li108b_345a6,Tm20",
+    "predicate_output_types": "",
+    "precision": "0.6842105263157895",
+    "recall": "0.65",
+    "f_score": "0.6666666666666666"
+  },
+  "Mti120_7": {
+    "cells": "17",
+    "all_input_types": "Dm102a_6,Dm19,Mti105_67,Mti106_7,Mti111_7,Mti117_7,Mti118_7,Mti121_7",
+    "all_output_types": "Dm102a_6,Dm102b_6,Dm19,Dm20,Mi104_1468,Mti103_7,Mti104_78,Mti116_346,Mti117_7,Mti121_7,Mti123_37,Pm101_8,Tm101a_M78-L5",
+    "predicate_input_types": "Mti106_7,Mti118_7",
+    "predicate_output_types": "",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "LM101_L234-M89": {
+    "cells": "29",
+    "all_input_types": "Dm10,Dm19,LLpt101_L56-Lp2,LM102b_L3-M8,Li102_23,Li103_24,Li105_235,Li108b_345a6,Li110_56,Li111_2,Li115_3,Li116_234,Li121_56,Li122_56,Li2,ML101_M89-L235,ML102_M24-L45,ML105_M6-L5,Mi1,Mi9,Mt5,Mti105_67,Pm1,Pm102_8,Pm103_89,Pm2,Pm3,T2,T2a,T3,T5a,Tm1,Tm2,Tm24,Tm25,Tm3,Tm4,Tm5,Tm8,TmY10,TmY12,TmY15,TmY4,TmY5a",
+    "all_output_types": "LC14,LC14b,LM102a_L234-M89,LM103_L12-M910,Lawf2,Li101_23,Li102_23,Li103_23,Li103_24,Li105_235,Li108b_345a6,Li116_234,Li119_2,Li2,ML101_M89-L235,ML105_M6-L5,Mi13,Mi2,Mi4,Pm1,Pm1a,Pm2,Pm4,T3,Tm100_M68-L5,Tm23,Tm24,TmY15",
+    "predicate_input_types": "Dm19,T2",
+    "predicate_output_types": "Li101_23",
+    "precision": "0.9310344827586207",
+    "recall": "0.9310344827586207",
+    "f_score": "0.9310344827586207"
+  },
+  "Lpc101-34": {
+    "cells": "3",
+    "all_input_types": "LLP100_L5a6-LP1234,LPi3-4,LPi4-3,Lpi108_43,T4c,T5c,Tlp6,TmY15,TmY3",
+    "all_output_types": "LPi4-3,Tlp1,Tlp4,TmY14,TmY15,TmY17,TmY4,Y11,Y3",
+    "predicate_input_types": "Lpi108_43",
+    "predicate_output_types": "TmY4,Y11,Y3",
+    "precision": "1.0",
+    "recall": "0.6666666666666666",
+    "f_score": "0.8"
+  },
+  "Mti105_67": {
+    "cells": "1",
+    "all_input_types": "Dm101_6,Dm19,Dm2,Dm8,MC61,ML101_M89-L235,ML106_M67-L6,Mi10,Mi15,Mt103_67,Mti100_347,Mti102_76,Mti103_7,Mti104_78,Mti106_7,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti115_367,Mti121_7,Mti123_37,Mti128_7,Pm101_8,Pm4,SDm100_67,Tm11,Tm16,Tm1a,Tm3,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY20,TmY4",
+    "all_output_types": "Dm19,Dm2,LM101_L234-M89,ML100_M47-L6,ML106_M67-L6,Mi104_1468,Mt103_67,Mti103_7,Mti104_78,Mti106_7,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti115_367,Mti119_7,Mti120_7,Mti126_67,Pm101_8,Pm102_8,Pm103_89,SDm102_67,Tm101b_M78-L5,Tm2,Tm24,Tm3,Tm5,Tm5b,Tm7,Tm8,TmY10,TmY16,TmY17,TmY5a",
+    "predicate_input_types": "Pm101_8,Tm11",
+    "predicate_output_types": "",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Mti118_7": {
+    "cells": "20",
+    "all_input_types": "Mti106_7,Mti111_7,R7",
+    "all_output_types": "Mti106_7,Mti120_7,SDm102_67",
+    "predicate_input_types": "",
+    "predicate_output_types": "Mti120_7",
+    "precision": "0.5",
+    "recall": "1.0",
+    "f_score": "0.6666666666666666"
+  },
+  "Lpi105_4-34": {
+    "cells": "1",
+    "all_input_types": "LLP100_L5a6-LP1234,LPi1-2,LPi2b,LPi3-4,LPi4-3,Lpi101_34-34,Lpt104_12,T4c,T4d,T5c,T5d,Tlp1,Tlp6,Tm5a,TmY12,TmY15,TmY4,TmY5a,TmY9,Y12",
+    "all_output_types": "H1,LLP100_L5a6-LP1234,LPi1-2,LPi100_4-14,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Lpi101_34-34,Lpi102_12,Lpi108_43,Lpt104_12,Pm101_8,T2,T4a,T4b,T4c,T4d,T5c,T5d,Tlp1,Tlp4,Tlp5,Tlp6,TmY11,TmY14,TmY15,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "",
+    "predicate_output_types": "Lpi108_43,Pm101_8",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Mti119_7": {
+    "cells": "9",
+    "all_input_types": "Li110_56,Mti105_67,Tm5",
+    "all_output_types": "Dm101_6,Dm19,Dm2,ML104_M47-L6,Mti103_7,Mti106_7,Mti123_37,Pm4,SDm100_67,T2a,Tm101b_M78-L5,Tm5",
+    "predicate_input_types": "Mti105_67",
+    "predicate_output_types": "Mti106_7,SDm100_67",
+    "precision": "0.75",
+    "recall": "1.0",
+    "f_score": "0.8571428571428571"
+  },
+  "Pm103_89": {
+    "cells": "16",
+    "all_input_types": "LM102a_L234-M89,LM102b_L3-M8,LpM100a_Lp34-M567,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi14,Mi4,Mi9,Mti105_67,Olt,Pm1,Pm102_8,Pm1a,Pm2,Pm3,SDm102_67,T2a,T3,Tm1,Tm102_M2378-L6,Tm16,Tm2,Tm20,Tm21,Tm25,Tm3,Tm4,Tm4a,Tm5,Tm7,Tm8,TmY11,TmY14,TmY16,TmY17,TmY3,TmY4,TmY5a,TmY9,Y11,Y3",
+    "all_output_types": "C3,Dm19,LM101_L234-M89,LM102a_L234-M89,ML100_M47-L6,ML101_M89-L235,ML103_M89-L6,ML104_M47-L6,Mi1,Mi10,Mi14,Mi2,Mi4,Mi9,Mti104_78,Mti128_7,Olt,Pm1,Pm101_8,Pm1a,Pm2,Pm3,Pm4,T2,T2a,T3,Tm1,Tm101b_M78-L5,Tm102_M2378-L6,Tm21,Tm3,Tm4,Tm4a,TmY12,TmY14,TmY15,TmY16,TmY4,TmY5a,Y1",
+    "predicate_input_types": "Olt,TmY14",
+    "predicate_output_types": "Pm2,TmY15",
+    "precision": "0.9411764705882353",
+    "recall": "1.0",
+    "f_score": "0.9696969696969697"
+  },
+  "TmY5": {
+    "cells": "2",
+    "all_input_types": "L5,Mi1,Mi2,Mi4,Mi9,Pm1,Pm2,Pm4,Tm3",
+    "all_output_types": "Mi10,Mi4,T2,TmY15,TmY5a",
+    "predicate_input_types": "Mi1,Mi4",
+    "predicate_output_types": "Mi4,TmY5a",
+    "precision": "0.00980392156862745",
+    "recall": "1.0",
+    "f_score": "0.019417475728155338"
+  },
+  "LC14": {
+    "cells": "27",
+    "all_input_types": "LLP100_L5a6-LP1234,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li100_5,Li102_23,Li103_23,Li105_235,Li108a_345a6,Li110_56,Li115_3,Li118_6,Li119_2,Li121_56,Li122_56,Li123_56,ML101_M89-L235,ML102_M24-L45,T2,T2a,T3,Tlp1,Tlp4,Tm100_M68-L5,Tm16,Tm20,Tm21,Tm24,Tm25,Tm4,Tm5,Tm5b,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY12,TmY15,TmY17,TmY20,TmY3,TmY4,TmY5a,TmY9,Y1,Y12,Y3",
+    "all_output_types": "Li108b_345a6,Tm24,Tm5",
+    "predicate_input_types": "LM101_L234-M89,ML101_M89-L235,T2a,TmY17",
+    "predicate_output_types": "",
+    "precision": "0.5",
+    "recall": "0.25925925925925924",
+    "f_score": "0.34146341463414637"
+  },
+  "Tm11": {
+    "cells": "1",
+    "all_input_types": "Dm8,Li108a_345a6,Li121_56,Mi4,Mti107_67,Mti112_67,Tm101b_M78-L5,Tm16,Tm5c,Tm7,Tm8,TmY10,TmY17,TmY9,Y3",
+    "all_output_types": "Li108a_345a6,Li108b_345a6,Li122_56,Li123_56,Mti105_67,Mti112_67,Tm101a_M78-L5,Tm7,TmY17",
+    "predicate_input_types": "Li108a_345a6",
+    "predicate_output_types": "Tm101a_M78-L5,Tm7",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "LC14b": {
+    "cells": "18",
+    "all_input_types": "LLP100_L5a6-LP1234,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li105_235,Li107_56,Li108_345a6,Li108a_345a6,Li108b_345a6,Li116_234,Li121_56,ML101_M89-L235,T2,T2a,Tm100_M68-L5,Tm16,Tm4,Tm4a,Tm8,TmY10,TmY11,TmY15,TmY17,TmY20,TmY3,TmY4,TmY9,Y3",
+    "all_output_types": "",
+    "predicate_input_types": "LM102b_L3-M8,T2a,TmY17",
+    "predicate_output_types": "",
+    "precision": "0.2127659574468085",
+    "recall": "0.5555555555555556",
+    "f_score": "0.3076923076923077"
+  },
+  "Li118_6": {
+    "cells": "1",
+    "all_input_types": "Li121_56,Tm101a_M78-L5,TmY4,TmY9",
+    "all_output_types": "LC14,Li107_56,Li110_56,Tm5,Tm7,Tm8,TmY10,TmY17,TmY9",
+    "predicate_input_types": "Tm101a_M78-L5",
+    "predicate_output_types": "LC14,Li107_56",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Li105_235": {
+    "cells": "6",
+    "all_input_types": "LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li100_5,Li102_23,Li103_23,Li105_235,Li107_56,Li108a_345a6,Li111_2,Li116_234,Li119_2,Li121_56,Li122_56,Li123_56,ML101_M89-L235,ML105_M6-L5,T2,T2a,T3,Tlp4,Tm100_M68-L5,Tm21,Tm24,Tm4,Tm4a,Tm5,Tm8,TmY12,TmY20,TmY4,Y11,Y12,Y4",
+    "all_output_types": "LC14,LC14b,LLP100_L5a6-LP1234,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li100_5,Li102_23,Li103_23,Li103_24,Li105_235,Li108_345a6,Li108a_345a6,Li108b_345a6,Li111_2,Li115_3,Li122_56,Li123_56,ML101_M89-L235,ML105_M6-L5,Pm2,T2a,Tm101b_M78-L5,Tm21,Tm23,Tm24,TmY14,TmY15,TmY16,TmY17,TmY20,TmY4,Y1",
+    "predicate_input_types": "Li107_56",
+    "predicate_output_types": "LLP100_L5a6-LP1234,Li123_56,Tm24",
+    "precision": "0.375",
+    "recall": "1.0",
+    "f_score": "0.5454545454545454"
+  },
+  "Dm19": {
+    "cells": "15",
+    "all_input_types": "C3,Dm1,Dm100_125,Dm14,Dm15,Dm17,Dm18,Dm19,Dm2,Dm20,Dm3,Dm6,L1,L2,LM102a_L234-M89,LM102b_L3-M8,Lawf2,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi1,Mi10,Mi104_1468,Mi13,Mi15,Mi2,Mi4,Mi9,Mti104_78,Mti105_67,Mti106_7,Mti111_7,Mti117_7,Mti119_7,Mti120_7,Mti123_37,Olt,Pm1,Pm101_8,Pm103_89,Pm1a,Pm2,Pm4,R1-6,SDm100_67,SDm102_67,T1,T2,T3,Tm1,Tm101a_M78-L5,Tm102_M2378-L6,Tm16,Tm2,Tm20,Tm3,Tm4a,Tm8,TmY10,TmY11,TmY16,TmY17,TmY4,TmY5a,Y3",
+    "all_output_types": "C2,Dm1,Dm14,Dm15,Dm17,Dm19,Dm2,Dm20,Dm6,Dm9,L1,L2,L4,L5,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Lawf2,Mi1,Mi10,Mi13,Mi14,Mi15,Mi2,Mi4,Mi9,Mti104_78,Mti105_67,Mti106_7,Mti108_7,Mti120_7,Olt,Pm101_8,Pm102_8,Pm2,Pm4,R1-6,SDm100_67,SDm101_67,SDm102_67,T1,T2,T2a,Tm1,Tm101a_M78-L5,Tm101b_M78-L5,Tm1a,Tm2,Tm20,Tm21,Tm4,Tm4a,Tm5b,Tm7,TmY15,TmY16,TmY3,TmY4",
+    "predicate_input_types": "Dm17,Mi10,T1",
+    "predicate_output_types": "Dm17",
+    "precision": "1.0",
+    "recall": "0.6666666666666666",
+    "f_score": "0.8"
+  },
+  "LLP100_L5a6-LP1234": {
+    "cells": "34",
+    "all_input_types": "LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102b_L3-M8,LPi4-3,Li100_5,Li105_235,Li107_56,Li108a_345a6,Li108b_345a6,Li110_56,Li122_56,Lpi101_34-34,Lpi102_12,Lpi105_4-34,ML100_M47-L6,ML101_M89-L235,ML103_M89-L6,ML104_M47-L6,T4c,Tlp1,Tlp4,Tlp5,Tlp6,Tm16,Tm2,Tm24,Tm3,Tm4,Tm5c,Tm8,TmY11,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "LC14,LC14b,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LPi2-1,LPi2b,LPi3-4,LPi34-12,LPi4-3,Li100_5,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li110_56,Li121_56,Li122_56,Li123_56,Lpc101-34,Lpi101_34-34,Lpi105_4-34,Lpi107_34,Lpi108_43,Lpt104_12,ML101_M89-L235,Tlp1,Tlp4,Tlp5,Tm101b_M78-L5,Tm2,Tm24,Tm5c,Tm7,Tm8,TmY11,TmY14,TmY17,TmY20,TmY4,TmY5a,Y1,Y11,Y3,Y4",
+    "predicate_input_types": "Tlp1",
+    "predicate_output_types": "Li108a_345a6,TmY20",
+    "precision": "0.9375",
+    "recall": "0.8823529411764706",
+    "f_score": "0.9090909090909091"
+  },
+  "Tm5a": {
+    "cells": "7",
+    "all_input_types": "LM102a_L234-M89,Mi1,Mi10,Mi4,Mi9,Mt5,Pm1,Pm1a,Pm2,Pm3,Pm4,T2,T2a,Tm16,Tm21,Tm3,Tm4,Tm4a,Tm5c,TmY17,TmY20,TmY3,TmY4,TmY9,Y3",
+    "all_output_types": "Dm13,Dm18,LM102a_L234-M89,LM102b_L3-M8,Lawf1,Li100_5,Li108b_345a6,Li110_56,Li111_2,Lpi105_4-34,Pm104_89,Pm2,Pm3,SDm101_67,T2,T3,Tlp6,Tm101b_M78-L5,Tm21,Tm4,Tm5,TmY15,TmY17,TmY20,TmY5a,Y3",
+    "predicate_input_types": "Pm1a,Pm4,Tm3,Y3",
+    "predicate_output_types": "Y3",
+    "precision": "0.011904761904761904",
+    "recall": "0.42857142857142855",
+    "f_score": "0.023166023166023165"
+  },
+  "Mti110_678": {
+    "cells": "14",
+    "all_input_types": "Dm2,Dm8,ML100_M47-L6,ML105_M6-L5,ML106_M67-L6,Mi10,Mti100_347,Mti102_76,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti115_367,Mti128_7,SDm100_67,SDm102_67,Tm101b_M78-L5,Tm16,Tm20,Tm5,Tm5c,Tm7,Tm8,TmY10,TmY17,TmY5a",
+    "all_output_types": "Dm2,MC61,ML105_M6-L5,Mi1,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti122_78,Pm4,Tm101a_M78-L5,Tm101b_M78-L5,Tm20,Tm5,Tm5c,Tm7,Tm8,Y4",
+    "predicate_input_types": "Mti104_78,Mti112_67,TmY5a",
+    "predicate_output_types": "Mti112_67",
+    "precision": "0.5",
+    "recall": "0.2857142857142857",
+    "f_score": "0.36363636363636365"
+  },
+  "Li103_24": {
+    "cells": "6",
+    "all_input_types": "LM100_L234-M89,LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li102_23,Li103_23,Li103_24,Li105_235,Li108a_345a6,Li108b_345a6,Li111_2,Li116_234,Li119_2,Li121_56,ML101_M89-L235,Mi1,T2,T2a,T3,Tlp1,Tlp4,Tlp5,Tlp6,Tm100_M68-L5,Tm16,Tm2,Tm20,Tm25,Tm3,Tm4,Tm4a,TmY11,TmY14,TmY20,TmY3,TmY4,TmY9,Y11,Y12,Y4",
+    "all_output_types": "LM101_L234-M89,LM102a_L234-M89,LM102b_L3-M8,Li100_5,Li102_23,Li103_24,Li108a_345a6,Li111_2,Li119_2,ML101_M89-L235,Pm2,T2,T2a,T3,T5b,Tm24,TmY12,TmY15",
+    "predicate_input_types": "T2a,TmY11",
+    "predicate_output_types": "Li119_2,T2,TmY15",
+    "precision": "0.8",
+    "recall": "0.6666666666666666",
+    "f_score": "0.7272727272727273"
+  },
+  "Pm104_89": {
+    "cells": "2",
+    "all_input_types": "C3,LM102a_L234-M89,LM102b_L3-M8,Mi1,Mi4,Mi9,Mt5,Olt,Pm1,Pm102_8,Pm104_89,Pm1a,Pm2,Pm3,Tm1,Tm1a,Tm2,Tm3,Tm4,Tm5a,TmY15,TmY16,TmY3,TmY4,TmY5a,Y3",
+    "all_output_types": "ML101_M89-L235,Mi1,Mi9,Mt5,Olt,Pm1,Pm101_8,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T2,T2a,Tm2,Tm21,TmY1,TmY12,TmY14,TmY15,TmY5a,Y11,Y3",
+    "predicate_input_types": "Mt5,Olt",
+    "predicate_output_types": "",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Dm17": {
+    "cells": "4",
+    "all_input_types": "Dm104_12,Dm14,Dm15,Dm17,Dm19,Dm20,Dm6,L1,L2,L4,Mi1,Mi10,Mi104_1468,Mi4,R1-6,T1,Tm1,Tm2,Tm3,TmY10,TmY9",
+    "all_output_types": "Dm14,Dm15,Dm17,Dm19,Dm6,L1,L2,L4,Lpi101_34-34,Mi1,Mi10,Mi13,Mi14,Mi4,Mi9,R1-6,T1,T2,Tm1,Tm1a,Tm2,Tm4,Tm4a,TmY3",
+    "predicate_input_types": "Dm14,Dm19",
+    "predicate_output_types": "Dm19,T1",
+    "precision": "0.4",
+    "recall": "1.0",
+    "f_score": "0.5714285714285714"
+  },
+  "Mti104_78": {
+    "cells": "1",
+    "all_input_types": "Dm19,Dm2,LM102a_L234-M89,LM102b_L3-M8,LpM100a_Lp34-M567,LpM100b_Lp34-M67-Lp4,ML101_M89-L235,ML103_M89-L6,ML106_M67-L6,Mi10,Mi104_1468,Mi4,Mi9,Mti100_347,Mti102_76,Mti105_67,Mti106_7,Mti108_7,Mti111_7,Mti112_67,Mti114_678,Mti115_367,Mti120_7,Mti121_7,Mti122_78,Mti123_37,Olt,Pm101_8,Pm102_8,Pm103_89,Pm1a,Pm2,Pm4,SDm100_67,SDm101_67,SDm102_67,T2a,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm4,Tm5,Tm7,Tm8,TmY10,TmY11,TmY15,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y3,Y4",
+    "all_output_types": "C2,Dm10,Dm101_6,Dm102a_6,Dm19,Dm2,Dm5,Dm7,Dm9,ML100_M47-L6,ML104_M47-L6,ML105_M6-L5,ML106_M67-L6,Mi104_1468,Mi13,Mi14,Mi15,Mi2,Mi4,Mti100_347,Mti102_76,Mti105_67,Mti106_7,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti115_367,Mti121_7,Mti122_78,Mti123_37,Mti126_67,Mti128_7,Olt,Pm101_8,Pm102_8,Pm2,Pm4,SDm100_67,SDm101_67,SDm102_67,T2a,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm5c,Tm7,Tm8,TmY15,TmY16,TmY17,TmY3,TmY4,TmY5a,TmY9,Y1",
+    "predicate_input_types": "",
+    "predicate_output_types": "Mti115_367,Olt",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Lpi107_34": {
+    "cells": "5",
+    "all_input_types": "LLP100_L5a6-LP1234,LPi4-3,Lpi102_12,T4c,T5c,T5d,Tlp6,TmY4",
+    "all_output_types": "LPi1-2,Lpi101_34-34,Lpi102_12,Tlp4,TmY17,TmY20,Y1,Y11,Y3",
+    "predicate_input_types": "LLP100_L5a6-LP1234,LPi4-3,TmY4",
+    "predicate_output_types": "Tlp4,TmY17",
+    "precision": "0.3333333333333333",
+    "recall": "0.4",
+    "f_score": "0.36363636363636365"
+  },
+  "Am": {
+    "cells": "5",
+    "all_input_types": "Lawf2",
+    "all_output_types": "L3,T1",
+    "predicate_input_types": "Lawf2",
+    "predicate_output_types": "",
+    "precision": "0.004993757802746567",
+    "recall": "0.8",
+    "f_score": "0.009925558312655087"
+  },
+  "Mti103_7": {
+    "cells": "3",
+    "all_input_types": "Dm2,Mti102_76,Mti103_7,Mti105_67,Mti106_7,Mti115_367,Mti119_7,Mti120_7,Mti121_7,Tm5c",
+    "all_output_types": "Dm2,Mti103_7,Mti105_67,Mti106_7,Mti115_367,Mti123_37,SDm100_67,SDm102_67,Tm101a_M78-L5,Tm16",
+    "predicate_input_types": "Mti120_7",
+    "predicate_output_types": "SDm102_67",
+    "precision": "0.6666666666666666",
+    "recall": "0.6666666666666666",
+    "f_score": "0.6666666666666666"
+  },
+  "Mti114_678": {
+    "cells": "4",
+    "all_input_types": "Dm101_6,Dm8,ML105_M6-L5,Mi10,Mt103_67,Mti100_347,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Pm4,SDm101_67,Tm101b_M78-L5,Tm20,Tm5,Tm7,Tm8,TmY10,TmY17,TmY5a,TmY9",
+    "all_output_types": "Mti104_78,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti122_78,Pm4,SDm100_67,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm20,Tm5,Tm8",
+    "predicate_input_types": "ML105_M6-L5,Mti100_347,TmY5a",
+    "predicate_output_types": "Tm5",
+    "precision": "0.5",
+    "recall": "1.0",
+    "f_score": "0.6666666666666666"
+  },
+  "MC61": {
+    "cells": "2",
+    "all_input_types": "Dm8,Li120_5-5,Mti107_67,Mti110_678,SDm100_67,Tm16,Tm20,Tm5,Tm9,Y3",
+    "all_output_types": "Li122_56,ML105_M6-L5,Mti105_67,Mti112_67,SDm100_67,SDm101_67,Tm24,Tm5",
+    "predicate_input_types": "",
+    "predicate_output_types": "",
+    "precision": "0",
+    "recall": "0",
+    "f_score": "0"
+  },
+  "Mti111_7": {
+    "cells": "3",
+    "all_input_types": "Dm2,Mti111_7",
+    "all_output_types": "Dm19,Mti100_347,Mti104_78,Mti106_7,Mti111_7,Mti118_7,Mti120_7,Mti123_37,Pm101_8,SDm100_67,Tm16",
+    "predicate_input_types": "",
+    "predicate_output_types": "Mti111_7,Pm101_8",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Mti108_7": {
+    "cells": "9",
+    "all_input_types": "Dm101_6,Dm19,Dm2,ML105_M6-L5,ML106_M67-L6,Mi10,Mi15,Mt103_67,Mti100_347,Mti102_76,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti115_367,Mti123_37,Mti126_67,Pm4,Tm101a_M78-L5,Tm101b_M78-L5,Tm102_M2378-L6,Tm16,Tm20,Tm5,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY17,TmY5a",
+    "all_output_types": "Dm2,ML100_M47-L6,ML101_M89-L235,ML105_M6-L5,Mi104_1468,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti122_78,Pm4,SDm100_67,Tm101a_M78-L5,Tm101b_M78-L5,Tm20,Tm5,Tm5c,Tm7,Tm8",
+    "predicate_input_types": "Mti112_67,Tm101b_M78-L5,TmY10",
+    "predicate_output_types": "Mti108_7",
+    "precision": "0.5",
+    "recall": "0.7777777777777778",
+    "f_score": "0.6086956521739131"
+  },
+  "Mti117_7": {
+    "cells": "2",
+    "all_input_types": "Mt103_67,Mti102_76,Mti120_7",
+    "all_output_types": "Dm11,Dm19,Mti106_7,Mti120_7",
+    "predicate_input_types": "Mt103_67,Mti120_7",
+    "predicate_output_types": "Mti120_7",
+    "precision": "0.6666666666666666",
+    "recall": "1.0",
+    "f_score": "0.8"
+  },
+  "LLpt101_L56-Lp2": {
+    "cells": "1",
+    "all_input_types": "LLP100_L5a6-LP1234,LM102a_L234-M89,LM102b_L3-M8,LPi2b,Li100_5,Li107_56,Li108b_345a6,Li110_56,Li121_56,Li123_56,Lpi102_12,T2a,T3,Tlp1,Tlp4,Tlp5,Tm16,Tm3,Tm4,TmY11,TmY17,TmY5a,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "LLP100_L5a6-LP1234,LM101_L234-M89,Li100_5,Li108b_345a6,Li110_56,Li121_56,ML102_M24-L45,Tm100_M68-L5,Tm24,TmY5a,Y1,Y11,Y3",
+    "predicate_input_types": "",
+    "predicate_output_types": "LM101_L234-M89,Tm24,Y11",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Tm5b": {
+    "cells": "15",
+    "all_input_types": "Dm10,Dm19,Dm2,Dm20,Dm8,L3,Li121_56,Mi10,Mi104_1468,Mi4,Mi9,Mti100_347,Mti105_67,Mti116_346,SDm100_67,SDm101_67,Tm101b_M78-L5,Tm5,Tm5c,Tm7,TmY17,Y3",
+    "all_output_types": "Dm102a_6,Dm12,LC14,Lawf1,Li108a_345a6,Li108b_345a6,Li109_456,Li120_5-5,Li122_56,Li123_56,ML106_M67-L6,Mi10,Mi4,Mi9,Mti105_67,Mti112_67,SDm101_67,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm1a,Tm4,Tm5c,Tm7,Tm8,TmY15,TmY3,TmY5a",
+    "predicate_input_types": "Dm8,Tm5c",
+    "predicate_output_types": "Mti105_67,Mti112_67,SDm101_67",
+    "precision": "0.35294117647058826",
+    "recall": "0.4",
+    "f_score": "0.375"
+  },
+  "Mti128_7": {
+    "cells": "3",
+    "all_input_types": "Dm2,ML101_M89-L235,Mti104_78,Mti123_37,Pm103_89,Tm101a_M78-L5,Tm3,Y1",
+    "all_output_types": "Dm101_6,Mti105_67,Mti110_678,Pm102_8,Pm4",
+    "predicate_input_types": "Mti104_78,Mti123_37",
+    "predicate_output_types": "Mti105_67,Pm4",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Dm5": {
+    "cells": "1",
+    "all_input_types": "L5,Mi1,Mi9,Mti104_78,Y3",
+    "all_output_types": "Mi4,TmY3",
+    "predicate_input_types": "Mti104_78,Y3",
+    "predicate_output_types": "TmY3",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Dm104_12": {
+    "cells": "1",
+    "all_input_types": "Mi14,T2",
+    "all_output_types": "Dm14,Dm15,Dm17,Dm3,Dm6",
+    "predicate_input_types": "",
+    "predicate_output_types": "Dm14,Dm3,Dm6",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Mti112_67": {
+    "cells": "2",
+    "all_input_types": "Dm101_6,Dm2,Dm4,Dm8,MC61,ML101_M89-L235,ML105_M6-L5,ML106_M67-L6,Mi1,Mi10,Mt103_67,Mti102_76,Mti104_78,Mti105_67,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti115_367,Mti126_67,Pm4,SDm100_67,SDm101_67,SDm102_67,Tm11,Tm2,Tm3,Tm5,Tm5b,Tm5c,Tm7,Tm8,Tm9,TmY10,TmY11,TmY17,TmY5a",
+    "all_output_types": "Dm102a_6,Dm11,Dm2,Dm8,Dm9,ML101_M89-L235,ML106_M67-L6,Mi4,Mt103_67,Mti104_78,Mti105_67,Mti106_7,Mti107_67,Mti108_7,Mti110_678,Mti112_67,Mti114_678,Mti115_367,Pm101_8,Pm4,SDm102_67,Tm100_M68-L5,Tm101a_M78-L5,Tm11,Tm1a,Tm5,Tm5c,Tm7,Tm8,TmY12,TmY5a",
+    "predicate_input_types": "Mti114_678,Tm11",
+    "predicate_output_types": "",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Dm7": {
+    "cells": "2",
+    "all_input_types": "Mi10,Mi9,Mti104_78,T4a",
+    "all_output_types": "Tm101b_M78-L5",
+    "predicate_input_types": "Mi10,Mti104_78",
+    "predicate_output_types": "",
+    "precision": "0.024691358024691357",
+    "recall": "1.0",
+    "f_score": "0.04819277108433735"
+  },
+  "Tm6": {
+    "cells": "3",
+    "all_input_types": "Dm18,L5,Li116_234,ML101_M89-L235,Mi1,Mi2,Mi9,Pm4,T2,T3,Tm1,Tm2,Tm21,Tm4,Tm5c",
+    "all_output_types": "Li115_3,TmY5a",
+    "predicate_input_types": "L5,Li116_234,Mi2,Pm4,Tm1",
+    "predicate_output_types": "",
+    "precision": "0.0136986301369863",
+    "recall": "0.6666666666666666",
+    "f_score": "0.026845637583892617"
+  },
+  "Mti121_7": {
+    "cells": "5",
+    "all_input_types": "ML104_M47-L6,Mti104_78,Mti120_7,Mti121_7,Mti124_67,SDm101_67,SDm102_67",
+    "all_output_types": "Dm2,ML104_M47-L6,Mi14,Mti103_7,Mti104_78,Mti105_67,Mti106_7,Mti120_7,Mti121_7,Mti123_37,SDm100_67,SDm102_67",
+    "predicate_input_types": "Mti104_78",
+    "predicate_output_types": "Mti103_7,SDm100_67",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "H1": {
+    "cells": "1",
+    "all_input_types": "LPi1-2,LPi100_4-14,LPi2b,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi106_2,Lpt104_12,T4b,T5b,Tlp1,Tlp4,Y11",
+    "all_output_types": "LPi2b,Lpi106_2",
+    "predicate_input_types": "LPi100_4-14",
+    "predicate_output_types": "Lpi106_2",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "LC12": {
+    "cells": "1",
+    "all_input_types": "",
+    "all_output_types": "",
+    "predicate_input_types": "",
+    "predicate_output_types": "",
+    "precision": "0",
+    "recall": "0",
+    "f_score": "0"
+  },
+  "LM100_L234-M89": {
+    "cells": "3",
+    "all_input_types": "Li103_23,ML101_M89-L235,T2,T2a,Tm2,Tm3,Tm4a,TmY15",
+    "all_output_types": "Li103_23,Li103_24,ML101_M89-L235,T4b,TmY15",
+    "predicate_input_types": "ML101_M89-L235,T2,Tm2",
+    "predicate_output_types": "Li103_23,Li103_24",
+    "precision": "1.0",
+    "recall": "0.6666666666666666",
+    "f_score": "0.8"
+  },
+  "Tm102_M2378-L6": {
+    "cells": "1",
+    "all_input_types": "Dm6,Dm8,L3,Li108a_345a6,ML102_M24-L45,Mi10,Mi4,Pm101_8,Pm102_8,Pm103_89,Pm2,SDm101_67,Tm100_M68-L5,Tm101b_M78-L5,Tm3,Tm4,Tm5c,TmY17,Y3",
+    "all_output_types": "Dm1,Dm19,Dm20,Dm3,Li108a_345a6,Li108b_345a6,Mi104_1468,Mi4,Mti108_7,Pm102_8,Pm103_89,Pm2,Pm3,SDm101_67,Tm1,Tm100_M68-L5,Tm101b_M78-L5,Tm25,Tm5c,TmY17,TmY3,TmY9,Y3",
+    "predicate_input_types": "",
+    "predicate_output_types": "SDm101_67,Tm101b_M78-L5,TmY3,Y3",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Lpi106_2": {
+    "cells": "1",
+    "all_input_types": "H1,LPi1-2,LPi100_4-14,LPi2b,LPi34-12,Lpi102_12,T4a,T4b,T4c,T5a,T5b,TmY4,TmY5a",
+    "all_output_types": "H1,LPi1-2,LPi2-1,LPi2b,LPi34-12,LPi4-3,Lpi102_12,Lpt104_12,T2a,T4a,T4b,T4c,T4d,T5a,T5b,Tlp1,Tlp4,Tlp5,TmY14,TmY16,TmY4,Y1,Y11,Y12",
+    "predicate_input_types": "",
+    "predicate_output_types": "Lpi102_12,T2a",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Li110_56": {
+    "cells": "1",
+    "all_input_types": "LLP100_L5a6-LP1234,LLpt101_L56-Lp2,Li100_5,Li108_345a6,Li108a_345a6,Li108b_345a6,Li118_6,Li121_56,Li123_56,ML101_M89-L235,ML103_M89-L6,ML106_M67-L6,Tlp4,Tlp5,Tm100_M68-L5,Tm101a_M78-L5,Tm101b_M78-L5,Tm16,Tm2,Tm4,Tm5,Tm5a,Tm8,TmY10,TmY11,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y11,Y3,Y4",
+    "all_output_types": "LC14,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM101_L234-M89,Li100_5,Li108_345a6,Li108a_345a6,Li108b_345a6,Li109_456,Li120_5-5,Li121_56,ML101_M89-L235,Mti119_7,Tm16,Tm19,Tm24,Tm4,Tm5,Tm8,TmY10,TmY11,TmY17,TmY20,TmY4,TmY5a,TmY9,Y3",
+    "predicate_input_types": "Li118_6",
+    "predicate_output_types": "Tm4",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Mt103_67": {
+    "cells": "1",
+    "all_input_types": "ML105_M6-L5,Mti105_67,Mti112_67,SDm100_67,SDm102_67",
+    "all_output_types": "Dm101_6,Dm102a_6,Dm102b_6,Dm8,Mti105_67,Mti107_67,Mti108_7,Mti112_67,Mti114_678,Mti116_346,Mti117_7",
+    "predicate_input_types": "",
+    "predicate_output_types": "Dm8,Mti117_7",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "R8": {
+    "cells": "2",
+    "all_input_types": "L3",
+    "all_output_types": "Dm2,Mi1,Mi15,Mi4,Tm20,Y12",
+    "predicate_input_types": "",
+    "predicate_output_types": "Mi1,Mi15",
+    "precision": "0.009523809523809525",
+    "recall": "1.0",
+    "f_score": "0.018867924528301886"
+  },
+  "Olt": {
+    "cells": "1",
+    "all_input_types": "Dm19,L4,L5,ML101_M89-L235,ML102_M24-L45,ML103_M89-L6,Mi4,Mi9,Mti104_78,Pm1,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,T3,Tm2,Tm3,Tm4,Tm4a,Tm8,TmY15,TmY16,TmY3,TmY5a,TmY9,Y1,Y11,Y12,Y4",
+    "all_output_types": "C2,Dm19,ML103_M89-L6,Mi10,Mi13,Mt5,Mti104_78,Pm101_8,Pm102_8,Pm103_89,Pm104_89,Pm2,SDm100_67,TmY12,Y12,Y3",
+    "predicate_input_types": "Tm4",
+    "predicate_output_types": "Pm103_89,Pm104_89",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Tm19": {
+    "cells": "1",
+    "all_input_types": "Dm3,LPi34-12,Li110_56,T5a,Tm1,TmY10,TmY11,TmY9,Y3",
+    "all_output_types": "Li121_56,Tlp4,Tm100_M68-L5,TmY5a,TmY9",
+    "predicate_input_types": "LPi34-12",
+    "predicate_output_types": "Tlp4,Tm100_M68-L5",
+    "precision": "0.3333333333333333",
+    "recall": "1.0",
+    "f_score": "0.5"
+  },
+  "TmY1": {
+    "cells": "1",
+    "all_input_types": "Dm13,Dm14,L4,L5,ML101_M89-L235,ML103_M89-L6,Mi1,Mi4,Mi9,Pm1,Pm104_89,Pm4,T2a,Tm1,Tm2,Tm3,Tm4,TmY15,Y3",
+    "all_output_types": "Lawf2,Li108a_345a6,Mi13,Mi2,Pm1,Pm2,Pm3,TmY15,TmY16,TmY5a,Y3",
+    "predicate_input_types": "L5",
+    "predicate_output_types": "Lawf2,Li108a_345a6",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "LpM100b_Lp34-M67-Lp4": {
+    "cells": "1",
+    "all_input_types": "LPi2b,T4a,T5a,TmY5a",
+    "all_output_types": "Mi104_1468,Mti104_78,Pm102_8,TmY5a",
+    "predicate_input_types": "LPi2b",
+    "predicate_output_types": "Mi104_1468",
+    "precision": "0.3333333333333333",
+    "recall": "1.0",
+    "f_score": "0.5"
+  },
+  "Li100_5": {
+    "cells": "1",
+    "all_input_types": "LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102a_L234-M89,Li103_23,Li103_24,Li105_235,Li107_56,Li108_345a6,Li108a_345a6,Li108b_345a6,Li110_56,Li121_56,ML101_M89-L235,Tlp1,Tlp4,Tlp5,Tm16,Tm2,Tm25,Tm5a,Tm7,TmY10,TmY11,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y11,Y12,Y3,Y4",
+    "all_output_types": "LC14,LLP100_L5a6-LP1234,LLpt101_L56-Lp2,LM102b_L3-M8,Li105_235,Li107_56,Li108_345a6,Li108a_345a6,Li108b_345a6,Li110_56,Li115_3,Li121_56,Li122_56,ML100_M47-L6,ML101_M89-L235,Tlp1,Tlp4,Tm101b_M78-L5,Tm16,Tm2,Tm24,Tm4,Tm5,Tm7,Tm8,TmY11,TmY17,TmY20,TmY4,TmY5a,TmY9,Y1,Y3",
+    "predicate_input_types": "",
+    "predicate_output_types": "Tm4,Tm5,TmY20",
+    "precision": "0.5",
+    "recall": "1.0",
+    "f_score": "0.6666666666666666"
+  },
+  "LPi2b": {
+    "cells": "1",
+    "all_input_types": "H1,LLP100_L5a6-LP1234,LPi1-2,LPi2-1,LPi34-12,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi106_2,Lpt104_12,T2a,T4a,T4b,T4c,T4d,T5a,T5b,T5c,Tlp1,Tlp4,Tlp6,TmY16,TmY17,TmY4,Y1,Y11",
+    "all_output_types": "H1,LLpt101_L56-Lp2,LM102a_L234-M89,LPi1-2,LPi2-1,LPi34-12,LpM100a_Lp34-M567,LpM100b_Lp34-M67-Lp4,Lpi101_34-34,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi106_2,Lpt104_12,T4a,T4b,T4c,T5a,T5b,Tlp1,Tlp4,Tlp5,Tm2,TmY12,TmY14,TmY15,TmY16,TmY17,TmY20,TmY4,TmY9,Y1,Y11,Y12,Y3",
+    "predicate_input_types": "Lpi104_1-2",
+    "predicate_output_types": "TmY12",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "LpM100a_Lp34-M567": {
+    "cells": "1",
+    "all_input_types": "LPi2b,LPi4-3,T4a,T5a,TmY5a",
+    "all_output_types": "Dm2,Mi104_1468,Mti104_78,Pm102_8,Pm103_89,TmY16,TmY17,TmY5a",
+    "predicate_input_types": "LPi4-3",
+    "predicate_output_types": "Mi104_1468",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "LM103_L12-M910": {
+    "cells": "1",
+    "all_input_types": "LM101_L234-M89,LM102a_L234-M89,Tm2,Tm3",
+    "all_output_types": "LM102b_L3-M8,Li101_23,Tm2,TmY15",
+    "predicate_input_types": "",
+    "predicate_output_types": "LM102b_L3-M8,Li101_23,Tm2,TmY15",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Lpt104_12": {
+    "cells": "1",
+    "all_input_types": "LLP100_L5a6-LP1234,LPi1-2,LPi100_4-14,LPi2-1,LPi2b,LPi34-12,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Lpi106_2,T4b,T5a,T5b,Tlp4,Tlp6,TmY17,TmY5a",
+    "all_output_types": "H1,LPi1-2,LPi100_4-14,LPi2-1,LPi2b,Lpi102_12,Lpi104_1-2,Lpi105_4-34,Tlp1,Tlp4,TmY10,TmY11,TmY14,TmY16,TmY17,TmY4,TmY9,Y11,Y3",
+    "predicate_input_types": "",
+    "predicate_output_types": "Lpi102_12,Lpi104_1-2,TmY11",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  },
+  "Pm101_8": {
+    "cells": "2",
+    "all_input_types": "Dm19,Dm2,LM102a_L234-M89,Lpi105_4-34,ML100_M47-L6,ML101_M89-L235,ML103_M89-L6,Mi1,Mi10,Mi104_1468,Mi14,Mi2,Mi4,Mi9,Mti104_78,Mti105_67,Mti111_7,Mti112_67,Mti120_7,Mti122_78,Olt,Pm102_8,Pm103_89,Pm104_89,Pm1a,Pm2,Pm3,Pm4,SDm100_67,SDm101_67,T2a,T3,Tlp5,Tm100_M68-L5,Tm101b_M78-L5,Tm16,Tm1a,Tm2,Tm20,Tm21,Tm3,Tm4,Tm5,Tm5c,Tm7,Tm8,TmY10,TmY11,TmY12,TmY15,TmY17,TmY4,TmY5a,TmY9,Y1,Y11,Y4",
+    "all_output_types": "C2,C3,Dm19,Dm8,L4,LM102a_L234-M89,Lawf2,ML101_M89-L235,Mi10,Mi13,Mi14,Mti104_78,Mti105_67,Mti106_7,Mti123_37,Olt,Pm1,Pm102_8,Pm2,Pm4,SDm100_67,T1,T2,T2a,Tlp1,Tlp5,Tm100_M68-L5,Tm101a_M78-L5,Tm102_M2378-L6,Tm16,Tm25,Tm5c,TmY11,TmY12,TmY15,TmY16,TmY3,TmY4,Y1,Y11,Y12,Y4",
+    "predicate_input_types": "Mti111_7,TmY12",
+    "predicate_output_types": "",
+    "precision": "1.0",
+    "recall": "1.0",
+    "f_score": "1.0"
+  }
+}

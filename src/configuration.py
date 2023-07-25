@@ -1,3 +1,4 @@
+import json
 import os
 import uuid
 import socket
@@ -87,6 +88,12 @@ DOWNLOADABLE_ARCHIVE_FILES = {
         },
     },
 }
+
+TYPE_PREDICATES_FILE = (
+    f"{os.getcwd().split(APP_ROOT)[0]}/{APP_ROOT}/src/data/type_predicates.json"
+)
+with open(TYPE_PREDICATES_FILE) as f:
+    TYPE_PREDICATES_METADATA = json.load(f)
 
 GOOGLE_CLIENT_ID = (
     "356707763910-l9ovf7f2at2vc23f3u2j356aokr4eb99.apps.googleusercontent.com"
