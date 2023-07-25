@@ -204,6 +204,8 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Mti122_78",
         "Mti123_37",
         "Mti124_67",
+        "Mti126_67",
+        "Mti128_7",
     ],
     "Serpentine Distal Medulla": [
         "SDm100_67",
@@ -355,6 +357,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Li103_24",
         "Li105_235",
         "Li107_56",
+        "Li108_345a6",
         "Li108a_345a6",
         "Li108b_345a6",
         "Li109_456",
