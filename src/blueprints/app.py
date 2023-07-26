@@ -676,11 +676,15 @@ def custom_cell_lists():
         fs_parts = filter_string.split(":")
         what = fs_parts[0]
         target_type = fs_parts[1]
-        predicate_input_types = set(
-            TYPE_PREDICATES_METADATA[target_type]["predicate_input_types"].split(",")
+
+        def to_set(lst_str):
+            return set([] if not lst_str else lst_str.split(","))
+
+        predicate_input_types = to_set(
+            TYPE_PREDICATES_METADATA[target_type]["predicate_input_types"]
         )
-        predicate_output_types = set(
-            TYPE_PREDICATES_METADATA[target_type]["predicate_output_types"].split(",")
+        predicate_output_types = to_set(
+            TYPE_PREDICATES_METADATA[target_type]["predicate_output_types"]
         )
 
         rid_to_olr_type = {}
@@ -709,24 +713,25 @@ def custom_cell_lists():
         target_type_rids = olr_type_to_rid_lists[target_type]
         matching_type_rid_lists = defaultdict(list)
         for rid, tp in rid_to_olr_type.items():
-            if predicate_output_types.issubset(
+            if (not predicate_output_types or predicate_output_types.issubset(
                 out_type_projections[rid]
-            ) and predicate_input_types.issubset(in_type_projections[rid]):
+            )) and (not predicate_input_types or predicate_input_types.issubset(in_type_projections[rid])):
                 matching_type_rid_lists[tp].append(rid)
-
-        print({k: len(v) for k, v in matching_type_rid_lists.items()})
 
         if what == "type_predicate_true_positives":
             rid_list = matching_type_rid_lists[target_type]
+            assert all([rid_to_olr_type[rid] == target_type for rid in rid_list])
         elif what == "type_predicate_false_positives":
             rid_list = []
             for k, v in matching_type_rid_lists.items():
                 if k != target_type:
                     rid_list.extend(v)
+            assert all([rid_to_olr_type[rid] != target_type for rid in rid_list])
         elif what == "type_predicate_false_negatives":
             rid_list = list(
                 set(target_type_rids) - set(matching_type_rid_lists[target_type])
             )
+            assert all([rid_to_olr_type[rid] == target_type for rid in rid_list])
         else:
             return render_error(f"Unknown operation: {what}")
 

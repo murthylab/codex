@@ -206,6 +206,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Mti124_67",
         "Mti126_67",
         "Mti128_7",
+        "Mti129_6",
     ],
     "Serpentine Distal Medulla": [
         "SDm100_67",
@@ -213,6 +214,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "SDm102_67",
     ],
     "Transmedullary": [
+        "Tm",
         "Tm1",
         "Tm1a",
         "Tm2",
@@ -255,6 +257,12 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Tm101a_M78-L5",
         "Tm101b_M78-L5",
         "Tm102_M2378-L6",
+        "Tm103_M6-L5",
+        "Tm105_M7-L6",
+        "Tm106_M7-L56",
+        "Tm107_M7-L5b",
+        "Tm108_M78-L5b6",
+        "Tm109_M7-L5b",
     ],
     "Lobulla Plate Intrisic": [
         "LPi1-2",
