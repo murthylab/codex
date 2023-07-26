@@ -188,6 +188,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Mti104_78",
         "Mti105_67",
         "Mti106_7",
+        "Mti106b_7",
         "Mti107_67",
         "Mti108_7",
         "Mti110_678",
@@ -207,6 +208,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Mti126_67",
         "Mti128_7",
         "Mti129_6",
+        "Mti142_89-12",
     ],
     "Serpentine Distal Medulla": [
         "SDm100_67",
@@ -323,6 +325,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "TmY25",
         "TmY26",
         "TmY27",
+        "TmY100_M68-L45-LP1",
     ],
     "Lobula Plate": [
         "Lpt1",

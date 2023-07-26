@@ -105,8 +105,8 @@ class OlCatalogTest(TestCase):
         tag_counts = defaultdict(int)
         for nd in self.neuron_db.neuron_data.values():
             if "Unknown-labeled" in extract_markers(nd, "olr_type"):
-                if any(["#temp" in lbl for lbl in nd["label"]]):
-                    for lbl in nd["label"]:
+                for lbl in nd["label"]:
+                    if "#temp" in lbl:
                         tag_counts[lbl.split("; ")[1]] += 1
         if tag_counts:
             print(format_dict_by_largest_value(tag_counts))
