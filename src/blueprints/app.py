@@ -537,11 +537,18 @@ def optic_lobe_catalog():
                         "predicate_output_types": TYPE_PREDICATES_METADATA[t][
                             "predicate_output_types"
                         ],
-                        "predicate_precision": TYPE_PREDICATES_METADATA[t]["precision"][
-                            :4
-                        ],
-                        "predicate_recall": TYPE_PREDICATES_METADATA[t]["recall"][:4],
-                        "predicate_f_score": TYPE_PREDICATES_METADATA[t]["f_score"][:4],
+                        "predicate_precision": TYPE_PREDICATES_METADATA[t]["precision"],
+                        "predicate_recall": TYPE_PREDICATES_METADATA[t]["recall"],
+                        "predicate_f_score": TYPE_PREDICATES_METADATA[t]["f_score"],
+                        "predicate_true_positives_count": len(
+                            TYPE_PREDICATES_METADATA[t]["true_positives"]
+                        ),
+                        "predicate_false_positives_count": len(
+                            TYPE_PREDICATES_METADATA[t]["false_positives"]
+                        ),
+                        "predicate_false_negatives_count": len(
+                            TYPE_PREDICATES_METADATA[t]["false_negatives"]
+                        ),
                     }
                 )
             else:
@@ -676,64 +683,9 @@ def custom_cell_lists():
         fs_parts = filter_string.split(":")
         what = fs_parts[0]
         target_type = fs_parts[1]
-
-        def to_set(lst_str):
-            return set([] if not lst_str else lst_str.split(","))
-
-        predicate_input_types = to_set(
-            TYPE_PREDICATES_METADATA[target_type]["predicate_input_types"]
-        )
-        predicate_output_types = to_set(
-            TYPE_PREDICATES_METADATA[target_type]["predicate_output_types"]
-        )
-
-        rid_to_olr_type = {}
-        olr_type_to_rid_lists = defaultdict(list)
-        for rid, nd in neuron_db.neuron_data.items():
-            for mrk in extract_markers(nd, "olr_type"):
-                if not mrk.lower().startswith("unknown"):
-                    assert rid not in rid_to_olr_type
-                    rid_to_olr_type[rid] = mrk
-                    olr_type_to_rid_lists[mrk].append(rid)
-        ins, outs = neuron_db.input_output_partner_sets()
-        in_type_projections = {}
-        out_type_projections = {}
-        for root_id in rid_to_olr_type.keys():
-            in_type_projections[root_id] = set(
-                [rid_to_olr_type[rid] for rid in ins[root_id] if rid in rid_to_olr_type]
-            )
-            out_type_projections[root_id] = set(
-                [
-                    rid_to_olr_type[rid]
-                    for rid in outs[root_id]
-                    if rid in rid_to_olr_type
-                ]
-            )
-
-        target_type_rids = olr_type_to_rid_lists[target_type]
-        matching_type_rid_lists = defaultdict(list)
-        for rid, tp in rid_to_olr_type.items():
-            if (not predicate_output_types or predicate_output_types.issubset(
-                out_type_projections[rid]
-            )) and (not predicate_input_types or predicate_input_types.issubset(in_type_projections[rid])):
-                matching_type_rid_lists[tp].append(rid)
-
-        if what == "type_predicate_true_positives":
-            rid_list = matching_type_rid_lists[target_type]
-            assert all([rid_to_olr_type[rid] == target_type for rid in rid_list])
-        elif what == "type_predicate_false_positives":
-            rid_list = []
-            for k, v in matching_type_rid_lists.items():
-                if k != target_type:
-                    rid_list.extend(v)
-            assert all([rid_to_olr_type[rid] != target_type for rid in rid_list])
-        elif what == "type_predicate_false_negatives":
-            rid_list = list(
-                set(target_type_rids) - set(matching_type_rid_lists[target_type])
-            )
-            assert all([rid_to_olr_type[rid] == target_type for rid in rid_list])
-        else:
-            return render_error(f"Unknown operation: {what}")
+        rid_list = TYPE_PREDICATES_METADATA[target_type][
+            what.replace("type_predicate_", "")
+        ]
 
     return render_neuron_list(
         DEFAULT_DATA_SNAPSHOT_VERSION,

@@ -1,134 +1,257 @@
+import json
 from collections import defaultdict
-from src.utils.formatting import percentage
+
+from src.data.local_data_loader import write_csv
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils.markers import extract_markers
+from itertools import chain, combinations
 
 
-def predicate_matching_cell_types(
-    in_type_projections,
-    out_type_projections,
-    rid_to_olr_type,
-    types_downstream,
-    types_upstream,
-):
-    matching_type_counts = defaultdict(int)
-    for rid, tp in rid_to_olr_type.items():
-        if types_downstream.issubset(
-            out_type_projections[rid]
-        ) and types_upstream.issubset(in_type_projections[rid]):
-            matching_type_counts[tp] += 1
-    return matching_type_counts
+class OlrPredicatesGenerator(object):
+    def __init__(
+        self,
+        verbose=False,
+        min_f_score=0.6,
+        up_threshold=0.7,
+        down_threshold=0.7,
+        max_set_size=6,
+    ):
+        self.verbose = verbose
+        self.min_f_score = min_f_score
+        self.up_threshold = up_threshold
+        self.down_threshold = down_threshold
+        self.max_set_size = max_set_size
 
+        neuron_db = NeuronDataFactory.instance().get()
+        ins, outs = neuron_db.input_output_partner_sets()
 
-def compute_f_score(olr_type, olr_type_size, predicate_matching_types):
-    predicate_total = sum(predicate_matching_types.values())
+        self.rid_to_olr_type = {}
+        self.olr_type_to_rid_lists = defaultdict(list)
+        for rid, nd in neuron_db.neuron_data.items():
+            for mrk in extract_markers(nd, "olr_type"):
+                if not mrk.lower().startswith("unknown"):
+                    assert rid not in self.rid_to_olr_type
+                    self.rid_to_olr_type[rid] = mrk
+                    self.olr_type_to_rid_lists[mrk].append(rid)
+        self.dbg(f"Collected {len(self.rid_to_olr_type)} with OLR types")
 
-    true_positive = predicate_matching_types[olr_type]
-    false_positive = predicate_total - true_positive
-    false_negative = olr_type_size - true_positive
+        self.in_type_projections = {}
+        self.out_type_projections = {}
+        for root_id in self.rid_to_olr_type.keys():
+            self.in_type_projections[root_id] = set(
+                [
+                    self.rid_to_olr_type[rid]
+                    for rid in ins[root_id]
+                    if rid in self.rid_to_olr_type
+                ]
+            )
+            self.out_type_projections[root_id] = set(
+                [
+                    self.rid_to_olr_type[rid]
+                    for rid in outs[root_id]
+                    if rid in self.rid_to_olr_type
+                ]
+            )
 
-    return (2 * true_positive) / (2 * true_positive + false_positive + false_negative)
+        self.upstream_types_count_for_type = {}
+        self.downstream_types_count_for_type = {}
+        for tp, tp_rid_list in self.olr_type_to_rid_lists.items():
+            upstream_types_count = defaultdict(int)
+            downstream_types_count = defaultdict(int)
+            for rid in tp_rid_list:
+                for drid_type in self.out_type_projections[rid]:
+                    downstream_types_count[drid_type] += 1
+                for urid_type in self.in_type_projections[rid]:
+                    upstream_types_count[urid_type] += 1
+            self.upstream_types_count_for_type[tp] = dict(upstream_types_count)
+            self.downstream_types_count_for_type[tp] = dict(downstream_types_count)
 
+    def dbg(self, msg):
+        if self.verbose:
+            print(msg)
 
-def classify_types_connectivity(
-    rid_to_olr_type,
-    tp_rid_lists,
-    in_type_projections,
-    out_type_projections,
-    down_threshold,
-    up_threshold,
-):
-    f_score_and_size = []
-    correct_predictions = 0
-    for tp in sorted(set(rid_to_olr_type.values())):
-        upstream_types_count = defaultdict(int)
-        downstream_types_count = defaultdict(int)
-        tp_rid_list = tp_rid_lists[tp]
-        for rid in tp_rid_list:
-            for drid_type in out_type_projections[rid]:
-                downstream_types_count[drid_type] += 1
-            for urid_type in in_type_projections[rid]:
-                upstream_types_count[urid_type] += 1
+    def olr_types(self):
+        return sorted(self.olr_type_to_rid_lists.keys())
+
+    def predicate_matching_cell_types(
+        self,
+        types_downstream,
+        types_upstream,
+    ):
+        matching_type_counts = defaultdict(list)
+        for rid, tp in self.rid_to_olr_type.items():
+            if types_downstream.issubset(
+                self.out_type_projections[rid]
+            ) and types_upstream.issubset(self.in_type_projections[rid]):
+                matching_type_counts[tp].append(rid)
+        return matching_type_counts
+
+    @staticmethod
+    def compute_predicate_data(olr_type, olr_true_list, predicate_matching_type_lists):
+        predicate_all_matches_list = []
+        for v in predicate_matching_type_lists.values():
+            predicate_all_matches_list.extend(v)
+        assert len(predicate_all_matches_list) == len(set(predicate_all_matches_list))
+
+        true_positive_list = predicate_matching_type_lists[olr_type]
+        false_positive_list = sorted(
+            set(predicate_all_matches_list) - set(true_positive_list)
+        )
+        false_negative_list = sorted(set(olr_true_list) - set(true_positive_list))
+
+        precision = len(true_positive_list) / len(predicate_all_matches_list)
+        recall = len(true_positive_list) / len(olr_true_list)
+        f_score = (2 * precision * recall) / (precision + recall)
+
+        return {
+            "precision": precision,
+            "recall": recall,
+            "f_score": f_score,
+            "true_positives": true_positive_list,
+            "false_positives": false_positive_list,
+            "false_negatives": false_negative_list,
+        }
+
+    @staticmethod
+    def all_up_down_type_subsets(predicate_types_up, predicate_types_down):
+        def powerset(iterable):
+            "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+            s = list(iterable)
+            return chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
+
+        def subsets(s):
+            return map(set, powerset(s))
+
+        for up_sset in subsets(predicate_types_up):
+            for dn_sset in subsets(predicate_types_down):
+                yield up_sset, dn_sset
+
+    def find_best_predicate_for_type(self, target_olr_type):
+        tp_rid_list = self.olr_type_to_rid_lists[target_olr_type]
+        upstream_types_count = self.upstream_types_count_for_type[target_olr_type]
+        downstream_types_count = self.downstream_types_count_for_type[target_olr_type]
+
+        result = {
+            "cells": len(tp_rid_list),
+            "all_input_types": sorted(upstream_types_count.keys()),
+            "all_output_types": sorted(downstream_types_count.keys()),
+            "predicate_input_types": [],
+            "predicate_output_types": [],
+            "precision": 0,
+            "recall": 0,
+            "f_score": 0,
+            "true_positives": [],
+            "false_positives": [],
+            "false_negatives": [],
+        }
+        self.dbg(
+            f"Finding the best predicate for {target_olr_type} with {len(tp_rid_list)} cells"
+        )
+        if not downstream_types_count and not upstream_types_count:
+            self.dbg("No up/down type counts, can't make a predicate")
+            return result
 
         predicate_types_down = set()
         predicate_types_up = set()
 
         for p in sorted(downstream_types_count.items(), key=lambda x: -x[1]):
-            if p[1] / len(tp_rid_list) > down_threshold:
-                # print(f"  o {percentage(p[1], len(tp_rid_list))} of cells have downstream partner of type {p[0]}")
+            if (
+                len(predicate_types_down) < self.max_set_size
+                and p[1] / len(tp_rid_list) > self.down_threshold
+            ):
                 predicate_types_down.add(p[0])
         for p in sorted(upstream_types_count.items(), key=lambda x: -x[1]):
-            if p[1] / len(tp_rid_list) > up_threshold:
-                # print(f"  x {percentage(p[1], len(tp_rid_list))} of cells have upstream partner of type {p[0]}")
+            if (
+                len(predicate_types_up) < self.max_set_size
+                and p[1] / len(tp_rid_list) > self.up_threshold
+            ):
                 predicate_types_up.add(p[0])
 
-        if predicate_types_down or predicate_types_up:
-            # print(f"Predicate types down/up: {len(predicate_types_down)} / {len(predicate_types_up)}")
-            matching_types = predicate_matching_cell_types(
-                in_type_projections,
-                out_type_projections,
-                rid_to_olr_type,
-                predicate_types_down,
-                predicate_types_up,
+        if not predicate_types_down and not predicate_types_up:
+            self.dbg(
+                f"No up/down type counts above threshold of {self.up_threshold} / {self.down_threshold}, can't make a predicate"
+            )
+            return result
+
+        best_predicate_data = None
+
+        self.dbg(
+            f"Predicate types down/up: {len(predicate_types_down)} / {len(predicate_types_up)}"
+        )
+        for up_types, down_types in self.all_up_down_type_subsets(
+            predicate_types_up, predicate_types_down
+        ):
+            matching_type_lists = self.predicate_matching_cell_types(
+                types_downstream=down_types,
+                types_upstream=up_types,
             )
 
-            # print(format_dict_by_largest_value(matching_types, top_k=3))
-            correct_predictions += matching_types[tp]
-            f_score = compute_f_score(tp, len(tp_rid_list), matching_types)
-            # print(f"F score: {f_score}")
-        else:
-            # print("No common types above threshold down/up")
-            f_score = 0
+            predicate_data = self.compute_predicate_data(
+                olr_type=target_olr_type,
+                olr_true_list=tp_rid_list,
+                predicate_matching_type_lists=matching_type_lists,
+            )
+            if predicate_data["f_score"] < self.min_f_score:
+                continue
 
-        tot_f_score = sum([p[0] * p[1] for p in f_score_and_size])
-        avg_f_score = tot_f_score / max(1, sum([p[1] for p in f_score_and_size]))
-        # print(f"{tp}: {len(tp_rid_list)} cells, {len(predicate_types_down) + len(predicate_types_up)} predicates, f-score {f_score} (avg. f-score: {avg_f_score})")
-        f_score_and_size.append((f_score, len(tp_rid_list)))
+            predicate_data["predicate_input_types"] = sorted(up_types)
+            predicate_data["predicate_output_types"] = sorted(down_types)
 
-    tot_f_score = sum([p[0] * p[1] for p in f_score_and_size])
-    avg_f_score = tot_f_score / max(1, sum([p[1] for p in f_score_and_size]))
-    med_f_score = sorted(f_score_and_size, key=lambda p: p[0])[
-        round(len(f_score_and_size) / 2)
-    ]
-    print(
-        f"{down_threshold}/{up_threshold}: avg. f-score: {avg_f_score}, median f-score: {med_f_score}, correct: {percentage(correct_predictions, len(rid_to_olr_type))}"
-    )
+            if (
+                best_predicate_data is None
+                or predicate_data["f_score"] > best_predicate_data["f_score"]
+                or (
+                    predicate_data["f_score"] == best_predicate_data["f_score"]
+                    and (
+                        len(predicate_data["predicate_input_types"])
+                        + len(predicate_data["predicate_output_types"])
+                    )
+                    < (
+                        len(best_predicate_data["predicate_input_types"])
+                        + len(best_predicate_data["predicate_output_types"])
+                    )
+                )
+            ):
+                best_predicate_data = predicate_data
+        self.dbg(f"best predicate data: {best_predicate_data}")
+
+        if best_predicate_data:
+            result.update(best_predicate_data)
+        return result
 
 
 def run():
-    neuron_db = NeuronDataFactory.instance().get()
-    rid_to_olr_type = {}
-    tp_rid_lists = defaultdict(list)
-    for rid, nd in neuron_db.neuron_data.items():
-        for mrk in extract_markers(nd, "olr_type"):
-            if not mrk.lower().startswith("unknown"):
-                assert rid not in rid_to_olr_type
-                rid_to_olr_type[rid] = mrk
-                tp_rid_lists[mrk].append(rid)
-    print(f"Collected {len(rid_to_olr_type)} with OLR types")
+    olr_predicates_generator = OlrPredicatesGenerator()
 
-    ins, outs = neuron_db.input_output_partner_sets()
+    predictions_table_columns = [
+        "type",
+        "cells",
+        "predicate_input_types",
+        "predicate_output_types",
+        "precision",
+        "recall",
+        "f_score",
+    ]
+    prediction_rows = [predictions_table_columns]
+    prediction_json = {}
 
-    in_type_projections = {}
-    out_type_projections = {}
-    for root_id in rid_to_olr_type.keys():
-        in_type_projections[root_id] = set(
-            [rid_to_olr_type[rid] for rid in ins[root_id] if rid in rid_to_olr_type]
-        )
-        out_type_projections[root_id] = set(
-            [rid_to_olr_type[rid] for rid in outs[root_id] if rid in rid_to_olr_type]
+    def add_row(olr_type, dct):
+        prediction_rows.append(
+            [olr_type] + [str(dct[c]) for c in predictions_table_columns[1:]]
         )
 
-    for dt in [0.9, 0.91, 0.92, 0.93, 0.94, 0.95]:
-        for ut in [0.9, 0.91, 0.92, 0.93, 0.94, 0.95]:
-            classify_types_connectivity(
-                rid_to_olr_type,
-                tp_rid_lists,
-                in_type_projections,
-                out_type_projections,
-                dt,
-                ut,
-            )
+    olr_types = olr_predicates_generator.olr_types()
+    for tp in olr_types:
+        predictions_dict = olr_predicates_generator.find_best_predicate_for_type(tp)
+        add_row(tp, predictions_dict)
+        prediction_json[tp] = predictions_dict
+        print(f"{len(prediction_rows) - 1} / {len(olr_types)}: {prediction_rows[-1]}")
+
+    write_csv(
+        filename="static/experimental_data/type_predicates.csv", rows=prediction_rows
+    )
+    with open("src/data/type_predicates.json", "w") as f:
+        json.dump(prediction_json, fp=f, indent=2)
 
 
 if __name__ == "__main__":
