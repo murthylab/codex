@@ -14,7 +14,7 @@ class OlrPredicatesGenerator(object):
         min_f_score=0.6,
         up_threshold=0.7,
         down_threshold=0.7,
-        max_set_size=6,
+        max_set_size=5,
     ):
         self.verbose = verbose
         self.min_f_score = min_f_score

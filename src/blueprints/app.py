@@ -495,6 +495,7 @@ def optic_lobe_catalog():
                 predicted_olr_type_lists[olt].append(rid)
 
     types_data = {}
+    types_with_predicates = []
     for mt, tl in VISUAL_NEURON_MEGA_TYPE_TO_TYPES.items():
         types_list = []
         for t in tl:
@@ -528,6 +529,7 @@ def optic_lobe_catalog():
                 t in TYPE_PREDICATES_METADATA
                 and float(TYPE_PREDICATES_METADATA[t]["f_score"]) >= 0.6
             ):
+                types_with_predicates.append(t)
                 dct.update(
                     {
                         "predicate": True,
@@ -620,15 +622,24 @@ def optic_lobe_catalog():
         else:
             return display(totlen)
 
-    meta_data = [
-        f"{total_length(olr_type_lists, True, True)} neurons in the right optic lobe have been typed (per catalog)",
-        f"{display(len(olr_type_lists['Unknown-not-labeled']))} of the untyped neurons in the right optic lobe have no labels",
-        f"{total_length(predicted_olr_type_lists)} of the untyped neurons in the right optic lobe have predictions",
-        f"{len(olr_type_lists['Unknown-labeled'])} of the untyped neurons in the right optic lobe have unidentified labels",
-        f"{total_length(non_olr_type_lists)} neurons <b>outside</b> the right optic lobe have types from the catalog",
-        f"{len([k for k, v in olr_type_lists.items() if v and 'Unknown' not in k])} types from the catalog have matches in the right optic lobe",
-        f"{len([k for k, v in olr_type_lists.items() if not v and 'Unknown' not in k])} types from the catalog have <b>no</b> matches in the right optic lobe",
-    ]
+    meta_data = {
+        "Progress": [
+            f"{total_length(olr_type_lists, True, True)} neurons in the right optic lobe have been typed (per catalog)",
+        ],
+        "TODO breakdown": [
+            f"{display(len(olr_type_lists['Unknown-not-labeled']))} of the untyped neurons in the right optic lobe have no labels",
+            f"{len(olr_type_lists['Unknown-labeled'])} of the untyped neurons in the right optic lobe have unidentified labels",
+            f"{total_length(predicted_olr_type_lists)} of the untyped neurons in the right optic lobe have predictions",
+        ],
+        "Types": [
+            f"{len([k for k, v in olr_type_lists.items() if v and 'Unknown' not in k])} types from the catalog have matches in the right optic lobe",
+            f"{len([k for k, v in olr_type_lists.items() if not v and 'Unknown' not in k])} types from the catalog have <b>no</b> matches in the right optic lobe",
+            f"{total_length(non_olr_type_lists)} neurons <b>outside</b> the right optic lobe have types from the catalog",
+        ],
+        "Connectivity predicates": [
+            f"{len(types_with_predicates)} types have connectivity predicates with high precision/recall",
+        ],
+    }
     return render_template(
         "optic_lobe_catalog.html",
         meta_data=meta_data,

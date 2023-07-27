@@ -9,9 +9,12 @@ Optic Lobe Catalog
 
 <div id="accordion">
     <div class="card" style="padding: 20px;">
-        <h5 style="color: teal">Stats</h5>
-        {% for md in meta_data %}
-        <li>{{md|safe}}</li>
+        {% for c, md in meta_data.items() %}
+            <h4 style="color: teal">{{c}}</h4>
+            {% for mdi in md %}
+                <li>{{mdi|safe}}</li>
+            {% endfor %}
+            <br>
         {% endfor %}
     </div>
     {% for mega_type, types_list in types_data.items() %}

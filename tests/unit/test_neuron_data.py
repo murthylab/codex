@@ -657,39 +657,39 @@ class NeuronDataTest(TestCase):
                                 )
 
     def test_label_cleaning(self):
+        bad_labels = False
         for nd in self.neuron_db.neuron_data.values():
             labels = nd["label"]
             self.assertEqual(len(labels), len(set(labels)))
             self.assertTrue(all([len(lbl) > 1 for lbl in labels]), labels)
             for lbl in labels:
                 lbllc = lbl.lower()
-                self.assertFalse(
-                    any(
-                        [
-                            b in lbllc
-                            for b in [
-                                "left",
-                                "right",
-                                "lhs",
-                                "rhs",
-                                "correction",
-                                "correct",
-                                "wrong",
-                            ]
+                if any(
+                    [
+                        b in lbllc
+                        for b in [
+                            "left",
+                            "right",
+                            "lhs",
+                            "rhs",
+                            "correction",
+                            "correct",
+                            "wrong",
                         ]
-                    ),
-                    f"{nd['root_id']}: {labels}",
-                )
+                    ]
+                ):
+                    print(f"Bad label: {nd['root_id']}: {labels}")
+                    bad_labels = True
                 tokens = tokenize(lbllc)
-                self.assertFalse(
-                    any(
-                        [
-                            any([tk.endswith(s) for s in ["_l", "_r", "-l", "-r"]])
-                            for tk in tokens
-                        ]
-                    ),
-                    lbllc,
-                )
+                if any(
+                    [
+                        any([tk.endswith(s) for s in ["_l", "_r", "-l", "-r"]])
+                        for tk in tokens
+                    ]
+                ):
+                    print(lbllc)
+                    bad_labels = True
+        self.assertFalse(bad_labels)
 
     def test_connection_filters(self):
         rid_list = list(self.neuron_db.neuron_data.keys())[:100]
