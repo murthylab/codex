@@ -402,6 +402,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "ML104_M47-L6",
         "ML105_M6-L5",
         "ML106_M67-L6",
+        "ML108_M7-L6",
     ],
     "Other": [
         "Am",
