@@ -10,7 +10,7 @@ from src.data.structured_search_filters import (
     apply_chaining_rule,
     parse_search_query,
 )
-from src.configuration import MIN_NBLAST_SCORE_SIMILARITY
+from src.configuration import MIN_NBLAST_SCORE_SIMILARITY, TYPE_PREDICATES_METADATA
 from src.data.svd import Svd
 from src.service.optic_lobe_types_catalog import (
     assign_types_for_right_optic_lobe_catalog,
@@ -19,7 +19,7 @@ from src.utils.formatting import (
     display,
     percentage,
 )
-from src.utils.logging import log
+from src.utils.logging import log, log_activity
 
 # Keywords will be matched against these attributes
 from src.utils.markers import extract_markers
@@ -550,12 +550,15 @@ class NeuronDB(object):
         chaining_rule, free_form_terms, structured_terms = parse_search_query(
             search_query
         )
-        term_search_results = [
-            self.search_index.search(
-                term=term, case_sensitive=case_sensitive, word_match=word_match
-            )
-            for term in free_form_terms
-        ]
+        term_search_results = []
+        for term in free_form_terms:
+            matching_results = self.match_custom_query(term)
+            if not matching_results:
+                matching_results = self.search_index.search(
+                    term=term, case_sensitive=case_sensitive, word_match=word_match
+                )
+            term_search_results.append(matching_results)
+
         if structured_terms:
             predicate = make_structured_terms_predicate(
                 chaining_rule=chaining_rule,
@@ -689,3 +692,53 @@ class NeuronDB(object):
             f"Applied {prediction_markers_applied} predictions out of {len(olr_prediction_rows)}. "
             f"Missing root ids: {missing_root_ids}.\n{prediction_match=} {prediction_mismatch=}"
         )
+
+    def match_custom_query(self, filter_string):
+        supported_filters = [
+            "olr_false_positives",
+            "olr_false_negatives",
+            "type_predicate_true_positives",
+            "type_predicate_false_positives",
+            "type_predicate_false_negatives",
+        ]
+        if not any([filter_string.startswith(flt) for flt in supported_filters]):
+            return None
+
+        log_activity(f"Loading custom_cell_lists with {filter_string=}")
+
+        if filter_string in ["olr_false_positives", "olr_false_negatives"]:
+            right_ol_neuropils = {"AME_R", "LA_R", "LO_R", "LOP_R", "ME_R"}
+            unassigned_neuropil = "UNASGD"
+
+            def is_olr_by_synapse_regions(ndata):
+                if ndata["side"] != "right":
+                    return False
+                syn_regions = (
+                    set(ndata["input_neuropils"]) | set(ndata["output_neuropils"])
+                ) - {unassigned_neuropil}
+                return syn_regions and syn_regions.issubset(right_ol_neuropils)
+
+            olr_neurons_by_super_class, olr_neurons_by_regions = set(), set()
+            for rid, nd in self.neuron_data.items():
+                if nd["side"] == "right" and nd["super_class"] == "optic":
+                    olr_neurons_by_super_class.add(rid)
+                if is_olr_by_synapse_regions(nd):
+                    olr_neurons_by_regions.add(rid)
+
+            if filter_string == "olr_false_positives":
+                rid_list = olr_neurons_by_super_class - olr_neurons_by_regions
+            else:
+                rid_list = olr_neurons_by_regions - olr_neurons_by_super_class
+            return sorted(
+                rid_list,
+                key=lambda cid: self.get_neuron_data(cid)["input_cells"]
+                + self.get_neuron_data(cid)["output_cells"],
+                reverse=True,
+            )
+        else:
+            fs_parts = filter_string.split(":")
+            what = fs_parts[0]
+            target_type = fs_parts[1]
+            return TYPE_PREDICATES_METADATA[target_type][
+                what.replace("type_predicate_", "")
+            ]

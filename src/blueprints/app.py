@@ -639,77 +639,15 @@ def optic_lobe_catalog():
         "Connectivity predicates": [
             f"{len(types_with_predicates)} types have connectivity predicates with high precision/recall",
         ],
+        "Target set update suggestions": [
+            '<a href="search?filter_string=olr_false_positives", target="_blank">remove</a>',
+            '<a href="search?filter_string=olr_false_negatives", target="_blank">add</a>',
+        ],
     }
     return render_template(
         "optic_lobe_catalog.html",
         meta_data=meta_data,
         types_data=types_data,
-    )
-
-
-@app.route("/custom_cell_lists")
-@request_wrapper
-@require_data_access
-def custom_cell_lists():
-    filter_string = request.args.get("filter_string", default="")
-    page_size = request.args.get("page_size", type=int, default=100)
-    page_number = request.args.get("page_number", type=int, default=1)
-    log_activity(f"Loading custom_cell_lists with {filter_string=} {page_number=}")
-    supported_filters = [
-        "olr_false_positives",
-        "olr_false_negatives",
-        "type_predicate_true_positives",
-        "type_predicate_false_positives",
-        "type_predicate_false_negatives",
-    ]
-    if filter_string.split(":")[0] not in supported_filters:
-        return render_error(
-            message=f"filter_string arg should be one of: {supported_filters}"
-        )
-
-    neuron_db = NeuronDataFactory.instance().get()
-
-    if filter_string in ["olr_false_positives", "olr_false_negatives"]:
-        right_ol_neuropils = set("AME_R,LA_R,LO_R,LOP_R,ME_R,UNASGD".split(","))
-        olr_neurons_by_super_class, olr_neurons_by_regions = set(), set()
-        for rid, nd in neuron_db.neuron_data.items():
-            if nd["side"] == "right" and nd["super_class"] == "optic":
-                olr_neurons_by_super_class.add(rid)
-            if all(
-                [pil in right_ol_neuropils for pil in nd["input_neuropils"]]
-            ) and all([pil in right_ol_neuropils for pil in nd["output_neuropils"]]):
-                olr_neurons_by_regions.add(rid)
-
-        if filter_string == "olr_false_positives":
-            rid_list = olr_neurons_by_super_class - olr_neurons_by_regions
-        else:
-            rid_list = olr_neurons_by_regions - olr_neurons_by_super_class
-        rid_list = sorted(
-            rid_list,
-            key=lambda cid: neuron_db.get_neuron_data(cid)["input_cells"]
-            + neuron_db.get_neuron_data(cid)["output_cells"],
-            reverse=True,
-        )
-    else:
-        fs_parts = filter_string.split(":")
-        what = fs_parts[0]
-        target_type = fs_parts[1]
-        rid_list = TYPE_PREDICATES_METADATA[target_type][
-            what.replace("type_predicate_", "")
-        ]
-
-    return render_neuron_list(
-        DEFAULT_DATA_SNAPSHOT_VERSION,
-        "search.html",
-        rid_list,
-        filter_string=filter_string,
-        page_size=page_size,
-        case_sensitive=0,
-        whole_word=0,
-        sort_by=None,
-        extra_data=None,
-        page_number=page_number,
-        hint=None,
     )
 
 
@@ -723,7 +661,7 @@ def count_visual_cell_types():
     if request.method == "POST":
         neuron_db = NeuronDataFactory.instance().get()
         cell_ids = request.form.get("cell_ids")
-        cell_ids = tokenize(cell_ids) if cell_ids else []
+        cell_ids = neuron_db.search(cell_ids)
         counts = defaultdict(int)
         for cell_id in cell_ids:
             try:
