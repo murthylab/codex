@@ -107,7 +107,7 @@ class NeuronDB(object):
 
     @lru_cache
     def input_output_partners_with_synapse_counts(self, min_syn_count=0):
-        ins, outs = self.connections_.input_output_synapse_counts()
+        ins, outs = self.connections_.input_output_partners_with_synapse_counts()
         if min_syn_count:
 
             def apply_syn_threshold(syn_counts):
@@ -120,6 +120,16 @@ class NeuronDB(object):
             ins = {k: apply_syn_threshold(v) for k, v in ins.items()}
             outs = {k: apply_syn_threshold(v) for k, v in outs.items()}
 
+        for rid in self.neuron_data.keys():
+            if rid not in ins:
+                ins[rid] = {}
+            if rid not in outs:
+                outs[rid] = {}
+        return ins, outs
+
+    @lru_cache
+    def input_output_regions_with_synapse_counts(self):
+        ins, outs = self.connections_.input_output_regions_with_synapse_counts()
         for rid in self.neuron_data.keys():
             if rid not in ins:
                 ins[rid] = {}
@@ -706,17 +716,54 @@ class NeuronDB(object):
 
         log_activity(f"Loading custom_cell_lists with {filter_string=}")
 
-        if filter_string in ["olr_false_positives", "olr_false_negatives"]:
+        if any(
+            [
+                filter_string.startswith(flt)
+                for flt in ["olr_false_positives", "olr_false_negatives"]
+            ]
+        ):
+            fs_parts = filter_string.split(":")
+            what = fs_parts[0]
+            slack_percent = 0 if len(fs_parts) == 1 else int(fs_parts[1])
+            if not 0 <= slack_percent <= 100:
+                raise ValueError(
+                    "Slack percents must be between 0 and 100. This is the percentage of synapses allowed in regions outside of the right optic lobe."
+                )
+
             right_ol_neuropils = {"AME_R", "LA_R", "LO_R", "LOP_R", "ME_R"}
             unassigned_neuropil = "UNASGD"
 
-            def is_olr_by_synapse_regions(ndata):
-                if ndata["side"] != "right":
-                    return False
-                syn_regions = (
-                    set(ndata["input_neuropils"]) | set(ndata["output_neuropils"])
-                ) - {unassigned_neuropil}
-                return syn_regions and syn_regions.issubset(right_ol_neuropils)
+            if slack_percent:
+                ins, outs = self.input_output_regions_with_synapse_counts()
+
+                def is_olr_by_synapse_regions(ndata):
+                    if ndata["side"] != "right":
+                        return False
+                    synapse_regions = set(ndata["input_neuropils"]) | set(
+                        ndata["output_neuropils"]
+                    )
+                    if not synapse_regions.intersection(right_ol_neuropils):
+                        return False
+                    total_syn_count, non_olr_syn_count = 0, 0
+                    for pil, cnt in ins[nd["root_id"]].items():
+                        total_syn_count += cnt
+                        if pil != unassigned_neuropil and pil not in right_ol_neuropils:
+                            non_olr_syn_count += cnt
+                    for pil, cnt in outs[nd["root_id"]].items():
+                        total_syn_count += cnt
+                        if pil != unassigned_neuropil and pil not in right_ol_neuropils:
+                            non_olr_syn_count += cnt
+                    return (non_olr_syn_count * 100 / total_syn_count) <= slack_percent
+
+            else:
+
+                def is_olr_by_synapse_regions(ndata):
+                    if ndata["side"] != "right":
+                        return False
+                    syn_regions = (
+                        set(ndata["input_neuropils"]) | set(ndata["output_neuropils"])
+                    ) - {unassigned_neuropil}
+                    return syn_regions and syn_regions.issubset(right_ol_neuropils)
 
             olr_neurons_by_super_class, olr_neurons_by_regions = set(), set()
             for rid, nd in self.neuron_data.items():
@@ -725,7 +772,7 @@ class NeuronDB(object):
                 if is_olr_by_synapse_regions(nd):
                     olr_neurons_by_regions.add(rid)
 
-            if filter_string == "olr_false_positives":
+            if what == "olr_false_positives":
                 rid_list = olr_neurons_by_super_class - olr_neurons_by_regions
             else:
                 rid_list = olr_neurons_by_regions - olr_neurons_by_super_class

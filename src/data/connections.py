@@ -111,8 +111,17 @@ class Connections(object):
                         nt_type,
                     )
 
-    def input_output_synapse_counts(self):
+    def input_output_partners_with_synapse_counts(self):
         return self.input_synapse_counts, self.output_synapse_counts
+
+    def input_output_regions_with_synapse_counts(self):
+        ins, outs = {}, {}
+        for r in self._rows_from_predicates():
+            in_dict = ins.setdefault(r[1], {})
+            in_dict[r[2]] = in_dict.get(r[2], 0) + r[3]
+            out_dict = outs.setdefault(r[0], {})
+            out_dict[r[2]] = out_dict.get(r[2], 0) + r[3]
+        return ins, outs
 
     def num_synapses(self):
         return self.synapse_count
