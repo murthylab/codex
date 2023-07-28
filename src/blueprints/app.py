@@ -1476,6 +1476,11 @@ def labeling_log():
     root_id = int(root_id)
     neuron_db = NeuronDataFactory.instance().get()
     nd = neuron_db.get_neuron_data(root_id)
+    if not nd:
+        return render_error(
+            f"Neuron with ID {root_id} not found in v{DEFAULT_DATA_SNAPSHOT_VERSION} data snapshot."
+        )
+
     labels_data = neuron_db.get_label_data(root_id=root_id)
     labeling_log = [
         f'<small><b>{ld["label"]}</b> - labeled by {ld["user_name"]}'

@@ -50,6 +50,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Mi15",
         "Mi104_1468",
         "Mi106_45678",
+        "Mi107_78",
     ],
     "Medulla Columnar": [
         "MC61",
