@@ -1,6 +1,7 @@
 import json
 from collections import defaultdict
 
+from src.configuration import TYPE_PREDICATES_METADATA
 from src.data.local_data_loader import write_csv
 from src.data.neuron_data_factory import NeuronDataFactory
 from src.utils.markers import extract_markers
@@ -220,7 +221,7 @@ class OlrPredicatesGenerator(object):
         return result
 
 
-def run():
+def generate_predicates():
     olr_predicates_generator = OlrPredicatesGenerator()
 
     predictions_table_columns = [
@@ -254,5 +255,35 @@ def run():
         json.dump(prediction_json, fp=f, indent=2)
 
 
+def generate_correction_suggestions():
+    in_lengths, out_lengths = [], []
+    for k, v in TYPE_PREDICATES_METADATA.items():
+        in_lengths.append(len(v["predicate_input_types"]))
+        out_lengths.append(len(v["predicate_output_types"]))
+    print(max(in_lengths))
+    print(max(out_lengths))
+
+    types_with_predicate = [
+        t for t, v in TYPE_PREDICATES_METADATA.items() if v["f_score"] >= 0.9
+    ]
+    for t1 in types_with_predicate:
+        for t2 in types_with_predicate:
+            if t1 == t2:
+                continue
+
+            t1_to_t2 = set(
+                TYPE_PREDICATES_METADATA[t1]["false_negatives"]
+            ).intersection(set(TYPE_PREDICATES_METADATA[t2]["false_positives"]))
+            if t1_to_t2:
+                print(f"{t1} -> {t2}: {sorted(t1_to_t2)}")
+
+    for t, v in TYPE_PREDICATES_METADATA.items():
+        if v["f_score"] >= 0.7:
+            print(
+                f'plot("{t}", {v["predicate_input_types"]}, ["{t}"], {v["predicate_output_types"]})'
+            )
+
+
 if __name__ == "__main__":
-    run()
+    generate_predicates()
+    generate_correction_suggestions()

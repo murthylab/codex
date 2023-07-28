@@ -2,7 +2,6 @@ import string
 from collections import defaultdict
 from unittest import TestCase
 
-from src.configuration import TYPE_PREDICATES_METADATA
 from src.data.visual_neuron_types import (
     VISUAL_NEURON_TYPES,
     VISUAL_NEURON_MEGA_TYPE_TO_TYPES,
@@ -124,20 +123,25 @@ class OlCatalogTest(TestCase):
             )
             self.fail(f"Found {len(tag_counts)} OL tags not assigned to catalog types")
 
-    def test_predicates(self):
-        in_lengths, out_lengths = [], []
-        for k, v in TYPE_PREDICATES_METADATA.items():
-            in_lengths.append(len(v["predicate_input_types"]))
-            out_lengths.append(len(v["predicate_output_types"]))
-        print(max(in_lengths))
-        print(max(out_lengths))
+    def test_incorrect_types(self):
+        def all_labels(rid):
+            res = []
+            for lbl in sorted(
+                self.neuron_db.get_label_data(rid) or [],
+                key=lambda x: x["date_created"],
+                reverse=True,
+            ):
+                res.append(lbl["label"])
+            return res
 
-        types_with_predicate = [t for t, v in TYPE_PREDICATES_METADATA.items() if v["f_score"] >= 0.9]
-        for t1 in types_with_predicate:
-            for t2 in types_with_predicate:
-                if t1 == t2:
-                    continue
-
-                t1_to_t2 = set(TYPE_PREDICATES_METADATA[t1]["false_negatives"]).intersection(set(TYPE_PREDICATES_METADATA[t2]["false_positives"]))
-                if t1_to_t2:
-                    print(f"{t1} -> {t2}: {sorted(t1_to_t2)}")
+        failed = False
+        for rid, nd in self.neuron_db.neuron_data.items():
+            for mrk in extract_markers(nd, "olr_type"):
+                if any(
+                    [
+                        f"{mrk} label incorrect".lower() in lbl.lower()
+                        for lbl in all_labels(rid)
+                    ]
+                ):
+                    print(f"{mrk}: {all_labels(rid)}")
+        self.assertFalse(failed)

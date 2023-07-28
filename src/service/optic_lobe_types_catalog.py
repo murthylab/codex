@@ -27,20 +27,21 @@ def infer_ol_type(label_data, types_list, target_type_list, unknown_labels):
         for lbl in labels_latest_to_oldest:
             tokens = [rewrite(t) for t in tokenize(lbl["label"], LABEL_DELIMS)]
             tokens_lower = [t.lower() for t in tokens]
-            for olt in target_type_list:
-                olt_lower = olt.lower()
-                for t_lower in tokens_lower:
-                    if t_lower == olt_lower:
+            for t_lower in tokens_lower:
+                for olt in target_type_list:
+                    if t_lower == olt.lower():
                         return olt
 
             # try consecutive token pairs (e.g. L 5 -> L5)
-            for olt in target_type_list:
-                for i, t in enumerate(tokens):
-                    if i < len(tokens) - 1 and t + tokens[i + 1] == olt:
-                        print(
-                            f"Caution: inferred {olt} by concatenating to {t + tokens[i + 1]}: {lbl}"
-                        )
-                        return olt
+            for i, t in enumerate(tokens):
+                if i < len(tokens) - 1:
+                    ctoken = t + tokens[i + 1]
+                    if ctoken in target_type_list:
+                        if ctoken not in ["R1-6"]:  # known concatenations
+                            print(
+                                f"Caution: inferred {ctoken} by concatenating to {t + tokens[i + 1]}: {lbl}"
+                            )
+                        return ctoken
 
         for lbl in labels_latest_to_oldest:
             unknown_labels.add(lbl["label"])
