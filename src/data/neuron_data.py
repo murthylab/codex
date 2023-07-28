@@ -733,12 +733,15 @@ class NeuronDB(object):
             right_ol_neuropils = {"AME_R", "LA_R", "LO_R", "LOP_R", "ME_R"}
             unassigned_neuropil = "UNASGD"
 
-            if slack_percent:
-                ins, outs = self.input_output_regions_with_synapse_counts()
+            ins, outs = self.input_output_regions_with_synapse_counts()
 
-                def is_olr_by_synapse_regions(ndata):
-                    if ndata["side"] != "right":
-                        return False
+            def is_olr_by_synapse_regions(ndata):
+                if ndata["side"] != "right" or ndata["super_class"] not in [
+                    "optic",
+                    "sensory",
+                ]:
+                    return False
+                if slack_percent:
                     synapse_regions = set(ndata["input_neuropils"]) | set(
                         ndata["output_neuropils"]
                     )
@@ -754,12 +757,7 @@ class NeuronDB(object):
                         if pil != unassigned_neuropil and pil not in right_ol_neuropils:
                             non_olr_syn_count += cnt
                     return (non_olr_syn_count * 100 / total_syn_count) <= slack_percent
-
-            else:
-
-                def is_olr_by_synapse_regions(ndata):
-                    if ndata["side"] != "right":
-                        return False
+                else:
                     syn_regions = (
                         set(ndata["input_neuropils"]) | set(ndata["output_neuropils"])
                     ) - {unassigned_neuropil}

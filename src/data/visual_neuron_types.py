@@ -190,6 +190,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Mti104_78",
         "Mti105_67",
         "Mti106_7",
+        "Mti106a_7",
         "Mti106b_7",
         "Mti107_67",
         "Mti108_7",
