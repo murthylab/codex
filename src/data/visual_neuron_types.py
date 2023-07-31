@@ -405,6 +405,9 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "ML106_M67-L6",
         "ML108_M7-L6",
     ],
+    "Serpentine Proximal Medulla": [
+        "SPm101_78-78",
+    ],
     "Other": [
         "Am",
         "Lai",

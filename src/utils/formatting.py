@@ -225,7 +225,10 @@ def is_proper_textual_annotation(t):
 
 def format_dict_by_largest_value(dct, top_k=1000000):
     return "\n".join(
-        [f"   {k}: {v}" for k, v in sorted(dct.items(), key=lambda p: -p[1])][:top_k]
+        [
+            f"   {k}: {v}"
+            for k, v in sorted(dct.items(), key=lambda p: p[1], reverse=True)
+        ][:top_k]
     )
 
 

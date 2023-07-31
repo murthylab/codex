@@ -143,6 +143,7 @@ def remove_corrected(labels_latest_to_oldest):
     correction_prefixes = [
         "Correction: ",
         "(correction) ",
+        "(correction after path swap correction); ",
         "Tm16 is wrong. this is: ",
         "L1 label is wrong",
     ]
