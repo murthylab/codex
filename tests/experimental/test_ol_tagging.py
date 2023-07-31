@@ -1,3 +1,4 @@
+import csv
 import random
 from sklearn import svm
 from collections import defaultdict
@@ -6,12 +7,12 @@ from unittest import TestCase
 from src.data.brain_regions import REGIONS
 from src.data.local_data_loader import read_csv, write_csv
 from src.utils.graph_algos import reachable_nodes
-from src.utils.markers import extract_markers
+from src.utils.markers import extract_markers, extract_at_most_one_marker
 from src.utils.stats import jaccard_binary
 
 from tests import get_testing_neuron_db
 
-from src.utils.formatting import percentage
+from src.utils.formatting import percentage, format_dict_by_largest_value
 from tests import log_dev_url_for_root_ids
 
 
@@ -1904,3 +1905,92 @@ class OlTaggingTest(TestCase):
             "../../static/experimental_data/dsxfru/dsxfru_path_length_table_v6.csv",
             rows=path_table,
         )
+
+    def test_inter_con(self):
+        olr_to_rid_lists = defaultdict(list)
+        for rid, nd in self.neuron_db.neuron_data.items():
+            olr_type = extract_at_most_one_marker(nd, "olr_type")
+            if olr_type:
+                olr_to_rid_lists[olr_type].append(rid)
+
+        ins, outs = self.neuron_db.input_output_partner_sets()
+
+        def calc_avg_degree(rid_list):
+            rid_set = set(rid_list)
+            num_internal_edges = sum(
+                [len(outs[rid].intersection(rid_set)) for rid in rid_list]
+            )
+            return num_internal_edges / len(rid_list)
+
+        olr_to_avg_deg = {
+            ot: (round(calc_avg_degree(rlist)), len(rlist))
+            for ot, rlist in olr_to_rid_lists.items()
+            if len(rlist) >= 100
+        }
+        print(format_dict_by_largest_value(olr_to_avg_deg))
+
+    def test_annotations_consistency(self):
+        fname = "../../static/experimental_data/Supplemental_file1_annotations.tsv"
+        with open(fname) as fp:
+            reader = csv.reader(fp, delimiter="\t")
+            rows = [r for r in reader]
+
+        print(f"Read {len(rows)} rows")
+        print(rows[0])
+
+        rids = [int(r[1]) for r in rows[1:]]
+        print(
+            f"{len(rids)} {len(set(rids))} {len(set(rids).intersection(set(self.neuron_db.neuron_data.keys())))}"
+        )
+        col_idx = {c: i for i, c in enumerate(rows[0])}
+
+        def compare(attr_name, col_name):
+            same_count, diff_count, missing_both, missing_db, missing_table = (
+                0,
+                0,
+                0,
+                0,
+                0,
+            )
+            for r in rows[1:]:
+                rid = int(r[1])
+                ndata = self.neuron_db.neuron_data.get(rid)
+                if not ndata:
+                    continue
+                db_v, table_v = ndata[attr_name], r[col_idx[col_name]]
+                if col_name.endswith("_id"):
+                    table_v = int(table_v)
+
+                if not db_v and not table_v:
+                    missing_both += 1
+                elif db_v and not table_v:
+                    missing_table += 1
+                elif table_v and not db_v:
+                    missing_db += 1
+                elif db_v == table_v:
+                    same_count += 1
+                else:
+                    diff_count += 1
+            print(
+                f"For {attr_name} / {col_name}: {same_count=} {diff_count=} {missing_both=} {missing_db=} {missing_table=}"
+            )
+
+        for col in [
+            "supervoxel_id",
+            "root_id",
+            "flow",
+            "super_class",
+            ("class", "cell_class"),
+            ("sub_class", "cell_sub_class"),
+            "cell_type",
+            "hemibrain_type",
+            ("hemilineage", "ito_lee_hemilineage"),
+            ("hemilineage", "hartenstein_hemilineage"),
+            ("nt_type", "top_nt"),
+            "side",
+            "nerve",
+        ]:
+            if isinstance(col, str):
+                compare(col, col)
+            else:
+                compare(col[0], col[1])
