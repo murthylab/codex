@@ -60,9 +60,14 @@
                         </table>
                         <br>
                         {% endif %}
-                        <button class="btn btn btn-primary my-2 my-sm-0" type="submit" name="data_product" value="{{k}}">
+                        <a href="{{url_for(request.endpoint, data_product=k)}}" class="btn btn btn-primary my-2 my-sm-0" target="_blank">
                             <i class="fa-solid fa-download"></i> &nbsp; {{v.file_name}}
-                        </button>
+                        </a>
+                        <div style="margin-top: 10px;">To open the downloaded file go to the downloads folder in command line terminal and type: <b>{{ v.command + ' ' + v.file_name}}</b></div>
+                        {% if not_chrome %}
+                          <div style="color:red">This link might not work in your browser. Try Google Chrome.</div>
+                        {% endif %}
+
                       </div>
                     </div>
                 </div>

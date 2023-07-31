@@ -11,7 +11,8 @@ MAX_NODES_FOR_PATHWAY_ANALYSIS = 10
 ASSIGN_NAMES_FROM_ANNOTATIONS = False
 
 DOWNLOADABLE_FILE_EXTENSION = ".csv.gz"
-DOWNLOADABLE_FILE_FORMAT = "compressed CSV file (gzip)"
+COMPRESSED_FILE_FORMAT_AND_COMMAND = "compressed CSV file (.csv.gz)", "gunzip"
+COMPRESSED_TAR_FILE_FORMAT_AND_COMMAND = "compressed TAR archive (.tar.gz)", "tar -xvf"
 # take care of various working directories (tests, local app, cloud app, update scripts)
 APP_ROOT = os.getenv("APP_HOME", "codex").replace("/", "")
 DOWNLOADABLE_FILES_METADATA_FILE = f"{os.getcwd().split(APP_ROOT)[0]}/{APP_ROOT}/src/data/downloadable_files_metadata.json"
@@ -63,7 +64,8 @@ DOWNLOADABLE_ARCHIVE_FILES = {
     "skeleton_swc_files": {
         "description": "Gzipped archive of all Skeleton files in SWC format.",
         "file_url": "https://storage.googleapis.com/flywire-data/codex/skeleton_swcs/flywire_skeleton_swcs.tar.gz",
-        "file_format": "gzipped tar file",
+        "file_format": COMPRESSED_TAR_FILE_FORMAT_AND_COMMAND[0],
+        "command": COMPRESSED_TAR_FILE_FORMAT_AND_COMMAND[1],
         "file_size": 329000000,
         "content": {},
     },
@@ -74,7 +76,8 @@ DOWNLOADABLE_ARCHIVE_FILES = {
         "columns should be inferred by looking up in the table at the last non-empty value "
         "respectively. Contact flywire@princeton.edu if you need access to more accurate synapse coordinates.",
         "file_url": "https://storage.googleapis.com/flywire-data/codex/data/630/synapse_coordinates.csv.gz",
-        "file_format": DOWNLOADABLE_FILE_FORMAT,
+        "file_format": COMPRESSED_FILE_FORMAT_AND_COMMAND[0],
+        "command": COMPRESSED_FILE_FORMAT_AND_COMMAND[1],
         "file_size": 281523733,
         "version": "630",
         "content": {

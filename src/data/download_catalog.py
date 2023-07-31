@@ -5,7 +5,7 @@ from src.configuration import (
     DOWNLOADABLE_FILES_METADATA_FILE,
     DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS,
     DOWNLOADABLE_FILE_EXTENSION,
-    DOWNLOADABLE_FILE_FORMAT,
+    COMPRESSED_FILE_FORMAT_AND_COMMAND,
     DOWNLOADABLE_ARCHIVE_FILES,
 )
 
@@ -19,7 +19,8 @@ with open(DOWNLOADABLE_FILES_METADATA_FILE) as f:
     DOWNLOADABLE_FILE_CONTENTS = DOWNLOADABLE_FILES_METADATA["file_contents"]
 
 DownloadableProduct = namedtuple(
-    "Product", "description file_name file_url file_format file_size file_content"
+    "Product",
+    "description file_name file_url file_format command file_size file_content",
 )
 
 DOWNLOAD_CATALOG = {}
@@ -31,7 +32,8 @@ for version, assets in DOWNLOADABLE_FILE_CONTENTS.items():
             description=DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS[product],
             file_name=fname,
             file_url=f"https://storage.googleapis.com/flywire-data/codex/data/{version}/{fname}",
-            file_format=DOWNLOADABLE_FILE_FORMAT,
+            file_format=COMPRESSED_FILE_FORMAT_AND_COMMAND[0],
+            command=COMPRESSED_FILE_FORMAT_AND_COMMAND[1],
             file_size=DOWNLOADABLE_FILE_SIZES[version][fname],
             file_content=content,
         )
@@ -46,6 +48,7 @@ for archive, details in DOWNLOADABLE_ARCHIVE_FILES.items():
             file_name=details["file_url"].split("/")[-1],
             file_url=details["file_url"],
             file_format=details["file_format"],
+            command=details["command"],
             file_size=details["file_size"],
             file_content=details["content"],
         )

@@ -7,6 +7,8 @@ from src.data.versions import (
     DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
     DEFAULT_DATA_SNAPSHOT_VERSION,
 )
+from user_agents import parse as parse_ua
+
 from src.utils.cookies import fetch_user_name
 from src.utils.formatting import display
 from src.utils.logging import log_activity
@@ -45,6 +47,13 @@ def download():
         return redirect(DOWNLOAD_CATALOG[data_version][data_product].file_url)
     else:
         log_activity("API: rendering download page")
+        try:
+            not_chrome = (
+                "chrome" not in parse_ua(str(request.user_agent)).browser.family.lower()
+            )
+        except Exception:
+            not_chrome = True
+
         return render_template(
             "download.html",
             agree_chk=agree_chk,
@@ -53,4 +62,5 @@ def download():
             data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
             download_catalog=DOWNLOAD_CATALOG[data_version],
             user_name=fetch_user_name(session),
+            not_chrome=not_chrome,
         )
