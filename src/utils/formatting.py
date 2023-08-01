@@ -232,7 +232,7 @@ def format_dict_by_largest_value(dct, top_k=1000000):
     )
 
 
-def format_dict_by_key(dct):
-    return "\n".join(
-        [f"   {k}: {v}" for k, v in sorted(dct.items(), key=lambda p: p[0])]
+def format_dict_by_key(dct, delim="\n"):
+    return delim.join(
+        [f" {k}: {v}" for k, v in sorted(dct.items(), key=lambda p: p[0])]
     )
