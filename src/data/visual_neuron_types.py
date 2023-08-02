@@ -14,7 +14,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "L4",
         "L5",
     ],
-    "T": [
+    "T Neuron": [
         "T1",
         "T2",
         "T2a",
@@ -83,7 +83,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Lt52",
         "Lt87",
     ],
-    "LM": [
+    "Lobula Medulla": [
         "LM100_L234-M89",
         "LM101_L234-M89",
         "LM102a_L234-M89",
@@ -266,6 +266,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Tm105_M7-L6",
         "Tm106_M7-L56",
         "Tm107_M7-L5b",
+        "Tm108_M68-L5",
         "Tm108_M78-L5b6",
         "Tm109_M7-L5b",
     ],
@@ -285,7 +286,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Lpi107_34",
         "Lpi108_43",
     ],
-    "Y": [
+    "Y Neuron": [
         "Y1",
         "Y2",
         "Y3",
@@ -350,12 +351,12 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "LPC1",
         "Lpc101-34",
     ],
-    "LpM": [
+    "Lobula Plate Medulla": [
         "LpM100a_Lp34-M567",
         "LpM100b_Lp34-M67-Lp4",
     ],
-    "LLP": ["LLP100_L5a6-LP1234"],
-    "LLpt": [
+    "Lobula Lobula plate": ["LLP100_L5a6-LP1234"],
+    "Lobula Lobula plate Tangential": [
         "LLpt101_L56-Lp2",
         "Lpt104_12",
     ],
@@ -395,7 +396,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "ML-VPN1",
         "H1",
     ],
-    "ML": [
+    "Medulla Lobula": [
         "ML100_M47-L6",
         "ML101_M89-L235",
         "ML102_M24-L45",

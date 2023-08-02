@@ -61,10 +61,12 @@ class CatalogAssets(TestCase):
                 if tp_other:
                     ol_type_to_type_inputs[tp][tp_other] += 1
 
-        def avg_counts(dct, num_cells):
-            return {
-                k: round(v / num_cells) for k, v in dct.items() if round(v / num_cells)
+        def avg_counts(dct, num_cells, rounded):
+            res = {
+                k: (round(v / num_cells) if rounded else v / num_cells)
+                for k, v in dct.items()
             }
+            return {k: v for k, v in res.items() if v}
 
         result = {}
 
@@ -98,16 +100,16 @@ class CatalogAssets(TestCase):
                 "avg_in_synapses": avg_in_synapses,
                 "avg_out_synapses": avg_out_synapses,
                 "avg_in_synapses_by_region": avg_counts(
-                    ol_type_to_pil_inputs[tp], len(rids)
+                    ol_type_to_pil_inputs[tp], len(rids), rounded=True
                 ),
                 "avg_out_synapses_by_region": avg_counts(
-                    ol_type_to_pil_outputs[tp], len(rids)
+                    ol_type_to_pil_outputs[tp], len(rids), rounded=True
                 ),
                 "avg_in_partners_by_type": avg_counts(
-                    ol_type_to_type_inputs[tp], len(rids)
+                    ol_type_to_type_inputs[tp], len(rids), rounded=False
                 ),
                 "avg_out_partners_by_type": avg_counts(
-                    ol_type_to_type_outputs[tp], len(rids)
+                    ol_type_to_type_outputs[tp], len(rids), rounded=False
                 ),
             }
 
@@ -176,7 +178,7 @@ class CatalogAssets(TestCase):
 
         # Set titles for the figure and the subplot respectively
         subplot.set_title(
-            f"{title}\n\n{subtitle}", fontsize=14, fontweight="bold", color="purple"
+            f"{title}\n\n{subtitle}", fontsize=18, fontweight="bold", color="purple"
         )
 
         # Hide axes
@@ -206,12 +208,15 @@ class CatalogAssets(TestCase):
 
     def test_make_catalog_figures(self):
         meta_data = CatalogAssets.collect_data()
-
-        for k, v in TYPE_PREDICATES_METADATA.items():
-            if v["f_score"] < 0.6:
+        types_by_size = sorted(
+            meta_data.keys(), key=lambda x: -meta_data[x]["num_cells"]
+        )
+        for k in types_by_size:
+            v = TYPE_PREDICATES_METADATA.get(k)
+            if not v or v["f_score"] < 0.6:
                 continue
 
-            fig, ax = plt.subplots(nrows=2, ncols=3, figsize=(24, 16))
+            fig, ax = plt.subplots(nrows=2, ncols=3, figsize=(32, 20))
 
             CatalogAssets.add_network(
                 subplot=ax[1][2],
@@ -233,7 +238,7 @@ class CatalogAssets(TestCase):
             }
             CatalogAssets.add_table(
                 subplot=ax[0][0],
-                title=f"{k} | {VISUAL_NEURON_TYPE_TO_MEGA_TYPE[k]}",
+                title=f"{k} ({VISUAL_NEURON_TYPE_TO_MEGA_TYPE[k]})",
                 subtitle=f'{display(meta_data[k]["num_cells"])} cells',
                 data_dict=table_data_dict,
             )
@@ -283,3 +288,4 @@ class CatalogAssets(TestCase):
             )
 
             plt.savefig(f"../../static/experimental_data/catalog_assets/fig_{k}.png")
+            plt.close(fig)
