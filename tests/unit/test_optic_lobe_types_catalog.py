@@ -2,13 +2,18 @@ import string
 from collections import defaultdict
 from unittest import TestCase
 
+from src.configuration import TYPE_PREDICATES_METADATA
 from src.data.visual_neuron_types import (
     VISUAL_NEURON_TYPES,
     VISUAL_NEURON_MEGA_TYPE_TO_TYPES,
 )
 from src.service.optic_lobe_types_catalog import assign_types_to_neurons, rewrite
-from src.utils.formatting import format_dict_by_largest_value, format_dict_by_key
-from src.utils.markers import extract_markers
+from src.utils.formatting import (
+    format_dict_by_largest_value,
+    format_dict_by_key,
+    percentage,
+)
+from src.utils.markers import extract_markers, extract_at_most_one_marker
 from tests import get_testing_neuron_db
 
 
@@ -143,3 +148,60 @@ class OlCatalogTest(TestCase):
                 ):
                     print(f"{mrk}: {all_labels(rid)}")
         self.assertFalse(failed)
+
+    def test_predicates(self):
+        def is_ol_neuron(rid):
+            return extract_at_most_one_marker(
+                self.neuron_db.neuron_data[rid], "olr_type"
+            )
+
+        # map each neuron to it's upstream/downstream partner types set
+        ins, outs = self.neuron_db.input_output_partner_sets()
+        ins_type, outs_type = defaultdict(set), defaultdict(set)
+        for k, v in ins.items():
+            for r in v:
+                ins_type[k].add(is_ol_neuron(r))
+        for k, v in outs.items():
+            for r in v:
+                outs_type[k].add(is_ol_neuron(r))
+
+        # map each neuron (not just olr) to set of types with matching predicates
+        rid_to_matched_predicates = defaultdict(set)
+        for k, v in TYPE_PREDICATES_METADATA.items():
+            if v["f_score"] < 0.6:
+                continue
+            ins_p, outs_p = set(v["predicate_input_types"]), set(
+                v["predicate_output_types"]
+            )
+            matching_rids = {
+                r
+                for r in self.neuron_db.neuron_data.keys()
+                if ins_p.issubset(ins_type[r]) and outs_p.issubset(outs_type[r])
+            }
+            for mr in matching_rids:
+                rid_to_matched_predicates[mr].add(k)
+
+        # count how many predicates match each neuron
+        ol_rids_with_pred_match_counts = defaultdict(int)
+        all_rids_with_pred_match_counts = defaultdict(int)
+        num_ol_neurons = 0
+        for rid, nd in self.neuron_db.neuron_data.items():
+            all_rids_with_pred_match_counts[len(rid_to_matched_predicates[rid])] += 1
+            mrk = extract_at_most_one_marker(nd, "olr_type")
+            if mrk:
+                num_ol_neurons += 1
+                ol_rids_with_pred_match_counts[len(rid_to_matched_predicates[rid])] += 1
+
+        print(
+            "All neurons:\n"
+            + format_dict_by_largest_value(all_rids_with_pred_match_counts)
+        )
+        print(
+            "OL neurons:\n"
+            + format_dict_by_largest_value(ol_rids_with_pred_match_counts)
+        )
+
+        # check the fraction of OL neurons that have exactly one match (ideally this should reach close to 100%)
+        prct = percentage(ol_rids_with_pred_match_counts[1], num_ol_neurons)
+        print(f"OL one-match percentage: {prct}")
+        self.assertEqual("68%", prct)
