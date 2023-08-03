@@ -611,7 +611,7 @@ def predict_ol_types(neuron_db):
         return None, None
 
     predictions = {}
-    predictions_fname = "static/experimental_data/olt_type_predictions.csv"
+    predictions_fname = "static/data/630/olt_type_predictions.csv"
     for i, rid in enumerate(unknown_ol):
         jac_olt_to_cells = defaultdict(set)
         cos_olt_to_cells = defaultdict(set)

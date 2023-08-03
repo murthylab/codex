@@ -32,17 +32,15 @@ class OlCatalogTest(TestCase):
 
     def test_rewrite(self):
         self.assertEqual("T1", rewrite("T1"))
-        self.assertEqual("T1", rewrite("T1_L"))
+        self.assertEqual("T1; L", rewrite("T1; L"))
         self.assertEqual("R1-6", rewrite("R1"))
-        self.assertEqual("R1-6", rewrite("R1_L"))
+        self.assertEqual("R1-6", rewrite("R3"))
         self.assertEqual("R7", rewrite("R7"))
-        self.assertEqual("r7", rewrite("r7_r"))
+        self.assertEqual("r7", rewrite("r7"))
 
     def test_assign_types_to_neurons(self):
         def make_map(labels):
-            return {
-                123: [{"label": lbl, "date_created": i} for i, lbl in enumerate(labels)]
-            }
+            return {123: labels}
 
         def make_list(types):
             return {123: types}
@@ -50,7 +48,7 @@ class OlCatalogTest(TestCase):
         self.assertEqual(
             {"Mi1": [123], "Unknown-labeled": [], "Unknown-not-labeled": []},
             assign_types_to_neurons(
-                rid_to_labels_data=make_map(["Mi1"]),
+                rid_to_labels=make_map(["Mi1"]),
                 rid_to_cell_types_list=make_list([]),
                 target_type_list=["Mi1", "Unknown-labeled", "Unknown-not-labeled"],
             ),
@@ -59,7 +57,7 @@ class OlCatalogTest(TestCase):
         self.assertEqual(
             {"Mi1": [123], "Unknown-labeled": [], "Unknown-not-labeled": []},
             assign_types_to_neurons(
-                rid_to_labels_data=make_map(["this is Mi 1"]),
+                rid_to_labels=make_map(["this is Mi 1"]),
                 rid_to_cell_types_list=make_list([]),
                 target_type_list=["Mi1", "Unknown-labeled", "Unknown-not-labeled"],
             ),
@@ -68,7 +66,7 @@ class OlCatalogTest(TestCase):
         self.assertEqual(
             {"Mi1": [], "Unknown-labeled": [123], "Unknown-not-labeled": []},
             assign_types_to_neurons(
-                rid_to_labels_data=make_map(["Mi2"]),
+                rid_to_labels=make_map(["Mi2"]),
                 rid_to_cell_types_list=make_list([]),
                 target_type_list=["Mi1", "Unknown-labeled", "Unknown-not-labeled"],
             ),
@@ -77,7 +75,7 @@ class OlCatalogTest(TestCase):
         self.assertEqual(
             {"Mi1": [123], "Unknown-labeled": [], "Unknown-not-labeled": []},
             assign_types_to_neurons(
-                rid_to_labels_data=make_map(["Mi1_R"]),
+                rid_to_labels=make_map(["Mi1; R"]),
                 rid_to_cell_types_list=make_list([]),
                 target_type_list=["Mi1", "Unknown-labeled", "Unknown-not-labeled"],
             ),
@@ -86,7 +84,7 @@ class OlCatalogTest(TestCase):
         self.assertEqual(
             {"R1-6": [123], "Unknown-labeled": [], "Unknown-not-labeled": []},
             assign_types_to_neurons(
-                rid_to_labels_data=make_map(["R2"]),
+                rid_to_labels=make_map(["R2"]),
                 rid_to_cell_types_list=make_list([]),
                 target_type_list=["R1-6", "Unknown-labeled", "Unknown-not-labeled"],
             ),
@@ -95,7 +93,7 @@ class OlCatalogTest(TestCase):
         self.assertEqual(
             {"R1-6": [123], "Unknown-labeled": [], "Unknown-not-labeled": []},
             assign_types_to_neurons(
-                rid_to_labels_data=make_map([]),
+                rid_to_labels=make_map([]),
                 rid_to_cell_types_list=make_list(["R1-6"]),
                 target_type_list=["R1-6", "Unknown-labeled", "Unknown-not-labeled"],
             ),

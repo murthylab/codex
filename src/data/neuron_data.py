@@ -22,7 +22,7 @@ from src.utils.formatting import (
 from src.utils.logging import log, log_activity
 
 # Keywords will be matched against these attributes
-from src.utils.markers import extract_markers
+from src.utils.markers import extract_at_most_one_marker
 from src.utils.parsing import extract_links
 from src.utils.stats import jaccard_weighted, jaccard_binary
 
@@ -668,7 +668,7 @@ class NeuronDB(object):
         print(f"Loading {len(olr_prediction_rows)} predictions")
         prediction_markers_applied = 0
         prediction_accuracy = defaultdict(int)
-        prediction_match, prediction_mismatch = 0, 0
+        prediction_match, prediction_mismatch, prediction_rejected = 0, 0, 0
         missing_root_ids = 0
         for row in olr_prediction_rows:
             rid = int(row[0])
@@ -677,10 +677,8 @@ class NeuronDB(object):
                 missing_root_ids += 1
                 continue
             # predictions are generated seldom - this makes sure we only apply them on cells that were not typed already
-            olr_markers = extract_markers(nd, "olr_type")
-            if olr_markers:
-                assert len(olr_markers) == 1
-                marker = olr_markers[0]
+            marker = extract_at_most_one_marker(nd, "olr_type")
+            if marker:
                 if not marker.startswith("Unknown"):
                     if row[1] == marker:
                         prediction_match += 1
@@ -692,6 +690,19 @@ class NeuronDB(object):
                         f"{sign} predicted {row[1]} labeled {marker}"
                     ] += 1
                     continue
+            if any(
+                [
+                    any(
+                        [
+                            p == f"#wrong_prediction {row[1]}"
+                            for p in lbl["label"].split(";")
+                        ]
+                    )
+                    for lbl in self.label_data[rid]
+                ]
+            ):
+                prediction_rejected += 1
+                continue
             nd["marker"].append(f"predicted_olr_type:{row[1]}:{row[2]}")
             prediction_markers_applied += 1
 
@@ -699,8 +710,9 @@ class NeuronDB(object):
             print(f"{k}: {v}")
 
         print(
-            f"Applied {prediction_markers_applied} predictions out of {len(olr_prediction_rows)}. "
-            f"Missing root ids: {missing_root_ids}.\n{prediction_match=} {prediction_mismatch=}"
+            f"Applied {prediction_markers_applied} predictions out of {len(olr_prediction_rows)}\n"
+            f"Missing root ids: {missing_root_ids}\n"
+            f"{prediction_match=} {prediction_mismatch=} {prediction_rejected=}"
         )
 
     def match_custom_query(self, filter_string):

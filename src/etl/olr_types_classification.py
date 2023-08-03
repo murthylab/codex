@@ -277,12 +277,6 @@ def generate_correction_suggestions():
             if t1_to_t2:
                 print(f"{t1} -> {t2}: {sorted(t1_to_t2)}")
 
-    for t, v in TYPE_PREDICATES_METADATA.items():
-        if v["f_score"] >= 0.7:
-            print(
-                f'plot("{t}", {v["predicate_input_types"]}, ["{t}"], {v["predicate_output_types"]})'
-            )
-
 
 if __name__ == "__main__":
     generate_predicates()

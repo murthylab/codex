@@ -287,5 +287,5 @@ class CatalogAssets(TestCase):
                 colorizer=type_color,
             )
 
-            plt.savefig(f"../../static/experimental_data/catalog_assets/fig_{k}.png")
+            plt.savefig(f"../../static/experimental_data/ol_catalog_assets/fig_{k}.png")
             plt.close(fig)

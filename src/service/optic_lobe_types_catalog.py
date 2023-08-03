@@ -6,45 +6,32 @@ UPDATED_TYPES_LC = {f"r{i}": "R1-6" for i in range(1, 7)}
 UPDATED_TYPES_LC["mi8"] = "Mi9"
 
 
-def remove_side(t):
-    tl = t.lower()
-    if tl.endswith("_l") or tl.endswith("_r"):
-        return t[:-2]
-    return t
-
-
 def rewrite(t):
-    t = remove_side(t)
     return UPDATED_TYPES_LC.get(t.lower(), t)
 
 
-def infer_ol_type(label_data, types_list, target_type_list, unknown_labels):
-    if label_data:
-        labels_latest_to_oldest = sorted(
-            label_data, key=lambda x: x["date_created"], reverse=True
-        )
+def infer_ol_type(labels, types_list, target_type_list, unknown_labels):
+    for lbl in labels:
+        tokens = [rewrite(t) for t in tokenize(lbl, LABEL_DELIMS)]
+        tokens_lower = [t.lower() for t in tokens]
+        for t_lower in tokens_lower:
+            for olt in target_type_list:
+                if t_lower == olt.lower():
+                    return olt
 
-        for lbl in labels_latest_to_oldest:
-            tokens = [rewrite(t) for t in tokenize(lbl["label"], LABEL_DELIMS)]
-            tokens_lower = [t.lower() for t in tokens]
-            for t_lower in tokens_lower:
-                for olt in target_type_list:
-                    if t_lower == olt.lower():
-                        return olt
+        # try consecutive token pairs (e.g. L 5 -> L5)
+        for i, t in enumerate(tokens):
+            if i < len(tokens) - 1:
+                ctoken = t + tokens[i + 1]
+                if ctoken in target_type_list:
+                    if ctoken not in ["R1-6"]:  # known concatenations
+                        print(
+                            f"Caution: inferred {ctoken} by concatenating to {t + tokens[i + 1]}: {lbl}"
+                        )
+                    return ctoken
 
-            # try consecutive token pairs (e.g. L 5 -> L5)
-            for i, t in enumerate(tokens):
-                if i < len(tokens) - 1:
-                    ctoken = t + tokens[i + 1]
-                    if ctoken in target_type_list:
-                        if ctoken not in ["R1-6"]:  # known concatenations
-                            print(
-                                f"Caution: inferred {ctoken} by concatenating to {t + tokens[i + 1]}: {lbl}"
-                            )
-                        return ctoken
-
-        for lbl in labels_latest_to_oldest:
-            unknown_labels.add(lbl["label"])
+    for lbl in labels:
+        unknown_labels.add(lbl)
 
     if types_list:
         # try to infer by cell / hemibrain type
@@ -64,21 +51,19 @@ def infer_ol_type(label_data, types_list, target_type_list, unknown_labels):
                 f"WARNING!!! Inferred multiple: {matched_types} from types: {types_list}"
             )
 
-    return "Unknown-labeled" if label_data else "Unknown-not-labeled"
+    return "Unknown-labeled" if labels else "Unknown-not-labeled"
 
 
-def assign_types_to_neurons(
-    rid_to_labels_data, rid_to_cell_types_list, target_type_list
-):
+def assign_types_to_neurons(rid_to_labels, rid_to_cell_types_list, target_type_list):
     unknown_labels = set()
     neuron_to_type = {
         rid: infer_ol_type(
-            label_data=label_data,
+            labels=labels,
             types_list=rid_to_cell_types_list[rid],
             target_type_list=target_type_list,
             unknown_labels=unknown_labels,
         )
-        for rid, label_data in rid_to_labels_data.items()
+        for rid, labels in rid_to_labels.items()
     }
 
     if unknown_labels:
@@ -105,8 +90,8 @@ def assign_types_for_right_optic_lobe_catalog(neuron_db):
 
     print(f"Identified {len(olr_neuron_rid_list)} neurons in the OL Right side")
     olr_type_lists = assign_types_to_neurons(
-        rid_to_labels_data={
-            rid: neuron_db.get_label_data(rid) for rid in olr_neuron_rid_list
+        rid_to_labels={
+            rid: neuron_db.get_neuron_data(rid)["label"] for rid in olr_neuron_rid_list
         },
         rid_to_cell_types_list={
             rid: neuron_db.get_all_cell_types(rid) for rid in olr_neuron_rid_list
@@ -122,8 +107,9 @@ def assign_types_for_right_optic_lobe_catalog(neuron_db):
         nd["root_id"] for nd in neuron_db.neuron_data.values() if non_olr_labeled(nd)
     ]
     non_olr_type_list = assign_types_to_neurons(
-        rid_to_labels_data={
-            rid: neuron_db.get_label_data(rid) for rid in non_olr_neuron_rid_list
+        rid_to_labels={
+            rid: neuron_db.get_neuron_data(rid)["label"]
+            for rid in non_olr_neuron_rid_list
         },
         rid_to_cell_types_list={
             rid: neuron_db.get_all_cell_types(rid) for rid in non_olr_neuron_rid_list

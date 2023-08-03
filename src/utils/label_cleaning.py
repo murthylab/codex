@@ -181,7 +181,12 @@ def blacklisted(lbl):
     blacklisted_labels = {
         "correction - not optic lobe",
     }
-    return lbl.lower() in blacklisted_labels or can_be_flywire_root_id(lbl)
+
+    return (
+        lbl.lower() in blacklisted_labels
+        or can_be_flywire_root_id(lbl)
+        or lbl.startswith("#wrong_prediction")
+    )
 
 
 def significant_diff_chars(str1, str2):

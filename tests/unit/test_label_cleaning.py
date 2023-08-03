@@ -13,6 +13,7 @@ from src.utils.label_cleaning import (
     dedupe_with_order,
     clean_and_reduce_labels,
 )
+from src.utils.markers import extract_at_most_one_marker
 from tests import get_testing_neuron_db
 
 
@@ -884,3 +885,13 @@ class Test(TestCase):
                 self.assertFalse(lbl.lower().startswith("putative"), lbl)
 
             self.assertEqual(len(nd["label"]), len(set(nd["label"])))
+
+    def test_wrong_predictions(self):
+        for rid, items in self.neuron_db.label_data.items():
+            for ld in items:
+                lbl = ld["label"]
+                if "wrong_prediction" in lbl:
+                    mrk = extract_at_most_one_marker(
+                        self.neuron_db.neuron_data[rid], "olr_type"
+                    )
+                    self.assertTrue(not mrk or mrk.startswith("Unknown"))
