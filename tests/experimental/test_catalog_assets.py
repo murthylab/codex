@@ -1,26 +1,44 @@
-import json
 from collections import defaultdict
+from random import shuffle
 from unittest import TestCase
 import networkx as nx
 import matplotlib.pyplot as plt
 
 from src.configuration import TYPE_PREDICATES_METADATA
-from src.data.brain_regions import REGIONS
 from src.data.visual_neuron_types import (
     VISUAL_NEURON_TYPE_TO_MEGA_TYPE,
-    VISUAL_NEURON_TYPES,
+    VISUAL_NEURON_MEGA_TYPE_TO_TYPES,
 )
 from src.utils.formatting import display
 from src.utils.markers import extract_at_most_one_marker
 from tests import get_testing_neuron_db
 
+OLR_REGIONS = {
+    "LA_R": "Lamina",
+    "ME_R": "Medulla",
+    "AME_R": "Acc. Medulla",
+    "LO_R": "Lobula",
+    "LOP_R": "Lobula Plate",
+}
+OLR_REGIONS_KEYS = list(OLR_REGIONS.keys())
+MEGA_TYPES = sorted(VISUAL_NEURON_MEGA_TYPE_TO_TYPES.keys())
+
+NUM_COLORS = len(OLR_REGIONS_KEYS) + len(MEGA_TYPES)
+cm = plt.get_cmap("terrain")
+COLORS = [cm(1.0 * i / NUM_COLORS) for i in range(NUM_COLORS)]
+shuffle(COLORS)
+
 
 def region_color(region):
-    return f"C{REGIONS[region][0]}"
+    idx = OLR_REGIONS_KEYS.index(region)
+    assert idx >= 0
+    return COLORS[idx]
 
 
 def type_color(tp):
-    return f"C{VISUAL_NEURON_TYPES.index(tp)}"
+    mtype = VISUAL_NEURON_TYPE_TO_MEGA_TYPE[tp]
+    idx = MEGA_TYPES.index(mtype)
+    return COLORS[len(OLR_REGIONS) + idx]
 
 
 def to_percent(frac):
@@ -113,7 +131,7 @@ class CatalogAssets(TestCase):
                 ),
             }
 
-        print(json.dumps(result, indent=2))
+        # print(json.dumps(result, indent=2))
         return result
 
     @staticmethod
@@ -144,32 +162,36 @@ class CatalogAssets(TestCase):
         nx.draw(
             graph,
             with_labels=True,
+            font_size=18,
+            font_weight="bold",
             node_color=[type_color(nn.replace(" ", "")) for nn in node_names],
             pos=positions,
-            node_shape="o",
+            node_shape="",
             node_size=[len(nn) ** 2 * 60 for nn in node_names],
             ax=subplot,
         )
         subplot.set_title(
-            f"Connectivity Predicate [precision: {precision}, recall: {recall}]", y=-0.1
+            f"Connectivity Predicate [precision: {precision}, recall: {recall}]",
+            fontsize=24,
         )
 
     @staticmethod
-    def add_barchart(subplot, title, ylabel, legend, data, colorizer):
+    def add_barchart(subplot, title, ylabel, data, colorizer, sort_by_key):
         # first trim to top 10, then sort by key
-        data = sorted(data, key=lambda x: -x[1])[:10]
-        data = sorted(data, key=lambda x: x[0])
-        bars = [d[0] for d in data]
+        data = sorted(data, key=lambda x: -x[1])[:6]
+        if sort_by_key:
+            data = sorted(data, key=lambda x: x[0])
+        bars = [d[2] for d in data]
         counts = [d[1] for d in data]
-        bar_labels = [d[2] for d in data]
-        bar_colors = [colorizer(bar) for bar in bars]
+        bar_labels = [d[0] for d in data]
+        bar_colors = [colorizer(bar) for bar in bar_labels]
 
         subplot.bar(bars, counts, label=bar_labels, color=bar_colors)
 
-        subplot.set_ylabel(ylabel)
-        subplot.set_title(title)
-        if legend:
-            subplot.legend(title=legend)
+        subplot.set_ylabel(ylabel, fontsize=18)
+        subplot.set_title(title, fontsize=24)
+        subplot.tick_params(axis="x", labelrotation=75, labelsize=16)
+        subplot.tick_params(axis="y", labelsize=16)
 
     @staticmethod
     def add_table(subplot, title, subtitle, data_dict):
@@ -178,7 +200,7 @@ class CatalogAssets(TestCase):
 
         # Set titles for the figure and the subplot respectively
         subplot.set_title(
-            f"{title}\n\n{subtitle}", fontsize=18, fontweight="bold", color="purple"
+            f"{title}\n{subtitle}", fontsize=28, fontweight="bold", color="purple"
         )
 
         # Hide axes
@@ -201,7 +223,7 @@ class CatalogAssets(TestCase):
 
         # Customize the table
         table.auto_set_font_size(False)
-        table.set_fontsize(16)
+        table.set_fontsize(26)
 
         # Adjust table layout
         table.scale(1, 2.5)
@@ -217,9 +239,10 @@ class CatalogAssets(TestCase):
                 continue
 
             fig, ax = plt.subplots(nrows=2, ncols=3, figsize=(32, 20))
+            plt.subplots_adjust(wspace=0.5, hspace=0.5)
 
             CatalogAssets.add_network(
-                subplot=ax[1][2],
+                subplot=ax[1][0],
                 top_nodes=[f"  {nn}   " for nn in v["predicate_input_types"]],
                 mid_nodes=[f"   {k}   "],
                 bottom_nodes=[f"   {nn}  " for nn in v["predicate_output_types"]],
@@ -228,64 +251,74 @@ class CatalogAssets(TestCase):
             )
 
             table_data_dict = {
-                "Avg. in degree": meta_data[k]["avg_in_degree"],
-                "Avg. out degree": meta_data[k]["avg_out_degree"],
-                "Avg. in synapses": meta_data[k]["avg_in_synapses"],
-                "Avg. out synapses": meta_data[k]["avg_out_synapses"],
-                "Avg. cable length (nm)": meta_data[k]["avg_length_nm"],
-                "Avg. surface area (nm^2)": meta_data[k]["avg_area_nm"],
-                "Avg. volume (nm^3)": meta_data[k]["avg_volume_nm"],
+                f'{display(meta_data[k]["num_cells"])} CELLS': "",
+                "": "",
+                "AVG. STATS": "",
+                " in degree": meta_data[k]["avg_in_degree"],
+                " out degree": meta_data[k]["avg_out_degree"],
+                " in synapses": meta_data[k]["avg_in_synapses"],
+                " out synapses": meta_data[k]["avg_out_synapses"],
+                " cable len (µm)": meta_data[k]["avg_length_nm"] // 1000,
+                " surface (µm^2)": meta_data[k]["avg_area_nm"] // 1000000,
+                " volume (µm^3)": meta_data[k]["avg_volume_nm"] // 1000000000,
             }
             CatalogAssets.add_table(
                 subplot=ax[0][0],
-                title=f"{k} ({VISUAL_NEURON_TYPE_TO_MEGA_TYPE[k]})",
-                subtitle=f'{display(meta_data[k]["num_cells"])} cells',
+                title=k,
+                subtitle=VISUAL_NEURON_TYPE_TO_MEGA_TYPE[k],
                 data_dict=table_data_dict,
             )
             CatalogAssets.add_barchart(
                 subplot=ax[0][1],
                 title="Input Brain Regions",
                 ylabel="avg. num synapses",
-                legend="Regions",
                 data=[
-                    (k, v, REGIONS[k][1])
-                    for k, v in meta_data[k]["avg_in_synapses_by_region"].items()
+                    (
+                        rgn,
+                        meta_data[k]["avg_in_synapses_by_region"].get(rgn, 0),
+                        rgn_name,
+                    )
+                    for rgn, rgn_name in OLR_REGIONS.items()
                 ],
                 colorizer=region_color,
+                sort_by_key=True,
             )
             CatalogAssets.add_barchart(
                 subplot=ax[0][2],
                 title="Output Brain Regions",
                 ylabel="avg. num synapses",
-                legend="Regions",
                 data=[
-                    (k, v, REGIONS[k][1])
-                    for k, v in meta_data[k]["avg_out_synapses_by_region"].items()
+                    (
+                        rgn,
+                        meta_data[k]["avg_out_synapses_by_region"].get(rgn, 0),
+                        rgn_name,
+                    )
+                    for rgn, rgn_name in OLR_REGIONS.items()
                 ],
                 colorizer=region_color,
-            )
-            CatalogAssets.add_barchart(
-                subplot=ax[1][0],
-                title="Upstream Partner Types",
-                ylabel="avg. num cells",
-                legend=None,
-                data=[
-                    (k, v, None)
-                    for k, v in meta_data[k]["avg_in_partners_by_type"].items()
-                ],
-                colorizer=type_color,
+                sort_by_key=True,
             )
             CatalogAssets.add_barchart(
                 subplot=ax[1][1],
-                title="Downstream Partner Types",
+                title="Upstream Partner Types",
                 ylabel="avg. num cells",
-                legend=None,
                 data=[
-                    (k, v, None)
-                    for k, v in meta_data[k]["avg_out_partners_by_type"].items()
+                    (kk, vv, kk)
+                    for kk, vv in meta_data[k]["avg_in_partners_by_type"].items()
                 ],
                 colorizer=type_color,
+                sort_by_key=False,
             )
-
+            CatalogAssets.add_barchart(
+                subplot=ax[1][2],
+                title="Downstream Partner Types",
+                ylabel="avg. num cells",
+                data=[
+                    (kk, vv, kk)
+                    for kk, vv in meta_data[k]["avg_out_partners_by_type"].items()
+                ],
+                colorizer=type_color,
+                sort_by_key=False,
+            )
             plt.savefig(f"../../static/experimental_data/ol_catalog_assets/fig_{k}.png")
             plt.close(fig)
