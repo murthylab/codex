@@ -1,5 +1,4 @@
 from collections import defaultdict
-from random import shuffle
 from unittest import TestCase
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -20,29 +19,36 @@ OLR_REGIONS = {
     "LO_R": "Lobula",
     "LOP_R": "Lobula Plate",
 }
-OLR_REGIONS_KEYS = list(OLR_REGIONS.keys())
-MEGA_TYPES = sorted(VISUAL_NEURON_MEGA_TYPE_TO_TYPES.keys())
 
-NUM_COLORS = len(OLR_REGIONS_KEYS) + len(MEGA_TYPES)
-cm = plt.get_cmap("terrain")
-COLORS = [cm(1.0 * i / NUM_COLORS) for i in range(NUM_COLORS)]
-shuffle(COLORS)
+MEGA_TYPES = sorted(VISUAL_NEURON_MEGA_TYPE_TO_TYPES.keys())
+types_cm = plt.get_cmap("tab20")
+TYPE_COLORS = [types_cm(1.0 * i / len(MEGA_TYPES)) for i in range(len(MEGA_TYPES))]
+
+OLR_REGIONS_KEYS = list(OLR_REGIONS.keys())
+regions_cm = plt.get_cmap("Dark2")
+REGION_COLORS = [
+    regions_cm(1.0 * i / len(OLR_REGIONS_KEYS)) for i in range(len(OLR_REGIONS_KEYS))
+]
 
 
 def region_color(region):
     idx = OLR_REGIONS_KEYS.index(region)
     assert idx >= 0
-    return COLORS[idx]
+    return REGION_COLORS[idx]
 
 
 def type_color(tp):
     mtype = VISUAL_NEURON_TYPE_TO_MEGA_TYPE[tp]
     idx = MEGA_TYPES.index(mtype)
-    return COLORS[len(OLR_REGIONS) + idx]
+    return TYPE_COLORS[idx]
 
 
 def to_percent(frac):
     return f"{round(frac * 100)}%"
+
+
+def plot_file_name(plot_index, name):
+    return f"../../static/experimental_data/ol_catalog_assets/{plot_index}_fig_{name.replace(' ', '')}.png"
 
 
 class CatalogAssets(TestCase):
@@ -164,10 +170,10 @@ class CatalogAssets(TestCase):
             with_labels=True,
             font_size=18,
             font_weight="bold",
-            node_color=[type_color(nn.replace(" ", "")) for nn in node_names],
             pos=positions,
             node_shape="",
-            node_size=[len(nn) ** 2 * 60 for nn in node_names],
+            # node_color=[type_color(nn.replace(" ", "")) for nn in node_names],
+            node_size=[len(nn) ** 2 * 100 for nn in node_names],
             ax=subplot,
         )
         subplot.set_title(
@@ -230,13 +236,31 @@ class CatalogAssets(TestCase):
 
     def test_make_catalog_figures(self):
         meta_data = CatalogAssets.collect_data()
-        types_by_size = sorted(
-            meta_data.keys(), key=lambda x: -meta_data[x]["num_cells"]
-        )
-        for k in types_by_size:
+        types_by_name = sorted(meta_data.keys())
+        last_mega_type = None
+        plot_idx = 0
+        for k in types_by_name:
             v = TYPE_PREDICATES_METADATA.get(k)
             if not v or v["f_score"] < 0.6:
                 continue
+
+            plot_idx += 1
+
+            if VISUAL_NEURON_TYPE_TO_MEGA_TYPE[k] != last_mega_type:
+                last_mega_type = VISUAL_NEURON_TYPE_TO_MEGA_TYPE[k]
+                fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(32, 20))
+                CatalogAssets.add_table(
+                    subplot=ax[0][0],
+                    title=last_mega_type,
+                    subtitle="",
+                    data_dict={
+                        "Types": len(VISUAL_NEURON_MEGA_TYPE_TO_TYPES[last_mega_type]),
+                        "Cells": "TODO",
+                    },
+                )
+                plt.savefig(plot_file_name(plot_index=plot_idx, name=last_mega_type))
+                plt.close(fig)
+                plot_idx += 1
 
             fig, ax = plt.subplots(nrows=2, ncols=3, figsize=(32, 20))
             plt.subplots_adjust(wspace=0.5, hspace=0.5)
@@ -320,5 +344,5 @@ class CatalogAssets(TestCase):
                 colorizer=type_color,
                 sort_by_key=False,
             )
-            plt.savefig(f"../../static/experimental_data/ol_catalog_assets/fig_{k}.png")
+            plt.savefig(plot_file_name(plot_index=plot_idx, name=k))
             plt.close(fig)
