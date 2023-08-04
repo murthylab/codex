@@ -1,4 +1,5 @@
 import json
+import math
 import re
 from collections import defaultdict
 from datetime import datetime
@@ -50,6 +51,7 @@ from src.data.visual_neuron_types import (
     VISUAL_NEURON_MEGA_TYPE_TO_TYPES,
     VISUAL_NEURON_TYPES,
 )
+from src.etl.olr_types_classification import OlrPredicatesGenerator
 from src.service.cell_details import cached_cell_details
 from src.service.network import compile_network_html
 from src.service.search import pagination_data, DEFAULT_PAGE_SIZE
@@ -690,6 +692,69 @@ def count_visual_cell_types():
     return render_template(
         "many_cells_form.html",
         title="Count Visual Cell Types",
+        message=msg,
+    )
+
+
+@app.route("/find_connectivity_predicate", methods=["GET", "POST"])
+@request_wrapper
+@require_data_access
+def find_connectivity_predicate():
+    log_activity("Loading 'Connectivity Predicate' page")
+    msg = (
+        "This tool finds the optimal connectivity predicate for a sets of cells. If predicate found and f_score is "
+        "0.9 or higher (which also implies high precision/recall), it means that the set of cells can be characterized "
+        "by its connectivity types. If not, then it's either a mix of types or subset of a type."
+    )
+
+    if request.method == "POST":
+        neuron_db = NeuronDataFactory.instance().get()
+        cell_ids = request.form.get("cell_ids")
+        cell_ids = neuron_db.search(cell_ids)
+        log_activity(f"Finding predicate for {len(cell_ids)} cells")
+        neuron_db = NeuronDataFactory.instance().get()
+        max_set_size = min(5, max(1, round(math.log2(len(cell_ids)))))
+        olr_predicates_generator = OlrPredicatesGenerator(
+            neuron_db, max_set_size=max_set_size
+        )
+        not_olr_cells = [
+            rid
+            for rid in cell_ids
+            if rid not in olr_predicates_generator.rid_to_olr_type
+        ]
+        if not not_olr_cells:
+            ucounts, dcounts = olr_predicates_generator.count_upstream_downstream_types(
+                cell_ids
+            )
+            predicate = olr_predicates_generator.find_best_predicate_for_list(
+                cell_ids, ucounts, dcounts
+            )
+            msg = f"Cells: {len(cell_ids)} (max predicate size: {max_set_size})<br>"
+            if predicate["f_score"] < 0.6:
+                msg += "No connectivity predicates found"
+            else:
+                msg += "<br>".join(
+                    [
+                        f"{k}: {predicate[k]}"
+                        for k in [
+                            "precision",
+                            "recall",
+                            "f_score",
+                            "predicate_input_types",
+                            "predicate_output_types",
+                            "false_positives",
+                            "false_negatives",
+                        ]
+                    ]
+                )
+        elif len(not_olr_cells) < 100:
+            msg = f"These cell IDs do not belong to the optic lobe right:\n{not_olr_cells}\nCorrect your input and try again."
+        else:
+            msg = f"{len(not_olr_cells)} of the {len(cell_ids)} cell IDs do not belong to the optic lobe\nCorrect your input and try again."
+        log_activity(f"Resulting predicate for {len(cell_ids)} cells: {msg}")
+    return render_template(
+        "many_cells_form.html",
+        title="Connectivity Predicate",
         message=msg,
     )
 

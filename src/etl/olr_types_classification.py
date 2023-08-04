@@ -11,6 +11,7 @@ from itertools import chain, combinations
 class OlrPredicatesGenerator(object):
     def __init__(
         self,
+        neuron_db,
         verbose=False,
         min_f_score=0.6,
         up_threshold=0.7,
@@ -23,7 +24,6 @@ class OlrPredicatesGenerator(object):
         self.down_threshold = down_threshold
         self.max_set_size = max_set_size
 
-        neuron_db = NeuronDataFactory.instance().get()
         ins, outs = neuron_db.input_output_partner_sets()
 
         self.rid_to_olr_type = {}
@@ -57,15 +57,12 @@ class OlrPredicatesGenerator(object):
         self.upstream_types_count_for_type = {}
         self.downstream_types_count_for_type = {}
         for tp, tp_rid_list in self.olr_type_to_rid_lists.items():
-            upstream_types_count = defaultdict(int)
-            downstream_types_count = defaultdict(int)
-            for rid in tp_rid_list:
-                for drid_type in self.out_type_projections[rid]:
-                    downstream_types_count[drid_type] += 1
-                for urid_type in self.in_type_projections[rid]:
-                    upstream_types_count[urid_type] += 1
-            self.upstream_types_count_for_type[tp] = dict(upstream_types_count)
-            self.downstream_types_count_for_type[tp] = dict(downstream_types_count)
+            (
+                upstream_types_count,
+                downstream_types_count,
+            ) = self.count_upstream_downstream_types(tp_rid_list)
+            self.upstream_types_count_for_type[tp] = upstream_types_count
+            self.downstream_types_count_for_type[tp] = downstream_types_count
 
     def dbg(self, msg):
         if self.verbose:
@@ -74,43 +71,39 @@ class OlrPredicatesGenerator(object):
     def olr_types(self):
         return sorted(self.olr_type_to_rid_lists.keys())
 
-    def predicate_matching_cell_types(
+    def predicate_matching_cells(
         self,
         types_downstream,
         types_upstream,
     ):
-        matching_type_counts = defaultdict(list)
+        matching_cells = []
         for rid, tp in self.rid_to_olr_type.items():
             if types_downstream.issubset(
                 self.out_type_projections[rid]
             ) and types_upstream.issubset(self.in_type_projections[rid]):
-                matching_type_counts[tp].append(rid)
-        return matching_type_counts
+                matching_cells.append(rid)
+        return matching_cells
 
     @staticmethod
-    def compute_predicate_data(olr_type, olr_true_list, predicate_matching_type_lists):
-        predicate_all_matches_list = []
-        for v in predicate_matching_type_lists.values():
-            predicate_all_matches_list.extend(v)
-        assert len(predicate_all_matches_list) == len(set(predicate_all_matches_list))
+    def compute_predicate_data(true_list, matching_cells):
+        matching_cells_set = set(matching_cells)
+        assert len(matching_cells) == len(matching_cells_set)
 
-        true_positive_list = predicate_matching_type_lists[olr_type]
-        false_positive_list = sorted(
-            set(predicate_all_matches_list) - set(true_positive_list)
-        )
-        false_negative_list = sorted(set(olr_true_list) - set(true_positive_list))
+        true_positive_set = matching_cells_set.intersection(true_list)
+        false_positive_set = matching_cells_set - true_positive_set
+        false_negative_set = set(true_list) - true_positive_set
 
-        precision = len(true_positive_list) / len(predicate_all_matches_list)
-        recall = len(true_positive_list) / len(olr_true_list)
+        precision = len(true_positive_set) / len(matching_cells_set)
+        recall = len(true_positive_set) / len(true_list)
         f_score = (2 * precision * recall) / (precision + recall)
 
         return {
             "precision": precision,
             "recall": recall,
             "f_score": f_score,
-            "true_positives": true_positive_list,
-            "false_positives": false_positive_list,
-            "false_negatives": false_negative_list,
+            "true_positives": sorted(true_positive_set),
+            "false_positives": sorted(false_positive_set),
+            "false_negatives": sorted(false_negative_set),
         }
 
     @staticmethod
@@ -131,6 +124,16 @@ class OlrPredicatesGenerator(object):
         tp_rid_list = self.olr_type_to_rid_lists[target_olr_type]
         upstream_types_count = self.upstream_types_count_for_type[target_olr_type]
         downstream_types_count = self.downstream_types_count_for_type[target_olr_type]
+        self.dbg(
+            f"Finding the best predicate for {target_olr_type} with {len(tp_rid_list)} cells"
+        )
+        return self.find_best_predicate_for_list(
+            tp_rid_list, upstream_types_count, downstream_types_count
+        )
+
+    def find_best_predicate_for_list(
+        self, tp_rid_list, upstream_types_count, downstream_types_count
+    ):
 
         result = {
             "cells": len(tp_rid_list),
@@ -145,9 +148,6 @@ class OlrPredicatesGenerator(object):
             "false_positives": [],
             "false_negatives": [],
         }
-        self.dbg(
-            f"Finding the best predicate for {target_olr_type} with {len(tp_rid_list)} cells"
-        )
         if not downstream_types_count and not upstream_types_count:
             self.dbg("No up/down type counts, can't make a predicate")
             return result
@@ -182,15 +182,14 @@ class OlrPredicatesGenerator(object):
         for up_types, down_types in self.all_up_down_type_subsets(
             predicate_types_up, predicate_types_down
         ):
-            matching_type_lists = self.predicate_matching_cell_types(
+            matching_cells = self.predicate_matching_cells(
                 types_downstream=down_types,
                 types_upstream=up_types,
             )
 
             predicate_data = self.compute_predicate_data(
-                olr_type=target_olr_type,
-                olr_true_list=tp_rid_list,
-                predicate_matching_type_lists=matching_type_lists,
+                true_list=tp_rid_list,
+                matching_cells=matching_cells,
             )
             if predicate_data["f_score"] < self.min_f_score:
                 continue
@@ -220,9 +219,21 @@ class OlrPredicatesGenerator(object):
             result.update(best_predicate_data)
         return result
 
+    def count_upstream_downstream_types(self, rid_list):
+        upstream_types_count = defaultdict(int)
+        downstream_types_count = defaultdict(int)
+        for rid in rid_list:
+            for drid_type in self.out_type_projections[rid]:
+                downstream_types_count[drid_type] += 1
+            for urid_type in self.in_type_projections[rid]:
+                upstream_types_count[urid_type] += 1
+        return dict(upstream_types_count), dict(downstream_types_count)
+
 
 def generate_predicates():
-    olr_predicates_generator = OlrPredicatesGenerator()
+    olr_predicates_generator = OlrPredicatesGenerator(
+        neuron_db=NeuronDataFactory.instance().get()
+    )
 
     predictions_table_columns = [
         "type",
