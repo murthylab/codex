@@ -93,6 +93,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
     "Distal Medulla": [
         "Dm1",
         "Dm2",
+        "Dm2b",
         "Dm3",
         "Dm4",
         "Dm5",
@@ -117,6 +118,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Dm102b_6",
         "Dm104_12",
     ],
+    "Distal Medulla Dorsal Rim Area": ["DmDRA1", "DmDRA2"],
     "Proximal Medulla": [
         "Pm1",
         "Pm1a",
@@ -139,6 +141,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "LC7",
         "LC8",
         "LC9",
+        "LC10",
         "LC10a",
         "LC10b",
         "LC10c",
@@ -368,6 +371,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Li2",
         "Li3",
         "Li4",
+        "Li18",
         "Li100_5",
         "Li101_23",
         "Li102_23",
@@ -400,6 +404,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "H1",
     ],
     "Medulla Lobula": [
+        "ML1",
         "ML100_M47-L6",
         "ML101_M89-L235",
         "ML102_M24-L45",

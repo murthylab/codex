@@ -58,7 +58,7 @@ def is_ol_right_neuron_by_annotations(nd):
 
 
 def rewrite(t):
-    return UPDATED_TYPES_LC.get(t.lower(), t)
+    return UPDATED_TYPES_LC.get(t.replace("`", "").lower(), t)
 
 
 def infer_ol_type(labels, types_list, target_type_list, unknown_labels):
