@@ -641,10 +641,6 @@ def optic_lobe_catalog():
         "Connectivity predicates": [
             f"{len(types_with_predicates)} types have connectivity predicates with high precision/recall",
         ],
-        "Target set update suggestions": [
-            '<a href="search?filter_string=olr_false_positives:5&sort_by=-partners&page_size=100", target="_blank">REMOVE: neurons without any synapses in OLR or with >5% of synapses outside OLR</a>',
-            '<a href="search?filter_string=olr_false_negatives&sort_by=-partners&page_size=100", target="_blank">ADD: sensory neurons with all their synapses in OLR</a>',
-        ],
     }
     return render_template(
         "optic_lobe_catalog.html",

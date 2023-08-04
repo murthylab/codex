@@ -715,87 +715,19 @@ class NeuronDB(object):
             f"{prediction_match=} {prediction_mismatch=} {prediction_rejected=}"
         )
 
-    def match_custom_query(self, filter_string):
+    @staticmethod
+    def match_custom_query(filter_string):
         supported_filters = [
-            "olr_false_positives",
-            "olr_false_negatives",
             "type_predicate_true_positives",
             "type_predicate_false_positives",
             "type_predicate_false_negatives",
         ]
         if not any([filter_string.startswith(flt) for flt in supported_filters]):
             return None
-
         log_activity(f"Loading custom_cell_lists with {filter_string=}")
-
-        if any(
-            [
-                filter_string.startswith(flt)
-                for flt in ["olr_false_positives", "olr_false_negatives"]
-            ]
-        ):
-            fs_parts = filter_string.split(":")
-            what = fs_parts[0]
-            slack_percent = 0 if len(fs_parts) == 1 else int(fs_parts[1])
-            if not 0 <= slack_percent <= 100:
-                raise ValueError(
-                    "Slack percents must be between 0 and 100. This is the percentage of synapses allowed in regions outside of the right optic lobe."
-                )
-
-            right_ol_neuropils = {"AME_R", "LA_R", "LO_R", "LOP_R", "ME_R"}
-            unassigned_neuropil = "UNASGD"
-
-            ins, outs = self.input_output_regions_with_synapse_counts()
-
-            def is_olr_by_synapse_regions(ndata):
-                if ndata["side"] != "right" or ndata["super_class"] not in [
-                    "optic",
-                    "sensory",
-                ]:
-                    return False
-                if slack_percent:
-                    synapse_regions = set(ndata["input_neuropils"]) | set(
-                        ndata["output_neuropils"]
-                    )
-                    if not synapse_regions.intersection(right_ol_neuropils):
-                        return False
-                    total_syn_count, non_olr_syn_count = 0, 0
-                    for pil, cnt in ins[nd["root_id"]].items():
-                        total_syn_count += cnt
-                        if pil != unassigned_neuropil and pil not in right_ol_neuropils:
-                            non_olr_syn_count += cnt
-                    for pil, cnt in outs[nd["root_id"]].items():
-                        total_syn_count += cnt
-                        if pil != unassigned_neuropil and pil not in right_ol_neuropils:
-                            non_olr_syn_count += cnt
-                    return (non_olr_syn_count * 100 / total_syn_count) <= slack_percent
-                else:
-                    syn_regions = (
-                        set(ndata["input_neuropils"]) | set(ndata["output_neuropils"])
-                    ) - {unassigned_neuropil}
-                    return syn_regions and syn_regions.issubset(right_ol_neuropils)
-
-            olr_neurons_by_super_class, olr_neurons_by_regions = set(), set()
-            for rid, nd in self.neuron_data.items():
-                if nd["side"] == "right" and nd["super_class"] == "optic":
-                    olr_neurons_by_super_class.add(rid)
-                if is_olr_by_synapse_regions(nd):
-                    olr_neurons_by_regions.add(rid)
-
-            if what == "olr_false_positives":
-                rid_list = olr_neurons_by_super_class - olr_neurons_by_regions
-            else:
-                rid_list = olr_neurons_by_regions - olr_neurons_by_super_class
-            return sorted(
-                rid_list,
-                key=lambda cid: self.get_neuron_data(cid)["input_cells"]
-                + self.get_neuron_data(cid)["output_cells"],
-                reverse=True,
-            )
-        else:
-            fs_parts = filter_string.split(":")
-            what = fs_parts[0]
-            target_type = fs_parts[1]
-            return TYPE_PREDICATES_METADATA[target_type][
-                what.replace("type_predicate_", "")
-            ]
+        fs_parts = filter_string.split(":")
+        what = fs_parts[0]
+        target_type = fs_parts[1]
+        return TYPE_PREDICATES_METADATA[target_type][
+            what.replace("type_predicate_", "")
+        ]

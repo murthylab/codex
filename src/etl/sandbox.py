@@ -572,7 +572,8 @@ def predict_ol_types(neuron_db):
         return "olr_type:Unknown-not-labeled" in nd["marker"]
 
     unknown_ol = [rid for rid, nd in neuron_db.neuron_data.items() if is_unknown_ol(nd)]
-    assert 1000 < len(unknown_ol)
+    print(f"Unknown OL: {len(unknown_ol)}")
+    assert 500 < len(unknown_ol)
 
     def ol_type(rid):
         for mrk in neuron_db.get_neuron_data(rid)["marker"]:

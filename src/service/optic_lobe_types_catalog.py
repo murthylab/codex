@@ -6,6 +6,57 @@ UPDATED_TYPES_LC = {f"r{i}": "R1-6" for i in range(1, 7)}
 UPDATED_TYPES_LC["mi8"] = "Mi9"
 
 
+RIGHT_OL_REGIONS = {"AME_R", "LA_R", "LO_R", "LOP_R", "ME_R"}
+UNASSIGNED_REGION = "UNASGD"
+MAX_PERCENT_SYNAPSES_OUTSIDE_OLR_REGIONS = 5
+
+
+def is_ol_right_by_synapse_regions(
+    ndata, in_regions_synapse_counts, out_regions_synapse_counts
+):
+    if ndata["side"] != "right" or ndata["super_class"] not in [
+        "optic",
+        "sensory",
+    ]:
+        return False
+
+    # from sensory we only take these two mislabeled cells (suggested by Szi-chieh). Exclude the retinula axons for now.
+    if ndata["super_class"] == "sensory" and ndata["root_id"] not in [
+        720575940626605630,
+        720575940627333465,
+    ]:
+        return False
+
+    # check how many synapses vs allowed outside OLR regions
+    if MAX_PERCENT_SYNAPSES_OUTSIDE_OLR_REGIONS:
+        synapse_regions = set(ndata["input_neuropils"]) | set(ndata["output_neuropils"])
+        if not synapse_regions.intersection(RIGHT_OL_REGIONS):
+            return False
+        total_syn_count, non_olr_syn_count = 0, 0
+        for pil, cnt in in_regions_synapse_counts[ndata["root_id"]].items():
+            total_syn_count += cnt
+            if pil != UNASSIGNED_REGION and pil not in RIGHT_OL_REGIONS:
+                non_olr_syn_count += cnt
+        for pil, cnt in out_regions_synapse_counts[ndata["root_id"]].items():
+            total_syn_count += cnt
+            if pil != UNASSIGNED_REGION and pil not in RIGHT_OL_REGIONS:
+                non_olr_syn_count += cnt
+        return (
+            non_olr_syn_count * 100 / total_syn_count
+        ) <= MAX_PERCENT_SYNAPSES_OUTSIDE_OLR_REGIONS
+    else:
+        syn_regions = (
+            set(ndata["input_neuropils"]) | set(ndata["output_neuropils"])
+        ) - {UNASSIGNED_REGION}
+        return syn_regions and syn_regions.issubset(RIGHT_OL_REGIONS)
+
+
+# This used to be the previous definer for target set. But it contained many unconnected cells + bilateral and
+# projection/centrifugal cells. So instead we now use regions.
+def is_ol_right_neuron_by_annotations(nd):
+    return nd["super_class"] == "optic" and nd["side"] == "right"
+
+
 def rewrite(t):
     return UPDATED_TYPES_LC.get(t.lower(), t)
 
@@ -78,14 +129,14 @@ def assign_types_to_neurons(rid_to_labels, rid_to_cell_types_list, target_type_l
     return type_to_neurons_list
 
 
-def is_ol_right(nd):
-    return nd["super_class"] == "optic" and nd["side"] == "right"
-
-
 def assign_types_for_right_optic_lobe_catalog(neuron_db):
+    ins, outs = neuron_db.input_output_regions_with_synapse_counts()
+
     # collect all types (even if undefined) for olr neurons
     olr_neuron_rid_list = [
-        nd["root_id"] for nd in neuron_db.neuron_data.values() if is_ol_right(nd)
+        nd["root_id"]
+        for nd in neuron_db.neuron_data.values()
+        if is_ol_right_by_synapse_regions(nd, ins, outs)
     ]
 
     print(f"Identified {len(olr_neuron_rid_list)} neurons in the OL Right side")
@@ -101,7 +152,9 @@ def assign_types_for_right_optic_lobe_catalog(neuron_db):
 
     # collect types for non-olr neurons that were successfully mapped to OL type
     def non_olr_labeled(nd):
-        return neuron_db.get_label_data(nd["root_id"]) and not is_ol_right(nd)
+        return neuron_db.get_label_data(
+            nd["root_id"]
+        ) and not is_ol_right_by_synapse_regions(nd, ins, outs)
 
     non_olr_neuron_rid_list = [
         nd["root_id"] for nd in neuron_db.neuron_data.values() if non_olr_labeled(nd)
