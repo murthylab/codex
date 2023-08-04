@@ -217,6 +217,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "SDm100_67",
         "SDm101_67",
         "SDm102_67",
+        "SDm102_467",
     ],
     "Transmedullary": [
         "Tm",

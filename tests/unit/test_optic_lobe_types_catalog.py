@@ -204,4 +204,4 @@ class OlCatalogTest(TestCase):
         # check the fraction of OL neurons that have exactly one match (ideally this should reach close to 100%)
         prct = percentage(ol_rids_with_pred_match_counts[1], num_ol_neurons)
         print(f"OL one-match percentage: {prct}")
-        self.assertEqual("68%", prct)
+        self.assertEqual("69%", prct)
