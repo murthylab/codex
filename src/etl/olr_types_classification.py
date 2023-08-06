@@ -13,13 +13,11 @@ class OlrPredicatesGenerator(object):
         self,
         neuron_db,
         verbose=False,
-        min_f_score=0.6,
         up_threshold=0.7,
         down_threshold=0.7,
         max_set_size=5,
     ):
         self.verbose = verbose
-        self.min_f_score = min_f_score
         self.up_threshold = up_threshold
         self.down_threshold = down_threshold
         self.max_set_size = max_set_size
@@ -93,9 +91,9 @@ class OlrPredicatesGenerator(object):
         false_positive_set = matching_cells_set - true_positive_set
         false_negative_set = set(true_list) - true_positive_set
 
-        precision = len(true_positive_set) / len(matching_cells_set)
-        recall = len(true_positive_set) / len(true_list)
-        f_score = (2 * precision * recall) / (precision + recall)
+        precision = len(true_positive_set) / (len(matching_cells_set) or 1)
+        recall = len(true_positive_set) / (len(true_list) or 1)
+        f_score = (2 * precision * recall) / (precision + recall or 1)
 
         return {
             "precision": precision,
@@ -132,11 +130,21 @@ class OlrPredicatesGenerator(object):
         )
 
     def find_best_predicate_for_list(
-        self, tp_rid_list, upstream_types_count, downstream_types_count
+        self,
+        cell_ids,
+        upstream_types_count=None,
+        downstream_types_count=None,
+        min_score=0.7,
+        optimization_metric="f_score",
     ):
+        if upstream_types_count is None and downstream_types_count is None:
+            (
+                upstream_types_count,
+                downstream_types_count,
+            ) = self.count_upstream_downstream_types(cell_ids)
 
         result = {
-            "cells": len(tp_rid_list),
+            "cells": len(cell_ids),
             "all_input_types": sorted(upstream_types_count.keys()),
             "all_output_types": sorted(downstream_types_count.keys()),
             "predicate_input_types": [],
@@ -158,13 +166,13 @@ class OlrPredicatesGenerator(object):
         for p in sorted(downstream_types_count.items(), key=lambda x: -x[1]):
             if (
                 len(predicate_types_down) < self.max_set_size
-                and p[1] / len(tp_rid_list) > self.down_threshold
+                and p[1] / len(cell_ids) > self.down_threshold
             ):
                 predicate_types_down.add(p[0])
         for p in sorted(upstream_types_count.items(), key=lambda x: -x[1]):
             if (
                 len(predicate_types_up) < self.max_set_size
-                and p[1] / len(tp_rid_list) > self.up_threshold
+                and p[1] / len(cell_ids) > self.up_threshold
             ):
                 predicate_types_up.add(p[0])
 
@@ -188,10 +196,10 @@ class OlrPredicatesGenerator(object):
             )
 
             predicate_data = self.compute_predicate_data(
-                true_list=tp_rid_list,
+                true_list=cell_ids,
                 matching_cells=matching_cells,
             )
-            if predicate_data["f_score"] < self.min_f_score:
+            if predicate_data[optimization_metric] < min_score:
                 continue
 
             predicate_data["predicate_input_types"] = sorted(up_types)
@@ -199,9 +207,11 @@ class OlrPredicatesGenerator(object):
 
             if (
                 best_predicate_data is None
-                or predicate_data["f_score"] > best_predicate_data["f_score"]
+                or predicate_data[optimization_metric]
+                > best_predicate_data[optimization_metric]
                 or (
-                    predicate_data["f_score"] == best_predicate_data["f_score"]
+                    predicate_data[optimization_metric]
+                    == best_predicate_data[optimization_metric]
                     and (
                         len(predicate_data["predicate_input_types"])
                         + len(predicate_data["predicate_output_types"])

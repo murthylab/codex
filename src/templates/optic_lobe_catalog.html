@@ -66,9 +66,9 @@ Optic Lobe Catalog
                                     f_score <b>{{t.predicate_f_score}}</b>
                                 </li>
                                 <li>
-                                    <a href="{{url_for('app.search', filter_string='type_predicate_true_positives:' + t.name)}}" target="_blank">{{t.predicate_true_positives_count}} true pos.</a>
-                                    | <a href="{{url_for('app.search', filter_string='type_predicate_false_positives:' + t.name)}}" target="_blank">{{t.predicate_false_positives_count}} false pos.</a>
-                                    | <a href="{{url_for('app.search', filter_string='type_predicate_false_negatives:' + t.name)}}" target="_blank">{{t.predicate_false_negatives_count}} false neg.</a>
+                                    <a href="{{url_for('app.search', page_size=100, filter_string='type_predicate_true_positives:' + t.name)}}" target="_blank">{{t.predicate_true_positives_count}} true pos.</a>
+                                    | <a href="{{url_for('app.search', page_size=100, filter_string='type_predicate_false_positives:' + t.name)}}" target="_blank">{{t.predicate_false_positives_count}} false pos.</a>
+                                    | <a href="{{url_for('app.search', page_size=100, filter_string='type_predicate_false_negatives:' + t.name)}}" target="_blank">{{t.predicate_false_negatives_count}} false neg.</a>
                                 </li>
                             </ul>
                         </li>

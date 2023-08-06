@@ -4,6 +4,7 @@ from src.utils.parsing import tokenize
 LABEL_DELIMS = [",", ";", ":", "(", ")", "/"]
 UPDATED_TYPES_LC = {f"r{i}": "R1-6" for i in range(1, 7)}
 UPDATED_TYPES_LC["mi8"] = "Mi9"
+UPDATED_TYPES_LC["tmy(new)1"] = "TmY1_new"
 
 
 RIGHT_OL_REGIONS = {"AME_R", "LA_R", "LO_R", "LOP_R", "ME_R"}
@@ -14,7 +15,7 @@ MAX_PERCENT_SYNAPSES_OUTSIDE_OLR_REGIONS = 5
 def is_ol_right_by_synapse_regions(
     ndata, in_regions_synapse_counts, out_regions_synapse_counts
 ):
-    if ndata["side"] != "right" or ndata["super_class"] not in [
+    if ndata["class"] == "bilateral" or ndata["super_class"] not in [
         "optic",
         "sensory",
     ]:
@@ -24,6 +25,36 @@ def is_ol_right_by_synapse_regions(
     if ndata["super_class"] == "sensory" and ndata["root_id"] not in [
         720575940626605630,
         720575940627333465,
+    ]:
+        return False
+
+    # known not to be neurons
+    if ndata["root_id"] in [
+        720575940645930862,
+        720575940637141605,
+        720575940607725954,
+        720575940628656636,
+        720575940630246393,
+        720575940627196291,
+        720575940611929237,
+        720575940635860087,
+        720575940615593282,
+        720575940615953932,
+        720575940637856489,
+        720575940615599035,
+        720575940644573896,
+        720575940641082064,
+        720575940624481308,
+        720575940607871666,
+        720575940621555565,
+        720575940625077483,
+        720575940628164457,
+        720575940606249318,
+        720575940617860411,
+        720575940610915186,
+        720575940612223962,
+        720575940639387763,
+        720575940620451425,
     ]:
         return False
 

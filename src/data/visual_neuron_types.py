@@ -78,6 +78,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Lt6",
         "Lt7",
         "Lt11",
+        "Lt33",
         "Lt42",
         "Lt51",
         "Lt52",
@@ -275,6 +276,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Tm109_M7-L5b",
         "Tm111_M7-L6",
         "Tm112_M7-L6",
+        "TmLM7",
     ],
     "Lobulla Plate Intrisic": [
         "LPi1-2",
@@ -308,6 +310,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
     ],
     "Transmedullary Y": [
         "TmY1",
+        "TmY1_new",
         "TmY2",
         "TmY3",
         "TmY4",
@@ -371,6 +374,8 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Li2",
         "Li3",
         "Li4",
+        "Li12",
+        "Li16",
         "Li18",
         "Li100_5",
         "Li101_23",
@@ -421,6 +426,9 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Am",
         "Lai",
         "Lat",
+        "mALC2",
+        "mALC1",
+        "CT1",
     ],
 }
 

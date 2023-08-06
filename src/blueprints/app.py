@@ -507,24 +507,31 @@ def optic_lobe_catalog():
             dct = {
                 "name": t,
                 "olr_count": len(olr_type_lists[t]),
-                "olr_search_url": url_for("app.search", filter_string=olr_query),
+                "olr_search_url": url_for(
+                    "app.search", page_size=100, filter_string=olr_query
+                ),
                 "olr_ngl_url": url_for(
-                    "app.search_results_flywire_url", filter_string=olr_query
+                    "app.search_results_flywire_url",
+                    page_size=100,
+                    filter_string=olr_query,
                 ),
                 "predicted_olr_count": len(predicted_olr_type_lists[t]),
                 "predicted_olr_search_url": url_for(
-                    "app.search", filter_string=predicted_olr_query
+                    "app.search", page_size=100, filter_string=predicted_olr_query
                 ),
                 "predicted_olr_ngl_url": url_for(
                     "app.search_results_flywire_url",
+                    page_size=100,
                     filter_string=predicted_olr_query,
                 ),
                 "non_olr_count": len(non_olr_type_lists[t]),
                 "non_olr_search_url": url_for(
-                    "app.search", filter_string=non_olr_query
+                    "app.search", page_size=100, filter_string=non_olr_query
                 ),
                 "non_olr_ngl_url": url_for(
-                    "app.search_results_flywire_url", filter_string=non_olr_query
+                    "app.search_results_flywire_url",
+                    page_size=100,
+                    filter_string=non_olr_query,
                 ),
             }
             if (
@@ -579,10 +586,11 @@ def optic_lobe_catalog():
                     "name": "Unknown and have no predictions (new type candidates)",
                     "olr_count": unpredicted_count,
                     "olr_search_url": url_for(
-                        "app.search", filter_string=unpredicted_query
+                        "app.search", page_size=100, filter_string=unpredicted_query
                     ),
                     "olr_ngl_url": url_for(
                         "app.search_results_flywire_url",
+                        page_size=100,
                         filter_string=unpredicted_query,
                     ),
                 }
@@ -601,10 +609,13 @@ def optic_lobe_catalog():
                         "name": f"Unknown predicted to be {t}",
                         "olr_count": len(predicted_olr_type_lists[t]),
                         "olr_search_url": url_for(
-                            "app.search", filter_string=predicted_olr_query
+                            "app.search",
+                            page_size=100,
+                            filter_string=predicted_olr_query,
                         ),
                         "olr_ngl_url": url_for(
                             "app.search_results_flywire_url",
+                            page_size=100,
                             filter_string=predicted_olr_query,
                         ),
                     }
@@ -719,12 +730,7 @@ def find_connectivity_predicate():
             if rid not in olr_predicates_generator.rid_to_olr_type
         ]
         if not not_olr_cells:
-            ucounts, dcounts = olr_predicates_generator.count_upstream_downstream_types(
-                cell_ids
-            )
-            predicate = olr_predicates_generator.find_best_predicate_for_list(
-                cell_ids, ucounts, dcounts
-            )
+            predicate = olr_predicates_generator.find_best_predicate_for_list(cell_ids)
             msg = f"Cells: {len(cell_ids)} (max predicate size: {max_set_size})<br>"
             if predicate["f_score"] < 0.6:
                 msg += "No connectivity predicates found"
