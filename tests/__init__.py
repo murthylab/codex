@@ -23,6 +23,7 @@ assert APP_ENVIRONMENT == "DEV"
 
 # Helper for inspecting cell lists in dev server
 def log_dev_url_for_root_ids(caption, root_ids, prod=False):
+    assert len(root_ids) <= 100
     burl = "https://codex.flywire.ai" if prod else "http://localhost:5000"
     print(
         f"{caption}: {burl}/app/search?filter_string="

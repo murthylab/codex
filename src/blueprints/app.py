@@ -79,7 +79,7 @@ from src.utils.logging import (
     log_error,
 )
 from src.utils.formatting import can_be_flywire_root_id
-from src.utils.markers import extract_markers
+from src.utils.markers import extract_markers, extract_at_most_one_marker
 from src.utils.parsing import tokenize
 from src.utils.pathway_vis import pathway_chart_data_rows
 from src.utils.prm import cell_identification_url
@@ -733,7 +733,9 @@ def find_connectivity_predicate():
         not_olr_cells = [
             rid
             for rid in cell_ids
-            if rid not in olr_predicates_generator.rid_to_olr_type
+            if not extract_at_most_one_marker(
+                neuron_db.get_neuron_data(rid), "olr_type"
+            )
         ]
         if not not_olr_cells:
             predicate = olr_predicates_generator.find_best_predicate_for_list(cell_ids)

@@ -28,10 +28,9 @@ class OlrPredicatesGenerator(object):
         self.olr_type_to_rid_lists = defaultdict(list)
         for rid, nd in neuron_db.neuron_data.items():
             for mrk in extract_markers(nd, "olr_type"):
-                if not mrk.lower().startswith("unknown"):
-                    assert rid not in self.rid_to_olr_type
-                    self.rid_to_olr_type[rid] = mrk
-                    self.olr_type_to_rid_lists[mrk].append(rid)
+                assert rid not in self.rid_to_olr_type
+                self.rid_to_olr_type[rid] = mrk
+                self.olr_type_to_rid_lists[mrk].append(rid)
         self.dbg(f"Collected {len(self.rid_to_olr_type)} with OLR types")
 
         self.in_type_projections = {}
@@ -42,6 +41,7 @@ class OlrPredicatesGenerator(object):
                     self.rid_to_olr_type[rid]
                     for rid in ins[root_id]
                     if rid in self.rid_to_olr_type
+                    and not self.rid_to_olr_type[rid].startswith("Unknown")
                 ]
             )
             self.out_type_projections[root_id] = set(
@@ -49,6 +49,7 @@ class OlrPredicatesGenerator(object):
                     self.rid_to_olr_type[rid]
                     for rid in outs[root_id]
                     if rid in self.rid_to_olr_type
+                    and not self.rid_to_olr_type[rid].startswith("Unknown")
                 ]
             )
 
