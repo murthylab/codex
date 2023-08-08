@@ -7,7 +7,11 @@ from src.data.visual_neuron_types import (
     VISUAL_NEURON_TYPES,
     VISUAL_NEURON_MEGA_TYPE_TO_TYPES,
 )
-from src.service.optic_lobe_types_catalog import assign_types_to_neurons, rewrite
+from src.etl.olr_types_classification import OlrPredicatesGenerator
+from src.service.optic_lobe_types_catalog import (
+    assign_types_to_neurons,
+    rewrite,
+)
 from src.utils.formatting import (
     format_dict_by_largest_value,
     format_dict_by_key,
@@ -149,7 +153,7 @@ class OlCatalogTest(TestCase):
                     print(f"{mrk}: {all_labels(rid)}")
         self.assertFalse(failed)
 
-    def test_predicates(self):
+    def test_predicates_coverage(self):
         def is_ol_neuron(rid):
             return extract_at_most_one_marker(
                 self.neuron_db.neuron_data[rid], "olr_type"
@@ -205,3 +209,43 @@ class OlCatalogTest(TestCase):
         prct = percentage(ol_rids_with_pred_match_counts[1], num_ol_neurons)
         print(f"OL one-match percentage: {prct}")
         self.assertEqual("69%", prct)
+
+    def test_missing_predicates(self):
+        def shorten(dct):
+            return {
+                k: (len(v) if isinstance(v, list) else v)
+                for k, v in dct.items()
+                if not k.endswith("types")
+            }
+
+        big_unknown_types = []
+        for k, v in TYPE_PREDICATES_METADATA.items():
+            if v["f_score"] < 0.6 and v["cells"] > 100:
+                print(f'{k}: {v["cells"]}')
+                big_unknown_types.append(k)
+
+        for i in range(1):
+            for tp in big_unknown_types:
+                print(f"========== {tp} ==============")
+                cell_ids = [
+                    rid
+                    for rid, nd in self.neuron_db.neuron_data.items()
+                    if extract_at_most_one_marker(nd, "olr_type") == tp
+                ]
+
+                olr_predicates_generator = OlrPredicatesGenerator(
+                    self.neuron_db, max_set_size=5, up_threshold=0.2, down_threshold=0.2
+                )
+                print(
+                    f"Looking for best precision subset for {tp} with {len(cell_ids)} cells"
+                )
+                pdata = olr_predicates_generator.find_best_predicate_for_list(
+                    cell_ids, optimization_metric="precision", min_score=0
+                )
+                print(shorten(pdata))
+                true_pos = pdata["true_positives"]
+                if pdata["precision"] > 0.85:
+                    for tp_rid in true_pos:
+                        self.neuron_db.neuron_data[tp_rid]["marker"] = [
+                            f"olr_type:{tp}_{i}"
+                        ]

@@ -498,9 +498,13 @@ def optic_lobe_catalog():
 
     types_data = {}
     types_with_predicates = []
+    types_without_matches = []
     for mt, tl in VISUAL_NEURON_MEGA_TYPE_TO_TYPES.items():
         types_list = []
         for t in tl:
+            if not olr_type_lists[t] and not non_olr_type_lists[t]:
+                types_without_matches.append(t)
+                continue
             olr_query = f"marker == olr_type:{t}"
             non_olr_query = f"marker == not_in_olr_type:{t}"
             predicted_olr_query = "marker {starts_with} predicted_olr_type:" + f"{t}:"
@@ -621,7 +625,8 @@ def optic_lobe_catalog():
                     }
                 )
 
-        types_data[mt] = types_list
+        if types_list:
+            types_data[mt] = types_list
 
     def total_length(dct, with_percentage=False, exclude_unknown=False):
         totlen = 0
@@ -637,7 +642,7 @@ def optic_lobe_catalog():
 
     meta_data = {
         "Progress": [
-            f"{total_length(olr_type_lists, True, True)} neurons in the right optic lobe have been typed (per catalog)",
+            f"{total_length(olr_type_lists, True, True)} neurons in the right optic lobe have been typed",
         ],
         "TODO breakdown": [
             f"{display(len(olr_type_lists['Unknown-not-labeled']))} of the untyped neurons in the right optic lobe have no labels",
@@ -647,6 +652,7 @@ def optic_lobe_catalog():
         "Types": [
             f"{len([k for k, v in olr_type_lists.items() if v and 'Unknown' not in k])} types from the catalog have matches in the right optic lobe",
             f"{len([k for k, v in olr_type_lists.items() if not v and 'Unknown' not in k])} types from the catalog have <b>no</b> matches in the right optic lobe",
+            f"Types without matches anywhere: {', '.join(types_without_matches)}",
             f"{total_length(non_olr_type_lists)} neurons <b>outside</b> the right optic lobe have types from the catalog",
         ],
         "Connectivity predicates": [

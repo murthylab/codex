@@ -276,6 +276,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Tm109_M7-L5b",
         "Tm111_M7-L6",
         "Tm112_M7-L6",
+        "Tm113_M68-L5",
         "TmLM7",
     ],
     "Lobulla Plate Intrisic": [
