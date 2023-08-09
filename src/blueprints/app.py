@@ -29,6 +29,7 @@ from src.configuration import (
     MIN_SYN_THRESHOLD,
     MAX_NODES_FOR_PATHWAY_ANALYSIS,
     TYPE_PREDICATES_METADATA,
+    OL_COLUMNS,
 )
 from src.data.brain_regions import (
     REGIONS,
@@ -767,6 +768,19 @@ def find_connectivity_predicate():
         title="Connectivity Predicate",
         message=msg,
     )
+
+
+@app.route("/ol_columns")
+@request_wrapper
+@require_data_access
+def ol_columns():
+    log_activity("Loading 'Optic Lobe Columns' page")
+    lines = [
+        f'Column {k}, size={len(v)}: <a href="search_results_flywire_url?filter_string=ol_column:{k}">view</a>, <a href="connectivity?cell_names_or_ids=ol_column:{k}">connectivity</a>, <a href="search?filter_string=ol_column:{k}">list</a>'
+        for k, v in OL_COLUMNS.items()
+    ]
+    msg = "<br>".join(lines)
+    return render_info(title="Optic Lobe Columns, by size", message=msg)
 
 
 @app.route("/find_similar_cells", methods=["GET", "POST"])

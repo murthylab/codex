@@ -22,10 +22,11 @@ def get_testing_neuron_db(version=TESTING_DATA_SNAPSHOT_VERSION):
 assert APP_ENVIRONMENT == "DEV"
 
 # Helper for inspecting cell lists in dev server
-def log_dev_url_for_root_ids(caption, root_ids, prod=False):
-    assert len(root_ids) <= 100
+def log_dev_url_for_root_ids(caption, root_ids, prod=False, network=False):
+    assert len(root_ids) <= 200
     burl = "https://codex.flywire.ai" if prod else "http://localhost:5000"
+    endp = "connectivity?cell_names_or_ids" if network else "search?filter_string"
     print(
-        f"{caption}: {burl}/app/search?filter_string="
+        f"{caption}: {burl}/app/{endp}="
         f"{'%2C+'.join([str(rid) for rid in root_ids])}&page_size=100"
     )

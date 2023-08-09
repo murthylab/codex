@@ -92,11 +92,16 @@ DOWNLOADABLE_ARCHIVE_FILES = {
     },
 }
 
-TYPE_PREDICATES_FILE = (
-    f"{os.getcwd().split(APP_ROOT)[0]}/{APP_ROOT}/src/data/type_predicates.json"
-)
-with open(TYPE_PREDICATES_FILE) as f:
-    TYPE_PREDICATES_METADATA = json.load(f)
+
+def load_json_file(name):
+    fname = f"{os.getcwd().split(APP_ROOT)[0]}/{APP_ROOT}/src/data/{name}.json"
+    with open(fname) as f:
+        return json.load(f)
+
+
+TYPE_PREDICATES_METADATA = load_json_file("type_predicates")
+OL_COLUMNS = load_json_file("ol_columns")
+
 
 GOOGLE_CLIENT_ID = (
     "356707763910-l9ovf7f2at2vc23f3u2j356aokr4eb99.apps.googleusercontent.com"

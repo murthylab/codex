@@ -10,7 +10,11 @@ from src.data.structured_search_filters import (
     apply_chaining_rule,
     parse_search_query,
 )
-from src.configuration import MIN_NBLAST_SCORE_SIMILARITY, TYPE_PREDICATES_METADATA
+from src.configuration import (
+    MIN_NBLAST_SCORE_SIMILARITY,
+    TYPE_PREDICATES_METADATA,
+    OL_COLUMNS,
+)
 from src.data.svd import Svd
 from src.service.optic_lobe_types_catalog import (
     assign_types_for_right_optic_lobe_catalog,
@@ -721,13 +725,15 @@ class NeuronDB(object):
             "type_predicate_true_positives",
             "type_predicate_false_positives",
             "type_predicate_false_negatives",
+            "ol_column",
         ]
         if not any([filter_string.startswith(flt) for flt in supported_filters]):
             return None
         log_activity(f"Loading custom_cell_lists with {filter_string=}")
         fs_parts = filter_string.split(":")
         what = fs_parts[0]
-        target_type = fs_parts[1]
-        return TYPE_PREDICATES_METADATA[target_type][
-            what.replace("type_predicate_", "")
-        ]
+        param = fs_parts[1]
+        if what == "ol_column":
+            return OL_COLUMNS[param]
+        else:
+            return TYPE_PREDICATES_METADATA[param][what.replace("type_predicate_", "")]
