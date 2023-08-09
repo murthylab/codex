@@ -776,7 +776,10 @@ def find_connectivity_predicate():
 def ol_columns():
     log_activity("Loading 'Optic Lobe Columns' page")
     lines = [
-        f'Column {k}, size={len(v)}: <a href="search_results_flywire_url?filter_string=ol_column:{k}">view</a>, <a href="connectivity?cell_names_or_ids=ol_column:{k}">connectivity</a>, <a href="search?filter_string=ol_column:{k}">list</a>'
+        f"Column {k}, size={len(v)}: "
+        f'<a href="search_results_flywire_url?filter_string=ol_column:{k}">view</a>, '
+        f'<a href="connectivity?cell_names_or_ids=ol_column:{k}&cap=200&label_nodes=olr_type">connectivity</a>, '
+        f'<a href="search?filter_string=ol_column:{k}">list</a>'
         for k, v in OL_COLUMNS.items()
     ]
     msg = "<br>".join(lines)
@@ -1237,7 +1240,7 @@ def connectivity():
     cell_names_or_ids = request.args.get("cell_names_or_ids", "")
     # This flag labels the list of cells with "A, B, C, .." in the order they're specified. Used for mapping motif node
     # names to cell names.
-    label_abc = request.args.get("label_abc", type=bool)
+    label_nodes = request.args.get("label_nodes")
     download = request.args.get("download")
     # headless network view (no search box / nav bar etc.)
     headless = request.args.get("headless", default=0, type=int)
@@ -1299,13 +1302,20 @@ def connectivity():
             log_activity("Generating connectivity network for sample cells")
         else:
             root_ids = neuron_db.search(search_query=cell_names_or_ids)
-            if label_abc:
+            if label_nodes == "abs":
                 if not len(root_ids) == 3:
                     raise ValueError(
-                        f"Unexpected flag {label_abc=} for {len(root_ids)} matching root IDs"
+                        f"Unexpected flag {label_nodes=} for {len(root_ids)} matching root IDs"
                     )
                 node_labels = {
                     root_ids[i]: ltr for i, ltr in enumerate(["A", "B", "C"])
+                }
+            elif label_nodes == "olr_type":
+                node_labels = {
+                    rid: extract_at_most_one_marker(
+                        neuron_db.get_neuron_data(rid), "olr_type"
+                    )
+                    for rid in root_ids
                 }
 
             if log_request:

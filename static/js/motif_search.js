@@ -202,7 +202,7 @@ function morphologyURLForResult(result) {
 }
 
 function connectivityURLForResult(result, headless = 1) {
-  return `/app/connectivity?cell_names_or_ids=${rootIdsFromResult(result).join(",")}&headless=${headless}&label_abc=1`;
+  return `/app/connectivity?cell_names_or_ids=${rootIdsFromResult(result).join(",")}&headless=${headless}&label_nodes=abc`;
 }
 
 function MorphologyCard({ selectedResult }) {
