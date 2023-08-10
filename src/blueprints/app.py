@@ -1302,7 +1302,7 @@ def connectivity():
             log_activity("Generating connectivity network for sample cells")
         else:
             root_ids = neuron_db.search(search_query=cell_names_or_ids)
-            if label_nodes == "abs":
+            if label_nodes == "abc":
                 if not len(root_ids) == 3:
                     raise ValueError(
                         f"Unexpected flag {label_nodes=} for {len(root_ids)} matching root IDs"
