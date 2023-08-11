@@ -101,6 +101,7 @@ def load_json_file(name):
 
 TYPE_PREDICATES_METADATA = load_json_file("type_predicates")
 OL_COLUMNS = load_json_file("ol_columns")
+DM3_SUBTYPES = load_json_file("dm3_subtypes")
 
 
 GOOGLE_CLIENT_ID = (
