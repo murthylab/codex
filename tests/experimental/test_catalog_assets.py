@@ -241,7 +241,7 @@ class CatalogAssets(TestCase):
         plot_idx = 0
         for k in types_by_name:
             v = TYPE_PREDICATES_METADATA.get(k)
-            if not v or v["f_score"] < 0.6:
+            if not v or not v["f_score"]:
                 continue
 
             plot_idx += 1

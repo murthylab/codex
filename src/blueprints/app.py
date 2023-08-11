@@ -539,10 +539,7 @@ def optic_lobe_catalog():
                     filter_string=non_olr_query,
                 ),
             }
-            if (
-                t in TYPE_PREDICATES_METADATA
-                and float(TYPE_PREDICATES_METADATA[t]["f_score"]) >= 0.6
-            ):
+            if t in TYPE_PREDICATES_METADATA and TYPE_PREDICATES_METADATA[t]["f_score"]:
                 types_with_predicates.append(t)
                 dct.update(
                     {
@@ -741,7 +738,7 @@ def find_connectivity_predicate():
         if not not_olr_cells:
             predicate = olr_predicates_generator.find_best_predicate_for_list(cell_ids)
             msg = f"Cells: {len(cell_ids)} (max predicate size: {max_set_size})<br>"
-            if predicate["f_score"] < 0.6:
+            if not predicate["f_score"]:
                 msg += "No connectivity predicates found"
             else:
                 msg += "<br>".join(

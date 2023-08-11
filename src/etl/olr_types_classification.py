@@ -13,8 +13,8 @@ class OlrPredicatesGenerator(object):
         self,
         neuron_db,
         verbose=False,
-        up_threshold=0.7,
-        down_threshold=0.7,
+        up_threshold=0.4,
+        down_threshold=0.4,
         max_set_size=5,
     ):
         self.verbose = verbose
@@ -135,7 +135,7 @@ class OlrPredicatesGenerator(object):
         cell_ids,
         upstream_types_count=None,
         downstream_types_count=None,
-        min_score=0.7,
+        min_score=0.5,
         optimization_metric="f_score",
     ):
         if upstream_types_count is None and downstream_types_count is None:

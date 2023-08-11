@@ -1,3 +1,4 @@
+from src.configuration import DM3_SUBTYPES
 from src.data.visual_neuron_types import VISUAL_NEURON_TYPES
 from src.utils.parsing import tokenize
 
@@ -92,6 +93,10 @@ def rewrite(t):
     return UPDATED_TYPES_LC.get(t.replace("`", "").lower(), t)
 
 
+def has_exclude_label(nd):
+    return any([lbl.startswith("#exclude") for lbl in nd["label"]])
+
+
 def infer_ol_type(labels, types_list, target_type_list, unknown_labels):
     for lbl in labels:
         tokens = [rewrite(t) for t in tokenize(lbl, LABEL_DELIMS)]
@@ -136,7 +141,9 @@ def infer_ol_type(labels, types_list, target_type_list, unknown_labels):
     return "Unknown-labeled" if labels else "Unknown-not-labeled"
 
 
-def assign_types_to_neurons(rid_to_labels, rid_to_cell_types_list, target_type_list):
+def assign_types_to_neurons(
+    rid_to_labels, rid_to_cell_types_list, target_type_list, input_partner_sets
+):
     unknown_labels = set()
     neuron_to_type = {
         rid: infer_ol_type(
@@ -147,6 +154,35 @@ def assign_types_to_neurons(rid_to_labels, rid_to_cell_types_list, target_type_l
         )
         for rid, labels in rid_to_labels.items()
     }
+
+    # TODO: remove this once Dm3 subtypes are labeled
+    dm3_subtypes = {}
+    for dm3_subtype, rids in DM3_SUBTYPES.items():
+        accepted_set = set()
+        for rid in rids:
+            tp = neuron_to_type.get(rid)
+            if tp == "Dm3":
+                neuron_to_type[rid] = dm3_subtype
+                accepted_set.add(rid)
+            else:
+                print(
+                    f"Dm3 subtype {dm3_subtype}: rid {rid} is of type {tp}, expecting Dm3"
+                )
+        dm3_subtypes[dm3_subtype] = accepted_set
+    # split TmY9 into subsets based on Dm3 subsets
+    tmy9_rids = [rid for rid, tp in neuron_to_type.items() if tp == "TmY9"]
+    for rid in tmy9_rids:
+        p_ins = len(input_partner_sets[rid].intersection(dm3_subtypes["Dm3p"]))
+        q_ins = len(input_partner_sets[rid].intersection(dm3_subtypes["Dm3q"]))
+        if p_ins > q_ins or q_ins > p_ins:
+            if p_ins > q_ins:
+                neuron_to_type[rid] = "TmY9q"
+            else:
+                neuron_to_type[rid] = "TmY9p"
+        else:
+            print(
+                f"No or equal input distribution of TmY9 cell {rid}: {p_ins=} {q_ins=}"
+            )
 
     if unknown_labels:
         print(f"\nUnknown labels: {len(unknown_labels)}")
@@ -162,12 +198,13 @@ def assign_types_to_neurons(rid_to_labels, rid_to_cell_types_list, target_type_l
 
 def assign_types_for_right_optic_lobe_catalog(neuron_db):
     ins, outs = neuron_db.input_output_regions_with_synapse_counts()
+    input_partner_sets, _ = neuron_db.input_output_partner_sets()
 
     # collect all types (even if undefined) for olr neurons
     olr_neuron_rid_list = [
         nd["root_id"]
         for nd in neuron_db.neuron_data.values()
-        if is_ol_right_by_synapse_regions(nd, ins, outs)
+        if is_ol_right_by_synapse_regions(nd, ins, outs) and not has_exclude_label(nd)
     ]
 
     print(f"Identified {len(olr_neuron_rid_list)} neurons in the OL Right side")
@@ -179,6 +216,7 @@ def assign_types_for_right_optic_lobe_catalog(neuron_db):
             rid: neuron_db.get_all_cell_types(rid) for rid in olr_neuron_rid_list
         },
         target_type_list=list(VISUAL_NEURON_TYPES),
+        input_partner_sets=input_partner_sets,
     )
 
     # collect types for non-olr neurons that were successfully mapped to OL type
@@ -199,6 +237,7 @@ def assign_types_for_right_optic_lobe_catalog(neuron_db):
             rid: neuron_db.get_all_cell_types(rid) for rid in non_olr_neuron_rid_list
         },
         target_type_list=list(VISUAL_NEURON_TYPES),
+        input_partner_sets=input_partner_sets,
     )
     # exclude unknowns for non olr
     non_olr_type_list = {

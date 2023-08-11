@@ -7,10 +7,10 @@ from src.data.visual_neuron_types import (
     VISUAL_NEURON_TYPES,
     VISUAL_NEURON_MEGA_TYPE_TO_TYPES,
 )
-from src.etl.olr_types_classification import OlrPredicatesGenerator
 from src.service.optic_lobe_types_catalog import (
     assign_types_to_neurons,
     rewrite,
+    has_exclude_label,
 )
 from src.utils.formatting import (
     format_dict_by_largest_value,
@@ -54,12 +54,15 @@ class OlCatalogTest(TestCase):
         def make_list(types):
             return {123: types}
 
+        ins, outs = self.neuron_db.input_output_partner_sets()
+
         self.assertEqual(
             {"Mi1": [123], "Unknown-labeled": [], "Unknown-not-labeled": []},
             assign_types_to_neurons(
                 rid_to_labels=make_map(["Mi1"]),
                 rid_to_cell_types_list=make_list([]),
                 target_type_list=["Mi1", "Unknown-labeled", "Unknown-not-labeled"],
+                input_partner_sets=ins,
             ),
         )
 
@@ -69,6 +72,7 @@ class OlCatalogTest(TestCase):
                 rid_to_labels=make_map(["this is Mi 1"]),
                 rid_to_cell_types_list=make_list([]),
                 target_type_list=["Mi1", "Unknown-labeled", "Unknown-not-labeled"],
+                input_partner_sets=ins,
             ),
         )
 
@@ -78,6 +82,7 @@ class OlCatalogTest(TestCase):
                 rid_to_labels=make_map(["Mi2"]),
                 rid_to_cell_types_list=make_list([]),
                 target_type_list=["Mi1", "Unknown-labeled", "Unknown-not-labeled"],
+                input_partner_sets=ins,
             ),
         )
 
@@ -87,6 +92,7 @@ class OlCatalogTest(TestCase):
                 rid_to_labels=make_map(["Mi1; R"]),
                 rid_to_cell_types_list=make_list([]),
                 target_type_list=["Mi1", "Unknown-labeled", "Unknown-not-labeled"],
+                input_partner_sets=ins,
             ),
         )
 
@@ -96,6 +102,7 @@ class OlCatalogTest(TestCase):
                 rid_to_labels=make_map(["R2"]),
                 rid_to_cell_types_list=make_list([]),
                 target_type_list=["R1-6", "Unknown-labeled", "Unknown-not-labeled"],
+                input_partner_sets=ins,
             ),
         )
 
@@ -105,6 +112,7 @@ class OlCatalogTest(TestCase):
                 rid_to_labels=make_map([]),
                 rid_to_cell_types_list=make_list(["R1-6"]),
                 target_type_list=["R1-6", "Unknown-labeled", "Unknown-not-labeled"],
+                input_partner_sets=ins,
             ),
         )
 
@@ -172,7 +180,7 @@ class OlCatalogTest(TestCase):
         # map each neuron (not just olr) to set of types with matching predicates
         rid_to_matched_predicates = defaultdict(set)
         for k, v in TYPE_PREDICATES_METADATA.items():
-            if v["f_score"] < 0.6:
+            if not v["f_score"]:
                 continue
             ins_p, outs_p = set(v["predicate_input_types"]), set(
                 v["predicate_output_types"]
@@ -208,44 +216,12 @@ class OlCatalogTest(TestCase):
         # check the fraction of OL neurons that have exactly one match (ideally this should reach close to 100%)
         prct = percentage(ol_rids_with_pred_match_counts[1], num_ol_neurons)
         print(f"OL one-match percentage: {prct}")
-        self.assertEqual("69%", prct)
+        self.assertEqual("75%", prct)
 
-    def test_missing_predicates(self):
-        def shorten(dct):
-            return {
-                k: (len(v) if isinstance(v, list) else v)
-                for k, v in dct.items()
-                if not k.endswith("types")
-            }
-
-        big_unknown_types = []
-        for k, v in TYPE_PREDICATES_METADATA.items():
-            if v["f_score"] < 0.6 and v["cells"] > 100:
-                print(f'{k}: {v["cells"]}')
-                big_unknown_types.append(k)
-
-        for i in range(1):
-            for tp in big_unknown_types:
-                print(f"========== {tp} ==============")
-                cell_ids = [
-                    rid
-                    for rid, nd in self.neuron_db.neuron_data.items()
-                    if extract_at_most_one_marker(nd, "olr_type") == tp
-                ]
-
-                olr_predicates_generator = OlrPredicatesGenerator(
-                    self.neuron_db, max_set_size=5, up_threshold=0.2, down_threshold=0.2
-                )
-                print(
-                    f"Looking for best precision subset for {tp} with {len(cell_ids)} cells"
-                )
-                pdata = olr_predicates_generator.find_best_predicate_for_list(
-                    cell_ids, optimization_metric="precision", min_score=0
-                )
-                print(shorten(pdata))
-                true_pos = pdata["true_positives"]
-                if pdata["precision"] > 0.85:
-                    for tp_rid in true_pos:
-                        self.neuron_db.neuron_data[tp_rid]["marker"] = [
-                            f"olr_type:{tp}_{i}"
-                        ]
+    def test_excluded_cells(self):
+        excluded_and_olr_rids = []
+        for rid, nd in self.neuron_db.neuron_data.items():
+            if has_exclude_label(nd):
+                if extract_at_most_one_marker(nd, "olr_type"):
+                    excluded_and_olr_rids.append(rid)
+        self.assertEqual([], excluded_and_olr_rids)

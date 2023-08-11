@@ -1,11 +1,14 @@
 import csv
+import json
 import random
 from sklearn import svm
 from collections import defaultdict
 from unittest import TestCase
 
+from src.configuration import TYPE_PREDICATES_METADATA
 from src.data.brain_regions import REGIONS
 from src.data.local_data_loader import read_csv, write_csv
+from src.etl.olr_types_classification import OlrPredicatesGenerator
 from src.utils.graph_algos import reachable_nodes
 from src.utils.markers import extract_markers, extract_at_most_one_marker
 from src.utils.stats import jaccard_binary
@@ -1994,3 +1997,321 @@ class OlTaggingTest(TestCase):
                 compare(col, col)
             else:
                 compare(col[0], col[1])
+
+    def test_missing_predicates(self):
+        def shorten(dct):
+            return {
+                k: (len(v) if isinstance(v, list) else v)
+                for k, v in dct.items()
+                if not k.endswith("types")
+            }
+
+        big_unknown_types = []
+        for k, v in TYPE_PREDICATES_METADATA.items():
+            if not v["f_score"] and v["cells"] > 100:
+                print(f'{k}: {v["cells"]}')
+                big_unknown_types.append(k)
+
+        for i in range(1):
+            for tp in big_unknown_types:
+                print(f"========== {tp} ==============")
+                cell_ids = [
+                    rid
+                    for rid, nd in self.neuron_db.neuron_data.items()
+                    if extract_at_most_one_marker(nd, "olr_type") == tp
+                ]
+
+                olr_predicates_generator = OlrPredicatesGenerator(
+                    self.neuron_db, max_set_size=5, up_threshold=0.2, down_threshold=0.2
+                )
+                print(
+                    f"Looking for best precision subset for {tp} with {len(cell_ids)} cells"
+                )
+                pdata = olr_predicates_generator.find_best_predicate_for_list(
+                    cell_ids, optimization_metric="precision", min_score=0
+                )
+                print(shorten(pdata))
+                true_pos = pdata["true_positives"]
+                if pdata["precision"] > 0.85:
+                    for tp_rid in true_pos:
+                        self.neuron_db.neuron_data[tp_rid]["marker"] = [
+                            f"olr_type:{tp}_{i}"
+                        ]
+
+    def test_pick_anchors_for_columns(self):
+        type_to_rids = defaultdict(set)
+        for rid, nd in self.neuron_db.neuron_data.items():
+            mrk = extract_at_most_one_marker(nd, "olr_type")
+            if mrk and not mrk.startswith("Unknown"):
+                type_to_rids[mrk].add(rid)
+        ins, outs = self.neuron_db.input_output_partner_sets()
+        data = []
+        for tp, rids in type_to_rids.items():
+            if len(rids) < 300:
+                continue
+            in_edges = 0
+            for rid in rids:
+                in_edges += len(ins[rid].intersection(rids))
+            data.append(
+                (
+                    in_edges / len(rids),
+                    tp,
+                    f"{tp} cells: {len(rids)}, internal edges: {in_edges}",
+                )
+            )
+
+        for d in sorted(data):
+            print(d[2])
+
+        def plural_degree(from_rids, to_rids):
+            degree_counts = defaultdict(int)
+            for fr in from_rids:
+                degree_counts[len(outs[fr].intersection(to_rids))] += 1
+            threshold = 0.66 * len(from_rids)
+            for k, v in degree_counts.items():
+                if v >= threshold:
+                    return k
+            return -1
+
+        types = [d[1] for d in data]
+        for tp1 in types:
+            for tp2 in types:
+                if tp1 > tp2:
+                    continue
+                tp1_tp2 = plural_degree(type_to_rids[tp1], type_to_rids[tp2])
+                tp2_tp1 = plural_degree(type_to_rids[tp2], type_to_rids[tp1])
+                if tp2_tp1 > 0 or tp1_tp2 > 0:
+                    print(f"{tp1} -> {tp2}: {tp1_tp2}    {tp2} -> {tp1}: {tp2_tp1}")
+
+    def test_inter_column_degrees(self):
+        uni_columnar_types = """
+        C2 columns: 649, connected to other anchors: 2
+        C3 columns: 716, connected to other anchors: 0
+        L1 columns: 750, connected to other anchors: 0
+        L2 columns: 750, connected to other anchors: 8
+        L3 columns: 675, connected to other anchors: 5
+        L4 columns: 667, connected to other anchors: 0
+        L5 columns: 720, connected to other anchors: 51
+        T1 columns: 631, connected to other anchors: 2
+        T2a columns: 845, connected to other anchors: 40
+        T3 columns: 829, connected to other anchors: 4
+        Mi4 columns: 753, connected to other anchors: 6
+        Mi9 columns: 731, connected to other anchors: 7
+        Tm1 columns: 720, connected to other anchors: 8
+        Tm2 columns: 763, connected to other anchors: 14
+        Tm4 columns: 669, connected to other anchors: 73
+        Tm9 columns: 723, connected to other anchors: 2
+        TmY5a columns: 560, connected to other anchors: 8
+        """
+
+        lines = [ln.strip() for ln in uni_columnar_types.split("\n")]
+        types = [ln.split(" ")[0] for ln in lines if ln]
+        print(types)
+
+        olt_to_rids = defaultdict(list)
+        rid_to_olt = {}
+        for rid, nd in self.neuron_db.neuron_data.items():
+            mrk = extract_at_most_one_marker(nd, "olr_type")
+            if mrk and not mrk.startswith("Unknown"):
+                olt_to_rids[mrk].append(rid)
+                rid_to_olt[rid] = mrk
+
+        ins, outs = self.neuron_db.input_output_partner_sets()
+        neighbors = {
+            rid: (ins[rid] | outs[rid]).intersection(rid_to_olt.keys()) - {rid}
+            for rid in rid_to_olt.keys()
+        }
+        neighbor_types = {
+            rid: [rid_to_olt[ngh] for ngh in nghs] for rid, nghs in neighbors.items()
+        }
+
+        def stats(counts):
+            counts = sorted(counts)
+
+            def percentile(p):
+                return counts[round(len(counts) * p / 100)]
+
+            return f"Len: {len(counts)}, mean: {round(100 * sum(counts) / len(counts)) / 100}, p25/50/75: {percentile(25)}/{percentile(50)}/{percentile(75)}"
+
+        for t1 in types:
+            t1_rids = olt_to_rids[t1]
+            for t2 in types:
+                neighbor_counts = [
+                    neighbor_types[t1_rid].count(t2) for t1_rid in t1_rids
+                ]
+                print(f"{t1} <-> {t2}: {stats(neighbor_counts)}")
+
+    def test_column_partition(self):
+        anchor_types = ["L1"]
+
+        rid_to_type = {}
+        for rid, nd in self.neuron_db.neuron_data.items():
+            mrk = extract_at_most_one_marker(nd, "olr_type")
+            if mrk and not mrk.startswith("Unknown"):
+                rid_to_type[rid] = mrk
+
+        columns = {rid: {rid} for rid, tp in rid_to_type.items() if tp in anchor_types}
+
+        print(
+            f"OLRs: {len(rid_to_type)}, initial columns with anchors {anchor_types}: {len(columns)}"
+        )
+
+        ins, outs = self.neuron_db.input_output_partner_sets()
+        neighbors = {
+            rid: (ins[rid] | outs[rid]).intersection(rid_to_type.keys()) - {rid}
+            for rid in rid_to_type.keys()
+        }
+
+        def num_intra_and_inter_column_connections(column_sets_list):
+            rid_co_col_id = {}
+            all_rids = set()
+            for ci, cset in enumerate(column_sets_list):
+                assert all_rids.isdisjoint(cset)
+                all_rids |= cset
+                rid_co_col_id.update({rid: ci + 1 for rid in cset})
+            intra_count, inter_count = 0, 0
+            for rid in all_rids:
+                rid_idx = rid_co_col_id[rid]
+                for rout in outs[rid]:
+                    rout_idx = rid_co_col_id.get(rout)
+                    if rout_idx is not None:
+                        if rout_idx != rid_idx:
+                            inter_count += 1
+                        else:
+                            intra_count += 1
+            return intra_count, inter_count
+
+        columnar_cells = set(columns.keys())
+
+        print(
+            f"Number of anchor inter-connections: {num_intra_and_inter_column_connections(columns.values())}"
+        )
+
+        def find_best_matched_type(rids):
+            cell_type_counts = defaultdict(int)
+            matching = {}
+            for rid in rids:
+                neigh_set = neighbors[rid]
+                hits = []
+                for anchor, cset in columns.items():
+                    if not neigh_set.isdisjoint(cset):
+                        hits.append(anchor)
+                if len(hits) == 1:
+                    cell_type_counts[rid_to_type[rid]] += 1
+                    matching[rid] = hits[0]
+            best_match_type, best_match_count = sorted(
+                [(k, v) for k, v in cell_type_counts.items()], key=lambda x: -x[1]
+            )[0]
+            matching = {
+                k: v for k, v in matching.items() if rid_to_type[k] == best_match_type
+            }
+            return best_match_type, matching
+
+        def match_to_columns(rids):
+            matching = {}
+            for rid in rids:
+                neigh_set = neighbors[rid]
+                hits = []
+                for anchor, cset in columns.items():
+                    if not neigh_set.isdisjoint(cset):
+                        hits.append(anchor)
+                if len(hits) == 1:
+                    matching[rid] = hits[0]
+            return matching
+
+        matched_types = []
+
+        def matched_type_count(mtp):
+            total, columnar = 0, 0
+            for rid, tp in rid_to_type.items():
+                if tp == mtp:
+                    total += 1
+                    if rid in columnar_cells:
+                        columnar += 1
+            return f"{mtp}: {columnar} ({percentage(columnar, total)})"
+
+        while True:
+            bmt, match = find_best_matched_type(
+                set(rid_to_type.keys()) - columnar_cells
+            )
+            if len(match) < 100:
+                break
+            for k, v in match.items():
+                columns[v].add(k)
+                columnar_cells.add(k)
+            print(
+                f"matched type {bmt} with {len(match)} matches. columnar cells: {len(columnar_cells)}"
+            )
+            matched_types.append(bmt)
+            for mt in matched_types:
+                match = match_to_columns(
+                    [
+                        rid
+                        for rid, tp in rid_to_type.items()
+                        if tp == mt and rid not in columnar_cells
+                    ]
+                )
+                print(
+                    f"re-matched type {mt} with {len(match)} matches. columnar cells: {len(columnar_cells)}"
+                )
+                for k, v in match.items():
+                    columns[v].add(k)
+                    columnar_cells.add(k)
+
+            print(
+                f"Matched types: {[matched_type_count(tp) for tp in sorted(matched_types)]}"
+            )
+            print(
+                f"Number of intra/inter connections: {num_intra_and_inter_column_connections(columns.values())}"
+            )
+
+        set([rid_to_type[rid] for rid in columnar_cells])
+
+        # print(
+        #    f"K-columnar cells: {format_dict_by_largest_value({k: len(v) for k, v in k_columnar_cells.items()})}"
+        # )
+        # for k, v in sorted(k_columnar_cells.items()):
+        #    print(
+        #        log_dev_url_for_root_ids(
+        #            f"{k}-columnar ({len(v)})", list(v)[:100], prod=True
+        #        )
+        #    )
+
+        # for k, v in columns.items():
+        #    print(log_dev_url_for_root_ids(f"Col {k} ({len(v)})", list(v)))
+
+        columns = {
+            i: list(pair[1])
+            for i, pair in enumerate(sorted(columns.items(), key=lambda x: -len(x[1])))
+        }
+
+        with open("../../src/data/ol_columns.json", "w") as f:
+            json.dump(columns, fp=f, indent=2)
+
+    def test_dm3_subsets(self):
+        rid_to_type = {}
+        for rid, nd in self.neuron_db.neuron_data.items():
+            mrk = extract_at_most_one_marker(nd, "olr_type")
+            if mrk and not mrk.startswith("Unknown"):
+                rid_to_type[rid] = mrk
+        ins, outs = self.neuron_db.input_output_partner_sets()
+
+        def types(rids):
+            return sorted(set([rid_to_type.get(rid, "other") for rid in rids]))
+
+        for subtype in ["Dm3q", "Dm3p", "Dm3v"]:
+            cell_count = 0
+            input_counts = defaultdict(int)
+            output_counts = defaultdict(int)
+
+            for rid, tp in rid_to_type.items():
+                if tp == subtype:
+                    cell_count += 1
+                    for itp in types(ins[rid]):
+                        input_counts[itp] += 1
+                    for otp in types(outs[rid]):
+                        output_counts[otp] += 1
+
+            print(
+                f"{subtype}: {cell_count} cells.\n Input types:\n{format_dict_by_largest_value(input_counts)}\n Output types:\n{format_dict_by_largest_value(output_counts)}"
+            )
