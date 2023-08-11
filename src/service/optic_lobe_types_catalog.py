@@ -5,7 +5,8 @@ from src.utils.parsing import tokenize
 LABEL_DELIMS = [",", ";", ":", "(", ")", "/"]
 UPDATED_TYPES_LC = {f"r{i}": "R1-6" for i in range(1, 7)}
 UPDATED_TYPES_LC["mi8"] = "Mi9"
-UPDATED_TYPES_LC["tmy(new)1"] = "TmY1_new"
+
+CUSTOM_LABEL_SUBSTRING_TO_TYPE_MAPPINGS = {"TmY(new)1": "TmY1_new"}
 
 
 RIGHT_OL_REGIONS = {"AME_R", "LA_R", "LO_R", "LOP_R", "ME_R"}
@@ -27,6 +28,10 @@ def is_ol_right_by_synapse_regions(
         720575940626605630,
         720575940627333465,
     ]:
+        return False
+
+    # known to have projections into CB
+    if ndata["root_id"] in [720575940634666009]:
         return False
 
     # known not to be neurons
@@ -99,6 +104,10 @@ def has_exclude_label(nd):
 
 def infer_ol_type(labels, types_list, target_type_list, unknown_labels):
     for lbl in labels:
+        for substr, tp in CUSTOM_LABEL_SUBSTRING_TO_TYPE_MAPPINGS.items():
+            if substr in lbl:
+                return tp
+
         tokens = [rewrite(t) for t in tokenize(lbl, LABEL_DELIMS)]
         tokens_lower = [t.lower() for t in tokens]
         for t_lower in tokens_lower:
@@ -141,21 +150,8 @@ def infer_ol_type(labels, types_list, target_type_list, unknown_labels):
     return "Unknown-labeled" if labels else "Unknown-not-labeled"
 
 
-def assign_types_to_neurons(
-    rid_to_labels, rid_to_cell_types_list, target_type_list, input_partner_sets
-):
-    unknown_labels = set()
-    neuron_to_type = {
-        rid: infer_ol_type(
-            labels=labels,
-            types_list=rid_to_cell_types_list[rid],
-            target_type_list=target_type_list,
-            unknown_labels=unknown_labels,
-        )
-        for rid, labels in rid_to_labels.items()
-    }
-
-    # TODO: remove this once Dm3 subtypes are labeled
+def override_with_hardcoded_assignments(neuron_to_type, input_partner_sets):
+    # TODO: remove everything below once Dm3 subtypes are labeled
     dm3_subtypes = {}
     for dm3_subtype, rids in DM3_SUBTYPES.items():
         accepted_set = set()
@@ -171,6 +167,7 @@ def assign_types_to_neurons(
         dm3_subtypes[dm3_subtype] = accepted_set
     # split TmY9 into subsets based on Dm3 subsets
     tmy9_rids = [rid for rid, tp in neuron_to_type.items() if tp == "TmY9"]
+    no_or_equal_distribution_count = 0
     for rid in tmy9_rids:
         p_ins = len(input_partner_sets[rid].intersection(dm3_subtypes["Dm3p"]))
         q_ins = len(input_partner_sets[rid].intersection(dm3_subtypes["Dm3q"]))
@@ -180,9 +177,27 @@ def assign_types_to_neurons(
             else:
                 neuron_to_type[rid] = "TmY9p"
         else:
-            print(
-                f"No or equal input distribution of TmY9 cell {rid}: {p_ins=} {q_ins=}"
-            )
+            no_or_equal_distribution_count += 1
+    print(
+        f"No or equal input distribution of TmY9 cell {no_or_equal_distribution_count}"
+    )
+
+
+def assign_types_to_neurons(
+    rid_to_labels, rid_to_cell_types_list, target_type_list, input_partner_sets
+):
+    unknown_labels = set()
+    neuron_to_type = {
+        rid: infer_ol_type(
+            labels=labels,
+            types_list=rid_to_cell_types_list[rid],
+            target_type_list=target_type_list,
+            unknown_labels=unknown_labels,
+        )
+        for rid, labels in rid_to_labels.items()
+    }
+
+    override_with_hardcoded_assignments(neuron_to_type, input_partner_sets)
 
     if unknown_labels:
         print(f"\nUnknown labels: {len(unknown_labels)}")

@@ -265,6 +265,7 @@ VISUAL_NEURON_MEGA_TYPE_TO_TYPES = {
         "Tm25",
         "Tm26",
         "Tm27",
+        "Tm27Y",
         "Tm28",
         "Tm100_M68-L5",
         "Tm101a_M78-L5",
