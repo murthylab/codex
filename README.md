@@ -22,7 +22,7 @@ poetry shell
 
 ### Download and initialize the FlyWire connectome data (initially or upon version updates)
 ```bash
-./scripts/init_data.sh
+./scripts/make_data.sh
 ```
 
 ## Run service locally
