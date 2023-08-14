@@ -15,7 +15,10 @@ COMPRESSED_FILE_FORMAT_AND_COMMAND = "compressed CSV file (.csv.gz)", "gunzip"
 COMPRESSED_TAR_FILE_FORMAT_AND_COMMAND = "compressed TAR archive (.tar.gz)", "tar -xvf"
 # take care of various working directories (tests, local app, cloud app, update scripts)
 APP_ROOT = os.getenv("APP_HOME", "codex").replace("/", "")
-DOWNLOADABLE_FILES_METADATA_FILE = f"{os.getcwd().split(APP_ROOT)[0]}/{APP_ROOT}/src/data/downloadable_files_metadata.json"
+APP_ROOT_PATH = f"{os.getcwd().split(APP_ROOT)[0]}/{APP_ROOT}"
+DOWNLOADABLE_FILES_METADATA_FILE = (
+    f"{APP_ROOT_PATH}/src/data/downloadable_files_metadata.json"
+)
 DOWNLOADABLE_CSV_TITLES_AND_DESCRIPTIONS = {
     "neurons": "Cell name, group and NT type predictions. "
     "For every cell in the dataset, specifies auto-generated name and group (based on primary input and output "
@@ -94,7 +97,7 @@ DOWNLOADABLE_ARCHIVE_FILES = {
 
 
 def load_json_file(name):
-    fname = f"{os.getcwd().split(APP_ROOT)[0]}/{APP_ROOT}/src/data/{name}.json"
+    fname = f"{APP_ROOT_PATH}/src/data/{name}.json"
     with open(fname) as f:
         return json.load(f)
 

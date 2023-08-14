@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from src.data.visual_neuron_types import VISUAL_NEURON_TYPES
 from src.utils.label_cleaning import (
     remove_left_right,
     remove_duplicate_tokens,
@@ -888,10 +889,17 @@ class Test(TestCase):
 
     def test_wrong_predictions(self):
         for rid, items in self.neuron_db.label_data.items():
-            for ld in items:
-                lbl = ld["label"]
-                if "wrong_prediction" in lbl:
+            labels = [ld["label"] for ld in items]
+            for lbl in labels:
+                if "#wrong_prediction" in lbl:
+                    self.assertTrue(lbl.startswith("#wrong_prediction "))
+                    wrong_type = (
+                        lbl.replace("#wrong_prediction ", "").replace(";", "").strip()
+                    )
+                    self.assertTrue(wrong_type in VISUAL_NEURON_TYPES, wrong_type)
                     mrk = extract_at_most_one_marker(
                         self.neuron_db.neuron_data[rid], "olr_type"
                     )
-                    self.assertTrue(not mrk or mrk.startswith("Unknown"))
+                    self.assertNotEqual(
+                        wrong_type, mrk, f"{wrong_type=} {mrk=} {labels=}"
+                    )
