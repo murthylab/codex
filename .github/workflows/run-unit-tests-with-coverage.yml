@@ -18,9 +18,12 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install
+      - name: Make data
+        run: |
+          poetry run python -m codex.data.local_data_loader
       - name: Run tests
         run: |
-          python tests/run_unit_tests_with_coverage.py
+          poetry run python -m tests.run_unit_tests_with_coverage
       - name: Create coverage badge
         uses: schneegans/dynamic-badges-action@v1.6.0
         with:
