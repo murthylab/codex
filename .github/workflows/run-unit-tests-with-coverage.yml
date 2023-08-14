@@ -1,0 +1,55 @@
+name: Run unit tests with coverage
+on:
+  push:
+    branches:
+    - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements_dev.txt
+      - name: Run tests
+        run: |
+          python tests/run_unit_tests_with_coverage.py
+      - name: Create coverage badge
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: a442efe7b753f00d0f7a1cfceff87f61
+          filename: codex_badge_coverage.json
+          label: Coverage
+          message: ${{ env.COVERAGE }}%
+          valColorRange: ${{ env.COVERAGE }}
+          minColorRange: 50
+          maxColorRange: 90
+      - name: Create tests badge
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: a442efe7b753f00d0f7a1cfceff87f61
+          filename: codex_badge_tests.json
+          label: Tests
+          message: ${{ env.TESTS_MESSAGE }}
+          valColorRange: ${{ env.TESTS_VALUE }}
+          minColorRange: 0
+          maxColorRange: 1
+      - name: Clear badges cache
+        run: |
+          curl -X PURGE https://camo.githubusercontent.com/f05879fc9b761b10321b55dc0e1a96f0a6fea309e7ad158e4815c0836c8061b5/68747470733a2f2f696d672e736869656c64732e696f2f656e64706f696e743f75726c3d68747470733a2f2f676973742e67697468756275736572636f6e74656e742e636f6d2f6b61696b75652f61343432656665376237353366303064306637613163666365666638376636312f7261772f636f6465785f62616467655f636f7665726167652e6a736f6e
+          curl -X PURGE https://camo.githubusercontent.com/ca108ae3ef0ed94461fd8c680edb2b11ab41ee4e3189b824a417eec4848b0098/68747470733a2f2f696d672e736869656c64732e696f2f656e64706f696e743f75726c3d68747470733a2f2f676973742e67697468756275736572636f6e74656e742e636f6d2f6b61696b75652f61343432656665376237353366303064306637613163666365666638376636312f7261772f636f6465785f62616467655f74657374732e6a736f6e
+      - name: Verify action status
+        if: ${{ env.TESTS_VALUE != 1 }}
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('Unit tests not passing.')
