@@ -18,7 +18,6 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install
-          poetry shell
       - name: Run tests
         run: |
           python tests/run_unit_tests_with_coverage.py
