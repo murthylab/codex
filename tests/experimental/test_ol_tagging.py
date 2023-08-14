@@ -2315,3 +2315,42 @@ class OlTaggingTest(TestCase):
             print(
                 f"{subtype}: {cell_count} cells.\n Input types:\n{format_dict_by_largest_value(input_counts)}\n Output types:\n{format_dict_by_largest_value(output_counts)}"
             )
+
+    def test_predicates_with_repetition(self):
+        tps = ["Dm3v", "Dm3p", "Dm3q"]
+        olr_predicates_generator = OlrPredicatesGenerator(
+            self.neuron_db, max_set_size=5, up_threshold=0.2, down_threshold=0.2
+        )
+        for tp in tps:
+            cell_ids = [
+                rid
+                for rid, nd in self.neuron_db.neuron_data.items()
+                if extract_at_most_one_marker(nd, "olr_type") == tp
+            ]
+            print(f"========== {tp}:  {len(cell_ids)} ==============")
+            print(
+                f"Looking for best precision subset for {tp} with {len(cell_ids)} cells"
+            )
+            pdata = olr_predicates_generator.find_best_predicate_for_list(
+                cell_ids, optimization_metric="f_score", min_score=0
+            )
+            print(
+                f"Precision: {pdata['precision']}, recall: {pdata['recall']}, f_score: {pdata['f_score']}"
+            )
+
+    def test_count_olt_low_threshold_connections(self):
+        olr_cells = set(
+            [
+                rid
+                for rid, nd in self.neuron_db.neuron_data.items()
+                if extract_at_most_one_marker(nd, "olr_type")
+            ]
+        )
+
+        cons_count = defaultdict(int)
+        for row in self.neuron_db.connections_.all_rows():
+            if True or row[0] in olr_cells and row[1] in olr_cells:
+                key = min(5, row[3])
+                cons_count[key] += 1
+
+        print(format_dict_by_largest_value(cons_count))

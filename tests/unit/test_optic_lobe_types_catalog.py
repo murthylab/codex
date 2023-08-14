@@ -1,8 +1,11 @@
+import gzip
+import pickle
 import string
 from collections import defaultdict
 from unittest import TestCase
 
-from src.configuration import TYPE_PREDICATES_METADATA
+from src.configuration import TYPE_PREDICATES_METADATA, APP_ROOT_PATH
+from src.data.versions import TESTING_DATA_SNAPSHOT_VERSION
 from src.data.visual_neuron_types import (
     VISUAL_NEURON_TYPES,
     VISUAL_NEURON_MEGA_TYPE_TO_TYPES,
@@ -162,13 +165,21 @@ class OlCatalogTest(TestCase):
         self.assertFalse(failed)
 
     def test_predicates_coverage(self):
+        # load connections with threshold 2 (instead of 5)
+        # TODO: make this a util, and update predicate computation module accordingly
+        with gzip.open(
+            f"{APP_ROOT_PATH}/static/data/{TESTING_DATA_SNAPSHOT_VERSION}/no_threshold_connections.pickle.gz",
+            "rb",
+        ) as handle:
+            self.neuron_db.connections_ = pickle.load(handle)
+        ins, outs = self.neuron_db.input_output_partner_sets(min_syn_count=2)
+
         def is_ol_neuron(rid):
             return extract_at_most_one_marker(
                 self.neuron_db.neuron_data[rid], "olr_type"
             )
 
         # map each neuron to it's upstream/downstream partner types set
-        ins, outs = self.neuron_db.input_output_partner_sets()
         ins_type, outs_type = defaultdict(set), defaultdict(set)
         for k, v in ins.items():
             for r in v:
@@ -216,7 +227,7 @@ class OlCatalogTest(TestCase):
         # check the fraction of OL neurons that have exactly one match (ideally this should reach close to 100%)
         prct = percentage(ol_rids_with_pred_match_counts[1], num_ol_neurons)
         print(f"OL one-match percentage: {prct}")
-        self.assertEqual("75%", prct)
+        self.assertEqual("79%", prct)
 
     def test_excluded_cells(self):
         excluded_and_olr_rids = []
