@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %} Distance Table {% endblock title %}
+{% block content %}
+<nav class="navbar navbar-light bg-light">
+    <form class="form-inline">
+        <input class="form-control mr-sm-2" style="width: 35vw;" autocomplete="off" autofocus type="search"
+               id="source_cell_names_or_ids" name="source_cell_names_or_ids" placeholder="Source cell(s)"
+               aria-label="Cell Names or IDs" value="{{source_cell_names_or_ids}}">
+        <input class="form-control mr-sm-2" style="width: 35vw; margin-left: 5px;" autocomplete="off" autofocus
+               type="search" id="target_cell_names_or_ids" name="target_cell_names_or_ids" placeholder="Target cell(s)"
+               aria-label="Cell Names or IDs" value="{{target_cell_names_or_ids}}">
+        {% if collect_min_syn_count %}
+        <label>Min #syn</label>
+        <input class="form-control mr-sm-2" style="width: 60px; margin-left: 5px;" autocomplete="off" autofocus
+               type="number" id="min_syn_count" name="min_syn_count" placeholder="min #syn"
+               aria-label="Min synapse threshold for connection" value="{{min_syn_count}}"
+               onchange="loading(event); this.form.submit();"
+        >
+        {% endif %}
+        <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading(event);"><i class="fa-solid fa-magnifying-glass-chart"></i></i></button>
+    </form>
+</nav>
+
+{% if messages %}
+<div class="card" style="margin: 15px;">
+    <div class="card-header" style="color: orange;">
+        <i class="fa-solid fa-triangle-exclamation"></i> &nbsp; Attention
+    </div>
+    <div class="card-body">
+        {% for message in messages %}
+            {{message|safe}}<br>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if matrix %}
+<div style="overflow-x:auto;">
+    <table class="table">
+        <thead>
+        <tr>
+            {% for hv in matrix[0] %}
+            <th scope="col">{{hv|safe}}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in matrix[1:] %}
+        <tr>
+            {% for dv in row %}
+            <td>{{dv|safe}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<a class="btn btn btn-success my-2 my-sm-0" style="margin: 15px;" href="{{download_url}}" target="_blank">Download CSV</a>
+
+{% else %}
+
+
+<div class="card" style="margin: 15px;">
+    <div class="card-header" style="color: purple;">
+        How it works
+    </div>
+    <div class="card-body">
+        {{info_text|safe}}
+        <br><br>
+        <button class="btn btn btn-outline-success" type="button"
+                onclick="loading(event); document.getElementById('source_cell_names_or_ids').value = '__sample_cells__'; document.getElementById('target_cell_names_or_ids').value = '__sample_cells__'; document.getElementById('source_cell_names_or_ids').form.submit();">
+            Try with sample cells
+        </button>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock content %}

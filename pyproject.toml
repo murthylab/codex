@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "codex"
+version = "0.1.1"
+description = "Connectome Data Explorer for FlyWire"
+authors = ["Arie Matsliah <arie@princeton.edu>"]
+readme = "README.md"
+packages = [
+    { include = "codex"},
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Flask = "2.3.2"
+requests = "2.31.0"
+user-agents = "2.2.0"
+nglui = "2.7.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+black = "^23.1.0"
+ruff = "^0.0.246"
+python-dotenv = "^0.21.1"
+coverage = "^7.2.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+ignore = ["E501"]  # ignore line length for now

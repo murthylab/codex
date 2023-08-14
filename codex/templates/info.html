@@ -1,0 +1,24 @@
+
+{% extends "base_barebones.html" %}
+
+{% block title %}
+Info
+{% endblock title %}
+
+{% block base_barebones_content %}
+<div class="card bg-light mb-3" style="margin: 10px;" id="info">
+    <div class="card-header" style="color: purple; font-size: 18px;">
+        <i style="margin-right: 5px;" class="fa-solid fa-circle-info"></i> {{title|safe}}
+    </div>
+    <div class="card-body">
+        <p class="lead">{{message|safe}}</p>
+        {% if back_button %}
+        <form>
+            <input class="btn btn-primary btn-sm" type="button" value="Back" onclick="history.back()">
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock base_barebones_content %}

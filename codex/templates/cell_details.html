@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+{% block title %} Cell Info {% endblock title %}
+{% block content %}
+
+<nav class="navbar navbar-light bg-light">
+    <form class="form-inline">
+        <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search"
+               id="cell_names_or_id" name="cell_names_or_id" placeholder="enter cell name or ID"
+               aria-label="Cell Name/ID" value="{{cell_names_or_id}}">
+        <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading(event);"><i
+                class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
+</nav>
+
+{% if cell_id %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+      google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawCharts);
+
+      function drawChart(title, json, elem) {
+        const data = google.visualization.arrayToDataTable(json["data"]);
+        const options = {
+            title: title,
+            legend: {position: 'bottom'},
+            tooltip: {isHtml: true},
+        };
+        var chart;
+        if (json["type"] === "donut") {
+            options.pieHole = 0.4;
+            chart = new google.visualization.PieChart(elem);
+        } else if (json["type"] === "bar") {
+            chart = new google.visualization.BarChart(elem);
+        } else {
+            console.log('Unknown chart type', data);
+            return;
+        }
+
+        function selectHandler() {
+            if (json["search_filter"]) {
+                const selectedItem = chart.getSelection()[0];
+                if (selectedItem) {
+                    const value = data.getValue(selectedItem.row, 0);
+                    var filter_string;
+                    if (json["search_filter"] === "input_output") {
+                        const region = value.includes("Input") ? "upstream" : "downstream";
+                        filter_string = "{" + region + "} {{cell_id}}";
+                    } else if (json["search_filter"] === "input_nt_type") {
+                        filter_string = "{upstream} {{cell_id}} && nt_type == " + value;
+                    } else if (json["search_filter"] === "input_neuropils" || json["search_filter"] === "input_hemisphere") {
+                        filter_string = value + " {upstream_region} {{cell_id}}";
+                    } else if (json["search_filter"] === "output_neuropils" || json["search_filter"] === "output_hemisphere") {
+                        filter_string = value + " {downstream_region} {{cell_id}}";
+                    }
+                    const searchbox = document.getElementById("cell_names_or_id");
+                    searchbox.value = filter_string;
+                    searchbox.form.submit();
+                }
+            }
+        }
+        google.visualization.events.addListener(chart, 'select', selectHandler);
+
+        chart.draw(data, options);
+      }
+      function drawCharts() {
+        charts_container = document.getElementById("charts_container");
+        let chart_json;
+        {% for k, v in charts.items() %}
+            chart_json = {{v|tojson}};
+            elem = document.createElement("div");
+            elem.setAttribute("class", "card");
+            elem.setAttribute("style", "width: 100%; height: " + chart_json["height_px"] + "px;");
+            charts_container.appendChild(elem);
+            drawChart("{{k}}", chart_json, elem);
+        {% endfor %}
+      }
+
+      function submitBrainCircuitsRequest() {
+        const modal = document.getElementById("braincircuits-modal");
+        const modal_body = modal.getElementsByClassName("modal-body")[0];
+        const target_library = document.getElementById("braincircuits-target-library").value;
+        modal_body.innerHTML = `<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</\span></div></div>`;
+        document.getElementById("brain_circuits_footer").remove()
+        window.open("{{ bc_url }}?" + new URLSearchParams({
+            segment_id: '{{cell_id}}',
+            target_library: target_library,
+        }), '_self').focus();
+      }
+
+</script>
+<style>
+div.google-visualization-tooltip { width:250px; }
+</style>
+
+<div class="card-columns custom-columns" style="padding: 5px;">
+
+    <!-- Cell Info -->
+    <div class="card" style="width: 100%;">
+        <div class="card-header" style="color: purple;">
+            Cell Info
+        </div>
+        <div class="body">
+            <table class="table">
+                <tbody>
+                {% for k, v in cell_attributes.items() %}
+                <tr>
+                    <td>{{k|safe}}</td>
+                    <td>{{v|safe}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Connectivity -->
+    {% if load_connections %}
+    <div class="card" style="width: 100%; height: 450px;">
+        <div class="card-header" style="color: purple; width: 100%;">
+            <a href="{{url_for('app.connectivity', data_version=data_version, cell_names_or_ids=cell_names_or_id, show_regions=1, cap=15)}}" target="_blank">Top connections with
+                {{min_syn_threshold}}+ synapses<i style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i> </a>
+            <a class="btn btn-outline-primary btn-sm" style="float: right;" href="{{url_for('app.connectivity', data_version=data_version, cell_names_or_ids=cell_names_or_id, show_regions=1, download='csv')}}" target="_blank">
+                <i class="fa-solid fa-download"></i> CSV</a>
+        </div>
+        <iframe style="width: 100%; height: 100%;" src="{{url_for('app.connectivity', data_version=data_version, cell_names_or_ids=cell_names_or_id, show_regions=1, cap=15, headless=1)}}"
+                title="connectivity" loading="lazy"></iframe>
+    </div>
+    {% endif %}
+
+    <!-- Neuroglancer -->
+    <div class="card" style="width: 100%; height: 450px;" >
+        <div class="card-header" style="color: purple;">
+            <a href="{{url_for('app.flywire_url', data_version=data_version, root_ids=[cell_id], log_request=0)}}" target="_blank">3D Rendering <i
+                    style="margin-left: 5px;" class="fa-sharp fa-solid fa-up-right-from-square"></i></a>
+            <a class="btn btn-outline-primary btn-sm" style="float: right;" href="{{url_for('base.skeleton_thumbnail_url', cell_or_neuropil=cell_id, file_type='swc')}}" target="_blank">
+                <i class="fa-solid fa-download"></i> SWC</a>
+        </div>
+        <iframe style="width: 100%; height: 100%;"
+                src="{{url_for('app.flywire_url', data_version=data_version, root_ids=[cell_id], log_request=0)}}" title="neuroglancer"
+                loading="lazy"></iframe>
+    </div>
+</div>
+
+<div class="card-columns custom-columns" style="padding: 5px;">
+
+    <!-- Annotations -->
+    <div class="card" style="width: 100%;">
+        <div class="card-header" style="color: purple;">
+            Annotations
+        </div>
+        <div class="body">
+            <table class="table">
+                <tbody>
+                {% for k, v in cell_annotations.items() %}
+                <tr>
+                    <td>{{k|safe}}</td>
+                    <td>{{v|safe}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% if not is_oss %}
+                <form style="margin: 10px;" target="_blank">
+                    <h6 style="color: purple;"> <i class="fa-solid fa-pen-to-square"></i> Contribute your annotation</h6>
+                    <textarea class="form-control" id="annotation_text" minlength="2" rows="1" name="annotation_text"
+                        placeholder="free-form textual annotation" required></textarea>
+
+                    <small style="color: purple;"> <i class="fa-solid fa-map-pin"></i> Coordinates (in nm)</small>
+                    <input style="margin-top: 10px; font-size: 12px;" class="form-control mr-sm-2" autocomplete="off" minlength="11" required
+                        id="annotation_coordinates" name="annotation_coordinates" placeholder="annotation coordinates: x y z (in nano)"
+                        aria-label="Soma Coordinates in Nanometers" value="{{cell_coordinates}}">
+                    <input type="hidden" id="annotation_cell_id" name="annotation_cell_id" value="{{cell_id}}"/>
+                    <small style="color: grey;"><i class="fa-solid fa-circle-info"></i> Annotations should be anchored to specific coordinates on the cell (where the identification was made). See the FlyWire and Coordinates links on the Cell Info panel for reference.</small>
+                    <br>
+                    <small style="color: grey;"><i class="fa-solid fa-circle-info"></i> After filling out this form, you'll be forwarded to the Flywire annotation management system, where you can submit your annotation with one click. New annotations are reviewed and imported into Codex daily.</small>
+                    <br>
+                    <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">
+                        Continue
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Related Cells -->
+    <div class="card" style="width: 100%;">
+        <div class="card-header" style="color: purple;">
+            Related Cells
+        </div>
+        <div class="body">
+            <table class="table">
+                <tbody>
+                {% for k in related_cells %}
+                <tr>
+                    <td>{{k|safe}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Further Analysis -->
+    <div class="card" style="width: 100%;">
+        <div class="card-header" style="color: purple;">
+            Further Analysis
+        </div>
+        <div class="body">
+            <table class="table">
+                <tbody>
+                {% for k in further_analysis %}
+                <tr>
+                    <td>{{k|safe}}</td>
+                </tr>
+                {% endfor %}
+                {% if not is_oss %}
+                    <tr>
+                        <td>
+                            <a class="btn btn-link" data-toggle="modal" data-target="#braincircuits-modal"><i class="fa-solid fa-brain"></i>&nbsp; Find matching genetic lines with BrainCircuits.io </a>
+                        </td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Extra Items -->
+    {% for hdr, attribs in cell_extra_data.items() %}
+    <div class="card" style="width: 100%;">
+        <div class="card-header" style="color: purple;">
+            {{hdr|safe}}
+        </div>
+        <div class="body">
+            <table class="table">
+                <tbody>
+                {% for k, v in attribs.items() %}
+                <tr>
+                    <td>{{k|safe}}</td>
+                    <td>{{v|safe}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Charts -->
+<div class="card-columns custom-columns" id="charts_container" style="padding: 5px;">
+</div>
+
+<!-- Braincircuits Modal -->
+<div class="modal fade" id="braincircuits-modal" tabindex="-1" aria-labelledby="braincircuits-modal-label"
+        aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="braincircuits-modal-label">Find matching genetic lines with BrainCircuits.io</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="braincircuits-form">
+                <form>
+                    <div class="form-group">
+                        <label>Select Target Library</label>
+                        <select class="form-control" id="braincircuits-target-library">
+                                <option value="fruitfly_brain_FlyLight_Annotator_Gen1_MCFO">FlyLight Annotator Gen1 MCFO (101215 images)</option>
+                                <option value="fruitfly_brain_FlyLight_Gen1_GAL4">FlyLight Gen1 GAL4 (32932 images)</option>
+                                <option value="fruitfly_brain_FlyLight_Gen1_LexA">FlyLight Gen1 LexA (5033 images)</option>
+                                <option value="fruitfly_brain_FlyLight_Gen1_MCFO">FlyLight Gen1 MCFO (136367 images)</option>
+                                <option value="fruitfly_brain_FlyLight_Gen1_MCFO_gamma_corrected">FlyLight Gen1 MCFO gamma corrected (81419 images)</option>
+                                <option value="fruitfly_brain_FlyLight_Split-GAL4_Drivers">FlyLight Split-GAL4 Drivers (3045 images)</option>
+                                <option value="fruitfly_brain_Vienna_Gen1_GAL4">Vienna Gen1 GAL4 (3588 images)</option>
+                                <option value="fruitfly_brain_Vienna_Gen1_LexA">Vienna Gen1 LexA (2343 images)</option>
+                                <option value="fruitfly_brain_FlyEM_Hemibrain_v1.2.1">FlyEM Hemibrain v1.2.1 (30789 images)</option>
+                                <option value="Only_ColorMIP">Only ColorMIP Generation (0 images)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" id="brain_circuits_footer">
+                <button type="button" class="btn btn-primary" id="brain_circuits_submit"
+                        onclick="submitBrainCircuitsRequest()">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Landing Page -->
+<div class="card" style="margin: 15px;">
+    <div class="card-header" style="color: purple;">
+        What is this?
+    </div>
+    <div class="card-body">
+        Look up a cell by name or ID to see its detailed information, including connectivity with upstream / downstream
+        cells, 3D rendering, annotations and a list of morphologically similar as well as other related cells.
+        <br><br>
+        <button class="btn btn btn-outline-success my-2 my-sm-0" type="button"
+                onclick="loading(event); sb_elem = document.getElementById('cell_names_or_id'); sb_elem.value = '{random_cell}'; sb_elem.form.submit();">
+            Try Random Cell
+        </button>
+    </div>
+</div>
+{% endif %}
+
+{% include "cell_annotations_modal.html" %}
+{% include "connectivity_tags_modal.html" %}
+
+{% endblock content %}

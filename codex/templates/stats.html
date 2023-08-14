@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}
+Stats
+{% endblock title %}
+
+{% block content %}
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  google.charts.load("current", {packages:["corechart"]});
+  google.charts.setOnLoadCallback(drawCharts);
+
+  function drawChart(title, json, elem) {
+    const data = google.visualization.arrayToDataTable(json["data"]);
+    const options = {
+        title: title,
+        legend: {position: 'bottom'},
+        tooltip: {isHtml: true},
+    };
+    var chart;
+    if (json["type"] === "donut") {
+        options.pieHole = 0.4;
+        chart = new google.visualization.PieChart(elem);
+    } else if (json["type"] === "bar") {
+        chart = new google.visualization.BarChart(elem);
+    } else {
+        console.log('Unknown chart type', data);
+        return;
+    }
+
+    if (json["searchable"]) {
+        function selectHandler() {
+            const selectedItem = chart.getSelection()[0];
+            if (selectedItem) {
+                const value = data.getValue(selectedItem.row, 0);
+                let filter_string = {{filter_string|tojson}};
+                if (value.toUpperCase() === 'UNKNOWN') {
+                    if (filter_string) {
+                        filter_string += " && ";
+                    }
+                    filter_string += "{not} " + json["search_filter"];
+                } else {
+                    if (!filter_string.split(" ").includes(value)) {
+                        if (filter_string) {
+                            filter_string += " && ";
+                        }
+                        filter_string += json["search_filter"] + " == " + value;
+                    }
+                }
+                loading();
+                const searchbox = document.getElementById("filter_string");
+                searchbox.value = filter_string;
+                searchbox.form.submit();
+            }
+        }
+        google.visualization.events.addListener(chart, 'select', selectHandler);
+    }
+
+    chart.draw(data, options);
+  }
+  function drawCharts() {
+    data_container = document.getElementById("data_container");
+    let chart_json;
+    {% for k, v in data_charts.items() %}
+        chart_json = {{v|tojson}};
+        elem = document.createElement("div");
+        elem.setAttribute("class", "card");
+        elem.setAttribute("style", "width: 100%; height: " + chart_json["height_px"] + "px;");
+        data_container.appendChild(elem);
+        drawChart("{{k}}", chart_json, elem);
+    {% endfor %}
+  }
+
+</script>
+<style>
+div.google-visualization-tooltip { width:250px; }
+</style>
+
+<nav class="navbar navbar-light bg-light">
+    <form class="form-inline">
+
+        <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search"
+               id="filter_string" name="filter_string" placeholder="filter stats data" aria-label="Filter"
+               value="{{filter_string}}">
+        <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading(event);"><i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+
+        {% include "advanced_search.html" %}
+        {% include "search_settings.html" %}
+    </form>
+</nav>
+
+{% include "results_actions.html" %}
+
+{% if num_items %}
+<div class="card border-primary mb-3" style="margin: 5px;">
+    <div class="body">
+        <div class="card-columns custom-columns" id="data_container" style="padding: 5px;">
+            {% for k_l2, d_l2 in data_stats.items() %}
+            <div class="card">
+                {% if k_l2 %}
+                <div class="card-header">
+                    {{k_l2}}
+                </div>
+                {% endif %}
+                <div style="overflow-x:auto;">
+                    <table class="table">
+                        <tbody>
+                        {% for k_l3, v_l3 in d_l2.items() %}
+                        <tr>
+                            <td><b>{{k_l3|safe}}</b></td>
+                            <td style="text-align: end;">{{v_l3|safe}}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock content %}

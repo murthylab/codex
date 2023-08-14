@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('base.styles', filename='index.css') }}">
+<div class="jumbotron"
+     style="background-image: url(/background_image); background-size: 50%; background-position: right top; background-repeat: no-repeat;">
+    <div class="container">
+        <h1 class="display-4">Codex</h1>
+        <p><i>Connectome Data Explorer</i> &nbsp; <small><i class="fa-solid fa-ellipsis-vertical"></i></small> &nbsp; <a href="/demo_clip" target="_blank"><i class="fa-brands fa-youtube"></i> demo clips </a> </p>
+
+        <!-- Data Snapshot Versions Modal -->
+        <div class="modal fade" id="dataVersionsModal" tabindex="-1" role="dialog"
+             aria-labelledby="dataVersionsModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="dataVersionsModalLabel">Available FlyWire Data Snapshots</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul>
+                            {% for di in data_version_infos %}
+                            <li>{{di}}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="min-width: 300px; width: 50%;">
+            <hr class="my-4">
+
+            <h2 style="color: purple;">FlyWire Dataset (v{{default_version}})</h2>
+            <p>Codex provides access to <a href="details" data-toggle="modal" data-target="#dataVersionsModal">
+                proofread static snapshots
+            </a>
+                of the <a href="https://flywire.ai" target="_blank">FlyWire</a> full-brain connectome - wiring
+                diagram of adult Drosophila brain. Latest
+                connectome snapshot is v{{default_version}} and it includes:</p>
+
+            <table cellspacing="0" cellpadding="0" style="border: none; border-collapse: collapse;">
+                <tr style="background: none; margin: 0; padding: 0;">
+                    <td style="padding-right: 10px;"><b>{{num_cells}}</b><br>proofread cells</td>
+                    <td style="padding-right: 10px;"><b>{{num_typed_or_identified_cells}}  ({{percent_typed_or_identified_cells}})</b><br>typed or labeled cells</td>
+                </tr>
+                <tr style="background: none; margin: 0; padding: 0;">
+                    <td><b>{{num_connections}}</b><br>connections
+                        <a href="" style="color:teal;" data-toggle="modal" data-target="#synapsesModal">[?]</a>
+                    </td>
+                    <td><b>{{num_synapses}}</b><br>synapses
+                        <a href="" style="color:teal;" data-toggle="modal" data-target="#synapsesModal">[?]</a>
+                    </td>
+                </tr>
+            </table>
+            <br>
+            Other snapshots are available from search settings.
+            See <a href="/about_flywire">FlyWire Info & Credits</a> and <a href="/faq">FAQs</a> pages for more details.
+            <br>
+            <br>
+            <form id="searchForm">
+                <input class="form-control mr-sm-2" autocomplete="off" autofocus type="search"
+                       id="filter_string" name="filter_string" placeholder="search cells and annotations"
+                       aria-label="Filter" value="{{filter_string}}" onchange="loading(event)">
+            </form>
+
+            <hr class="my-4">
+        </div>
+
+
+    </div>
+    <br><br>
+
+    <h2 style="text-align: center; color: teal;">APPLICATIONS</h2>
+    <div class="main">
+        <br>
+        <ul class="cards">
+            {% for cd in card_data %}
+            <li class="cards_item" onclick="location.href='{{url_for(cd.url)}}'">
+                <div class="card" style="max-width: 300px; margin: 0 auto;">
+                    <div class="card_image" style="height: 200px; margin: 0 auto;">
+                        <img src="{{url_for('base.asset', filename=cd.asset_filename)}}"
+                             style="object-fit: cover; min-width: 100%; width: auto; height: auto; margin: 0 auto;"
+                             aria-hidden="true"
+                             alt="">
+                    </div>
+                    <div class="card_content" style="height: 120px;">
+                        <h2 class="card_title">{{cd.header}}</h2>
+                        <p class="card_text">{{cd.body}}<br></p>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+{% include "synapses_modal.html" %}
+
+{% endblock content %}

@@ -1,0 +1,41 @@
+{% extends "base_barebones.html" %}
+
+{% block title %}
+{{title}}
+{% endblock title %}
+
+{% block base_barebones_content %}
+
+<div class="card bg-light mb-3" style="margin: 10px;" id="error">
+    <div class="card-header" style="color: teal; font-size: 18px;">
+        <i class="fa-regular fa-eye"></i> {{title}}
+    </div>
+    <div class="card-body">
+        <p class="lead">{{message|safe}}</p>
+    </div>
+</div>
+
+<div class="card bg-light mb-3" style="margin: 10px;" id="submit_cell_ids">
+    <div class="card-body">
+        <form style="margin-top: 10px;" id="submit_form" method="post">
+            <textarea class="form-control" id="cell_ids" rows="15" name="cell_ids"
+                      placeholder="List of cell IDs"></textarea>
+            <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post" onclick="loading(event);">Go
+            </button>
+            <script type="text/javascript">
+                function submitOnEnter(event) {
+                    if (event.which === 13 && !event.shiftKey) {
+                        if (!event.repeat) {
+                            this.form.submit()
+                        }
+                        event.preventDefault(); // Prevents the addition of a new line in the text field
+                    }
+                }
+                document.getElementById("cell_ids").addEventListener("keydown", submitOnEnter);
+            </script>
+        </form>
+    </div>
+</div>
+
+
+{% endblock base_barebones_content %}

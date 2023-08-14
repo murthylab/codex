@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}
+About
+{% endblock title %}
+
+{% block content %}
+<div class="card bg-light mb-3" style="margin: 10px;">
+    <div class="card-header" style="color: purple; font-size: 18px;">
+        About Codex
+    </div>
+    <div class="card-body" >
+        <h6>Status</h6>
+        <ul>
+            <li>Codex is under active development - functionality and quality of the data are improving daily</li>
+            <li>Feedback from users is highly appreciated, please provide below</li>
+        </ul>
+        <h6>Credits, Terms and Privacy notice</h6>
+        <ul>
+            <li>Codex serves data from the <a href="https://flywire.ai">FlyWire</a> connectome - see <a href="{{url_for('base.about_flywire')}}">data credits page</a> for details</li>
+            <li>Supported by BRAIN Initiative grant MH117815, MH129268 and U24 NS126935 to Murthy and Seung</li>
+            <li>Codex & FlyWire <a href="https://flywire.ai/tos">Terms of Service and Privacy</a> notice</li>
+        </ul>
+        <h6>Creators @ Princeton Neuroscience Institute</h6>
+        <ul>
+            <li>Arie Matsliah (arie@princeton.edu), Research Scientist and FlyWire Data Evangelist, <a
+                    href="https://murthylab.princeton.edu/" target="_blank">Murthy Lab</a>
+            <li>Amy Sterling (amysterling@princeton.edu), Crowdsourcing and Outreach Manager, <a
+                    href="https://seunglab.org/" target="_blank">Seung Lab</a>
+            <li>Sven M. Dorkenwald (svenmd@princeton.edu), Ph.D. Student and FlyWire Proofreading Platform Lead, <a href="https://seunglab.org/"
+                                                                             target="_blank">Seung Lab</a>
+            <li>Kai Kuehner (kkuehner@princeton.edu), Developer, <a href="https://seunglab.org/" target="_blank">Seung
+                Lab</a>
+            <li>Ryan Morey (rmorey@princeton.edu), Developer, <a href="https://seunglab.org/" target="_blank">Seung
+                Lab</a>
+
+        </ul>
+        <h6>Links and Resources</h6>
+        <ul>
+            <li>Codex <a href="https://github.com/murthylab/codex" target="_blank">source code</a> (open to public soon, type in your GitHub
+                handle below to request early access)
+            </li>
+            <li>Codex <a href="{{url_for('base.demo_clip')}}" target="_blank">demos <i class="fa-brands fa-youtube"></i></a> and <a href="{{url_for('base.todo_list')}}" target="_blank">TODO List</a> open for comments</li>
+        </ul>
+    </div>
+</div>
+
+{% if not is_oss %}
+    <div class="card bg-light mb-3" style="margin: 10px;">
+        <div class="card-header" style="color: purple; font-size: 18px;">
+            Feedback / Questions
+        </div>
+        <div class="card-body">
+            <form style="margin-top: 10px;">
+                {% if message_sent %}
+                <div class="toast-body" style="color: gray;">
+                    Message sent
+                </div>
+                {% else %}
+                <textarea class="form-control" id="user_message" rows="2" minlength="5" name="user_message"
+                        placeholder="Type your message here"></textarea>
+                <button type="submit" style="margin-top: 10px;" class="btn btn-success btn-sm" formmethod="post">Send
+                </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+{% endif %}
+
+<div class="card bg-light mb-3" style="margin: 10px;">
+    <div class="card-header" style="color: purple; font-size: 18px;">
+        App Details
+    </div>
+    <div class="card-body">
+        <h6>Build</h6>
+        <ul>
+            <li>Commit <a href="https://github.com/murthylab/codex/commit/{{build_git_sha}}" target="_blank">git sha</a>
+            </li>
+            <li>Built on {{build_timestamp}}</li>
+        </ul>
+        <h6>Instance</h6>
+        <ul>
+            <li>Environment {{instance_environment}}</li>
+            <li>Process id {{instance_proc_id}} ({{instance_host_name}})</li>
+            <li>Instance uptime {{instance_uptime}} ({{instance_num_requests}} requests)</li>
+            <li>Mean response time {{instance_mean_response_time}} sec</li>
+            <li>Error rate {{instance_error_rate}}</li>
+            <li>Rate limited requests {{instance_rate_limited_requests}}</li>
+        </ul>
+    </div>
+</div>
+
+{% endblock content %}

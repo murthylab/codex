@@ -1,0 +1,105 @@
+{% set neuropils = ["Any"] + regions %} 
+{% set nodes = ["A", "B", "C"] %} 
+{% set edge_groups = [["AB", "BA"], ["AC", "CA"], ["BC", "CB"]] %} 
+
+{% extends "base.html" %} {% block title %}Motif Search{% endblock title %} {% block content %}
+<div id="root" class="h-100" style="margin-top: 10px;">Loading...</div>
+
+<div class="container-fluid">
+  <h4 style="color: purple; margin-top: 20px; margin-left: 10px; ">Motif search parameters</h4>
+  <div class="row">
+    <div class="col">
+      <form class="mw-50" style="margin-top: 10px;">
+        <small>
+        {% for group in edge_groups %}
+        <div class="row">
+          {% for edge in group %}
+          <div class="col">
+            <div class="row p-1">
+              <div class="col">
+                <div class="card">
+                  {# Edge Header #}
+                  <div class="card-header" style="padding: 0px; padding-left: 15px;">
+                    <div class="row">
+                      <div class="col">{{edge[0]}} <small><i class="fa-solid fa-arrow-right"></i></small> {{edge[1]}} connection</div>
+                      <div class="col">
+                        <div class="custom-control custom-switch">
+                          <input type="checkbox" data-toggle="collapse" data-target="#collapse{{edge}}" class="custom-control-input" id="enabled{{edge}}" name="enabled{{edge}}" 
+                          {% if query.get("enabled" + edge) %} checked {% endif %} />
+                          <label class="custom-control-label" for="enabled{{edge}}"></label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {# Edge Body #}
+                  <div class="card-body row collapse {% if query.get("enabled" + edge) %} show {% endif %}" id="collapse{{edge}}" style="padding: 0px; padding-left: 15px; padding-right: 5px;">
+                    <div class="form-group col" >
+                      <label for="neuropil{{edge}}"><small>Region</small></label>
+                      <select class="form-control form-control-sm" id="region{{edge}}" name="region{{edge}}" >
+                        {% for neuropil in neuropils %}
+                          <option value="{{neuropil}}"
+                          {% if query.get("region" + edge) == neuropil %}
+                            selected
+                          {% endif %}>
+                          {{neuropil}}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="form-group col">
+                      <label for="minSynapseCount{{edge}}"><small>Min Synapse Count</small></label>
+                      <input type="number" class="form-control form-control-sm" name="minSynapseCount{{edge}}" id="minSynapseCount{{edge}}"
+                      {% if query.get("minSynapseCount"+edge) %} value={{query.get("minSynapseCount"+edge)}} {% else %} value=1 {% endif %}
+                      />
+                    </div>
+                    <!-- Neurotransmitter type -->
+                    <div class="form-group col">
+                      <label for="ntType{{edge}}"><small>Neurotransmitter Type</small></label>
+                      <select class="form-control form-control-sm" id="ntType{{edge}}" name="ntType{{edge}}">
+                        <option value="Any">Any</option>
+                        {% for neurotransmitter, neurotransmitter_name in NEURO_TRANSMITTER_NAMES.items() %}
+                        <option value="{{neurotransmitter}}" 
+                        {% if query.get("ntType" + edge) == neurotransmitter %}
+                          selected
+                        {% endif %} 
+                        >{{neurotransmitter_name}}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+        </small>
+        <div class="row">
+          {% for node in nodes %}
+          <div class="form-group col" style="margin-top: 10px; margin-left: 5px;">
+            <label for="node{{node}}"><small>search query for node {{node}}</small></label>
+            <input type="text" class="form-control form-control-sm" name="query{{node}}" id="node{{node}}" placeholder="(match all)" {% if query.get("query"+node) %} value={{query.get("query"+node)}} {% endif %} />
+          </div>
+          {% endfor %}
+        </div>
+        <div class="d-flex justify-content-center" style="margin-bottom: 40px;">
+          <button type="submit" class="btn btn-primary" onclick="loading(event);" style="min-width: 100%;">Find Matching Motifs &nbsp; &nbsp; <i class="fa-solid fa-gears"></i></button>
+        </div>
+
+     </form>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { render } from "https://esm.sh/react-dom";
+  import { createElement } from "https://esm.sh/react";
+  import MotifSearch  from "/js/motif_search.js";
+  const results = {{ results | tojson }} 
+  const query = {% if query %} {{ query | tojson }} {% else %} null {% endif %}
+  const show_explainer = {% if show_explainer %} true {% else %} false {% endif %}
+  render(createElement(() => MotifSearch({results: results, query: query, show_explainer: show_explainer })), document.getElementById("root"));
+</script>
+
+{% endblock content %}

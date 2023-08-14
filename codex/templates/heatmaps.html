@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %} Synapse Density {% endblock title %}
+{% block content %}
+
+<nav class="navbar navbar-light bg-light">
+    <form class="form-inline">
+        <label >Group cells by</label>
+        <select style="margin: 15px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit();"
+                aria-label="Group Neurons By" name="group_by">
+            {% for v in group_by_options %}
+            <option value="{{v}}" {{'selected' if group_by==v}}>{{v}}</option>
+            {% endfor %}
+        </select>
+        <label >Count</label>
+        <select style="margin: 15px;" class="form-select form-select-lg mb-3" onchange="loading(event); this.form.submit();"
+                aria-label="Count" name="count_type">
+            {% for v in count_type_options %}
+            <option value="{{v}}" {{'selected' if count_type==v}}>{{v}}</option>
+            {% endfor %}
+        </select>
+    </form>
+</nav>
+
+<div>
+    <small style="color: teal">
+    <ul>
+    {% for exp in explanations %}
+        <li>{{exp|safe}}</li>
+    {% endfor %}
+    </ul>
+    </small>
+</div>
+
+<div style="overflow-x:auto;">
+    <table class="table">
+        <thead>
+        <tr>
+            {% for hv in table[0] %}
+            <th scope="col">{{hv|safe}}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in table[1:] %}
+        <tr>
+            {% for dv in row %}
+            <td style="background: {{dv[1]}};">{{dv[0]|safe}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock content %}

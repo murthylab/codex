@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% block title %} Search {% endblock title %}
+{% block content %}
+
+<nav class="navbar navbar-light bg-light">
+    <form class="form-inline">
+
+        <input class="form-control mr-sm-2" style="width: 50vw;" autocomplete="off" autofocus type="search"
+               id="filter_string" name="filter_string" placeholder="search anything" aria-label="Filter"
+               value="{{filter_string}}">
+        <button class="btn btn btn-primary my-2 my-sm-0" type="submit"><i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        {% include "advanced_search.html" %}
+        {% include "search_settings.html" %}
+
+    </form>
+</nav>
+
+{% include "results_actions.html" %}
+
+<script type="text/javascript">
+    function apply_filter(fltr) {
+        input_box = document.getElementById("filter_string");
+        old_val = input_box.value;
+        if (old_val) {
+            input_box.value = old_val + ' && ' + fltr;
+        } else {
+            input_box.value = fltr;
+        }
+        loading();
+        input_box.form.submit();
+        input_box.value = old_val;
+    }
+
+    const skeletonThumbnailUrls = {{skeleton_thumbnail_urls|tojson}};
+
+    function hover_row(rowElem, rootID) {
+        const newSrc = skeletonThumbnailUrls[rootID][1];
+        if (rowElem.querySelector(".skeleton_thumbnail").src !== newSrc) {
+            rowElem.querySelector(".skeleton_thumbnail").src = newSrc;
+        }
+        rowElem.querySelector(".thumbnail_3d_link").hidden = false;
+    }
+
+    function unhover_row(rowElem, rootID) {
+        const newSrc = skeletonThumbnailUrls[rootID][0];
+        if (rowElem.querySelector(".skeleton_thumbnail").src !== newSrc) {
+            rowElem.querySelector(".skeleton_thumbnail").src = newSrc;
+        }
+        rowElem.querySelector(".thumbnail_3d_link").hidden = true;
+    }
+</script>
+
+
+{% if num_items %}
+<div style="overflow-x:auto; margin-top: 20px;">
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col" title="Names are auto-assigned based on annotations and primary input/output regions; IDs correspond to FlyWire root ids for selected data version">Name/ID</th>
+            {% if extra_data %}
+                <th scope="col" title="{{extra_data.title}}">{{extra_data.column_name}}</th>
+            {% endif %}
+            <th scope="col" title="Neurotransmitter type prediction and confidence score">NT</th>
+            <th scope="col" title="Length / Area / Volume (in micrometers)">Size</th>
+            <th scope="col" title="Upstream/Downstream partners and related cells">Related Cells</th>
+            <th scope="col" title="Cell Type and Hemibrain Type Annotations">
+                Type
+                <a href="" style="color:teal;" data-toggle="modal" data-target="#cellAnnotationsModal">[?]</a>
+            </th>
+            <th scope="col" title="Hierarchical annotations">
+                Classification
+                <a href="" style="color:teal;" data-toggle="modal" data-target="#cellAnnotationsModal">[?]</a>
+            </th>
+            <th scope="col" title="Annotations provided by members of the FlyWire community">Community Labels
+                <a href="" style="color:teal;" data-toggle="modal" data-target="#communityLabelsModal">[?]</a>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for neuron in display_data %}
+        <tr>
+            <td style="padding-left: 10px; margin: 0px;"
+                onmouseover="hover_row(this, '{{neuron.root_id}}');"
+                onmouseleave="unhover_row(this, '{{neuron.root_id}}');">
+
+                <a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);">{{neuron.name}}</a>
+                <br>
+                <small style="font-size: 10px;">{{highlighted_terms.get(neuron.root_id, neuron.root_id)|safe}}</small>
+                <div style="position: relative; text-align: center; color: white; width: 200px; height: 150px;">
+                    <a href="{{url_for('app.cell_details', data_version=data_version, root_id=neuron.root_id)}}" onclick="loading(event);"><img
+                       class="skeleton_thumbnail"
+                       src="{{skeleton_thumbnail_urls.get(neuron.root_id)[0]}}"
+                       border="1px;" style="width:100%; height: 100%;">
+                    </a>
+                    <div class="thumbnail_3d_link" hidden style="position: absolute; bottom: 2px; left: 40px;">
+                        <a class="btn btn-link btn-sm" href="{{url_for('app.flywire_url', data_version=data_version, root_ids=[neuron.root_id])}}"
+                           target="_blank" role="button" title="Render in 3D">3D viewer <i class="fa-solid fa-up-right-from-square"></i></a>
+                    </div>
+                </div>
+            </td>
+            {% if extra_data %}
+                <td style="color:black;">{{extra_data.values_dict.get(neuron.root_id)}}</td>
+            {% endif %}
+            <td style="color:#3A3AAA;">{{highlighted_terms.get(neuron.nt_type, neuron.nt_type)|safe}}
+                {% if neuron.nt_type %}
+                <br><small style="color: {{'green' if neuron.nt_type_score > 0.65 else ('orange' if neuron.nt_type_score > 0.45 else 'red')}}">{{neuron.nt_type_score}}</small>
+                {% endif %}
+                <div class="spotfilter">
+                    {% if neuron.nt_type and 'nt_type' in multi_val_attrs %}
+                    <span class="td_filter_buttons">
+                        <nobr>
+                        <button title="Exclude {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt_type != {{neuron.nt_type}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only {{neuron.nt_type}}" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('nt_type == {{neuron.nt_type}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                        </nobr>
+                    </span>
+                    <br>
+                    <span class="td_filter_buttons_caption">
+                        <!--apply filter-->
+                    </span>
+                    {% else %}
+                        <span class="td_filter_buttons_caption" style="color: orange">
+                            all matches
+                        </span>
+                    {% endif %}
+                </div>
+            </td>
+            <td style="color:grey;"><small>
+                <nobr>
+                {{nanos_to_formatted_micros(neuron.length_nm, 1)|safe}}<br>
+                {{nanos_to_formatted_micros(neuron.area_nm, 2)|safe}}<br>
+                {{nanos_to_formatted_micros(neuron.size_nm, 3)|safe}}
+                </nobr>
+            </small></td>
+            <td>
+                <nobr>
+                <small>
+                <a href="{{url_for('app.search', filter_string='{upstream} ' + neuron.root_id|string, data_version=data_version)}}" target="_blank">
+                    <i class="fa-solid fa-arrow-up"></i> &nbsp; {{display(neuron.input_cells)}} upstream
+                </a>
+                    <br>
+                <a href="{{url_for('app.search', filter_string='{downstream} ' + neuron.root_id|string, data_version=data_version)}}" target="_blank">
+                    <i class="fa-solid fa-arrow-down"></i> &nbsp; {{display(neuron.output_cells)}} downstream
+                </a>
+                </small>
+                <br>
+                {% if neuron.mirror_twin_root_id %}
+                <small>
+                    <a href="{{url_for('app.search', filter_string=neuron.root_id|string + ', ' + neuron.mirror_twin_root_id|string, data_version=data_version)}}" target="_blank">
+                            <i class="fa-solid fa-bezier-curve"></i> &nbsp; mirror twin
+                    </a>
+                </small>
+                <br>
+                {% endif %}
+
+                {% if neuron.similar_cell_scores %}
+                <small>
+                    <a href="{{url_for('app.search', filter_string='{similar_shape} ' + neuron.root_id|string, data_version=data_version)}}" target="_blank">
+                            <i class="fa-regular fa-clone"></i> {{neuron.similar_cell_scores|length}} with similar shape
+                    </a>
+                </small>
+                <br>
+                {% endif %}
+
+                <small style="color: purple" id="similar_to_{{neuron.root_id}}_header" onclick="elem = document.getElementById('similar_to_{{neuron.root_id}}_body'); elem.hidden = !elem.hidden; elem = document.getElementById('similar_to_{{neuron.root_id}}_header'); elem.hidden = !elem.hidden;"><i class="fa-solid fa-diagram-project"></i> similar connectivity <i class="fa-solid fa-caret-down"></i></small>
+                <div id="similar_to_{{neuron.root_id}}_body" hidden>
+                    <small style="color: teal" onclick="elem = document.getElementById('similar_to_{{neuron.root_id}}_body'); elem.hidden = !elem.hidden; elem = document.getElementById('similar_to_{{neuron.root_id}}_header'); elem.hidden = !elem.hidden;">cells with similar partners <i class="fa-solid fa-caret-up"></i></small>
+                    <div style="font-size: 11px;">
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_connectivity} ' + neuron.root_id|string, data_version=data_version)}}">
+                       upstream and downstream
+                    </a><br>
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       upstream
+                    </a><br>
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       downstream
+                    </a>
+                    </div>
+
+                    <small style="color: teal">cells with similar embeddings</small>
+                    <div style="font-size: 11px;">
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_embedding} ' + neuron.root_id|string, data_version=data_version)}}">
+                       input and output
+                    </a><br>
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_embedding_upstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       input
+                    </a><br>
+                    &nbsp; &#8226; <a  target="_blank" href="{{url_for('app.search', filter_string='{similar_embedding_downstream} ' + neuron.root_id|string, data_version=data_version)}}">
+                       output
+                    </a>
+                    </div>
+                </div>
+                </nobr>
+            </td>
+            <td style="color:#3A3A3A;">
+                {% with caption="Cell Type", tooltip="Cell types are derived from a mapping to the Janelia hemibrain dataset",
+                    attr_key="cell_type", attr_val=neuron.cell_type, non_uniform_values=non_uniform_cell_types, highlighted_terms=highlighted_terms
+                %} {% include "attribute_with_multiple_values.html" %} {% endwith %}
+
+                {% with caption="Hemibrain Type", tooltip="Matching type(s) in Janelia hemibrain dataset",
+                    attr_key="hemibrain_type", attr_val=neuron.hemibrain_type, non_uniform_values=non_uniform_hemibrain_types, highlighted_terms=highlighted_terms
+                %} {% include "attribute_with_multiple_values.html" %} {% endwith %}
+            </td>
+            <td style="color:#3A3A3A;">
+                {% with caption="Side", tooltip="Soma side of the neuron from the fly’s perspective",
+                    attr_key="side", attr_val=neuron.side, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
+                %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
+
+                {% with caption="Flow", tooltip="Top hierarchical annotation describing signal flow of this neuron",
+                    attr_key="flow", attr_val=neuron.flow, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
+                %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
+
+                {% with caption="Super Class", tooltip="Broadest hierarchical annotation below 'flow'",
+                    attr_key="super_class", attr_val=neuron.super_class, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
+                %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
+
+                {% with caption="Class", tooltip="Medium sized groups of neurons",
+                    attr_key="class", attr_val=neuron.class, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
+                %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
+
+                {% with caption="Sub Class", tooltip="Small groups of neurons",
+                    attr_key="sub_class", attr_val=neuron.sub_class, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
+                %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
+
+                {% with caption="Nerve", tooltip="Nerve through which the neuron is entering/exiting the nervous system",
+                    attr_key="nerve", attr_val=neuron.nerve, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
+                %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
+
+                {% with caption="Hemilineage", tooltip="Mapped lineage from Janelia hemibrain dataset",
+                    attr_key="hemilineage", attr_val=neuron.hemilineage, multi_val_attrs=multi_val_attrs, highlighted_terms=highlighted_terms
+                %} {% include "attribute_with_spot_filter.html" %} {% endwith %}
+
+            </td>
+            <td style="color:#3A3A3A;">
+                {% for tg in neuron.label %}
+                <div class="spotfilter">
+                    <small><b>&#x2022;</b> &nbsp;{{highlighted_terms.get(tg, tg)|safe}}</small>
+                    {% if tg in non_uniform_labels %}
+                    <span class="td_filter_buttons">
+                        <nobr>
+                        <button title="Exclude items with this label" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label != {{tg}}');" style="padding: 0px; font-size: 10px; color: red;"><i class="fa-solid fa-circle-minus"></i></button>
+                        <button title="Show only items with this label" class="btn btn-sm btn-link my-2 my-sm-0" onclick="apply_filter('label == {{tg}}');" style="padding: 0px; font-size: 10px; color: green;"><i class="fa-solid fa-circle-plus"></i></button>
+                        </nobr>
+                    </span>
+                    <span class="td_filter_buttons_caption">
+                        <!--apply filter-->
+                    </span>
+                    {% else %}
+                    <span class="td_filter_buttons_caption" style="color: orange">
+                        all matches
+                    </span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% if links.get(neuron.root_id) %}
+                <small style="color: magenta" id="links_{{neuron.root_id}}_header" onclick="elem = document.getElementById('links_{{neuron.root_id}}_body'); elem.hidden = !elem.hidden; elem = document.getElementById('links_{{neuron.root_id}}_header'); elem.hidden = !elem.hidden;"><i class="fa-solid fa-book-open-reader"></i> literature links <i class="fa-solid fa-caret-down"></i></small>
+                <div id="links_{{neuron.root_id}}_body" hidden>
+                    <small style="color: magenta" onclick="elem = document.getElementById('links_{{neuron.root_id}}_body'); elem.hidden = !elem.hidden; elem = document.getElementById('links_{{neuron.root_id}}_header'); elem.hidden = !elem.hidden;"><i class="fa-solid fa-book-open-reader"></i> literature links <i class="fa-solid fa-caret-up"></i></small>
+                    <div style="font-size: 11px;">
+                    {% for link in links.get(neuron.root_id) %}
+                        &nbsp; &#8226; <a  target="_blank" href="{{link}}">
+                            {{link}}
+                        </a><br>
+                    {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<ul class="pagination my-2" style="margin-left: 10px; margin-bottom: 10px;">
+    {% for page_info in pagination_info %}
+    <li class="page-item {{page_info.status}}">
+        <a class="page-link"
+           href="{{url_for(request.endpoint, page_number=page_info.number, page_size=page_size, filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, sort_by=sort_by, data_version=data_version)}}">{{page_info.label}}</a>
+    </li>
+    {% endfor %}
+    <li>
+        <button type="button" class="btn btn-outline-primary" style="margin-left: 15px;" title="Settings"
+            data-toggle="modal" data-target="#filterModal"><i class="fa-solid fa-sliders"></i></button>
+    </li>
+</ul>
+
+{% include "cell_annotations_modal.html" %}
+{% include "community_labels_modal.html" %}
+
+{% endif %}
+
+
+{% endblock content %}

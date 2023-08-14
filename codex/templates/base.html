@@ -1,0 +1,112 @@
+{% extends "base_barebones.html" %}
+
+{% block base_barebones_content %}
+{% if data_version and data_version != "630" %}
+<h6 style="background: orange; color: white; text-align: center; font-size: 14px; padding: 5px;">
+    Showing FlyWire data version <b>{{data_version}}</b> &nbsp;
+    <a href="{{url_for('base.index')}}">start over to switch to latest version <i class="fa-solid fa-arrow-right"></i></a>
+</h6>
+{% else %}
+<!-- h6 style="background: purple; color: white; text-align: center; font-size: 14px;">
+    Hemisphere annotations were recently corrected. Read the announcement
+    <a href="{{url_for('base.announcement')}}" target="_blank" style="color: yellow">here</a>.
+</h6
+-->
+{% endif %}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
+    <a id='nav_home' class="navbar-brand mb-0 h1" href="{{url_for('base.index')}}">
+        <img width="30.6px" height="17.7px" src="{{url_for('base.asset', filename='codex-icon-color.png')}}">
+        &nbsp;Codex</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+     <ul class="navbar-nav mr-auto">  
+        {% for page in tabs %}
+          <li class="nav-item text-nowrap">
+            <a onclick="loading(event);" class="nav-link" id="nav_{{ page[0] }}" href="{{url_for(page[2] + '.' + page[0])}}">{{ page[1] }}</a>
+          </li>
+        {% endfor %}
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="nav_more_active" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  More
+                </a>
+                <div class="dropdown-menu" aria-labelledby="nav_more_active">
+                  {% for item in dropdown_items %}
+                    <a class="dropdown-item" id="nav_{{ item[0] }}" href="{{ url_for(item[1]) }}">{{ item[2] }}</a>
+                  {% endfor %}
+                </div>
+            </li>
+
+            <script>
+              function highlight_elem_id(elem_id) {
+                document.getElementById(elem_id).style.color = 'purple';
+              }
+              function configure_nav_bar(cur_url) {
+                for (const tab of {{ tabs|safe }}){
+                    if (cur_url.includes(tab[0])) {
+                      highlight_elem_id('nav_' + tab[0]);
+                      return;
+                    }
+                }
+
+                let more_tabs = {{more_tabs|safe}};
+                for (const tab of more_tabs){
+                    if (cur_url.includes(tab)) {
+                      document.getElementById('nav_more_active').text = document.getElementById('nav_' + tab).text;
+                      highlight_elem_id('nav_more_active');
+                      highlight_elem_id('nav_' + tab);
+                      return;
+                    }
+                }
+
+                highlight_elem_id('nav_home');
+              }
+
+              configure_nav_bar(window.location.href);
+            </script>
+        </ul>
+
+        <div class="col-sm-3 my-1">
+            <script>
+              function send_feedback_txt() {
+                txtbox = document.getElementById("feedback_txt");
+                var feedback_txt = txtbox.value;
+                if (feedback_txt) {
+                    let data = {note: feedback_txt};
+                    console.log("Submitting feedback:", data);
+                    fetch("/feedback_note", {
+                      method: "POST",
+                      headers: {'Content-Type': 'application/json'},
+                      body: JSON.stringify(data)
+                    }).then(res => {
+                      console.log("Feedback request complete, response:", res);
+                      if (res.status == 200) {
+                        txtbox.value = "";
+                        txtbox.placeholder = "note sent";
+                      }
+                    });
+                }
+              }
+            </script>
+            {% if not is_oss %}
+              <div class="input-group">
+                <input type="text" class="form-control form-control-sm" id="feedback_txt" name="feedback_txt" placeholder="send feedback / question" title="Your message will be sent to the Codex team">
+                <div class="input-group-append" >
+                  <div class="input-group-text" style="background-color: #1aa260;" onclick="send_feedback_txt();">
+                      <i style="color: white;" class="fa-regular fa-paper-plane"></i>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+{% block content %} {% endblock content %}
+
+{% endblock base_barebones_content %}

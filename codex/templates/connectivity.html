@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %} Network Graphs {% endblock title %}
+{% block content %}
+<nav class="navbar navbar-light bg-light">
+    <form class="form-inline">
+        <input class="form-control mr-sm-2" style="width: 40vw;" autocomplete="off" autofocus type="search"
+               id="cell_names_or_ids" name="cell_names_or_ids" placeholder="Cell names or IDs"
+               aria-label="Cell Names or IDs" value="{{cell_names_or_ids}}">
+        <input type="hidden" id="download_type" name="download" value=""/>
+        <button class="btn btn btn-primary my-2 my-sm-0" type="submit" onclick="loading(event);">
+            <i class="fa-solid fa-magnifying-glass-chart"></i></i></button>
+        {% if network_html %}
+            <script type="text/javascript">
+                function download_data(val) {
+                    elem = document.getElementById("download_type");
+                    elem.value = val;
+                    elem.form.submit();
+                }
+            </script>
+            {% include "network_settings.html" %}
+
+            <a class="btn btn btn-outline-primary my-2 my-sm-0" style="margin: 5px;"
+               onclick="download_data('csv');"><i class="fa-solid fa-download"></i> CSV</a>
+            <a class="btn btn btn-outline-primary my-2 my-sm-0"
+                onclick="download_data('json');"><i class="fa-solid fa-download"></i> JSON</a>
+
+            <div style="margin-left: 5px;" class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-repeat"></i>
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <button class="dropdown-item" type="button" onclick="document.getElementById('network-frame').contentWindow.drawGraph('barnesHut');">Barnes-Hut</button>
+                <button class="dropdown-item" type="button" onclick="document.getElementById('network-frame').contentWindow.drawGraph('repulsion');">Repulsion</button>
+                <button class="dropdown-item" type="button" onclick="document.getElementById('network-frame').contentWindow.drawGraph('forceAtlas2Based');">Force Atlas 2</button>
+              </div>
+            </div>
+
+        {% endif %}
+    </form>
+</nav>
+{% if num_matches %}
+<div style="margin-left: 18px; color: black; font-size: 12px;">{{display(num_matches)}} cells match search query</div>
+{% endif %}
+
+{% if message %}
+<div class="card" style="margin: 15px;">
+    <div class="card-header" style="color: purple;">
+        Note
+    </div>
+    <div class="card-body">
+        {{message|safe}}
+    </div>
+</div>
+{% endif %}
+
+{% if network_html %}
+<iframe id="network-frame" style="position: absolute; width: 100%; height: 80%; border: none" srcdoc="{{network_html}}"></iframe>
+{% else %}
+<div class="card" style="margin: 15px;">
+    <div class="card-header" style="color: purple;">
+        How it works
+    </div>
+    <div class="card-body">
+        {{info_text|safe}}
+        <br><br>
+        <button class="btn btn btn-outline-success" type="button"
+                onclick="loading(event); document.getElementById('cell_names_or_ids').value = '__sample_cells__'; document.getElementById('cell_names_or_ids').form.submit();">
+            Try with sample cells
+        </button>
+    </div>
+</div>
+{% endif %}
+
+{% endblock content %}
