@@ -115,7 +115,6 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         connectivity_cluster_rows=connectivity_cluster_rows,
         svd_rows=svd_rows,
         lr_matching_rows=lr_matching_rows,
-        olr_prediction_rows=[],
     )
     # free mem
     del neuron_rows

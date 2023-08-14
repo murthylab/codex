@@ -53,7 +53,6 @@ class NeuronDB(object):
         grouped_connection_counts,
         grouped_reciprocal_connection_counts,
         svd_rows,
-        olr_prediction_rows,
     ):
         self.neuron_data = neuron_attributes
         self.connections_ = Connections(neuron_connection_rows)
