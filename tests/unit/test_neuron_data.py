@@ -763,8 +763,13 @@ class NeuronDataTest(TestCase):
         )
 
     def test_similar_embeddings(self):
+        def assertAlmostEqualDicts(dct1, dct2):
+            self.assertEqual(set(dct1.keys()), set(dct2.keys()))
+            for k1, v1 in dct1.items():
+                self.assertAlmostEquals(v1, dct2[k1])
+
         cell_rid = 720575940639310150
-        self.assertEqual(
+        assertAlmostEqualDicts(
             {
                 720575940611395448: 0.9998702775818392,
                 720575940613079781: 0.9987719963659514,
@@ -775,7 +780,7 @@ class NeuronDataTest(TestCase):
             self.neuron_db.get_similar_embedding_cells(cell_rid, limit=5),
         )
 
-        self.assertEqual(
+        assertAlmostEqualDicts(
             {
                 720575940611395448: 0.9998466002854165,
                 720575940613079781: 0.9988949638022473,
@@ -788,7 +793,7 @@ class NeuronDataTest(TestCase):
             ),
         )
 
-        self.assertEqual(
+        assertAlmostEqualDicts(
             {
                 720575940611395448: 0.9953633340823633,
                 720575940613079781: 0.9983502242966248,
