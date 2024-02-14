@@ -766,7 +766,7 @@ class NeuronDataTest(TestCase):
         def assertAlmostEqualDicts(dct1, dct2):
             self.assertEqual(set(dct1.keys()), set(dct2.keys()))
             for k1, v1 in dct1.items():
-                self.assertAlmostEquals(v1, dct2[k1])
+                self.assertAlmostEqual(v1, dct2[k1])
 
         cell_rid = 720575940639310150
         assertAlmostEqualDicts(
