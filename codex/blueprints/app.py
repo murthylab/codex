@@ -75,7 +75,13 @@ def stats():
     whole_word = request.args.get("whole_word", 0, type=int)
 
     logger.info(f"Generating stats {activity_suffix(filter_string, data_version)}")
-    (filtered_root_id_list, num_items, hint, data_stats, data_charts,) = stats_cached(
+    (
+        filtered_root_id_list,
+        num_items,
+        hint,
+        data_stats,
+        data_charts,
+    ) = stats_cached(
         filter_string=filter_string,
         data_version=data_version,
         case_sensitive=case_sensitive,
