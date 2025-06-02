@@ -10,7 +10,8 @@ from codex.data.catalog import (
     get_nblast_file_columns,
     get_classification_file_columns,
     get_cell_stats_file_columns,
-    get_connectivity_tags_file_columns, get_cell_types_file_columns,
+    get_connectivity_tags_file_columns,
+    get_cell_types_file_columns,
 )
 from codex.data.neuron_data import NeuronDB
 from codex.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
@@ -162,13 +163,13 @@ def initialize_neuron_data(
     logger.debug(
         f"App initialization processing cell types data with {len(cell_type_rows)} rows.."
     )
-    assert (
-            cell_type_rows[0] == get_cell_types_file_columns()
-    ), cell_type_rows[0]
+    assert cell_type_rows[0] == get_cell_types_file_columns(), cell_type_rows[0]
     cell_types_column_index = {c: i for i, c in enumerate(cell_type_rows[0])}
     for i, r in enumerate(cell_type_rows[1:]):
         root_id = int(r[cell_types_column_index["root_id"]])
-        assert root_id in neuron_attributes, f"Invalid root ID in cell types file: {root_id}"
+        assert (
+            root_id in neuron_attributes
+        ), f"Invalid root ID in cell types file: {root_id}"
         primary_type = r[cell_types_column_index["primary_type"]]
         if primary_type:
             neuron_attributes[root_id]["cell_type"].append(primary_type)

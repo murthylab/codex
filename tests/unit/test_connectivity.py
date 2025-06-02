@@ -51,5 +51,5 @@ class ConnectivityTest(TestCase):
                     hide_weights=False,
                     log_request=False,
                 )
-                self.assertEqual(138, mocked_url_for.call_count)
+                self.assertEqual(136, mocked_url_for.call_count)
                 self.assertTrue("render_template" in str(network_html))

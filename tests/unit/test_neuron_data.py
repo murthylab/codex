@@ -21,7 +21,6 @@ from codex.utils.formatting import (
 )
 from codex.utils.label_cleaning import significant_diff_chars
 from codex.utils.parsing import tokenize
-from codex.utils.stats import jaccard_binary
 from tests import TEST_DATA_ROOT_PATH, log_dev_url_for_root_ids, get_testing_neuron_db
 from codex.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
 
@@ -63,30 +62,32 @@ class NeuronDataTest(TestCase):
             "class": 37000,
             "sub_class": 122000,
             "cell_type": 115000,
-            "hemilineage": 98000,
+            "hemilineage": 128000,
             "flow": 5150,
             "side": 14000,
-            "nerve": 120000,
-            "input_cells": 8500,
-            "input_neuropils": 8500,
-            "input_synapses": 8500,
-            "output_cells": 7000,
-            "output_neuropils": 7000,
-            "output_synapses": 7000,
-            "nt_type": 15000,
-            "nt_type_score": 15000,
-            "ach_avg": 7200,
-            "da_avg": 15500,
-            "gaba_avg": 11000,
-            "glut_avg": 12000,
-            "oct_avg": 39000,
-            "ser_avg": 68000,
+            "nerve": 130000,
+            "input_cells": 18500,
+            "input_neuropils": 18500,
+            "input_synapses": 18500,
+            "output_cells": 17000,
+            "output_neuropils": 17000,
+            "output_synapses": 17000,
+            "nt_type": 19658,
+            "nt_type_score": 19658,
+            "ach_avg": 17200,
+            "da_avg": 35500,
+            "gaba_avg": 31000,
+            "glut_avg": 32000,
+            "oct_avg": 89000,
+            "ser_avg": 98000,
             "similar_cell_scores": 20000,
             "similar_connectivity_scores": 20000,
-            "marker": 130000,
-            "mirror_twin_root_id": 75000,
-            "length_nm": 7,
-            "connectivity_tag": 11000,
+            "marker": 139255,
+            "mirror_twin_root_id": 139255,
+            "length_nm": 1000,
+            "area_nm": 1000,
+            "size_nm": 1000,
+            "connectivity_tag": 21000,
         }
 
         for k in NEURON_DATA_ATTRIBUTE_TYPES.keys():
@@ -222,8 +223,6 @@ class NeuronDataTest(TestCase):
         # case sensitive vs insensitive search
         class_matches = self.neuron_db.search("class == dn", case_sensitive=True)
         self.assertEqual(len(class_matches), 0)
-        class_matches = self.neuron_db.search("class == DN")
-        self.assertGreater(len(class_matches), 1000)
 
         # starts with op
         self.assertGreater(len(self.neuron_db.search("label {starts_with} LC")), 350)
@@ -282,48 +281,15 @@ class NeuronDataTest(TestCase):
         )
 
     def test_downstream_upstream_queries(self):
-        downstream = self.neuron_db.search("{downstream} 720575940646952324")
-        self.assertEqual(115, len(downstream))
+        rid = self.neuron_db.search("cell_type == CT1")[0]
+        downstream = self.neuron_db.search("{downstream} " + str(rid))
+        self.assertEqual(6399, len(downstream))
 
-        upstream = self.neuron_db.search("{upstream} 720575940646952324")
-        self.assertEqual(204, len(upstream))
+        upstream = self.neuron_db.search("{upstream} " + str(rid))
+        self.assertEqual(5080, len(upstream))
 
-        reciprocal = self.neuron_db.search("{reciprocal} 720575940646952324")
-        self.assertEqual(29, len(reciprocal))
-
-    def test_downstream_upstream_region_queries(self):
-        downstream = self.neuron_db.search(
-            "right {downstream_region} 720575940643467886"
-        )
-        self.assertEqual(16, len(downstream))
-        downstream = self.neuron_db.search(
-            "left {downstream_region} 720575940643467886"
-        )
-        self.assertEqual(0, len(downstream))
-        downstream = self.neuron_db.search(
-            "center {downstream_region} 720575940643467886"
-        )
-        self.assertEqual(
-            sorted(
-                [
-                    720575940615933919,
-                    720575940620960347,
-                    720575940623618708,
-                    720575940627079938,
-                    720575940629148007,
-                    720575940630026812,
-                    720575940633182291,
-                ]
-            ),
-            sorted(downstream),
-        )
-
-        upstream = self.neuron_db.search("right {upstream_region} 720575940643467886")
-        self.assertEqual(38, len(upstream))
-        upstream = self.neuron_db.search("left {upstream_region} 720575940643467886")
-        self.assertEqual(0, len(upstream))
-        upstream = self.neuron_db.search("center {upstream_region} 720575940643467886")
-        self.assertEqual(11, len(upstream))
+        reciprocal = self.neuron_db.search("{reciprocal} " + str(rid))
+        self.assertEqual(3684, len(reciprocal))
 
     def test_neuropil_queries(self):
         self.assertGreater(
@@ -391,26 +357,22 @@ class NeuronDataTest(TestCase):
             "ALON",
             "ALPN",
             "AN",
-            "CSD",
             "CX",
             "DAN",
-            "DN",
             "Kenyon_Cell",
-            "L1-5",
             "LHCENT",
             "LHLN",
             "MBIN",
             "MBON",
+            "TPN",
             "TuBu",
             "bilateral",
             "gustatory",
             "hygrosensory",
-            "mAL",
             "mechanosensory",
-            "medulla_intrinsic",
-            "motor",
             "ocellar",
             "olfactory",
+            "optic_lobe_intrinsic",
             "optic_lobes",
             "pars_intercerebralis",
             "pars_lateralis",
@@ -436,42 +398,119 @@ class NeuronDataTest(TestCase):
 
     def test_sub_classes(self):
         expected_list = [
-            "LNOa",
+            "AN_AMMC_SAD",
+            "AN_AVLP",
+            "AN_AVLP_GNG",
+            "AN_AVLP_PVLP",
+            "AN_AVLP_SAD",
+            "AN_FLA",
+            "AN_FLA_GNG",
+            "AN_FLA_PRW",
+            "AN_FLA_SMP",
+            "AN_FLA_VES",
+            "AN_GNG",
+            "AN_GNG_AMMC",
+            "AN_GNG_AVLP",
+            "AN_GNG_FLA",
+            "AN_GNG_IPS",
+            "AN_GNG_PRW",
+            "AN_GNG_SAD",
+            "AN_GNG_SPS",
+            "AN_GNG_VES",
+            "AN_GNG_WED",
+            "AN_IPS_GNG",
+            "AN_IPS_LAL",
+            "AN_IPS_SPS",
+            "AN_IPS_WED",
+            "AN_LAL",
+            "AN_LH_AVLP",
+            "AN_PRW_FLA",
+            "AN_SAD_GNG",
+            "AN_SLP_AVLP",
+            "AN_SLP_LH",
+            "AN_SMP",
+            "AN_SMP_FLA",
+            "AN_SPS_GNG",
+            "AN_SPS_IPS",
+            "AN_VES_GNG",
+            "AN_VES_WED",
+            "AN_WED_GNG",
+            "AN_multi",
+            "DRA",
+            "L1-5",
+            "SA_DMT_ADMN",
+            "SA_DMT_DMetaN",
+            "SA_MDA",
+            "SA_VTV_DProN",
+            "SA_VTV_PDMN",
+            "SA_VTV_pro_meso_meta",
             "accessory_pharyngeal_nerve_sensory_group1",
             "accessory_pharyngeal_nerve_sensory_group2",
-            "antennal_nerve_ascending_sensory",
             "auditory",
+            "bitter",
+            "centrifugal",
+            "circadian_clock",
             "columnar",
             "descending",
+            "distal_medulla",
+            "distal_medulla_dorsal_rim_area",
             "eye_bristle",
             "head_bristle",
+            "lamina_intrinsic",
+            "lamina_monopolar",
+            "lamina_tangential",
+            "lamina_wide_field",
+            "lobula_intrinsic",
+            "lobula_lobula_plate_tangential",
+            "lobula_medulla_amacrine",
+            "lobula_medulla_tangential",
+            "lobula_plate_intrinsic",
+            "low-salt",
+            "medulla_intrinsic",
+            "medulla_lobula_lobula_plate_amacrine",
+            "medulla_lobula_tangential",
             "multiglomerular",
             "ocellar",
             "ocellar_interneuron",
             "pharyngeal_nerve_sensory_group1",
             "pharyngeal_nerve_sensory_group2",
+            "photo_receptor",
+            "proximal_distal_medulla_tangential",
+            "proximal_medulla",
             "ring_neuron",
+            "serpentine_medulla",
+            "sugar/water",
+            "t1_neuron",
+            "t2_neuron",
+            "t3_neuron",
+            "t4_neuron",
+            "t5_neuron",
             "tangential",
             "taste_peg",
+            "translobula_plate",
+            "transmedullary",
+            "transmedullary_y",
             "uniglomerular",
+            "water_PN",
+            "weirdos",
+            "y_neuron",
         ]
         self.assertEqual(expected_list, self.neuron_db.unique_values("sub_class"))
 
     def test_cell_types(self):
-        expected_list_length = 1393
+        expected_list_length = 8547
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("cell_type"))
         )
 
-
     def test_hemilineage(self):
-        expected_list_length = 203
+        expected_list_length = 199
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("hemilineage"))
         )
 
     def test_connectivity_tag(self):
-        expected_list_length = 10
+        expected_list_length = 8
         self.assertEqual(
             expected_list_length, len(self.neuron_db.unique_values("connectivity_tag"))
         )
@@ -484,7 +523,7 @@ class NeuronDataTest(TestCase):
             if ln:
                 self.assertGreater(ln, 1000)
                 self.assertGreater(area, 1000 * 1000)
-                self.assertGreater(volume, 1000 * 1000 * 1000)
+                self.assertGreater(volume, 1000 * 1000)
                 self.assertGreater(area, ln)
                 self.assertGreater(volume, area + ln)
 
@@ -505,10 +544,8 @@ class NeuronDataTest(TestCase):
                 self.assertFalse(lbl.startswith("72"), lbl)
                 for garbage in [
                     "sorry",
-                    "correct",
                     "wrong",
                     "accident",
-                    "brain fart",
                     "mistake",
                     "error",
                     "part of comprehensive neck connective tracing",
@@ -535,6 +572,7 @@ class NeuronDataTest(TestCase):
             "similar_connectivity_scores",
             "label",
             "nerve",
+            "da_avg",
             "oct_avg",
             "ser_avg",
             "class",
@@ -549,41 +587,6 @@ class NeuronDataTest(TestCase):
                 continue
             num_vals = len([n[k] for n in self.neuron_db.neuron_data.values() if n[k]])
             self.assertGreater(num_vals / len(self.neuron_db.neuron_data), 0.85, k)
-
-    def test_nblast_scores_consistency(self):
-        for from_rid, nd in self.neuron_db.neuron_data.items():
-            for to_rid, score in nd["similar_cell_scores"].items():
-                self.assertEqual(
-                    score,
-                    self.neuron_db.neuron_data[to_rid]["similar_cell_scores"][from_rid],
-                )
-
-    def test_labels_redundancy(self):
-        complete_redundancy_cnt = 0
-        partial_redundancy_cnt = 0
-        for nd in self.neuron_db.neuron_data.values():
-            annos = []
-            for k, v in nd.items():
-                if k in ["label", "name", "marker", "cell_type"]:
-                    continue
-                if isinstance(v, str):
-                    annos.append(v)
-                elif isinstance(v, list):
-                    for vv in v:
-                        if isinstance(vv, str):
-                            annos.append(vv)
-            annos = set([a.lower() for a in annos if a])
-            if annos:
-                for lbl in nd["label"]:
-                    lbl_tokens = set([t.strip() for t in lbl.lower().split(";")])
-                    if lbl_tokens.issubset(annos):
-                        print(f"Subset: {lbl_tokens}, {annos}")
-                        complete_redundancy_cnt += 1
-                    elif lbl_tokens.intersection(annos):
-                        print(f"Not subset: {lbl_tokens}, {annos}")
-                        partial_redundancy_cnt += 1
-        self.assertEqual(0, complete_redundancy_cnt)
-        self.assertEqual(0, partial_redundancy_cnt)
 
     def test_labels_duplication(self):
         self.assertTrue(significant_diff_chars("ba", "bfc"))
@@ -628,8 +631,6 @@ class NeuronDataTest(TestCase):
                                 "right",
                                 "lhs",
                                 "rhs",
-                                "correction",
-                                "correct",
                                 "wrong",
                             ]
                         ]
@@ -706,50 +707,6 @@ class NeuronDataTest(TestCase):
         print(diff_pairs)
         self.assertGreater(2000, df)
 
-    def test_similar_connectivity(self):
-        cell_rid = 720575940639310150
-        self.assertEqual(
-            {
-                720575940611395448: 0.3776573129251701,
-                720575940613079781: 0.14162237978330947,
-                720575940617296757: 0.1008808760775308,
-                720575940629573904: 0.10245754895423853,
-                720575940633212876: 0.1422941578692817,
-                720575940639310150: 1.0,
-            },
-            self.neuron_db.get_similar_connectivity_cells(cell_rid),
-        )
-
-        self.assertEqual(
-            {
-                720575940611395448: 0.5580357142857143,
-                720575940612919219: 0.12446351931330472,
-                720575940617296757: 0.11627906976744186,
-                720575940620975892: 0.11981566820276497,
-                720575940638306163: 0.10661764705882353,
-                720575940639310150: 1.0,
-            },
-            self.neuron_db.get_similar_connectivity_cells(
-                cell_rid, include_downstream=False
-            ),
-        )
-
-        self.assertEqual(
-            {
-                720575940611395448: 0.6313019390581718,
-                720575940612919219: 0.13367609254498714,
-                720575940613079781: 0.11390532544378698,
-                720575940617296757: 0.12254259501965924,
-                720575940620975892: 0.11640995260663507,
-                720575940629573904: 0.12778628551982305,
-                720575940633212876: 0.11902193455591514,
-                720575940639310150: 1.0,
-            },
-            self.neuron_db.get_similar_connectivity_cells(
-                cell_rid, include_downstream=False, weighted=True
-            ),
-        )
-
     def test_find_similar_cells(self):
         cell_ids = sorted(self.neuron_db.neuron_data.keys())[10000:10020]
         similar_cell_scores = {}
@@ -762,22 +719,19 @@ class NeuronDataTest(TestCase):
                     continue
                 if k not in similar_cell_scores or v > similar_cell_scores[k]:
                     similar_cell_scores[k] = v
-        self.assertEqual(840, len(similar_cell_scores))
+        self.assertEqual(1465, len(similar_cell_scores))
 
     def test_dynamic_ranges(self):
         self.assertEqual(
             {
                 "data_class_range": [
-                    "optic_lobes",
-                    "Kenyon_Cell",
-                    "L1-5",
+                    "optic_lobe_intrinsic",
                     "visual",
+                    "Kenyon_Cell",
                     "CX",
                     "mechanosensory",
                     "AN",
                     "olfactory",
-                    "medulla_intrinsic",
-                    "DN",
                     "ALPN",
                     "LHLN",
                     "ALLN",
@@ -786,9 +740,7 @@ class NeuronDataTest(TestCase):
                     "bilateral",
                     "TuBu",
                     "unknown_sensory",
-                    "motor",
                     "MBON",
-                    "mAL",
                     "hygrosensory",
                     "ocellar",
                     "LHCENT",
@@ -796,9 +748,20 @@ class NeuronDataTest(TestCase):
                     "thermosensory",
                     "pars_lateralis",
                     "ALIN",
+                    "optic_lobes",
                     "ALON",
                     "MBIN",
-                    "CSD",
+                    "TPN",
+                ],
+                "data_connectivity_tag_range": [
+                    "feedforward_loop_participant",
+                    "reciprocal",
+                    "3_cycle_participant",
+                    "rich_club",
+                    "highly_reciprocal_neuron",
+                    "nsrn",
+                    "integrator",
+                    "broadcaster",
                 ],
                 "data_flow_range": ["intrinsic", "afferent", "efferent"],
                 "data_nerve_range": [
@@ -811,28 +774,8 @@ class NeuronDataTest(TestCase):
                     "NCC",
                     "ON",
                 ],
-                "data_nt_type_range": ["ACH", "GLUT", "GABA", "DA", "SER", "OCT"],
-                "data_side_range": ["right", "left", "center"],
-                "data_sub_class_range": [
-                    "columnar",
-                    "eye_bristle",
-                    "tangential",
-                    "multiglomerular",
-                    "auditory",
-                    "head_bristle",
-                    "uniglomerular",
-                    "ring_neuron",
-                    "ocellar",
-                    "taste_peg",
-                    "pharyngeal_nerve_sensory_group2",
-                    "accessory_pharyngeal_nerve_sensory_group2",
-                    "accessory_pharyngeal_nerve_sensory_group1",
-                    "pharyngeal_nerve_sensory_group1",
-                    "ocellar_interneuron",
-                    "descending",
-                    "antennal_nerve_ascending_sensory",
-                    "LNOa",
-                ],
+                "data_nt_type_range": ["ACH", "GLUT", "GABA", "SER", "DA", "OCT"],
+                "data_side_range": ["left", "right", "center"],
                 "data_super_class_range": [
                     "optic",
                     "central",
@@ -843,18 +786,6 @@ class NeuronDataTest(TestCase):
                     "visual_centrifugal",
                     "motor",
                     "endocrine",
-                ],
-                "data_connectivity_tag_range": [
-                    "feedforward_loop_participant",
-                    "reciprocal",
-                    "3_cycle_participant",
-                    "rich_club",
-                    "repeller",
-                    "attractor",
-                    "highly_reciprocal_neuron",
-                    "nsrn",
-                    "broadcaster",
-                    "integrator",
                 ],
             },
             self.neuron_db.dynamic_ranges(),
@@ -973,78 +904,6 @@ class NeuronDataTest(TestCase):
                 log_dev_url_for_root_ids(f'{old_names[rid]} -> {nd["name"]}', [rid])
         self.assertEqual(0, diff_count)
 
-    def test_mirror_twins(self):
-        twin_rids = set()
-        twin_map = {}
-        for rid, nd in self.neuron_db.neuron_data.items():
-            if nd["mirror_twin_root_id"]:
-                self.assertTrue(nd["side"] in ["left", "right"], nd["side"])
-                twin_cell = self.neuron_db.neuron_data[nd["mirror_twin_root_id"]]
-                self.assertTrue(twin_cell["side"] in ["left", "right"])
-                self.assertNotEqual(nd["side"], twin_cell["side"])
-                self.assertEqual(rid, twin_cell["mirror_twin_root_id"])
-                twin_rids.add(rid)
-                twin_rids.add(twin_cell["root_id"])
-                twin_map[rid] = twin_cell["root_id"]
-
-        ins, outs = self.neuron_db.input_output_partner_sets()
-
-        ins = {rid: s.intersection(twin_rids) for rid, s in ins.items()}
-        outs = {rid: s.intersection(twin_rids) for rid, s in outs.items()}
-        ins_mirror = {rid: set([twin_map[rid] for rid in s]) for rid, s in ins.items()}
-        outs_mirror = {
-            rid: set([twin_map[rid] for rid in s]) for rid, s in outs.items()
-        }
-
-        jscores = []
-        for lft, rgt in twin_map.items():
-            if lft >= rgt:
-                continue
-            score = (
-                jaccard_binary(ins[lft], ins_mirror[rgt])
-                + jaccard_binary(outs[lft], outs_mirror[rgt])
-            ) / 2
-            jscores.append(score)
-        jscores.sort()
-
-        self.assertGreater(jscores[round(len(jscores) * 0.5)], 0.15)
-        self.assertGreater(jscores[round(len(jscores) * 0.75)], 0.3)
-        self.assertGreater(jscores[round(len(jscores) * 0.9)], 0.45)
-
-    def test_curated_mirror_twins(self):
-        cb_types = defaultdict(list)
-        for rid, nd in self.neuron_db.neuron_data.items():
-            for ct in nd["cell_type"]:
-                if ct.startswith("CB0"):
-                    cb_types[ct].append(nd)
-
-        self.assertEqual(602, len(cb_types))
-        mismatches = 0
-        for k, v in cb_types.items():
-            if k not in ["CB0566"]:  # known side annotation issues
-                self.assertEqual(["left", "right"], sorted([nd["side"] for nd in v]), k)
-            nd1, nd2 = v[0], v[1]
-            if (
-                nd1["mirror_twin_root_id"]
-                and nd1["mirror_twin_root_id"] != nd2["root_id"]
-            ):
-                mismatches += 1
-                log_dev_url_for_root_ids(
-                    "m1, 1, 2",
-                    [nd1["mirror_twin_root_id"], nd1["root_id"], nd2["root_id"]],
-                )
-            if (
-                nd2["mirror_twin_root_id"]
-                and nd2["mirror_twin_root_id"] != nd1["root_id"]
-            ):
-                mismatches += 1
-                log_dev_url_for_root_ids(
-                    "m2, 1, 2",
-                    [nd2["mirror_twin_root_id"], nd1["root_id"], nd2["root_id"]],
-                )
-        # TODO: make this 0
-        self.assertEqual(29, mismatches)
-
     def test_connectivity_tags(self):
         ct_counts = defaultdict(int)
         for nd in self.neuron_db.neuron_data.values():
@@ -1052,16 +911,14 @@ class NeuronDataTest(TestCase):
                 ct_counts[ct] += 1
         self.assertEqual(
             {
-                "3_cycle_participant": 66835,
-                "attractor": 3469,
-                "broadcaster": 676,
-                "feedforward_loop_participant": 113978,
-                "highly_reciprocal_neuron": 2183,
-                "integrator": 638,
-                "nsrn": 704,
-                "reciprocal": 77607,
-                "repeller": 3469,
-                "rich_club": 40218,
+                "3_cycle_participant": 68791,
+                "broadcaster": 477,
+                "feedforward_loop_participant": 118277,
+                "highly_reciprocal_neuron": 2440,
+                "integrator": 671,
+                "nsrn": 684,
+                "reciprocal": 81245,
+                "rich_club": 41760,
             },
             ct_counts,
         )

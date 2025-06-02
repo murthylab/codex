@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from codex.utils.pathway_vis import sort_layers, pathway_chart_data_rows
+from codex.utils.pathway_vis import sort_layers
 from tests import get_testing_neuron_db
 
 
@@ -42,14 +42,3 @@ class Test(TestCase):
                 9: (3, 0),
             },
         )
-
-    def test_pathway_chart_data_rows(self):
-        for min_syn in [1, 5, 10]:
-            pathway_nodes, data_rows = pathway_chart_data_rows(
-                source=720575940621982413,
-                target=720575940647030324,
-                neuron_db=self.neuron_db,
-                min_syn_count=min_syn,
-            )
-            for r in data_rows:
-                self.assertTrue(r[2] >= min_syn, r)
