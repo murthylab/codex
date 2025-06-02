@@ -31,7 +31,6 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "sub_class",
     "cell_type",
     "flow",
-    "hemibrain_type",
     "hemilineage",
     "nerve",
     "side",
@@ -202,7 +201,7 @@ class NeuronDB(object):
             [
                 nd
                 for nd in self.neuron_data.values()
-                if any([nd[attr] for attr in ["label", "cell_type", "hemibrain_type"]])
+                if any([nd[attr] for attr in ["label", "cell_type"]])
             ]
         )
 
@@ -228,7 +227,6 @@ class NeuronDB(object):
             "Class": "class",
             "Sub Class": "sub_class",
             "Cell Type": "cell_type",
-            "Hemibrain Type": "hemibrain_type",
             "Hemilineage": "hemilineage",
             "Nerve": "nerve",
             "Cell Body Side": "side",
@@ -437,7 +435,7 @@ class NeuronDB(object):
 
     def get_all_cell_types(self, root_id):
         nd = self.get_neuron_data(root_id)
-        return nd["cell_type"] + nd["hemibrain_type"]
+        return nd["cell_type"]
 
     def get_label_data(self, root_id):
         root_id = int(root_id)

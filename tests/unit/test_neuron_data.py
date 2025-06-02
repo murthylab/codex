@@ -63,7 +63,6 @@ class NeuronDataTest(TestCase):
             "class": 37000,
             "sub_class": 122000,
             "cell_type": 115000,
-            "hemibrain_type": 105000,
             "hemilineage": 98000,
             "flow": 5150,
             "side": 14000,
@@ -464,11 +463,6 @@ class NeuronDataTest(TestCase):
             expected_list_length, len(self.neuron_db.unique_values("cell_type"))
         )
 
-    def test_hemibrain_types(self):
-        expected_list_length = 3229
-        self.assertEqual(
-            expected_list_length, len(self.neuron_db.unique_values("hemibrain_type"))
-        )
 
     def test_hemilineage(self):
         expected_list_length = 203
@@ -546,7 +540,6 @@ class NeuronDataTest(TestCase):
             "class",
             "sub_class",
             "cell_type",
-            "hemibrain_type",
             "hemilineage",
             "connectivity_tag",
             "marker",
@@ -571,7 +564,7 @@ class NeuronDataTest(TestCase):
         for nd in self.neuron_db.neuron_data.values():
             annos = []
             for k, v in nd.items():
-                if k in ["label", "name", "marker", "cell_type", "hemibrain_type"]:
+                if k in ["label", "name", "marker", "cell_type"]:
                     continue
                 if isinstance(v, str):
                     annos.append(v)

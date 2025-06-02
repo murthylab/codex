@@ -207,7 +207,6 @@ def render_neuron_list(
             "class",
             "sub_class",
             "cell_type",
-            "hemibrain_type",
             "hemilineage",
             "nt_type",
             "nerve",
@@ -257,11 +256,6 @@ def render_neuron_list(
         ),
         non_uniform_cell_types=neuron_db.non_uniform_values(
             list_attr_key="cell_type",
-            page_ids=page_ids,
-            all_ids=sorted_search_result_root_ids,
-        ),
-        non_uniform_hemibrain_types=neuron_db.non_uniform_values(
-            list_attr_key="hemibrain_type",
             page_ids=page_ids,
             all_ids=sorted_search_result_root_ids,
         ),
@@ -377,7 +371,6 @@ def download_search_results():
         "class",
         "sub_class",
         "cell_type",
-        "hemibrain_type",
         "hemilineage",
         "nerve",
         "connectivity_tag",

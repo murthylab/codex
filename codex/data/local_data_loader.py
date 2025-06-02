@@ -3,7 +3,7 @@ import gc
 import gzip
 import os
 import pickle
-from datetime import datetime
+from datetime import datetime, UTC
 
 from codex.data.neuron_data_initializer import (
     initialize_neuron_data,
@@ -17,6 +17,7 @@ from codex import logger
 DATA_ROOT_PATH = "static/data"
 NEURON_FILE_NAME = "neurons.csv.gz"
 CLASSIFICATION_FILE_NAME = "classification.csv.gz"
+CONSOLIDATED_CELL_TYPES_FILE_NAME = "consolidated_cell_types.csv.gz"
 CELL_STATS_ROWS = "cell_stats.csv.gz"
 CONNECTIONS_FILE_NAME = "connections.csv.gz"
 LABELS_FILE_NAME = "labels.csv.gz"
@@ -63,8 +64,8 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         if os.path.exists(fname):
             rows = read_csv(fname)
             if with_timestamp:
-                return rows, datetime.utcfromtimestamp(
-                    os.path.getmtime(fname)
+                return rows, datetime.fromtimestamp(
+                    os.path.getmtime(fname), UTC
                 ).strftime("%Y-%m-%d")
             else:
                 return rows
@@ -76,6 +77,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
 
     neuron_rows = _read_data(NEURON_FILE_NAME)
     classification_rows = _read_data(CLASSIFICATION_FILE_NAME)
+    cell_type_rows = _read_data(CONSOLIDATED_CELL_TYPES_FILE_NAME)
     cell_stats_rows = _read_data(CELL_STATS_ROWS)
     connection_rows = _read_data(CONNECTIONS_FILE_NAME)
     label_rows, labels_file_timestamp = _read_data(
@@ -96,6 +98,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     neuron_db = initialize_neuron_data(
         neuron_file_rows=neuron_rows,
         classification_rows=classification_rows,
+        cell_type_rows=cell_type_rows,
         cell_stats_rows=cell_stats_rows,
         connection_rows=connection_rows,
         label_rows=label_rows,
@@ -109,6 +112,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     del connection_rows
     del label_rows
     del coordinate_rows
+    del cell_type_rows
     return neuron_db
 
 

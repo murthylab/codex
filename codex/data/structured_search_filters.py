@@ -185,10 +185,6 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         alternative_names=["type"],
     ),
     SearchAttribute(
-        description="Cell typing attribute from Janelia hemibrain dataset",
-        name="hemibrain_type",
-    ),
-    SearchAttribute(
         description="Lineage from Janelia hemibrain dataset",
         name="hemilineage",
     ),

@@ -17,24 +17,23 @@ We recommend using an environment manager such as [Poetry](https://python-poetry
 
 ```sh
 poetry install
-poetry shell
 ```
 
 ### Download and initialize the FlyWire connectome data (initially or upon version updates)
 ```bash
-./scripts/make_data.sh
+poetry run ./scripts/make_data.sh
 ```
 
 ## Run service locally
 
 ```bash
-./scripts/run_local.sh
+poetry run ./scripts/run_local.sh
 ```
 
 To run in [Flask debug mode](https://flask.palletsprojects.com/en/2.2.x/debugging/#the-built-in-debugger)
 
 ```sh
-./scripts/run_local_dev.sh
+poetry run ./scripts/run_local_dev.sh
 ```
 
 Navigate to [localhost:5000](http://localhost:5000)
@@ -48,11 +47,11 @@ Run service locally and click around in all pages
 ### Unit tests & code coverage (Required)
 
 ```sh
-./scripts/run_unit_tests.sh
+poetry run ./scripts/run_unit_tests.sh
 ```
 
 ## Linting / code formatting
 
 ```sh
-./scripts/lint.sh
+poetry run ./scripts/lint.sh
 ```

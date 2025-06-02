@@ -110,7 +110,6 @@ def _make_data_charts(data_list):
                 "sub_class",
                 "cell_type",
                 "nerve",
-                "hemibrain_type",
                 "hemilineage",
                 "connectivity_tag",
             ]

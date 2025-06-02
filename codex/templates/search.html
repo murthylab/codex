@@ -183,10 +183,6 @@
                 {% with caption="Cell Type", tooltip="Cell types are derived from a mapping to the Janelia hemibrain dataset",
                     attr_key="cell_type", attr_val=neuron.cell_type, non_uniform_values=non_uniform_cell_types, highlighted_terms=highlighted_terms
                 %} {% include "attribute_with_multiple_values.html" %} {% endwith %}
-
-                {% with caption="Hemibrain Type", tooltip="Matching type(s) in Janelia hemibrain dataset",
-                    attr_key="hemibrain_type", attr_val=neuron.hemibrain_type, non_uniform_values=non_uniform_hemibrain_types, highlighted_terms=highlighted_terms
-                %} {% include "attribute_with_multiple_values.html" %} {% endwith %}
             </td>
             <td style="color:#3A3A3A;">
                 {% with caption="Side", tooltip="Soma side of the neuron from the fly’s perspective",

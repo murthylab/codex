@@ -23,6 +23,7 @@ _CODEX_DATA_SCHEMA = {
         "side",
         "nerve",
     ],
+    "cell_types": ['root_id', 'primary_type', 'additional_type(s)'],
     # one row per id
     "cell_stats": [
         "root_id",
@@ -75,6 +76,9 @@ def get_neurons_file_columns():
 
 def get_classification_file_columns():
     return list(_CODEX_DATA_SCHEMA["classification"])
+
+def get_cell_types_file_columns():
+    return list(_CODEX_DATA_SCHEMA["cell_types"])
 
 
 def get_cell_stats_file_columns():
