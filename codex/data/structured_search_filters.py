@@ -122,71 +122,43 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         description="Cell typing attribute, indicates function or other property of the cell",
         name="class",
         value_range=[
-            "optic_lobes",
-            "Kenyon_Cell",
-            "L1-5",
-            "visual",
-            "CX",
-            "mechanosensory",
-            "AN",
-            "olfactory",
-            "medulla_intrinsic",
-            "DN",
-            "ALPN",
-            "LHLN",
-            "ALLN",
-            "gustatory",
-            "DAN",
-            "bilateral",
-            "TuBu",
-            "unknown_sensory",
-            "motor",
-            "MBON",
-            "mAL",
-            "hygrosensory",
-            "ocellar",
-            "LHCENT",
-            "pars_intercerebralis",
-            "thermosensory",
-            "pars_lateralis",
             "ALIN",
+            "ALLN",
             "ALON",
+            "ALPN",
+            "AN",
+            "CX",
+            "DAN",
+            "Kenyon_Cell",
+            "LHCENT",
+            "LHLN",
             "MBIN",
-            "CSD",
+            "MBON",
+            "TPN",
+            "TuBu",
+            "bilateral",
+            "gustatory",
+            "hygrosensory",
+            "mechanosensory",
+            "ocellar",
+            "olfactory",
+            "optic_lobe_intrinsic",
+            "optic_lobes",
+            "pars_intercerebralis",
+            "pars_lateralis",
+            "thermosensory",
+            "unknown_sensory",
+            "visual",
         ],
     ),
     SearchAttribute(
         description="Cell typing attribute, indicates function or other property of the cell",
         name="sub_class",
-        value_range=[
-            "columnar",
-            "eye_bristle",
-            "tangential",
-            "multiglomerular",
-            "auditory",
-            "head_bristle",
-            "uniglomerular",
-            "ring_neuron",
-            "ocellar",
-            "taste_peg",
-            "pharyngeal_nerve_sensory_group2",
-            "accessory_pharyngeal_nerve_sensory_group2",
-            "accessory_pharyngeal_nerve_sensory_group1",
-            "pharyngeal_nerve_sensory_group1",
-            "ocellar_interneuron",
-            "descending",
-            "antennal_nerve_ascending_sensory",
-            "LNOa",
-        ],
     ),
     SearchAttribute(
         description="Cell typing attribute, indicates function or other property of the cell",
         name="cell_type",
         alternative_names=["type"],
-    ),
-    SearchAttribute(
-        description="Cell typing attribute from Janelia hemibrain dataset",
-        name="hemibrain_type",
     ),
     SearchAttribute(
         description="Lineage from Janelia hemibrain dataset",
@@ -222,14 +194,12 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         alternative_names=["connectivity_label", "connectivity_tags"],
         value_range=[
             "3_cycle_participant",
-            "attractor",
             "broadcaster",
             "feedforward_loop_participant",
             "highly_reciprocal_neuron",
             "integrator",
             "nsrn",
             "reciprocal",
-            "repeller",
             "rich_club",
         ],
     ),
@@ -238,15 +208,6 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         name="mirror_twin_root_id",
         value_convertor=lambda x: int(x),
         alternative_names=["twin", "mirror", "mirror_twin"],
-    ),
-    SearchAttribute(
-        description="Automatically generated morphology clusters (based on pairwise NBLAST scores)",
-        name="morphology_cluster",
-        alternative_names=["shape_cluster", "nblast_cluster"],
-    ),
-    SearchAttribute(
-        description="Automatically generated connectivity clusters (based on pairwise Jaccard similarity scores)",
-        name="connectivity_cluster",
     ),
     SearchAttribute(
         description="Generic cell markers",
@@ -291,10 +252,6 @@ OP_SIMILAR_CONNECTIVITY = "{similar_connectivity}"
 OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED = "{similar_upstream_weighted}"
 OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED = "{similar_downstream_weighted}"
 OP_SIMILAR_CONNECTIVITY_WEIGHTED = "{similar_connectivity_weighted}"
-OP_SIMILAR_EMBEDDING_UPSTREAM = "{similar_embedding_upstream}"
-OP_SIMILAR_EMBEDDING_DOWNSTREAM = "{similar_embedding_downstream}"
-OP_SIMILAR_EMBEDDING = "{similar_embedding}"
-OP_PROJECTED_EMBEDDING = "{projected_embedding}"
 OP_PATHWAYS = "{pathways}"
 OP_AND = "{and}"
 OP_OR = "{or}"
@@ -518,31 +475,6 @@ STRUCTURED_SEARCH_OPERATORS = [
         description="Unary, matches cells that have similar connectivity (both up and downstream) to specified Cell ID, weighted by synapse counts",
         rhs_description="Cell ID",
     ),
-    UnarySearchOperator(
-        name=OP_SIMILAR_EMBEDDING_UPSTREAM,
-        shorthand="~su",
-        description="Unary, matches cells that have similar input vector embeddings to specified Cell ID",
-        rhs_description="Cell ID",
-    ),
-    UnarySearchOperator(
-        name=OP_SIMILAR_EMBEDDING_DOWNSTREAM,
-        shorthand="~sd",
-        description="Unary, matches cells that have similar output vector embeddings to specified Cell ID",
-        rhs_description="Cell ID",
-    ),
-    UnarySearchOperator(
-        name=OP_SIMILAR_EMBEDDING,
-        shorthand="~sc",
-        description="Unary, matches cells that have similar input/output vector embeddings to specified Cell ID",
-        rhs_description="Cell ID",
-    ),
-    BinarySearchOperator(
-        name=OP_PROJECTED_EMBEDDING,
-        shorthand="~pe",
-        description="Binary, matches cells with connectivity embeddings that extend from LHS to RHS",
-        lhs_description="Source Cell ID",
-        rhs_description="Target Cell ID",
-    ),
     BinarySearchOperator(
         name=OP_PATHWAYS,
         shorthand="->",
@@ -671,7 +603,6 @@ def _make_predicate(
     connections_loader,
     similar_cells_loader,
     similar_connectivity_loader,
-    similar_embedding_loader,
     case_sensitive,
 ):
     lhs = structured_term.get("lhs")  # lhs is optional e.g. for unary operators
@@ -790,42 +721,6 @@ def _make_predicate(
             raise_malformed_structured_search_query(
                 f"Invalid cell id '{rhs}' in operator '{op}', error: {e}"
             )
-    elif op in [
-        OP_SIMILAR_EMBEDDING,
-        OP_SIMILAR_EMBEDDING_DOWNSTREAM,
-        OP_SIMILAR_EMBEDDING_UPSTREAM,
-    ]:
-        try:
-            cell_id = int(rhs)
-            target_rid_dict = similar_embedding_loader(
-                cell_id,
-                include_upstream=op != OP_SIMILAR_EMBEDDING_DOWNSTREAM,
-                include_downstream=op != OP_SIMILAR_EMBEDDING_UPSTREAM,
-            )
-            return lambda x: x["root_id"] in target_rid_dict
-        except ValueError as e:
-            raise_malformed_structured_search_query(
-                f"Invalid cell id '{rhs}' in operator '{op}', error: {e}"
-            )
-    elif op in [
-        OP_PROJECTED_EMBEDDING,
-    ]:
-        try:
-            from_cell_id = int(lhs)
-            to_cell_id = int(rhs)
-            target_rid_dict = similar_embedding_loader(
-                root_id=from_cell_id,
-                projected_to_root_id=to_cell_id,
-                include_upstream=True,
-                include_downstream=True,
-                limit=5,
-            )
-            target_rid_set = set(target_rid_dict.keys()) - {from_cell_id, to_cell_id}
-            return lambda x: x["root_id"] in target_rid_set
-        except ValueError as e:
-            raise_malformed_structured_search_query(
-                f"Invalid cell id in operator '{op}', error: {e}"
-            )
     elif op == OP_PATHWAYS:
         pathway_distance_map = pathways(
             source=lhs,
@@ -851,7 +746,6 @@ def make_structured_terms_predicate(
     connections_loader,
     similar_cells_loader,
     similar_connectivity_loader,
-    similar_embedding_loader,
     case_sensitive,
 ):
     predicates = [
@@ -862,7 +756,6 @@ def make_structured_terms_predicate(
             connections_loader=connections_loader,
             similar_cells_loader=similar_cells_loader,
             similar_connectivity_loader=similar_connectivity_loader,
-            similar_embedding_loader=similar_embedding_loader,
             case_sensitive=case_sensitive,
         )
         for t in structured_terms

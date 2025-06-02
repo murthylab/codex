@@ -22,7 +22,7 @@ class ConnectivityTest(TestCase):
             induced=True,
             min_syn_count=None,
         )
-        self.assertEqual(3794615, len(contable))
+        self.assertEqual(3869878, len(contable))
 
         with patch("codex.utils.graph_vis.render_template") as mocked:
             network_html = compile_network_html(
@@ -51,5 +51,5 @@ class ConnectivityTest(TestCase):
                     hide_weights=False,
                     log_request=False,
                 )
-                self.assertEqual(138, mocked_url_for.call_count)
+                self.assertEqual(136, mocked_url_for.call_count)
                 self.assertTrue("render_template" in str(network_html))

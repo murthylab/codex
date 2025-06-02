@@ -10,10 +10,8 @@ from codex.data.catalog import (
     get_nblast_file_columns,
     get_classification_file_columns,
     get_cell_stats_file_columns,
-    get_morphology_clusters_columns,
-    get_connectivity_clusters_columns,
-    get_lr_matching_file_columns,
     get_connectivity_tags_file_columns,
+    get_cell_types_file_columns,
 )
 from codex.data.neuron_data import NeuronDB
 from codex.data.neurotransmitters import NEURO_TRANSMITTER_NAMES
@@ -58,7 +56,6 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     "class": str,
     "sub_class": str,
     "cell_type": list,
-    "hemibrain_type": list,
     "hemilineage": str,
     "nerve": str,
     "side": str,
@@ -76,10 +73,6 @@ NEURON_DATA_ATTRIBUTE_TYPES = {
     "length_nm": int,
     "area_nm": int,
     "size_nm": int,
-    # morphology clusters (based on NBLAST scores + SCC analysis)
-    "morphology_cluster": str,
-    # connectivity clusters (based on Jaccard similarity scores + SCC analysis)
-    "connectivity_cluster": str,
 }
 
 HEATMAP_GROUP_BY_ATTRIBUTES = [
@@ -97,14 +90,13 @@ NETWORK_GROUP_BY_ATTRIBUTES = [
     "super_class",
     "class",
     "sub_class",
-    "morphology_cluster",
-    "connectivity_cluster",
 ]
 
 
 def initialize_neuron_data(
     neuron_file_rows,
     classification_rows,
+    cell_type_rows,
     cell_stats_rows,
     connection_rows,
     label_rows,
@@ -112,10 +104,6 @@ def initialize_neuron_data(
     coordinate_rows,
     nblast_rows,
     connectivity_tag_rows,
-    morphology_cluster_rows,
-    connectivity_cluster_rows,
-    svd_rows,
-    lr_matching_rows,
 ):
     neuron_attributes = {}
     neuron_connection_rows = []
@@ -140,29 +128,22 @@ def initialize_neuron_data(
         neuron_attributes[root_id] = {"root_id": root_id}
         neuron_attributes[root_id].update(
             {
-                attr_name: _get_value(r, neurons_column_index, attr_name)
-                if attr_name in neurons_column_index
-                else attr_type()
+                attr_name: (
+                    _get_value(r, neurons_column_index, attr_name)
+                    if attr_name in neurons_column_index
+                    else attr_type()
+                )
                 for attr_name, attr_type in NEURON_DATA_ATTRIBUTE_TYPES.items()
             }
         )
-
-    if lr_matching_rows:
-        logger.debug("App initialization processing LR matching (twins) data..")
-        assert lr_matching_rows[0] == get_lr_matching_file_columns()
-        for i, r in enumerate(lr_matching_rows[1:]):
-            twin_1 = int(r[0])
-            twin_2 = int(r[1])
-            assert twin_1 != twin_2
-            assert twin_1 in neuron_attributes and twin_2 in neuron_attributes
-            neuron_attributes[twin_1]["mirror_twin_root_id"] = twin_2
-            neuron_attributes[twin_2]["mirror_twin_root_id"] = twin_1
 
     logger.debug(
         f"App initialization processing classification data with {len(classification_rows)} rows.."
     )
     not_found_classified_root_ids = 0
-    assert classification_rows[0] == get_classification_file_columns()
+    assert (
+        classification_rows[0] == get_classification_file_columns()
+    ), classification_rows[0]
     classification_column_index = {c: i for i, c in enumerate(classification_rows[0])}
     for i, r in enumerate(classification_rows[1:]):
         root_id = _get_value(r, classification_column_index, "root_id")
@@ -178,6 +159,20 @@ def initialize_neuron_data(
     logger.debug(
         f"App initialization: {not_found_classified_root_ids} classified ids not found in set of neurons"
     )
+
+    logger.debug(
+        f"App initialization processing cell types data with {len(cell_type_rows)} rows.."
+    )
+    assert cell_type_rows[0] == get_cell_types_file_columns(), cell_type_rows[0]
+    cell_types_column_index = {c: i for i, c in enumerate(cell_type_rows[0])}
+    for i, r in enumerate(cell_type_rows[1:]):
+        root_id = int(r[cell_types_column_index["root_id"]])
+        assert (
+            root_id in neuron_attributes
+        ), f"Invalid root ID in cell types file: {root_id}"
+        primary_type = r[cell_types_column_index["primary_type"]]
+        if primary_type:
+            neuron_attributes[root_id]["cell_type"].append(primary_type)
 
     logger.debug(
         f"App initialization processing connectivity tags data with {len(connectivity_tag_rows)} rows.."
@@ -220,34 +215,6 @@ def initialize_neuron_data(
         logger.debug(
             f"App initialization: {not_found_stats_root_ids} stats root ids not found in set of neurons"
         )
-
-    for clustering_type, data_rows, cols in [
-        ("morphology", morphology_cluster_rows, get_morphology_clusters_columns()),
-        (
-            "connectivity",
-            connectivity_cluster_rows,
-            get_connectivity_clusters_columns(),
-        ),
-    ]:
-        if data_rows:
-            logger.debug(
-                f"App initialization processing {clustering_type} cluster data with {len(data_rows)} rows.."
-            )
-            not_found_root_ids = 0
-            assert data_rows[0] == cols
-            column_index = {c: i for i, c in enumerate(data_rows[0])}
-            attr_name = data_rows[0][1]
-            for i, r in enumerate(data_rows[1:]):
-                root_id = _get_value(r, column_index, "root_id")
-                if root_id not in neuron_attributes:
-                    not_found_root_ids += 1
-                    continue
-                neuron_attributes[root_id][attr_name] = _get_value(
-                    r, column_index, attr_name
-                )
-            logger.debug(
-                f"App initialization: {not_found_root_ids} {clustering_type} cluster ids not found"
-            )
 
     logger.debug("App initialization processing label data..")
     labels_file_columns = get_labels_file_columns()
@@ -471,5 +438,4 @@ def initialize_neuron_data(
         grouped_synapse_counts=grouped_synapse_counts,
         grouped_connection_counts=grouped_connection_counts,
         grouped_reciprocal_connection_counts=grouped_reciprocal_connection_counts,
-        svd_rows=svd_rows,
     )

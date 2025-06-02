@@ -3,7 +3,7 @@ import gc
 import gzip
 import os
 import pickle
-from datetime import datetime
+from datetime import datetime, UTC
 
 from codex.data.neuron_data_initializer import (
     initialize_neuron_data,
@@ -17,23 +17,20 @@ from codex import logger
 DATA_ROOT_PATH = "static/data"
 NEURON_FILE_NAME = "neurons.csv.gz"
 CLASSIFICATION_FILE_NAME = "classification.csv.gz"
+CONSOLIDATED_CELL_TYPES_FILE_NAME = "consolidated_cell_types.csv.gz"
 CELL_STATS_ROWS = "cell_stats.csv.gz"
 CONNECTIONS_FILE_NAME = "connections.csv.gz"
 LABELS_FILE_NAME = "labels.csv.gz"
 COORDINATES_FILE_NAME = "coordinates.csv.gz"
 NBLAST_FILE_NAME = "nblast.csv.gz"
 CONNECTIVITY_TAGS_FILE_NAME = "connectivity_tags.csv.gz"
-MORPHOLOGY_CLUSTERS_FILE_NAME = "morphology_clusters.csv.gz"
-CONNECTIVITY_CLUSTERS_FILE_NAME = "connectivity_clusters.csv.gz"
-SVD_FILE_NAME = "svd.csv.gz"
-LR_MATCHING_FILE_NAME = "lr_matching.csv.gz"
 
 
 NEURON_DB_PICKLE_FILE_NAME = "neuron_db.pickle.gz"
 
-GCS_PICKLE_URL_TEMPLATE = "https://storage.googleapis.com/flywire-data/codex/data/{version}/neuron_db.pickle.gz"
+GCS_PICKLE_URL_TEMPLATE = "https://storage.googleapis.com/flywire-data/codex/data/fafb/{version}/neuron_db.pickle.gz"
 GCS_RAW_DATA_URL_TEMPLATE = (
-    "https://storage.googleapis.com/flywire-data/codex/data/{version}/{filename}"
+    "https://storage.googleapis.com/flywire-data/codex/data/fafb/{version}/{filename}"
 )
 
 
@@ -67,8 +64,8 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         if os.path.exists(fname):
             rows = read_csv(fname)
             if with_timestamp:
-                return rows, datetime.utcfromtimestamp(
-                    os.path.getmtime(fname)
+                return rows, datetime.fromtimestamp(
+                    os.path.getmtime(fname), UTC
                 ).strftime("%Y-%m-%d")
             else:
                 return rows
@@ -80,6 +77,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
 
     neuron_rows = _read_data(NEURON_FILE_NAME)
     classification_rows = _read_data(CLASSIFICATION_FILE_NAME)
+    cell_type_rows = _read_data(CONSOLIDATED_CELL_TYPES_FILE_NAME)
     cell_stats_rows = _read_data(CELL_STATS_ROWS)
     connection_rows = _read_data(CONNECTIONS_FILE_NAME)
     label_rows, labels_file_timestamp = _read_data(
@@ -88,10 +86,6 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     coordinate_rows = _read_data(COORDINATES_FILE_NAME)
     nblast_rows = _read_data(NBLAST_FILE_NAME)
     connectivity_tag_rows = _read_data(CONNECTIVITY_TAGS_FILE_NAME)
-    morphology_cluster_rows = _read_data(MORPHOLOGY_CLUSTERS_FILE_NAME)
-    connectivity_cluster_rows = _read_data(CONNECTIVITY_CLUSTERS_FILE_NAME)
-    svd_rows = _read_data(SVD_FILE_NAME)
-    lr_matching_rows = _read_data(LR_MATCHING_FILE_NAME)
 
     print(
         f" loading data from {data_file_path}:\n"
@@ -104,6 +98,7 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
     neuron_db = initialize_neuron_data(
         neuron_file_rows=neuron_rows,
         classification_rows=classification_rows,
+        cell_type_rows=cell_type_rows,
         cell_stats_rows=cell_stats_rows,
         connection_rows=connection_rows,
         label_rows=label_rows,
@@ -111,16 +106,13 @@ def load_neuron_db(data_root_path=DATA_ROOT_PATH, version=None):
         coordinate_rows=coordinate_rows,
         nblast_rows=nblast_rows,
         connectivity_tag_rows=connectivity_tag_rows,
-        morphology_cluster_rows=morphology_cluster_rows,
-        connectivity_cluster_rows=connectivity_cluster_rows,
-        svd_rows=svd_rows,
-        lr_matching_rows=lr_matching_rows,
     )
     # free mem
     del neuron_rows
     del connection_rows
     del label_rows
     del coordinate_rows
+    del cell_type_rows
     return neuron_db
 
 

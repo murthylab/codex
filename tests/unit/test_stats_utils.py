@@ -65,7 +65,6 @@ class Test(TestCase):
                 "Class",
                 "Connectivity Tag",
                 "Flow",
-                "Hemibrain Type",
                 "Hemilineage",
                 "Nerve",
                 "Neurotransmitter Types",
@@ -78,6 +77,6 @@ class Test(TestCase):
             sorted(data_charts.keys()),
         )
         self.assertEqual(
-            [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
             [len(data_charts[k]) for k in sorted(data_charts.keys())],
         )

@@ -87,7 +87,6 @@ class Test(TestCase):
                     connections_loader=mock_con_loader,
                     similar_cells_loader=mock_list_loader,
                     similar_connectivity_loader=mock_list_loader,
-                    similar_embedding_loader=mock_dict_loader,
                     case_sensitive=False,
                 )
             )
@@ -99,7 +98,6 @@ class Test(TestCase):
                     connections_loader=mock_con_loader,
                     similar_cells_loader=mock_list_loader,
                     similar_connectivity_loader=mock_list_loader,
-                    similar_embedding_loader=mock_dict_loader,
                     case_sensitive=True,
                 )
             )
