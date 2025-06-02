@@ -240,15 +240,6 @@ STRUCTURED_SEARCH_ATTRIBUTES = [
         alternative_names=["twin", "mirror", "mirror_twin"],
     ),
     SearchAttribute(
-        description="Automatically generated morphology clusters (based on pairwise NBLAST scores)",
-        name="morphology_cluster",
-        alternative_names=["shape_cluster", "nblast_cluster"],
-    ),
-    SearchAttribute(
-        description="Automatically generated connectivity clusters (based on pairwise Jaccard similarity scores)",
-        name="connectivity_cluster",
-    ),
-    SearchAttribute(
         description="Generic cell markers",
         name="marker",
     ),
@@ -291,10 +282,6 @@ OP_SIMILAR_CONNECTIVITY = "{similar_connectivity}"
 OP_SIMILAR_CONNECTIVITY_UPSTREAM_WEIGHTED = "{similar_upstream_weighted}"
 OP_SIMILAR_CONNECTIVITY_DOWNSTREAM_WEIGHTED = "{similar_downstream_weighted}"
 OP_SIMILAR_CONNECTIVITY_WEIGHTED = "{similar_connectivity_weighted}"
-OP_SIMILAR_EMBEDDING_UPSTREAM = "{similar_embedding_upstream}"
-OP_SIMILAR_EMBEDDING_DOWNSTREAM = "{similar_embedding_downstream}"
-OP_SIMILAR_EMBEDDING = "{similar_embedding}"
-OP_PROJECTED_EMBEDDING = "{projected_embedding}"
 OP_PATHWAYS = "{pathways}"
 OP_AND = "{and}"
 OP_OR = "{or}"
@@ -518,31 +505,6 @@ STRUCTURED_SEARCH_OPERATORS = [
         description="Unary, matches cells that have similar connectivity (both up and downstream) to specified Cell ID, weighted by synapse counts",
         rhs_description="Cell ID",
     ),
-    UnarySearchOperator(
-        name=OP_SIMILAR_EMBEDDING_UPSTREAM,
-        shorthand="~su",
-        description="Unary, matches cells that have similar input vector embeddings to specified Cell ID",
-        rhs_description="Cell ID",
-    ),
-    UnarySearchOperator(
-        name=OP_SIMILAR_EMBEDDING_DOWNSTREAM,
-        shorthand="~sd",
-        description="Unary, matches cells that have similar output vector embeddings to specified Cell ID",
-        rhs_description="Cell ID",
-    ),
-    UnarySearchOperator(
-        name=OP_SIMILAR_EMBEDDING,
-        shorthand="~sc",
-        description="Unary, matches cells that have similar input/output vector embeddings to specified Cell ID",
-        rhs_description="Cell ID",
-    ),
-    BinarySearchOperator(
-        name=OP_PROJECTED_EMBEDDING,
-        shorthand="~pe",
-        description="Binary, matches cells with connectivity embeddings that extend from LHS to RHS",
-        lhs_description="Source Cell ID",
-        rhs_description="Target Cell ID",
-    ),
     BinarySearchOperator(
         name=OP_PATHWAYS,
         shorthand="->",
@@ -671,7 +633,6 @@ def _make_predicate(
     connections_loader,
     similar_cells_loader,
     similar_connectivity_loader,
-    similar_embedding_loader,
     case_sensitive,
 ):
     lhs = structured_term.get("lhs")  # lhs is optional e.g. for unary operators
@@ -790,42 +751,6 @@ def _make_predicate(
             raise_malformed_structured_search_query(
                 f"Invalid cell id '{rhs}' in operator '{op}', error: {e}"
             )
-    elif op in [
-        OP_SIMILAR_EMBEDDING,
-        OP_SIMILAR_EMBEDDING_DOWNSTREAM,
-        OP_SIMILAR_EMBEDDING_UPSTREAM,
-    ]:
-        try:
-            cell_id = int(rhs)
-            target_rid_dict = similar_embedding_loader(
-                cell_id,
-                include_upstream=op != OP_SIMILAR_EMBEDDING_DOWNSTREAM,
-                include_downstream=op != OP_SIMILAR_EMBEDDING_UPSTREAM,
-            )
-            return lambda x: x["root_id"] in target_rid_dict
-        except ValueError as e:
-            raise_malformed_structured_search_query(
-                f"Invalid cell id '{rhs}' in operator '{op}', error: {e}"
-            )
-    elif op in [
-        OP_PROJECTED_EMBEDDING,
-    ]:
-        try:
-            from_cell_id = int(lhs)
-            to_cell_id = int(rhs)
-            target_rid_dict = similar_embedding_loader(
-                root_id=from_cell_id,
-                projected_to_root_id=to_cell_id,
-                include_upstream=True,
-                include_downstream=True,
-                limit=5,
-            )
-            target_rid_set = set(target_rid_dict.keys()) - {from_cell_id, to_cell_id}
-            return lambda x: x["root_id"] in target_rid_set
-        except ValueError as e:
-            raise_malformed_structured_search_query(
-                f"Invalid cell id in operator '{op}', error: {e}"
-            )
     elif op == OP_PATHWAYS:
         pathway_distance_map = pathways(
             source=lhs,
@@ -851,7 +776,6 @@ def make_structured_terms_predicate(
     connections_loader,
     similar_cells_loader,
     similar_connectivity_loader,
-    similar_embedding_loader,
     case_sensitive,
 ):
     predicates = [
@@ -862,7 +786,6 @@ def make_structured_terms_predicate(
             connections_loader=connections_loader,
             similar_cells_loader=similar_cells_loader,
             similar_connectivity_loader=similar_connectivity_loader,
-            similar_embedding_loader=similar_embedding_loader,
             case_sensitive=case_sensitive,
         )
         for t in structured_terms

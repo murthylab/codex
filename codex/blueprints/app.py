@@ -104,9 +104,11 @@ def stats():
         searched_for_root_id=can_be_flywire_root_id(filter_string),
         # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
         # Otherwise it will be available as downloadable file.
-        root_ids_str=",".join([str(ddi) for ddi in filtered_root_id_list])
-        if len(filtered_root_id_list) <= MAX_NEURONS_FOR_DOWNLOAD
-        else [],
+        root_ids_str=(
+            ",".join([str(ddi) for ddi in filtered_root_id_list])
+            if len(filtered_root_id_list) <= MAX_NEURONS_FOR_DOWNLOAD
+            else []
+        ),
         filter_string=filter_string,
         hint=hint,
         data_versions=DATA_SNAPSHOT_VERSION_DESCRIPTIONS,
@@ -227,9 +229,11 @@ def render_neuron_list(
         skeleton_thumbnail_urls=skeleton_thumbnail_urls,
         # If num results is small enough to pass to browser, pass it to allow copying root IDs to clipboard.
         # Otherwise it will be available as downloadable file.
-        root_ids_str=",".join([str(ddi) for ddi in sorted_search_result_root_ids])
-        if len(sorted_search_result_root_ids) <= MAX_NEURONS_FOR_DOWNLOAD
-        else [],
+        root_ids_str=(
+            ",".join([str(ddi) for ddi in sorted_search_result_root_ids])
+            if len(sorted_search_result_root_ids) <= MAX_NEURONS_FOR_DOWNLOAD
+            else []
+        ),
         num_items=len(sorted_search_result_root_ids),
         searched_for_root_id=can_be_flywire_root_id(filter_string),
         pagination_info=pagination_info,
@@ -280,9 +284,6 @@ def _search_and_sort():
         output_sets=neuron_db.output_sets(),
         label_count_getter=lambda x: len(neuron_db.get_neuron_data(x)["label"]),
         nt_type_getter=lambda x: neuron_db.get_neuron_data(x)["nt_type"],
-        morphology_cluster_getter=lambda x: neuron_db.get_neuron_data(x)[
-            "morphology_cluster"
-        ],
         synapse_neuropil_count_getter=lambda x: len(
             neuron_db.get_neuron_data(x)["input_neuropils"]
         )
@@ -292,7 +293,6 @@ def _search_and_sort():
         + len(neuron_db.input_sets()[x]),
         similar_shape_cells_getter=neuron_db.get_similar_shape_cells,
         similar_connectivity_cells_getter=neuron_db.get_similar_connectivity_cells,
-        similar_embedding_cells_getter=neuron_db.get_similar_embedding_cells,
         connections_getter=lambda x: neuron_db.cell_connections(x),
         sort_by=sort_by,
     )
@@ -384,8 +384,6 @@ def download_search_results():
         "side",
         "input_synapses",
         "output_synapses",
-        "morphology_cluster",
-        "connectivity_cluster",
     ]
     data = [cols]
     for i in sorted_search_result_root_ids:
@@ -702,9 +700,9 @@ def path_length():
                 from_root_id = int(r[0])
                 for j, val in enumerate(r):
                     if j == 0:
-                        r[
-                            j
-                        ] = f'<a href="{url_for("app.search", filter_string="id == " + str(from_root_id))}">{neuron_db.get_neuron_data(from_root_id)["name"]}</a><br><small>{from_root_id}</small>'
+                        r[j] = (
+                            f'<a href="{url_for("app.search", filter_string="id == " + str(from_root_id))}">{neuron_db.get_neuron_data(from_root_id)["name"]}</a><br><small>{from_root_id}</small>'
+                        )
                     elif val > 0:
                         to_root_id = int(matrix[0][j])
                         if not min_syn_count:

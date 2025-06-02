@@ -11,9 +11,6 @@ from codex.data.structured_search_filters import (
     OP_SIMILAR_CONNECTIVITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
     OP_SIMILAR_CONNECTIVITY,
-    OP_SIMILAR_EMBEDDING_UPSTREAM,
-    OP_SIMILAR_EMBEDDING_DOWNSTREAM,
-    OP_SIMILAR_EMBEDDING,
 )
 from codex.utils.graph_algos import reachable_nodes
 
@@ -27,9 +24,6 @@ NBLAST_SCORE = "nblast_score"
 JACCARD_SIMILARITY = "jaccard_similarity"
 JACCARD_SIMILARITY_UPSTREAM = "jaccard_similarity_upstream"
 JACCARD_SIMILARITY_DOWNSTREAM = "jaccard_similarity_downstream"
-COSINE_SIMILARITY = "cosine_similarity"
-COSINE_SIMILARITY_UPSTREAM = "cosine_similarity_upstream"
-COSINE_SIMILARITY_DOWNSTREAM = "cosine_similarity_downstream"
 ITEM_COUNT = "item_count"
 
 SORTABLE_OPS = {
@@ -41,9 +35,6 @@ SORTABLE_OPS = {
     OP_SIMILAR_CONNECTIVITY: JACCARD_SIMILARITY,
     OP_SIMILAR_CONNECTIVITY_UPSTREAM: JACCARD_SIMILARITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM: JACCARD_SIMILARITY_DOWNSTREAM,
-    OP_SIMILAR_EMBEDDING: COSINE_SIMILARITY,
-    OP_SIMILAR_EMBEDDING_UPSTREAM: COSINE_SIMILARITY_UPSTREAM,
-    OP_SIMILAR_EMBEDDING_DOWNSTREAM: COSINE_SIMILARITY_DOWNSTREAM,
     None: ITEM_COUNT,
 }
 
@@ -59,7 +50,6 @@ SORT_BY_OPTIONS = {
     "labels": "# Labels (low -> high)",
     "similar_shape_cells": "# Similar shape cells (high -> low)",
     "nt_type": "Neurotransmitter Type",
-    "morphology_cluster": "Morphology Cluster",
     "random": "Random",
 }
 
@@ -80,9 +70,6 @@ def infer_sort_by(query):
                 JACCARD_SIMILARITY,
                 JACCARD_SIMILARITY_UPSTREAM,
                 JACCARD_SIMILARITY_DOWNSTREAM,
-                COSINE_SIMILARITY,
-                COSINE_SIMILARITY_UPSTREAM,
-                COSINE_SIMILARITY_DOWNSTREAM,
             ]:
                 target_cell_id = part["rhs"]
             else:
@@ -101,13 +88,11 @@ def sort_search_results(
     output_sets,
     label_count_getter,
     nt_type_getter,
-    morphology_cluster_getter,
     synapse_neuropil_count_getter,
     size_getter,
     partner_count_getter,
     similar_shape_cells_getter,
     similar_connectivity_cells_getter,
-    similar_embedding_cells_getter,
     connections_getter,
     sort_by=None,
 ):
@@ -144,26 +129,6 @@ def sort_search_results(
             if sort_by == "nt_type":
                 ids = sorted(ids, key=lambda x: nt_type_getter(x))
                 return ids, None
-            if sort_by == "morphology_cluster":
-                cluster_to_rids = defaultdict(list)
-                for rid in ids:
-                    cluster = morphology_cluster_getter(rid)
-                    if cluster:
-                        cluster_to_rids[cluster].append(rid)
-                # useful size clusters first
-                sorted_ids = []
-                for p in sorted(
-                    cluster_to_rids.items(), key=lambda x: abs(30 - len(x[1]))
-                ):
-                    sorted_ids.extend(p[1])
-                sorted_ids.extend(list(set(ids) - set(sorted_ids)))
-                dct = {rid: morphology_cluster_getter(rid) for rid in ids}
-                extra_data = {
-                    "title": "Morphologically Cluster",
-                    "column_name": "Morphology Cluster",
-                    "values_dict": dct,
-                }
-                return sorted_ids, extra_data
             if sort_by in ["synapse_neuropils", "-synapse_neuropils"]:
                 dct = {rid: synapse_neuropil_count_getter(rid) for rid in ids}
                 extra_data = {
@@ -272,24 +237,6 @@ def sort_search_results(
                     "values_dict": {k: str(v)[:4] for k, v in con_scores.items()},
                 }
                 ids = sorted(ids, key=lambda x: -con_scores[x])
-            elif parts[0] in [
-                COSINE_SIMILARITY,
-                COSINE_SIMILARITY_UPSTREAM,
-                COSINE_SIMILARITY_DOWNSTREAM,
-            ]:
-                sp_scores = similar_embedding_cells_getter(
-                    sort_by_target_cell_rid,
-                    include_upstream=parts[0] != COSINE_SIMILARITY_DOWNSTREAM,
-                    include_downstream=parts[0] != COSINE_SIMILARITY_UPSTREAM,
-                )
-                extra_data = {
-                    "title": "Cosine Similarity Score",
-                    "column_name": "Cosine",
-                    "values_dict": {
-                        k: str(round(v * 10) / 10) for k, v in sp_scores.items()
-                    },
-                }
-                ids = sorted(ids, key=lambda x: -sp_scores[x])
             else:
                 raise ValueError(f"Unsupported sort_by parameter: {sort_by}")
 

@@ -39,9 +39,9 @@ def pagination_data(items_list, page_number, page_size):
         if page_number < num_pages - max(PAGE_LINKS_RANGE):
             pagination_info.append(
                 {
-                    "label": f".. {num_pages}"
-                    if page_number < num_pages - 4
-                    else num_pages,
+                    "label": (
+                        f".. {num_pages}" if page_number < num_pages - 4 else num_pages
+                    ),
                     "number": num_pages,
                     "status": "",
                 }

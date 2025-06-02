@@ -1,7 +1,6 @@
 import os
 import string
 from collections import defaultdict
-from datetime import datetime
 from unittest import TestCase
 
 from codex.data.auto_naming import assign_names_from_annotations
@@ -85,8 +84,6 @@ class NeuronDataTest(TestCase):
             "ser_avg": 68000,
             "similar_cell_scores": 20000,
             "similar_connectivity_scores": 20000,
-            "morphology_cluster": 84000,
-            "connectivity_cluster": 84000,
             "marker": 130000,
             "mirror_twin_root_id": 75000,
             "length_nm": 7,
@@ -552,8 +549,6 @@ class NeuronDataTest(TestCase):
             "hemibrain_type",
             "hemilineage",
             "connectivity_tag",
-            "morphology_cluster",
-            "connectivity_cluster",
             "marker",
         }
         for k, v in NEURON_DATA_ATTRIBUTE_TYPES.items():
@@ -762,53 +757,6 @@ class NeuronDataTest(TestCase):
             ),
         )
 
-    def test_similar_embeddings(self):
-        def assertAlmostEqualDicts(dct1, dct2):
-            self.assertEqual(set(dct1.keys()), set(dct2.keys()))
-            for k1, v1 in dct1.items():
-                self.assertAlmostEqual(v1, dct2[k1])
-
-        cell_rid = 720575940639310150
-        assertAlmostEqualDicts(
-            {
-                720575940611395448: 0.9998702775818392,
-                720575940613079781: 0.9987719963659514,
-                720575940613163286: 0.9818419252014742,
-                720575940633212876: 0.9986854185442758,
-                720575940639310150: 1.0,
-            },
-            self.neuron_db.get_similar_embedding_cells(cell_rid, limit=5),
-        )
-
-        assertAlmostEqualDicts(
-            {
-                720575940611395448: 0.9998466002854165,
-                720575940613079781: 0.9988949638022473,
-                720575940625251732: 0.9777005728861065,
-                720575940633212876: 0.9988631539055599,
-                720575940639310150: 1.0,
-            },
-            self.neuron_db.get_similar_embedding_cells(
-                cell_rid, include_downstream=False, limit=5
-            ),
-        )
-
-        assertAlmostEqualDicts(
-            {
-                720575940611395448: 0.9953633340823633,
-                720575940613079781: 0.9983502242966248,
-                720575940625251732: 0.9772051323417417,
-                720575940633212876: 0.9988931435760806,
-                720575940639310150: 0.995515312158777,
-            },
-            self.neuron_db.get_similar_embedding_cells(
-                cell_rid,
-                include_downstream=False,
-                projected_to_root_id=720575940633212876,
-                limit=5,
-            ),
-        )
-
     def test_find_similar_cells(self):
         cell_ids = sorted(self.neuron_db.neuron_data.keys())[10000:10020]
         similar_cell_scores = {}
@@ -937,68 +885,6 @@ class NeuronDataTest(TestCase):
                         attr.name,
                     )
 
-    def test_svd(self):
-        rid = 720575940621675174
-        print(datetime.now())
-        score_pairs = self.neuron_db.svd.rid_score_pairs_sorted(
-            rid, up=True, down=True
-        )[:10]
-        self.assertEqual(
-            [
-                720575940621675174,
-                720575940646126190,
-                720575940629573904,
-                720575940617225589,
-                720575940626662346,
-                720575940610076611,
-                720575940615997919,
-                720575940639381821,
-                720575940620316888,
-                720575940614698415,
-            ],
-            [p[0] for p in score_pairs],
-        )
-        score_pairs = self.neuron_db.svd.rid_score_pairs_sorted(
-            rid, up=False, down=True
-        )[:10]
-        self.assertEqual(
-            [
-                720575940621675174,
-                720575940629573904,
-                720575940610076611,
-                720575940646126190,
-                720575940615997919,
-                720575940617225589,
-                720575940626662346,
-                720575940639310150,
-                720575940611395448,
-                720575940633212876,
-            ],
-            [p[0] for p in score_pairs],
-        )
-        score_pairs = self.neuron_db.svd.rid_score_pairs_sorted(
-            rid, up=True, down=False
-        )[:10]
-        self.assertEqual(
-            [
-                720575940621675174,
-                720575940646126190,
-                720575940626662346,
-                720575940617225589,
-                720575940629573904,
-                720575940639381821,
-                720575940615997919,
-                720575940628865354,
-                720575940627074947,
-                720575940629852631,
-            ],
-            [p[0] for p in score_pairs],
-        )
-        print(datetime.now())
-
-        for rid in self.neuron_db.svd.vecs.keys():
-            self.assertTrue(rid in self.neuron_db.neuron_data)
-
     def test_naming(self):
         all_nds = list(self.neuron_db.neuron_data.values())
 
@@ -1074,24 +960,6 @@ class NeuronDataTest(TestCase):
                 self.assertFalse(
                     lst[0]["name"].split(".")[-1].isnumeric(), lst[0]["name"]
                 )
-
-    def test_norms(self):
-        # TODO: tighten these tests
-        norms = self.neuron_db.svd.norms
-        max_up = max([n.up for n in norms.values()])
-        min_up = min([n.up for n in norms.values()])
-        print(f"{max_up=} {min_up=}")
-        self.assertGreater(30 * min_up, max_up)
-
-        max_down = max([n.down for n in norms.values()])
-        min_down = min([n.down for n in norms.values()])
-        print(f"{max_down=} {min_down=}")
-        self.assertGreater(15 * min_down, max_down)
-
-        max_up_down = max([n.up_down for n in norms.values()])
-        min_up_down = min([n.up_down for n in norms.values()])
-        print(f"{max_up_down=} {min_up_down=}")
-        self.assertGreater(20 * min_up_down, max_up_down)
 
     def test_alternative_naming(self):
         neuron_data = self.neuron_db.neuron_data

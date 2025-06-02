@@ -169,15 +169,15 @@ def _make_data_stats(neuron_data):
             "Cells": len(neuron_data),
             "- With label(s)": labeled_neurons,
             "- Classified": classified_neurons,
-            "- Combined length": nanos_to_formatted_micros(total_length, 1)
-            if neuron_data
-            else "NA",
-            "- Combined area": nanos_to_formatted_micros(total_area, 2)
-            if neuron_data
-            else "NA",
-            "- Combined volume": nanos_to_formatted_micros(total_volume, 3)
-            if neuron_data
-            else "NA",
+            "- Combined length": (
+                nanos_to_formatted_micros(total_length, 1) if neuron_data else "NA"
+            ),
+            "- Combined area": (
+                nanos_to_formatted_micros(total_area, 2) if neuron_data else "NA"
+            ),
+            "- Combined volume": (
+                nanos_to_formatted_micros(total_volume, 3) if neuron_data else "NA"
+            ),
         }
     }
     if anno_counts:
@@ -236,11 +236,11 @@ def collect_leaderboard_data(label_data, top_n, include_lab_leaderboard):
                 lab_lb[lab_name] += 1
 
         lab_ldbd = {
-            k
-            if len(contributors_by_lab[k]) <= 1
-            else f"{k}<br><small>{len(contributors_by_lab[k])} contributors</small>": lab_lb[
+            (
                 k
-            ]
+                if len(contributors_by_lab[k]) <= 1
+                else f"{k}<br><small>{len(contributors_by_lab[k])} contributors</small>"
+            ): lab_lb[k]
             for k in sorted(
                 lab_lb,
                 key=lab_lb.get,

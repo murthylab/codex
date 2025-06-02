@@ -14,9 +14,6 @@ from codex.data.structured_search_filters import (
     OP_SIMILAR_CONNECTIVITY_UPSTREAM,
     OP_SIMILAR_CONNECTIVITY_DOWNSTREAM,
     OP_SIMILAR_CONNECTIVITY,
-    OP_SIMILAR_EMBEDDING,
-    OP_SIMILAR_EMBEDDING_UPSTREAM,
-    OP_SIMILAR_EMBEDDING_DOWNSTREAM,
 )
 from codex.data.versions import DEFAULT_DATA_SNAPSHOT_VERSION
 from codex.utils import nglui
@@ -231,14 +228,14 @@ def cached_cell_details(
             )
 
         if input_nt_type_count:
-            charts[
-                "Input Synapse Neurotransmitters"
-            ] = stats_utils.make_chart_from_counts(
-                chart_type="donut",
-                key_title="Neurotransmitter Type",
-                val_title="Synapse count",
-                counts_dict=input_nt_type_count,
-                search_filter="input_nt_type",
+            charts["Input Synapse Neurotransmitters"] = (
+                stats_utils.make_chart_from_counts(
+                    chart_type="donut",
+                    key_title="Neurotransmitter Type",
+                    val_title="Synapse count",
+                    counts_dict=input_nt_type_count,
+                    search_filter="input_nt_type",
+                )
             )
 
         if output_neuropil_synapse_count:
@@ -279,15 +276,6 @@ def cached_cell_details(
     )
 
     insert_further_analysis_links(
-        "Find cells with similar input and output embeddings",
-        '<i class="fa-solid fa-arrows-to-circle"></i>',
-        search_endpoint=url_for(
-            "app.search",
-            filter_string=f"{OP_SIMILAR_EMBEDDING} {root_id}",
-        ),
-    )
-
-    insert_further_analysis_links(
         "Find cells with similar partners upstream",
         '<i class="fa-solid fa-arrows-up-to-line"></i>',
         search_endpoint=url_for(
@@ -297,29 +285,11 @@ def cached_cell_details(
     )
 
     insert_further_analysis_links(
-        "Find cells with similar input embeddings",
-        '<i class="fa-solid fa-arrow-up-short-wide"></i>',
-        search_endpoint=url_for(
-            "app.search",
-            filter_string=f"{OP_SIMILAR_EMBEDDING_UPSTREAM} {root_id}",
-        ),
-    )
-
-    insert_further_analysis_links(
         "Find cells with similar partners downstream",
         '<i class="fa-solid fa-arrows-down-to-line"></i>',
         search_endpoint=url_for(
             "app.search",
             filter_string=f"{OP_SIMILAR_CONNECTIVITY_DOWNSTREAM} {root_id}",
-        ),
-    )
-
-    insert_further_analysis_links(
-        "Find cells with similar output embeddings",
-        '<i class="fa-solid fa-arrow-down-wide-short"></i>',
-        search_endpoint=url_for(
-            "app.search",
-            filter_string=f"{OP_SIMILAR_EMBEDDING_DOWNSTREAM} {root_id}",
         ),
     )
 
@@ -361,9 +331,9 @@ def cached_cell_details(
             total_count=neuron_db.num_cells(),
         )
         if reachable_counts:
-            cell_extra_data[
-                f"Upstream Reachable Cells ({MIN_SYN_THRESHOLD}+ syn)"
-            ] = reachable_counts
+            cell_extra_data[f"Upstream Reachable Cells ({MIN_SYN_THRESHOLD}+ syn)"] = (
+                reachable_counts
+            )
 
     return dict(
         cell_names_or_id=cell_names_or_id or nd["name"],

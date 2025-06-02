@@ -12,11 +12,6 @@ _CODEX_DATA_SCHEMA = {
         "ach_avg",
         "oct_avg",
     ],
-    # LR matching
-    "lr_matching": [
-        "left_root_id",
-        "right_root_id",
-    ],
     # one row per id
     "classification": [
         "root_id",
@@ -24,8 +19,6 @@ _CODEX_DATA_SCHEMA = {
         "super_class",
         "class",
         "sub_class",
-        "cell_type",
-        "hemibrain_type",
         "hemilineage",
         "side",
         "nerve",
@@ -73,19 +66,11 @@ _CODEX_DATA_SCHEMA = {
         "root_id",
         "scores",
     ],
-    # one row (or none) per id
-    "morphology_clusters": ["root_id", "morphology_cluster"],
-    # one row (or none) per id
-    "connectivity_clusters": ["root_id", "connectivity_cluster"],
 }
 
 
 def get_neurons_file_columns():
     return list(_CODEX_DATA_SCHEMA["neurons"])
-
-
-def get_lr_matching_file_columns():
-    return list(_CODEX_DATA_SCHEMA["lr_matching"])
 
 
 def get_classification_file_columns():
@@ -114,11 +99,3 @@ def get_nblast_file_columns():
 
 def get_connectivity_tags_file_columns():
     return list(_CODEX_DATA_SCHEMA["connectivity_tags"])
-
-
-def get_morphology_clusters_columns():
-    return list(_CODEX_DATA_SCHEMA["morphology_clusters"])
-
-
-def get_connectivity_clusters_columns():
-    return list(_CODEX_DATA_SCHEMA["connectivity_clusters"])

@@ -146,7 +146,7 @@ class TestMotifSearchQuery(TestCase):
             [
                 {
                     "edges": [],
-                    "nodes": {"a": {"id": "720575940619600449", "name": "LO.PVLP.231"}},
+                    "nodes": {"a": {"id": "720575940619600449", "name": "LO.PVLP.219"}},
                 }
             ],
             res_id,

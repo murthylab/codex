@@ -12,7 +12,6 @@ from codex.data.structured_search_filters import (
     parse_search_query,
 )
 from codex.configuration import MIN_NBLAST_SCORE_SIMILARITY
-from codex.data.svd import Svd
 from codex.utils.formatting import (
     display,
     percentage,
@@ -37,8 +36,6 @@ NEURON_SEARCH_LABEL_ATTRIBUTES = [
     "nerve",
     "side",
     "connectivity_tag",
-    "morphology_cluster",
-    "connectivity_cluster",
 ]
 
 
@@ -52,7 +49,6 @@ class NeuronDB(object):
         grouped_synapse_counts,
         grouped_connection_counts,
         grouped_reciprocal_connection_counts,
-        svd_rows,
     ):
         self.neuron_data = neuron_attributes
         self.connections_ = Connections(neuron_connection_rows)
@@ -61,7 +57,6 @@ class NeuronDB(object):
         self.grouped_connection_counts = grouped_connection_counts
         self.grouped_reciprocal_connection_counts = grouped_reciprocal_connection_counts
         self.meta_data = {"labels_file_timestamp": labels_file_timestamp}
-        self.svd = Svd(svd_rows)
 
         logger.debug("App initialization building search index..")
 
@@ -240,8 +235,6 @@ class NeuronDB(object):
             "Community Identification Label": "label",
             "Connectivity Tag": "connectivity_tag",
             "Max In/Out Neuropil": "group",
-            "Morphology cluster": "morphology_cluster",
-            "Connectivity cluster": "connectivity_cluster",
         }
         for nd in self.neuron_data.values():
             for cat_attr in category_attr_names.values():
@@ -442,40 +435,6 @@ class NeuronDB(object):
                 break
         return res
 
-    @lru_cache
-    def get_similar_embedding_cells(
-        self,
-        root_id,
-        projected_to_root_id=None,
-        include_upstream=True,
-        include_downstream=True,
-        limit=100,
-    ):
-        if projected_to_root_id:
-            v1 = self.svd.get_vec_copy(
-                root_id, up=include_upstream, down=include_downstream
-            )
-            v2 = self.svd.get_vec_copy(
-                projected_to_root_id, up=include_upstream, down=include_downstream
-            )
-            if not v1 or not v2:
-                return {}
-            vec = []
-            for i, v1v in enumerate(v1):
-                vec.append(v2[i] + (v2[i] - v1v))
-            norm = self.svd.calculate_norm(vec)
-            scores = self.svd.vec_score_pairs_sorted(
-                vec=vec, norm=norm, up=include_upstream, down=include_downstream
-            )
-        else:
-            scores = self.svd.rid_score_pairs_sorted(
-                rid=root_id, up=include_upstream, down=include_downstream
-            )
-        res = {}
-        for p in scores[:limit]:
-            res[p[0]] = p[1]
-        return res
-
     def get_all_cell_types(self, root_id):
         nd = self.get_neuron_data(root_id)
         return nd["cell_type"] + nd["hemibrain_type"]
@@ -571,7 +530,6 @@ class NeuronDB(object):
                 connections_loader=self.connections_up_down,
                 similar_cells_loader=self.get_similar_shape_cells,
                 similar_connectivity_loader=self.get_similar_connectivity_cells,
-                similar_embedding_loader=self.get_similar_embedding_cells,
                 case_sensitive=case_sensitive,
             )
             term_search_results.append(
