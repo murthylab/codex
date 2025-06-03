@@ -1,7 +1,7 @@
 # Codex - Connectome Data Explorer for FlyWire
 
-[![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/kaikue/a442efe7b753f00d0f7a1cfceff87f61/raw/codex_badge_coverage.json)](https://github.com/murthylab/codex/actions)
-[![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/kaikue/a442efe7b753f00d0f7a1cfceff87f61/raw/codex_badge_tests.json)](https://github.com/murthylab/codex/actions)
+![Tests Passing](https://img.shields.io/badge/tests-passing-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-67%25-yellowgreen)
 
 ## Description
 
@@ -49,6 +49,7 @@ Run service locally and click around in all pages
 ```sh
 poetry run ./scripts/run_unit_tests.sh
 ```
+If test status or coverage percentage change, update the static badges above
 
 ## Linting / code formatting
 
