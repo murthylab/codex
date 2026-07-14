@@ -96,6 +96,37 @@
         margin: 0px;
     }
 
+    /* Right-click "add partners" context menu (Network view). */
+    .ctx-menu {
+        position: absolute;
+        z-index: 10;
+        display: none;
+        min-width: 210px;
+        background-color: #ffffff;
+        border: 1px solid #b0b0b0;
+        border-radius: 4px;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.25);
+        font-family: sans-serif;
+        font-size: 13px;
+        overflow: hidden;
+    }
+    .ctx-menu-header {
+        padding: 6px 10px;
+        background-color: #f0f0f0;
+        color: #555555;
+        font-size: 11px;
+        border-bottom: 1px solid #e0e0e0;
+        white-space: nowrap;
+    }
+    .ctx-menu-item {
+        padding: 8px 12px;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .ctx-menu-item:hover {
+        background-color: #e8f0fe;
+    }
+
     </style>
 
 </head>
@@ -113,6 +144,17 @@
     {% endfor %}
 </div>
 <div id="collapsebutton" onclick="toggleCollapseAll()"><i class="fa-solid fa-minimize" title="Collapse All"></i></div>
+
+<!-- Right-click menu for adding a neuron's synaptic partners to the network query. -->
+<div id="node-context-menu" class="ctx-menu">
+    <div class="ctx-menu-header" id="ctx-menu-header">Neuron</div>
+    <div class="ctx-menu-item" onclick="addPartnersToQuery('upstream')">
+        <i class="fa-solid fa-arrow-up"></i>&nbsp; Add upstream partners
+    </div>
+    <div class="ctx-menu-item" onclick="addPartnersToQuery('downstream')">
+        <i class="fa-solid fa-arrow-down"></i>&nbsp; Add downstream partners
+    </div>
+</div>
 
 <script type="text/javascript">
 
@@ -425,6 +467,9 @@
             });
         });
 
+        // Right-click a neuron node to add its upstream/downstream partners.
+        network.on("oncontext", handleNetworkContext);
+
         return network;
     }
 
@@ -456,6 +501,87 @@
     ctx.font = "24px sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("Rendering...", window.innerWidth / 2, window.innerHeight / 2);
+
+    // ----- Right-click "add partners" context menu (Network view only) -----
+
+    // The graph is embedded in an iframe. Its search box lives in the parent page
+    // (the Network / connectivity view). Return it, or null when this template is
+    // reused somewhere without that box (Pathways, cell details, motifs) so the
+    // whole feature stays a no-op there.
+    function parentQueryInput() {
+        try {
+            return (window.parent && window.parent.document)
+                ? window.parent.document.getElementById("cell_names_or_ids")
+                : null;
+        } catch (e) {
+            return null; // cross-origin / no accessible parent
+        }
+    }
+
+    // Neuron nodes use the numeric root id as their node id; region and grouped
+    // nodes use string ids (e.g. "GNG_in"). Only offer the menu for neurons.
+    function isNeuronNodeId(id) {
+        return id !== undefined && id !== null && /^\d+$/.test(String(id));
+    }
+
+    var ctxMenuNodeId = null;
+
+    function hideNodeMenu() {
+        ctxMenuNodeId = null;
+        const menu = document.getElementById("node-context-menu");
+        if (menu) { menu.style.display = "none"; }
+    }
+
+    function handleNetworkContext(params) {
+        const menu = document.getElementById("node-context-menu");
+        const nodeId = network.getNodeAt(params.pointer.DOM);
+        // Show our menu only for neuron nodes in the Network view; otherwise fall
+        // back to the browser's default right-click menu.
+        if (!menu || !isNeuronNodeId(nodeId) || !parentQueryInput()) {
+            hideNodeMenu();
+            return;
+        }
+        params.event.preventDefault();
+        ctxMenuNodeId = nodeId;
+        const nodeData = nodes.get(nodeId);
+        const label = (nodeData && nodeData.label && nodeData.label.trim())
+            ? nodeData.label.trim() : String(nodeId);
+        document.getElementById("ctx-menu-header").textContent = "Neuron " + label;
+
+        // Hide vis's hover tooltip so it can't overlap/steal clicks from the menu.
+        const visPopup = document.querySelector("#mynetwork .popup");
+        if (visPopup) { visPopup.style.display = "none"; }
+
+        // Show first so we can measure it, then clamp so it never opens off-screen
+        // (right-clicking a node near the edge used to push options out of view).
+        menu.style.display = "block";
+        let x = params.pointer.DOM.x;
+        let y = params.pointer.DOM.y;
+        if (x + menu.offsetWidth > window.innerWidth) {
+            x = window.innerWidth - menu.offsetWidth - 5;
+        }
+        if (y + menu.offsetHeight > window.innerHeight) {
+            y = window.innerHeight - menu.offsetHeight - 5;
+        }
+        menu.style.left = Math.max(0, x) + "px";
+        menu.style.top = Math.max(0, y) + "px";
+    }
+
+    // Append "{upstream}|{downstream} <id>" to the existing query (union via ||)
+    // and resubmit the parent search form, reloading the network with the partners.
+    function addPartnersToQuery(direction) {
+        const input = parentQueryInput();
+        if (input === null || ctxMenuNodeId === null) { hideNodeMenu(); return; }
+        const operator = (direction === "upstream") ? "{upstream}" : "{downstream}";
+        const term = operator + " " + ctxMenuNodeId;
+        const current = (input.value || "").trim();
+        input.value = current ? (current + " || " + term) : term;
+        hideNodeMenu();
+        input.form.submit();
+    }
+
+    // A left-click anywhere dismisses the menu (right-click does not fire "click").
+    document.addEventListener("click", hideNodeMenu);
 </script>
 </body>
 </html>
