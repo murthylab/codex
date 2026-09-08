@@ -1,6 +1,9 @@
 {% extends "base_barebones.html" %}
 
 {% block base_barebones_content %}
+<!-- Nurro's tour: scifi-ui's holotip callout plus the Nurro block. Steps live in each page's tour block. -->
+<link rel="stylesheet" href="{{ url_for('base.styles', filename='tutorial-callout.css') }}">
+<link rel="stylesheet" href="{{ url_for('base.styles', filename='tutorial-nurro.css') }}">
 {% if data_version and data_version != "783" %}
 <h6 style="background: orange; color: white; text-align: center; font-size: 14px; padding: 5px;">
     Showing FlyWire data version <b>{{data_version}}</b> &nbsp;
@@ -40,6 +43,15 @@
                     <a class="dropdown-item" id="nav_{{ item[0] }}" href="{{ url_for(item[1]) }}">{{ item[2] }}</a>
                   {% endfor %}
                 </div>
+            </li>
+
+            <li class="nav-item text-nowrap">
+                {# Nurro's tour: the link opens the story's first page, one cell type in the search, and the chapters hand off from there (tutorial-codex.js) #}
+                <a class="nav-link" id="nav_tour" href="{{url_for('app.search', filter_string='cell_type == DNp03', dataset='banc', tour=1)}}" title="A guided tour with Nurro, from one cell to the cells that hear it"
+                   data-tour-home="{{url_for('app.search', filter_string='cell_type == DNp03', dataset='banc', tour=1)}}"
+                   data-tour-guide="{{url_for('base.asset', filename='nurro/nurro-cozy.png')}}"{% if request.endpoint == 'base.index' %} data-tour-index="1"{% endif %}>
+                    <img src="{{url_for('base.asset', filename='nurro.png')}}" alt="">Tour
+                </a>
             </li>
 
             <script>
@@ -108,5 +120,10 @@
 </nav>
 
 {% block content %} {% endblock content %}
+
+{# Nurro's tour steps for this page: an <ol class="holotip-steps" id="tour" hidden> of steps, or nothing #}
+{% block tour %}{% endblock tour %}
+<script src="{{ url_for('base.js', filename='tutorial-callout.js') }}"></script>
+<script src="{{ url_for('base.js', filename='tutorial-codex.js') }}"></script>
 
 {% endblock base_barebones_content %}

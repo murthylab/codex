@@ -1,0 +1,368 @@
+/* ---- tutorial callout (holotip) -----------------------------------------
+   An anchored callout that points at a target element and steps through a
+   sequence. Reimplemented from TutorialStep.vue in the EyeWire II extension,
+   where it was a Vue component bound to that project's step store.
+
+   Surface, microchip corner brackets, beak, letter by letter title reveal,
+   progress rail and step counter all come from the original. Two things did
+   not: the full screen blocker div that sat behind the card, and the target
+   highlight ring that pulsed on a 1.6s infinite loop. A tour card has no
+   business locking the page, and a ring that never stops reads as a status
+   light rather than as "look here", so the ring here is lit once and held.
+
+   Positioning is done by tutorial-callout.js. The panel is position fixed, so
+   nothing about it captures wheel or touch events and the page scrolls
+   normally underneath.
+
+   Every colour is a token with a concrete fallback, so this file works pasted
+   into a page that defines no tokens at all. */
+
+.holotip {
+  position: fixed;
+  z-index: 90;
+  box-sizing: border-box;
+  width: min(350px, calc(100% - 24px));
+  max-width: 350px;
+  /* left and top are written by the script. These keep the panel on screen
+     for the one frame before that happens. */
+  left: 12px;
+  top: 12px;
+
+  display: grid;
+  justify-items: stretch;
+  grid-row-gap: 15px;
+  padding: 26px 26px 18px;
+
+  font: 300 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: rgb(var(--holo-ink, 239 244 251) / .88);
+
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .22);
+  border-radius: 8px;
+  /* higher base opacity than a normal glass panel, because a callout floats
+     over whatever it is pointing at and has to stay readable there */
+  background:
+    linear-gradient(135deg,
+      rgb(var(--holo-panel, 15 18 24) / .95),
+      rgb(14 10 36 / .93));
+  backdrop-filter: blur(20px) saturate(1.1);
+  -webkit-backdrop-filter: blur(20px) saturate(1.1);
+  box-shadow:
+    0 0 20px rgb(var(--holo-glow, 74 150 224) / .12),
+    0 8px 32px rgb(0 0 0 / .45);
+
+  animation: holotip-in 220ms ease-out both;
+}
+
+.holotip:focus { outline: none; }
+
+.holotip:focus-visible {
+  outline: 2px solid rgb(var(--holo-beam, 178 216 248) / .9);
+  outline-offset: 3px;
+}
+
+/* the entrance. A fade out of a blur rather than a slide, so the card does
+   not appear to travel away from the thing it is pointing at */
+@keyframes holotip-in {
+  from { opacity: 0; filter: blur(4px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+
+/* ---- the beak ----------------------------------------------------------
+   A zero size box with one coloured border, so the triangle costs no markup
+   beyond the one span. data-side names the side of the target the panel sits
+   on, so side bottom means the panel is below and the beak points up.
+
+   --holotip-beak is a px offset along the panel edge, written by the script
+   after the panel has been clamped into the viewport. That is what keeps the
+   beak on the target when the panel itself had to slide sideways to fit. */
+.holotip-beak {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 11px solid transparent;
+  filter: drop-shadow(0 0 10px rgb(var(--holo-glow, 74 150 224) / .5));
+}
+
+.holotip[data-side="bottom"] > .holotip-beak {
+  top: -22px;
+  left: var(--holotip-beak, 50%);
+  margin-left: -11px;
+  border-bottom-color: rgb(var(--holo-beam, 178 216 248) / .6);
+}
+
+.holotip[data-side="top"] > .holotip-beak {
+  bottom: -22px;
+  left: var(--holotip-beak, 50%);
+  margin-left: -11px;
+  border-top-color: rgb(var(--holo-beam, 178 216 248) / .6);
+}
+
+.holotip[data-side="right"] > .holotip-beak {
+  left: -22px;
+  top: var(--holotip-beak, 50%);
+  margin-top: -11px;
+  border-right-color: rgb(var(--holo-beam, 178 216 248) / .6);
+}
+
+.holotip[data-side="left"] > .holotip-beak {
+  right: -22px;
+  top: var(--holotip-beak, 50%);
+  margin-top: -11px;
+  border-left-color: rgb(var(--holo-beam, 178 216 248) / .6);
+}
+
+/* a step with no target has nothing to point at */
+.holotip[data-side="center"] > .holotip-beak { display: none; }
+
+/* ---- microchip corner brackets ----------------------------------------
+   An L at each corner plus a short trace running away from it. Lifted from
+   the original almost value for value: 20px arms at 1.5px, then an 8px stub
+   at lower opacity. It is the detail that makes the card read as an
+   instrument rather than as a tooltip. */
+.holotip-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.holotip-corner::before,
+.holotip-corner::after {
+  content: "";
+  position: absolute;
+}
+
+.holotip-corner--tl {
+  top: -1px; left: -1px;
+  border-top: 1.5px solid rgb(var(--holo-line, 196 228 255) / .55);
+  border-left: 1.5px solid rgb(var(--holo-line, 196 228 255) / .55);
+}
+
+.holotip-corner--tl::before {
+  top: -1.5px; left: 20px; width: 8px;
+  border-top: 1.5px solid rgb(var(--holo-line, 196 228 255) / .3);
+}
+
+.holotip-corner--tl::after {
+  top: 20px; left: -1.5px; height: 8px;
+  border-left: 1.5px solid rgb(var(--holo-line, 196 228 255) / .3);
+}
+
+.holotip-corner--tr {
+  top: -1px; right: -1px;
+  border-top: 1.5px solid rgb(var(--holo-line, 196 228 255) / .55);
+  border-right: 1.5px solid rgb(var(--holo-line, 196 228 255) / .55);
+}
+
+.holotip-corner--tr::before {
+  top: -1.5px; right: 20px; width: 8px;
+  border-top: 1.5px solid rgb(var(--holo-line, 196 228 255) / .3);
+}
+
+.holotip-corner--bl {
+  bottom: -1px; left: -1px;
+  border-bottom: 1.5px solid rgb(var(--holo-line, 196 228 255) / .55);
+  border-left: 1.5px solid rgb(var(--holo-line, 196 228 255) / .55);
+}
+
+.holotip-corner--bl::before {
+  bottom: -1.5px; left: 20px; width: 8px;
+  border-bottom: 1.5px solid rgb(var(--holo-line, 196 228 255) / .3);
+}
+
+.holotip-corner--br {
+  bottom: -1px; right: -1px;
+  border-bottom: 1.5px solid rgb(var(--holo-line, 196 228 255) / .55);
+  border-right: 1.5px solid rgb(var(--holo-line, 196 228 255) / .55);
+}
+
+.holotip-corner--br::before {
+  bottom: -1.5px; right: 20px; width: 8px;
+  border-bottom: 1.5px solid rgb(var(--holo-line, 196 228 255) / .3);
+}
+
+/* ---- title -------------------------------------------------------------
+   One span per character, each with its own delay, so the title assembles.
+   The stagger is capped in the script rather than multiplied out per index,
+   because a long title with an uncapped stagger finishes after the reader
+   has already started on the body copy. */
+.holotip-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: .01em;
+  color: rgb(var(--holo-ink, 239 244 251) / .96);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  /* room for the close button */
+  padding-right: 26px;
+}
+
+/* a word is one flex item, so wrapping happens between words only */
+.holotip-word { display: inline-flex; gap: 1px; }
+
+.holotip-letter {
+  display: inline-block;
+  opacity: 0;
+  animation: holotip-letter 400ms ease-out forwards;
+}
+
+@keyframes holotip-letter {
+  0%   { opacity: 0; transform: translateY(8px) scale(.8); }
+  60%  { opacity: 1; transform: translateY(-2px) scale(1.05); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.holotip-body { margin: 0; }
+
+.holotip-body > :first-child { margin-top: 0; }
+
+.holotip-body > :last-child { margin-bottom: 0; }
+
+.holotip-body p { margin: 0 0 .7em; }
+
+.holotip-body a { color: rgb(var(--holo-beam, 178 216 248)); }
+
+.holotip-body a:hover, .holotip-body a:focus-visible,
+.holotip-body a.holo-on { color: rgb(210 238 255); }
+
+/* ---- controls ---------------------------------------------------------- */
+.holotip-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+}
+
+.holotip-actions button {
+  font: inherit;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: rgb(var(--holo-ink, 239 244 251) / .9);
+  background: none;
+  transition: background .2s ease, opacity .2s ease, border-color .2s ease;
+}
+
+.holotip-next {
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .45);
+  border-radius: 999px;
+  padding: 3px 18px;
+  font-size: 13px;
+}
+
+.holotip-next:hover, .holotip-next:focus-visible, .holotip-next.holo-on {
+  background: rgb(var(--holo-line, 196 228 255) / .16);
+  border-color: rgb(var(--holo-beam, 178 216 248) / .8);
+}
+
+.holotip-back {
+  position: absolute;
+  left: 0;
+  border: 0;
+  padding: 3px 0;
+  font-size: 12.5px;
+  font-style: normal;
+  opacity: .5;
+}
+
+.holotip-back:hover, .holotip-back:focus-visible,
+.holotip-back.holo-on { opacity: 1; }
+
+.holotip-count {
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  font: 500 11px/1 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .08em;
+  opacity: .45;
+}
+
+.holotip-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  font: 300 21px/1 system-ui, sans-serif;
+  color: rgb(var(--holo-ink, 239 244 251) / .75);
+  transition: background .2s ease, color .2s ease;
+}
+
+.holotip-close:hover, .holotip-close:focus-visible, .holotip-close.holo-on {
+  background: rgb(var(--holo-line, 196 228 255) / .14);
+  color: rgb(var(--holo-ink, 239 244 251));
+}
+
+.holotip button:focus-visible {
+  outline: 2px solid rgb(var(--holo-beam, 178 216 248) / .9);
+  outline-offset: 2px;
+}
+
+/* the rail reports the step it is actually on, so the width is set inline by
+   the script from the real index rather than animated for effect */
+.holotip-rail {
+  width: 100%;
+  height: 3px;
+  margin-top: 2px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: rgb(var(--holo-ink, 239 244 251) / .09);
+}
+
+.holotip-rail i {
+  display: block;
+  height: 100%;
+  width: calc(var(--holotip-progress, 0) * 100%);
+  border-radius: 2px;
+  background: linear-gradient(90deg,
+    rgb(var(--holo-beam, 178 216 248)), rgb(128 255 204));
+  transition: width .5s cubic-bezier(.25, .8, .25, 1);
+}
+
+/* ---- the target -------------------------------------------------------
+   Added to whatever the current step points at. Lit once and held: no loop,
+   because the card next to it already says which element this is about. */
+.holotip-target {
+  position: relative;
+  z-index: 89;
+  outline: 2px solid rgb(var(--holo-beam, 178 216 248) / .85);
+  outline-offset: 3px;
+  border-radius: 6px;
+  box-shadow: 0 0 22px 2px rgb(var(--holo-glow, 74 150 224) / .55);
+  transition: outline-color .2s ease, box-shadow .2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holotip { animation: none; }
+  .holotip-letter { opacity: 1; animation: none; }
+  .holotip-rail i, .holotip-target,
+  .holotip-actions button, .holotip-close { transition: none; }
+}
+
+
+/* ---- multi target steps ---------------------------------------------------
+   A step that names several targets moves the card between them. The words
+   that name each target sit in [data-holotip-phase] and only the one whose
+   target is up reads bold; the card glides rather than jumps. */
+.holotip [data-holotip-phase] { font-weight: 300; color: inherit; transition: color .3s ease; }
+.holotip [data-holotip-phase].is-on { font-weight: 700; color: rgb(var(--holo-cyan, 126 224 255)); }
+.holotip.is-moving { transition: left .6s cubic-bezier(.16, 1, .3, 1), top .6s cubic-bezier(.16, 1, .3, 1); }
+.holotip.is-moving .holotip-beak { transition: left .6s cubic-bezier(.16, 1, .3, 1), top .6s cubic-bezier(.16, 1, .3, 1); }
+@media (prefers-reduced-motion: reduce) { .holotip.is-moving, .holotip.is-moving .holotip-beak { transition: none; } }
+
+/* a member of a popped group: a quick swell and settle, once per turn */
+.holotip-pop { animation: holotip-pop .55s cubic-bezier(.2, .9, .3, 1.3) both; position: relative; z-index: 2; }
+@keyframes holotip-pop {
+  0% { transform: scale(1); filter: none; }
+  45% { transform: scale(1.22); filter: drop-shadow(0 0 8px rgb(var(--holo-cyan, 126 224 255) / .8)); }
+  100% { transform: scale(1); filter: none; }
+}

@@ -1,4 +1,27 @@
 {% extends "base.html" %}
+{# Nurro's trail through the mushroom body, only when the page shows that query #}
+{% block tour %}
+{% if request.args.get('cell_names_or_ids') == 'cell_type == DA1_lPN || cell_type == APL || cell_type == DPM || cell_type == MBON01 || cell_type == MBON11' %}
+<ol class="holotip-steps" id="tour" hidden>
+  <li data-holotip-target="#network-frame" data-holotip-side="right" data-holotip-title="Inside the mushroom body"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-lab.png')}}">
+    <p>Fifteen relay cells bring the smell in. Two readers, MBON01 and MBON11, take the verdict out. The 2,190 memory cells between them are left off this map so it stays readable.</p>
+  </li>
+  <li data-holotip-target="#network-frame" data-holotip-side="right" data-holotip-title="APL and DPM"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-microscope.png')}}">
+    <p>APL and DPM are one cell each per side. APL quiets the memory cells so each smell is written by a few of them, not all. DPM soaks the same cells in serotonin and helps a memory last.</p>
+  </li>
+  <li data-holotip-target="#dropdownMenuButton" data-holotip-side="bottom" data-holotip-title="Rearrange it"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-rocket.png')}}">
+    <p>This redraws the map in another layout. Drag any cell to move it, and hover a line to see how many synapses it stands for.</p>
+  </li>
+  <li data-holotip-target="#nav_tour" data-holotip-side="bottom" data-holotip-title="Next, the orders" data-holotip-next="Done"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-shades.png')}}">
+    <p>A verdict is not yet a movement. <a href="{{url_for('app.stats', filter_string='super_class == descending', tour=1)}}">Count every order that leaves the brain</a>, or I'm under Tour whenever you want me.</p>
+  </li>
+</ol>
+{% endif %}
+{% endblock tour %}
 {% block title %} Network Graphs {% endblock title %}
 {% block content %}
 <nav class="navbar navbar-light bg-light">

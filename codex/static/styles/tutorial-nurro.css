@@ -1,0 +1,42 @@
+/* Nurro on the tutorial callout. Pairs with tutorial-callout.css and
+   tutorial-callout.js (scifi-ui's holotip, the EyeWire II tutorial step).
+   Nurro, the EyeWire II guide, perches on the top left corner of every card.
+   The default sprite is the small EyeWire II tutorial Nurro; a step names its
+   own with data-holotip-guide, which the script turns into --holotip-guide on
+   the card. The set in assets/nurro/ has transparent backgrounds.
+
+   Copied from codex-landing/css/tutorial-nurro.css. Two things changed here:
+   the asset path (Codex serves static files from /asset/) and the sprite box,
+   which is taller so the full illustrations read at card size. */
+
+/* Nurro sits inside the card's top edge, so a card pinned to the top of a phone
+   screen does not lose him above the viewport */
+.holotip { padding-top: 112px; }
+.holotip::before {
+  content: ""; position: absolute; left: 18px; top: 12px; width: 150px; height: 88px;
+  background: var(--holotip-guide, url("../asset/nurro.png")) left center / contain no-repeat;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .55));
+  animation: nurro-bob 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes nurro-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .holotip::before { animation: none; } }
+
+/* Codex's own chrome: the callout must sit above Bootstrap's navbar and
+   dropdowns (z-index 1000 to 1030) but below its modals (1050). The target
+   ring keeps one step below the card. */
+.holotip { z-index: 1040; }
+.holotip-target { z-index: 1039; }
+
+/* doors: the trails a sign off card offers, one link per line */
+.holotip-doors { margin: 0 0 .7em; padding: 0; list-style: none; display: grid; gap: 6px; }
+.holotip-doors a {
+  display: block; padding: 7px 12px; border: 1px solid rgb(var(--holo-line, 196 228 255) / .35); border-radius: 6px;
+  color: rgb(var(--holo-ink, 239 244 251) / .95); text-decoration: none; font-weight: 400;
+}
+.holotip-doors a:hover, .holotip-doors a:focus-visible { border-color: rgb(var(--holo-beam, 178 216 248) / .8); background: rgb(var(--holo-line, 196 228 255) / .12); }
+.holotip-body .fine { font-size: 12.5px; opacity: .7; }
+
+/* the Tour link in the nav carries the small Nurro so it reads as his */
+#nav_tour img { height: 20px; width: auto; vertical-align: -5px; margin-right: 4px; }
+

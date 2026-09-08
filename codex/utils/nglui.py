@@ -15,7 +15,12 @@ NGL_FLAT_BASE_URL = "https://ngl.cave-explorer.org"
 
 
 def url_for_root_ids(
-    root_ids, version, point_to="ngl", position=None, show_side_panel=None
+    root_ids,
+    version,
+    point_to="ngl",
+    position=None,
+    show_side_panel=None,
+    segment_colors=None,
 ):
     if version not in DATA_SNAPSHOT_VERSION_DESCRIPTIONS:
         logger.error(
@@ -71,11 +76,14 @@ def url_for_root_ids(
         return f"https://ngl.flywire.ai/#!{urllib.parse.quote(json.dumps(config))}"
     else:
         return url_for_cells(
-            segment_ids=root_ids, data_version=version, show_side_panel=show_side_panel
+            segment_ids=root_ids,
+            data_version=version,
+            show_side_panel=show_side_panel,
+            segment_colors=segment_colors,
         )
 
 
-def url_for_random_sample(root_ids, version, sample_size=50):
+def url_for_random_sample(root_ids, version, sample_size=50, segment_colors=None):
     # make the random subset selections deterministic across executions
     random.seed(420)
     if len(root_ids) > sample_size:
@@ -84,10 +92,10 @@ def url_for_random_sample(root_ids, version, sample_size=50):
             root_ids[i]
             for i in sorted(random.sample(range(len(root_ids)), sample_size))
         ]
-    return url_for_root_ids(root_ids, version=version)
+    return url_for_root_ids(root_ids, version=version, segment_colors=segment_colors)
 
 
-def url_for_cells(segment_ids, data_version, show_side_panel=None):
+def url_for_cells(segment_ids, data_version, show_side_panel=None, segment_colors=None):
     if show_side_panel is None:
         show_side_panel = len(segment_ids) > 1
     else:
@@ -98,6 +106,19 @@ def url_for_cells(segment_ids, data_version, show_side_panel=None):
             f"Invalid version '{data_version}' passed to 'url_for_cells'. Falling back to default."
         )
         data_version = DEFAULT_DATA_SNAPSHOT_VERSION
+
+    cells_layer = {
+        "type": "segmentation",
+        "source": f"precomputed://gs://flywire_v141_m{data_version}",
+        "tab": "segments",
+        "segments": [str(sid) for sid in segment_ids],  # BEWARE: JSON can't handle big ints
+        "name": f"flywire_v141_m{data_version}",
+    }
+    if segment_colors:
+        # root id -> hex colour, so a set of cells can be read by type in the viewer
+        cells_layer["segmentColors"] = {
+            str(sid): segment_colors[sid] for sid in segment_ids if sid in segment_colors
+        }
 
     config = {
         "dimensions": {"x": [1.6e-8, "m"], "y": [1.6e-8, "m"], "z": [4e-8, "m"]},
@@ -119,15 +140,7 @@ def url_for_cells(segment_ids, data_version, show_side_panel=None):
                 "skeletonRendering": {"mode2d": "lines_and_points", "mode3d": "lines"},
                 "name": "brain_mesh_v3",
             },
-            {
-                "type": "segmentation",
-                "source": f"precomputed://gs://flywire_v141_m{data_version}",
-                "tab": "segments",
-                "segments": [
-                    str(sid) for sid in segment_ids
-                ],  # BEWARE: JSON can't handle big ints
-                "name": f"flywire_v141_m{data_version}",
-            },
+            cells_layer,
         ],
         "showSlices": False,
         "perspectiveViewBackgroundColor": "#ffffff",

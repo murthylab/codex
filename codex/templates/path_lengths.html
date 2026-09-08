@@ -1,4 +1,27 @@
 {% extends "base.html" %}
+{# Nurro's trail of a smell, only when the page shows that query #}
+{% block tour %}
+{% if request.args.get('source_cell_names_or_ids') == 'cell_type == ORN_DA1' and request.args.get('target_cell_names_or_ids') == 'cell_type == MBON11' %}
+<ol class="holotip-steps" id="tour" hidden>
+  <li data-holotip-target="#source_cell_names_or_ids" data-holotip-side="bottom" data-holotip-title="A smell, three hops to memory"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-cape.png')}}">
+    <p>The 127 DA1 sensor cells in the antenna all smell one thing, a fly pheromone. MBON11 reads the mushroom body's verdict on it. This page counts the hops between them.</p>
+  </li>
+  <li data-holotip-target="table.table" data-holotip-side="top" data-holotip-title="Sensor, relay, memory, verdict"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-microscope.png')}}">
+    <p>Each cell of the table is one route, counting only links of five synapses or more. The shortest are three hops: sensor to relay to a memory cell to MBON11.</p>
+  </li>
+  <li data-holotip-target="table.table tbody a[href*='pathways']" data-holotip-side="right" data-holotip-title="See one route"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-lab.png')}}">
+    <p>View Pathways chart draws every cell along one route. Click one after I'm done.</p>
+  </li>
+  <li data-holotip-target="#nav_tour" data-holotip-side="bottom" data-holotip-title="Next, the memory itself" data-holotip-next="Done"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-shades.png')}}">
+    <p>The memory cells sit in the mushroom body. <a href="{{url_for('app.connectivity', cell_names_or_ids='cell_type == DA1_lPN || cell_type == APL || cell_type == DPM || cell_type == MBON01 || cell_type == MBON11', tour=1)}}">Walk inside it</a>, or I'm under Tour whenever you want me.</p>
+  </li>
+</ol>
+{% endif %}
+{% endblock tour %}
 {% block title %} Distance Table {% endblock title %}
 {% block content %}
 <nav class="navbar navbar-light bg-light">

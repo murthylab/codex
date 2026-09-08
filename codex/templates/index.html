@@ -1,4 +1,27 @@
 {% extends "base.html" %}
+
+{# Nurro's tour of the home page. Selectors were checked against the rendered page, not just this template. #}
+{% block tour %}
+<ol class="holotip-steps" id="tour" hidden>
+  <li data-holotip-target="#filter_string" data-holotip-side="bottom" data-holotip-title="Hi, I'm Nurro"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-cozy.png')}}">
+    <p>Codex is a wiring map of one fly, cell by cell. Ask this box for any cell by name, type, or ID.</p>
+  </li>
+  <li data-holotip-target=".cards .cards_item:first-child" data-holotip-side="right" data-holotip-title="Seven ways in"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-microscope.png')}}">
+    <p>Each card is a tool. Search finds cells, Network draws the wiring between them, and Pathways counts the hops from one cell to another.</p>
+  </li>
+  <li data-holotip-target="#nav_explore" data-holotip-side="bottom" data-holotip-title="Not sure what to ask?"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-rocket.png')}}">
+    <p>Explore is curated lists: cell types, labels, and groups. If you do not know what to search for, start there.</p>
+  </li>
+  <li data-holotip-target="#nav_tour" data-holotip-side="bottom" data-holotip-title="That's the tour" data-holotip-next="Done"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-shades.png')}}">
+    <p>I'll be under Tour in the menu whenever you want this again. Everything else you find by clicking.</p>
+  </li>
+</ol>
+{% endblock tour %}
+
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('base.styles', filename='index.css') }}">
 <div class="jumbotron"

@@ -32,6 +32,12 @@
        ><i class="fa-solid fa-cube"></i> &nbsp; 3D view {{'' if root_ids_str else 'sample'}}
     </a>
 
+    <a class="btn btn-link" target="_blank" id="view_3d_by_type"
+       title="Open the 3D view with every cell coloured by its cell type"
+       href="{{url_for('app.search_results_flywire_url', filter_string=filter_string, case_sensitive=case_sensitive, whole_word=whole_word, data_version=data_version, color_by='cell_type')}}"
+       ><i class="fa-solid fa-palette"></i> &nbsp; 3D by type
+    </a>
+
     {% if root_ids_str %}
 
     <a class="btn btn-link" onclick="copyRootIdsToClipboard();" id="copy_ids_link">

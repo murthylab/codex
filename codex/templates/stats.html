@@ -1,4 +1,27 @@
 {% extends "base.html" %}
+{# Nurro's trail of the descending neurons, only when the page shows that query #}
+{% block tour %}
+{% if filter_string == 'super_class == descending' %}
+<ol class="holotip-steps" id="tour" hidden>
+  <li data-holotip-target="#filter_string" data-holotip-side="bottom" data-holotip-title="Every order that leaves the brain"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-rocket.png')}}">
+    <p>This asks for every descending neuron: {{display(num_items)}} cells that carry orders from the brain down to the body.</p>
+  </li>
+  <li data-holotip-target="#data_container .card:first-child" data-holotip-side="right" data-holotip-title="What they are made of"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-microscope.png')}}">
+    <p>Each card counts them one way: by transmitter, by the regions they pass through, by side. Numbers rather than pictures, but every one is a real cell.</p>
+  </li>
+  <li data-holotip-target="#filter_string" data-holotip-side="bottom" data-holotip-title="Now the other direction"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-cape.png')}}">
+    <p>Change descending to ascending and search again. Those cells carry news from the body up to the brain. Compare the two counts.</p>
+  </li>
+  <li data-holotip-target="#nav_tour" data-holotip-side="bottom" data-holotip-title="That's the trail" data-holotip-next="Done"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-shades.png')}}">
+    <p>A signal, a memory, the orders. The action itself lives in the nerve cord, and Codex's BANC dataset carries that too. I'm under Tour whenever you want me.</p>
+  </li>
+</ol>
+{% endif %}
+{% endblock tour %}
 
 {% block title %}
 Stats

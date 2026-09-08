@@ -1,5 +1,25 @@
 {% extends "base.html" %}
 {% block title %} Cell Info {% endblock title %}
+{# Chapter two of Nurro's story: one cell, then its wiring; the "out" link hands off to the downstream chapter. #}
+{% block tour %}
+<ol class="holotip-steps" id="tour" hidden data-holotip-offset="10" data-holotip-total="20">
+  <li data-holotip-target=".card-columns .card:first-child table.table tbody tr:first-child td:nth-child(2)" data-holotip-side="right" data-holotip-title="One neuron, whole"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-lab.png')}}">
+    <p>Here it is. This page is everything Codex knows about one cell: its name, its shape in 3D, its chemistry, and every label people have given it.</p>
+  </li>
+  <li data-holotip-target="a[href*='%7Bupstream%7D']"
+      data-holotip-targets="a[href*='%7Bupstream%7D']|a[href*='%7Bdownstream%7D']" data-holotip-cycle="3000"
+      data-holotip-side="bottom" data-holotip-title="Follow the wiring"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-rocket.png')}}">
+    <p><b data-holotip-phase="0">Upstream</b> cells send this one signals, and <b data-holotip-phase="1">downstream</b> cells receive them. The counts are real synaptic partners.</p>
+  </li>
+  <li data-holotip-target="a[href*='%7Bdownstream%7D']" data-holotip-side="bottom" data-holotip-title="Where does the signal go?"
+      data-holotip-await="click" data-holotip-goto="downstream"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-cape.png')}}">
+    <p>Click the <b>out</b> link. The cells that hear this one are the next step of the story, and I'll be waiting on that page.</p>
+  </li>
+</ol>
+{% endblock tour %}
 {% block content %}
 
 <nav class="navbar navbar-light bg-light">

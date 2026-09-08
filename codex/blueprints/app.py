@@ -410,6 +410,28 @@ def root_ids_from_search_results():
     )
 
 
+# attributes a results list can be coloured by in the 3D view
+COLOR_BY_ATTRIBUTES = ["cell_type", "super_class", "class", "nt_type", "hemilineage"]
+
+# distinct, print safe hues; cells whose attribute is empty stay grey
+COLOR_BY_PALETTE = [
+    "#e8a93a", "#7ee0ff", "#f06292", "#8bc34a", "#b39ddb", "#ff8a65", "#4dd0e1",
+    "#ffd54f", "#aed581", "#f48fb1", "#90caf9", "#ce93d8", "#80cbc4", "#ffab91",
+]
+
+
+def colors_by_attribute(neuron_db, root_ids, attribute):
+    def value_of(rid):
+        v = neuron_db.get_neuron_data(rid).get(attribute)
+        if isinstance(v, list):
+            v = ", ".join(str(x) for x in v)
+        return v or ""
+
+    values = sorted({value_of(rid) for rid in root_ids} - {""})
+    palette = {v: COLOR_BY_PALETTE[i % len(COLOR_BY_PALETTE)] for i, v in enumerate(values)}
+    return {rid: palette.get(value_of(rid), "#9aa2b1") for rid in root_ids}
+
+
 @app.route("/search_results_flywire_url")
 def search_results_flywire_url():
     filter_string = request.args.get("filter_string", "")
@@ -426,10 +448,24 @@ def search_results_flywire_url():
         f"For URLs got {len(sorted_search_result_root_ids)} results {activity_suffix(filter_string, data_version)}"
     )
 
+    # color_by=<attribute>: every cell that shares a value gets one colour, so a
+    # list can be read by type, class or transmitter in the viewer
+    color_by = request.args.get("color_by", "")
+    segment_colors = (
+        colors_by_attribute(
+            NeuronDataFactory.instance().get(data_version),
+            sorted_search_result_root_ids,
+            color_by,
+        )
+        if color_by in COLOR_BY_ATTRIBUTES
+        else None
+    )
+
     url = nglui.url_for_random_sample(
         sorted_search_result_root_ids,
         version=data_version or DEFAULT_DATA_SNAPSHOT_VERSION,
         sample_size=MAX_NEURONS_FOR_DOWNLOAD,
+        segment_colors=segment_colors,
     )
     logger.info(
         f"Redirecting {len(sorted_search_result_root_ids)} results {activity_suffix(filter_string, data_version)} to FlyWire"

@@ -1,5 +1,100 @@
 {% extends "base.html" %}
 {% block title %} Search {% endblock title %}
+
+{# Nurro's tour of a results page. Selectors were checked against the rendered page, not just this template. #}
+{% block tour %}
+{# Chapter one of Nurro's story: a question, its answers, and the picture that leads to one cell. The picture step hands off to the cell page. #}
+<ol class="holotip-steps" id="tour" hidden data-holotip-offset="0" data-holotip-total="{{ 20 if num_items else 0 }}">
+  <li data-holotip-target="#filter_string" data-holotip-side="bottom" data-holotip-title="Hi, I'm Nurro"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-cape.png')}}">
+    {% if filter_string %}
+    <p>You just landed in Codex, the Connectome Data Explorer. This box holds your question, <b>{{filter_string}}</b>, and you can change it to ask for any cell.</p>
+    {% else %}
+    <p>You just landed in Codex, the Connectome Data Explorer. This box asks for any cell: try a type like <b>DNp03</b>, a name, or an ID.</p>
+    {% endif %}
+  </li>
+  {% if num_items %}
+  <li data-holotip-target="table.table tbody tr:first-child td:first-child" data-holotip-side="right" data-holotip-title="One row, one neuron"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-microscope.png')}}">
+    <p>Codex found {{display(num_items)}} cells that match. Each row is one real neuron from one fly, and the picture is its shape. Let's figure out what these do.</p>
+  </li>
+  {# the columns move one to the right when the search adds a column, as a downstream search does #}
+  {% set shift = 1 if extra_data else 0 %}
+  <li data-holotip-target="table.table tbody tr:first-child td:nth-child({{ 2 + shift }})" data-holotip-side="right" data-holotip-title="What it speaks with"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-lab.png')}}">
+    <p>The transmitter Codex predicts for the cell, and how sure it is, from 0 to 1. ACH is acetylcholine; GABA and GLUT are the other two you will see most.</p>
+  </li>
+  <li data-holotip-target="table.table tbody tr:first-child td:nth-child({{ 3 + shift }})" data-holotip-side="right" data-holotip-title="How big it is"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-microscope.png')}}">
+    <p>Cable length, then surface and volume, in micrometres. A descending neuron runs from the brain down the nerve cord, so it is long for its volume.</p>
+  </li>
+  <li data-holotip-target="table.table tbody tr:first-child td:nth-child({{ 4 + shift }})" data-holotip-side="right" data-holotip-title="Who it talks to"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-rocket.png')}}">
+    <p>Upstream is every cell that synapses onto it, downstream every cell it synapses onto. The counts are cells, not synapses. Similar connectivity finds cells wired the same way.</p>
+  </li>
+  <li data-holotip-target="table.table tbody tr:first-child td:nth-child({{ 5 + shift }})" data-holotip-side="left" data-holotip-title="Its name"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-cozy.png')}}">
+    <p>The cell type is the name the community agreed on. Cells of one type look alike and wire alike, and the same type turns up in every fly.</p>
+  </li>
+  <li data-holotip-target="table.table tbody tr:first-child td:nth-child({{ 6 + shift }})" data-holotip-side="left" data-holotip-title="Its place in the hierarchy"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-microscope.png')}}">
+    <p>Side, then flow: afferent comes in, intrinsic stays, efferent leaves. Super class is the coarse group, nerve is the bundle its axon runs in, hemilineage is the family it was born into.</p>
+  </li>
+  <li data-holotip-target="table.table tbody tr:first-child td:nth-child({{ 7 + shift }})" data-holotip-side="left" data-holotip-title="What people say about it"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-lab.png')}}">
+    <p>Labels typed in by FlyWire's community while they proofread, with links to the papers when there are any. Free text, so read them as notes, not as verdicts.</p>
+  </li>
+  <li data-holotip-target=".card.bg-light" data-holotip-pop=".card.bg-light a" data-holotip-cycle="800"
+      data-holotip-side="bottom" data-holotip-title="This bar works on the whole list"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-rocket.png')}}">
+    <p>Stats sums the list up, Network draws the wiring between the cells, 3D view spins them, Pathways finds routes between them, and the rest download the data.</p>
+  </li>
+  <li data-holotip-target="table.table tbody tr:first-child img.skeleton_thumbnail" data-holotip-side="right" data-holotip-title="Follow one cell"
+      data-holotip-await="click" data-holotip-goto="cell"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-lab.png')}}">
+    <p>Click the picture to open this cell's own page. I'll meet you there.</p>
+  </li>
+  {% else %}
+  <li data-holotip-target="#nav_tour" data-holotip-side="bottom" data-holotip-title="That's the tour" data-holotip-next="Done"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-shades.png')}}">
+    <p>I'll be under Tour in the menu whenever you want this again. Everything else you find by clicking.</p>
+  </li>
+  {% endif %}
+</ol>
+
+{# Chapter three: the visitor arrives from a cell's "out" link, so this list is the cells that hear it. #}
+<ol class="holotip-steps" id="tour-downstream" data-holotip-chapter="downstream" hidden data-holotip-offset="13" data-holotip-total="20">
+  <li data-holotip-target="table.table tbody tr:first-child td:first-child" data-holotip-side="right" data-holotip-title="The signal arrives"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-rocket.png')}}">
+    {% if num_items %}
+    <p>Every cell here hears the one you came from. {{display(num_items)}} of them, each a real neuron with its own page.</p>
+    {% else %}
+    <p>This list would be every cell that hears the one you came from. This snapshot has none recorded for it, which happens at the edge of what was traced.</p>
+    {% endif %}
+  </li>
+  {% if num_items %}
+  {# the classification column moves one to the right when the search adds a column, as a downstream search does #}
+  <li data-holotip-target="table.table tbody tr:first-child td:nth-child({{ 7 if extra_data else 6 }})" data-holotip-side="left" data-holotip-title="Where wiring becomes behaviour"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-microscope.png')}}">
+    <p>Read the classification. A motor neuron here means the signal is about to leave the nervous system: its axon runs out a nerve and ends on a muscle.</p>
+  </li>
+  {% endif %}
+  <li data-holotip-target="#view_3d_by_type" data-holotip-side="bottom" data-holotip-title="See them in 3D"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-rocket.png')}}">
+    <p>Click <b>3D by type</b> to spin these cells in the viewer, each cell type in its own colour. It opens in a new tab, and I'll wait here.</p>
+  </li>
+  <li data-holotip-target="#nav_tour" data-holotip-side="bottom" data-holotip-title="Three more trails" data-holotip-next="Done"
+      data-holotip-guide="{{url_for('base.asset', filename='nurro/nurro-shades.png')}}">
+    <p>A cell, who it hears, who hears it. Now walk it the long way, from a smell to a memory to the orders that leave the brain.</p>
+    <ul class="holotip-doors">
+      <li><a href="{{url_for('app.path_length', source_cell_names_or_ids='cell_type == ORN_DA1', target_cell_names_or_ids='cell_type == MBON11', min_syn_count=5, tour=1)}}">A smell, three hops to memory</a></li>
+      <li><a href="{{url_for('app.connectivity', cell_names_or_ids='cell_type == DA1_lPN || cell_type == APL || cell_type == DPM || cell_type == MBON01 || cell_type == MBON11', tour=1)}}">Inside the mushroom body</a></li>
+      <li><a href="{{url_for('app.stats', filter_string='super_class == descending', tour=1)}}">Every order that leaves the brain</a></li>
+    </ul>
+    <p class="fine">Or search anything and follow it the same way. I'm under Tour whenever you want me.</p>
+  </li>
+</ol>
+{% endblock tour %}
 {% block content %}
 
 <nav class="navbar navbar-light bg-light">
